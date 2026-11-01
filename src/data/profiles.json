@@ -22,7 +22,7 @@
       "voie-des-explosifs",
       "voie-du-mercenaire",
       "voie-du-pistolero",
-      "voie-de-la-pr-cision"
+      "voie-de-la-precision"
     ],
     "equipmentRules": {
       "maxArmorId": "chemise-mailles",
@@ -66,7 +66,7 @@
       "voie-de-l-escrime",
       "voie-du-musicien",
       "voie-du-saltimbanque",
-      "voie-de-la-s-duction",
+      "voie-de-la-seduction",
       "voie-du-vagabond"
     ],
     "equipmentRules": {
@@ -89,7 +89,7 @@
     }
   },
   {
-    "id": "r-deur",
+    "id": "rodeur",
     "name": "Rôdeur",
     "family": "Aventuriers",
     "tagline": "Chasseur et pisteur en milieu sauvage, archer d'élite",
@@ -111,7 +111,7 @@
       "voie-du-compagnon-animal",
       "voie-de-la-survie",
       "voie-du-traqueur",
-      "voie-du-combat-deux-armes"
+      "voie-du-combat-a-deux-armes"
     ],
     "equipmentRules": {
       "maxArmorId": "cuir-renforce",
@@ -154,7 +154,7 @@
     "paths": [
       "voie-de-l-assassin",
       "voie-de-l-aventurier",
-      "voie-du-d-placement",
+      "voie-du-deplacement",
       "voie-du-roublard",
       "voie-du-spadassin"
     ],
@@ -290,8 +290,8 @@
     "paths": [
       "voie-du-bouclier",
       "voie-du-combat",
-      "voie-du-ma-tre-d-armes",
-      "voie-de-la-r-sistance",
+      "voie-du-maitre-d-armes",
+      "voie-de-la-resistance",
       "voie-du-soldat"
     ],
     "equipmentRules": {
@@ -332,7 +332,7 @@
     "paths": [
       "voie-de-l-air",
       "voie-de-la-divination",
-      "voie-de-l-envo-teur",
+      "voie-de-l-envouteur",
       "voie-des-illusions",
       "voie-de-l-invocation"
     ],
@@ -382,8 +382,8 @@
     "startingEquipment": "Dague (DM 1d4), bâton ferré (DM 1d6), marteau (DM 1d6).",
     "paths": [
       "voie-des-artefacts",
-      "voie-des-lixirs",
-      "voie-du-m-tal",
+      "voie-des-elixirs",
+      "voie-du-metal",
       "voie-du-golem",
       "voie-des-runes"
     ],
@@ -436,7 +436,7 @@
     "paths": [
       "voie-de-la-magie-des-arcanes",
       "voie-de-la-magie-destructrice",
-      "voie-de-la-magie-l-mentaire",
+      "voie-de-la-magie-elementaire",
       "voie-de-la-magie-protectrice",
       "voie-de-la-magie-universelle"
     ],
@@ -483,7 +483,7 @@
     "weaponsAndArmor": "Le sorcier sait manier la dague et le bâton.\n\nLes voies de sorcier interdisent de porter une armure ou d'utiliser un bouclier.",
     "startingEquipment": "Bâton ferré (DM 1d6), dague (DM 1d4), grimoire de sorts ou parchemins anciens.",
     "paths": [
-      "voie-du-d-mon",
+      "voie-du-demon",
       "voie-de-la-mort",
       "voie-de-l-outre-tombe",
       "voie-du-sang",
@@ -536,7 +536,7 @@
       "voie-du-fauve",
       "voie-de-la-nature",
       "voie-du-protecteur",
-      "voie-des-v-g-taux"
+      "voie-des-vegetaux"
     ],
     "equipmentRules": {
       "maxArmorId": "cuir-simple",
@@ -585,9 +585,9 @@
     "weaponsAndArmor": "Le moine sait manier toutes les armes (sauf les armes à poudre), y compris celles à deux mains, mais la plupart des moines n'y font pas appel et sont plus efficaces à mains nues. En effet, tous les moines infligent des DM létaux avec les attaques à mains nues lorsqu'ils le souhaitent.\n\nLes voies de moine interdisent de porter une armure ou d'utiliser un bouclier.",
     "startingEquipment": "Bâton (DM 1d6).",
     "paths": [
-      "voie-de-l-nergie-vitale",
-      "voie-de-la-ma-trise",
-      "voie-de-la-m-ditation",
+      "voie-de-l-energie-vitale",
+      "voie-de-la-maitrise",
+      "voie-de-la-meditation",
       "voie-du-poing",
       "voie-du-vent"
     ],
@@ -611,7 +611,7 @@
     }
   },
   {
-    "id": "pr-tre",
+    "id": "pretre",
     "name": "Prêtre",
     "family": "Mystiques",
     "tagline": "Guide spirituel et champion divin capable de soigner ou de châtier",
@@ -631,9 +631,9 @@
     "paths": [
       "voie-de-la-foi",
       "voie-de-la-guerre-sainte",
-      "voie-de-la-pri-re",
+      "voie-de-la-priere",
       "voie-des-soins",
-      "voie-de-la-spiritualit-"
+      "voie-de-la-spiritualite"
     ],
     "equipmentRules": {
       "maxArmorId": "chemise-mailles",

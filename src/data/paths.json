@@ -886,7 +886,7 @@
     "owner": "ARQUEBUSIER"
   },
   {
-    "id": "voie-de-la-pr-cision",
+    "id": "voie-de-la-precision",
     "name": "VOIE DE LA PRÉCISION",
     "symbol": "▲",
     "ranks": [
@@ -1192,7 +1192,7 @@
     "owner": "BARDE"
   },
   {
-    "id": "voie-de-la-s-duction",
+    "id": "voie-de-la-seduction",
     "name": "VOIE DE LA SÉDUCTION",
     "symbol": "▲",
     "ranks": [
@@ -1733,7 +1733,7 @@
     "owner": "RÔDEUR"
   },
   {
-    "id": "voie-du-combat-deux-armes",
+    "id": "voie-du-combat-a-deux-armes",
     "name": "VOIE DU COMBAT À DEUX ARMES",
     "symbol": "▲",
     "ranks": [
@@ -1984,7 +1984,7 @@
     "owner": "VOLEUR"
   },
   {
-    "id": "voie-du-d-placement",
+    "id": "voie-du-deplacement",
     "name": "VOIE DU DÉPLACEMENT",
     "symbol": "▲",
     "ranks": [
@@ -3221,7 +3221,7 @@
     "owner": "GUERRIER"
   },
   {
-    "id": "voie-du-ma-tre-d-armes",
+    "id": "voie-du-maitre-d-armes",
     "name": "VOIE DU MAÎTRE D'ARMES",
     "symbol": "▲",
     "ranks": [
@@ -3290,7 +3290,7 @@
     "owner": "GUERRIER"
   },
   {
-    "id": "voie-de-la-r-sistance",
+    "id": "voie-de-la-resistance",
     "name": "VOIE DE LA RÉSISTANCE",
     "symbol": "▲",
     "ranks": [
@@ -3705,7 +3705,7 @@
     "owner": "ENSORCELEUR"
   },
   {
-    "id": "voie-de-l-envo-teur",
+    "id": "voie-de-l-envouteur",
     "name": "VOIE DE L'ENVOÛTEUR",
     "symbol": "▲",
     "ranks": [
@@ -4005,7 +4005,7 @@
     "owner": "FORGESORT"
   },
   {
-    "id": "voie-des-lixirs",
+    "id": "voie-des-elixirs",
     "name": "VOIE DES ÉLIXIRS",
     "symbol": "▲",
     "ranks": [
@@ -4074,7 +4074,7 @@
     "owner": "FORGESORT"
   },
   {
-    "id": "voie-du-m-tal",
+    "id": "voie-du-metal",
     "name": "VOIE DU MÉTAL",
     "symbol": "▲",
     "ranks": [
@@ -4480,7 +4480,7 @@
     "owner": "MAGICIEN"
   },
   {
-    "id": "voie-de-la-magie-l-mentaire",
+    "id": "voie-de-la-magie-elementaire",
     "name": "VOIE DE LA MAGIE ÉLÉMENTAIRE",
     "symbol": "▲",
     "ranks": [
@@ -4725,7 +4725,7 @@
     "owner": "MAGICIEN"
   },
   {
-    "id": "voie-du-d-mon",
+    "id": "voie-du-demon",
     "name": "VOIE DU DÉMON",
     "symbol": "▲",
     "ranks": [
@@ -5557,7 +5557,7 @@
     "owner": "DRUIDE"
   },
   {
-    "id": "voie-des-v-g-taux",
+    "id": "voie-des-vegetaux",
     "name": "VOIE DES VÉGÉTAUX",
     "symbol": "▲",
     "ranks": [
@@ -5651,7 +5651,7 @@
     "owner": "DRUIDE"
   },
   {
-    "id": "voie-de-l-nergie-vitale",
+    "id": "voie-de-l-energie-vitale",
     "name": "VOIE DE L'ÉNERGIE VITALE",
     "symbol": "▲",
     "ranks": [
@@ -5720,7 +5720,7 @@
     "owner": "MOINE"
   },
   {
-    "id": "voie-de-la-ma-trise",
+    "id": "voie-de-la-maitrise",
     "name": "VOIE DE LA MAÎTRISE",
     "symbol": "▲",
     "ranks": [
@@ -5804,7 +5804,7 @@
     "owner": "MOINE"
   },
   {
-    "id": "voie-de-la-m-ditation",
+    "id": "voie-de-la-meditation",
     "name": "VOIE DE LA MÉDITATION",
     "symbol": "▲",
     "ranks": [
@@ -6230,7 +6230,7 @@
     "owner": "PRÊTRE"
   },
   {
-    "id": "voie-de-la-pri-re",
+    "id": "voie-de-la-priere",
     "name": "VOIE DE LA PRIÈRE",
     "symbol": "▲",
     "ranks": [
@@ -6376,7 +6376,7 @@
     "owner": "PRÊTRE"
   },
   {
-    "id": "voie-de-la-spiritualit-",
+    "id": "voie-de-la-spiritualite",
     "name": "VOIE DE LA SPIRITUALITÉ",
     "symbol": "▲",
     "ranks": [

@@ -17,8 +17,38 @@ declare global {
 
 export const isElectron = typeof window !== 'undefined' && !!window.electronAPI?.isElectron;
 
+/**
+ * Supprime les accents d'une chaîne sans remplacer les lettres accentuées par des caractères spéciaux.
+ * Ex: "Éléonore" -> "Eleonore"
+ */
+export function removeDiacritics(str: string): string {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+/**
+ * Nettoie une chaîne pour l'utiliser comme nom de fichier valide,
+ * tout en conservant scrupuleusement les caractères accentués UTF-8,
+ * les espaces, tirets et apostrophes.
+ * Ne remplace que les caractères strictement interdits par les systèmes de fichiers (Windows / macOS / Linux).
+ */
+export function sanitizeFilename(name?: string, fallback = 'personnage'): string {
+  if (!name || !name.trim()) return fallback;
+
+  const cleaned = name
+    .trim()
+    // Supprime ou remplace les caractères interdits dans les noms de fichiers : \ / : * ? " < > | ainsi que les caractères de contrôle 0x00-0x1F
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+    // Évite les underscores répétés consécutifs issus d'un remplacement
+    .replace(/_+/g, '_')
+    // Supprime les espaces ou points en fin de nom (problématiques sur Windows)
+    .replace(/[. ]+$/, '');
+
+  return cleaned || fallback;
+}
+
 export async function saveCharacterFile(char: CharacterSheet): Promise<{ success: boolean; message?: string }> {
-  const filename = `${(char.name || 'personnage').replace(/[^a-zA-Z0-9_-]/g, '_')}_niv${char.level || 1}.cof2`;
+  const cleanName = sanitizeFilename(char.name, 'personnage');
+  const filename = `${cleanName}_niv${char.level || 1}.cof2`;
 
   if (isElectron && window.electronAPI) {
     const res = await window.electronAPI.saveCharacter(char, filename);
@@ -78,7 +108,8 @@ export async function loadCharacterFile(): Promise<{ success: boolean; character
 }
 
 export async function triggerPrintOrExportPdf(char: CharacterSheet): Promise<{ success: boolean; message?: string }> {
-  const filename = `Fiche_${(char.name || 'personnage').replace(/[^a-zA-Z0-9_-]/g, '_')}_Niv${char.level || 1}.pdf`;
+  const cleanName = sanitizeFilename(char.name, 'personnage');
+  const filename = `Fiche_${cleanName}_Niv${char.level || 1}.pdf`;
 
   if (isElectron && window.electronAPI) {
     const res = await window.electronAPI.exportPdf(filename);

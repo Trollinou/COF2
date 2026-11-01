@@ -445,7 +445,10 @@ export function checkWeaponProficiency(
 
   // Sacred weapon exception for Priests (Règles COF2 / Compagnon):
   if (
-    (profileId === "pr-tre" || secondaryProfileId === "pr-tre") &&
+    (profileId === "pretre" ||
+      profileId === "pr-tre" ||
+      secondaryProfileId === "pretre" ||
+      secondaryProfileId === "pr-tre") &&
     deityOrDomainPathId
   ) {
     const deity =
@@ -936,7 +939,9 @@ export function computeCharacterStats(
     (!armor || armor.def === 0)
   ) {
     const seductionAbilities = char.acquiredAbilities.filter(
-      (a) => a.pathId === "voie-de-la-s-duction",
+      (a) =>
+        a.pathId === "voie-de-la-seduction" ||
+        a.pathId === "voie-de-la-s-duction",
     );
     if (seductionAbilities.length > 0) {
       const seductionMaxRank = Math.max(
@@ -1937,7 +1942,11 @@ export function calculateArmorSpellManaCost(
   if (!armor || armor.def <= 0) return 0;
 
   const owningProfile = PROFILES.find((p) => p.paths.includes(pathId));
-  if (owningProfile?.id === "pr-tre" || pth.type === "domain") {
+  if (
+    owningProfile?.id === "pretre" ||
+    owningProfile?.id === "pr-tre" ||
+    pth.type === "domain"
+  ) {
     return 0;
   }
 

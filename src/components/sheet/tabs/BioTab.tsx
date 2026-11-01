@@ -158,7 +158,7 @@ export const BioTab: React.FC<BioTabProps> = ({
       )}
 
       {/* Priest Religion & Domain Path Card */}
-      {character.profileId === 'pr-tre' && (() => {
+      {(character.profileId === 'pretre' || character.profileId === 'pr-tre') && (() => {
         const defaultRacialId = getRacialPathId(character.peopleId);
         const defaultRacial = getPathById(defaultRacialId);
         const domainPathId = character.selectedPathIds.find(pid => isDomainPath(pid));

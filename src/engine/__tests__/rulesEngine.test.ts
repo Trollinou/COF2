@@ -155,7 +155,7 @@ describe('COF2 Rules Engine', () => {
       // Mystique family gets bonusDR = 1
       const pretre: CharacterSheet = {
         ...createDefaultCharacter(),
-        profileId: 'pr-tre', // Mystiques
+        profileId: 'pretre', // Mystiques
         baseStats: { FOR: 0, AGI: 0, CON: 1, PER: 1, INT: 0, VOL: 2, CHA: 1 },
       };
       const pretreStats = computeCharacterStats(pretre);
@@ -218,7 +218,7 @@ describe('COF2 Rules Engine', () => {
       expect(epeeCheck.requiresTwoHands).toBe(true);
 
       // Weapons with damage > 1d10 or specific forbidden weapons (arc-long) are forbidden
-      const grandArcCheck = checkWeaponProficiency('arc-long', 'r-deur', 'halfelin');
+      const grandArcCheck = checkWeaponProficiency('arc-long', 'rodeur', 'halfelin');
       expect(grandArcCheck.allowed).toBe(false);
     });
 
@@ -295,7 +295,7 @@ describe('COF2 Rules Engine', () => {
 
     it('handles capability budget for a priest with a domain path retaining racial rank 1', () => {
       const char = createDefaultCharacter();
-      char.profileId = 'pr-tre';
+      char.profileId = 'pretre';
       char.deity = 'Arcanna';
 
       const arcannaPathId = 'voie-du-domaine-arcanna';
@@ -331,7 +331,7 @@ describe('COF2 Rules Engine', () => {
 
     it('applies PM bonus from Arcanna Rank 3 (Tour de magie)', () => {
       const char = createDefaultCharacter();
-      char.profileId = 'pr-tre';
+      char.profileId = 'pretre';
       char.baseStats.VOL = 2;
       char.acquiredAbilities = [
         { pathId: 'voie-du-domaine-arcanna', rank: 2 }, // Spell (Maîtrise de la magie)
@@ -346,7 +346,7 @@ describe('COF2 Rules Engine', () => {
 
     it('applies heroic stat modifier from Forthur Rank 4 (+1 FOR)', () => {
       const char = createDefaultCharacter();
-      char.profileId = 'pr-tre';
+      char.profileId = 'pretre';
       char.baseStats.FOR = 1;
       char.selectedRacialBonus = 'AGI'; // avoid racial bonus on FOR
       char.acquiredAbilities = [
@@ -361,14 +361,14 @@ describe('COF2 Rules Engine', () => {
 
     it('allows sacred weapon for a priest of Axënder (épée longue)', () => {
       // Standard priest without domain / deity context cannot use épée longue (blood ban)
-      const standardCheck = checkWeaponProficiency('epee-longue', 'pr-tre', 'humain');
+      const standardCheck = checkWeaponProficiency('epee-longue', 'pretre', 'humain');
       expect(standardCheck.allowed).toBe(false);
 
       // Priest of Axënder has sacred exception for épée longue
-      const axenderCheck = checkWeaponProficiency('epee-longue', 'pr-tre', 'humain', 'voie-du-domaine-axender');
+      const axenderCheck = checkWeaponProficiency('epee-longue', 'pretre', 'humain', 'voie-du-domaine-axender');
       expect(axenderCheck.allowed).toBe(true);
 
-      const axenderByNameCheck = checkWeaponProficiency('epee-longue', 'pr-tre', 'humain', 'Axënder');
+      const axenderByNameCheck = checkWeaponProficiency('epee-longue', 'pretre', 'humain', 'Axënder');
       expect(axenderByNameCheck.allowed).toBe(true);
     });
   });
@@ -490,8 +490,8 @@ describe('COF2 Rules Engine', () => {
       const ids = accessible.map(p => p.id);
       expect(ids).toContain('voie-du-bouclier');
       expect(ids).toContain('voie-du-combat');
-      expect(ids).toContain('voie-du-ma-tre-d-armes');
-      expect(ids).toContain('voie-de-la-r-sistance');
+      expect(ids).toContain('voie-du-maitre-d-armes');
+      expect(ids).toContain('voie-de-la-resistance');
       expect(ids).toContain('voie-du-soldat');
       expect(ids).toContain('voie-de-l-humain');
     });
@@ -557,7 +557,7 @@ describe('COF2 Rules Engine', () => {
 
     it('enforces hybrid eligibility: allowed when < 5 paths invested, blocked when 5 paths invested', () => {
       const char = createDefaultCharacter();
-      char.profileId = 'guerrier'; // paths: voie-du-bouclier, voie-du-combat, voie-du-ma-tre-d-armes, voie-de-la-r-sistance, voie-du-soldat
+      char.profileId = 'guerrier'; // paths: voie-du-bouclier, voie-du-combat, voie-du-maitre-d-armes, voie-de-la-resistance, voie-du-soldat
       char.acquiredAbilities = [
         { pathId: 'voie-du-bouclier', rank: 1 },
         { pathId: 'voie-du-combat', rank: 1 },
@@ -569,8 +569,8 @@ describe('COF2 Rules Engine', () => {
 
       // Now invest in all 5 paths of the profile
       char.acquiredAbilities.push(
-        { pathId: 'voie-du-ma-tre-d-armes', rank: 1 },
-        { pathId: 'voie-de-la-r-sistance', rank: 1 },
+        { pathId: 'voie-du-maitre-d-armes', rank: 1 },
+        { pathId: 'voie-de-la-resistance', rank: 1 },
         { pathId: 'voie-du-soldat', rank: 1 }
       );
 
@@ -590,8 +590,8 @@ describe('COF2 Rules Engine', () => {
         { pathId: 'voie-de-l-humain', rank: 1 }, // racial
         { pathId: 'voie-du-bouclier', rank: 1 },
         { pathId: 'voie-du-combat', rank: 1 },
-        { pathId: 'voie-du-ma-tre-d-armes', rank: 1 },
-        { pathId: 'voie-de-la-r-sistance', rank: 1 }, // 4 non-racial paths
+        { pathId: 'voie-du-maitre-d-armes', rank: 1 },
+        { pathId: 'voie-de-la-resistance', rank: 1 }, // 4 non-racial paths
       ];
 
       expect(getNonRacialActivePathsCount(char)).toBe(4);
@@ -744,7 +744,7 @@ describe('COF2 Rules Engine', () => {
     });
 
     it('correctly configures and applies Voie de la Séduction (ranks 1 to 5, Dentelles et rapière DEF bonus, and Charisme héroïque PM stat replacement)', () => {
-      const pth = getPathById('voie-de-la-s-duction');
+      const pth = getPathById('voie-de-la-seduction');
       expect(pth).toBeDefined();
       expect(pth?.ranks.length).toBe(5);
       expect(pth?.ranks.map(r => r.rank)).toEqual([1, 2, 3, 4, 5]);
@@ -765,12 +765,12 @@ describe('COF2 Rules Engine', () => {
       char.equippedArmorId = undefined; // No armor
 
       // Rank 1 acquired: DEF = 10 + AGI (2) = 12
-      char.acquiredAbilities = [{ pathId: 'voie-de-la-s-duction', rank: 1 }];
+      char.acquiredAbilities = [{ pathId: 'voie-de-la-seduction', rank: 1 }];
       let stats = computeCharacterStats(char);
       expect(stats.defense).toBe(12);
 
       // Rank 2 acquired (Dentelles et rapière): bonus CHA (3) capped at rank in path (2) -> DEF = 10 + 2 (AGI) + 2 (CHA cap) = 14
-      char.acquiredAbilities.push({ pathId: 'voie-de-la-s-duction', rank: 2 });
+      char.acquiredAbilities.push({ pathId: 'voie-de-la-seduction', rank: 2 });
       stats = computeCharacterStats(char);
       expect(stats.defense).toBe(14);
       expect(stats.pathSituationalNotes).toContain(
@@ -784,8 +784,8 @@ describe('COF2 Rules Engine', () => {
 
       // Rank 3 and 4: Rank 4 increases CHA by +1 (CHA becomes 4)
       char.equippedArmorId = undefined;
-      char.acquiredAbilities.push({ pathId: 'voie-de-la-s-duction', rank: 3 });
-      char.acquiredAbilities.push({ pathId: 'voie-de-la-s-duction', rank: 4 });
+      char.acquiredAbilities.push({ pathId: 'voie-de-la-seduction', rank: 3 });
+      char.acquiredAbilities.push({ pathId: 'voie-de-la-seduction', rank: 4 });
       stats = computeCharacterStats(char);
       expect(stats.finalStats.CHA).toBe(4);
       // DEF with no armor: 10 + 2 (AGI) + min(CHA 4, rank 4) = 16
@@ -793,7 +793,7 @@ describe('COF2 Rules Engine', () => {
 
       // Rank 5 (Suggestion is a spell): With Rank 4, PM uses CHA instead of VOL
       // CHA is 4, 1 spell acquired (Suggestion), no extra PM bonus -> maxPm = 4 + 1 = 5 (instead of VOL 0 + 1 = 1)
-      char.acquiredAbilities.push({ pathId: 'voie-de-la-s-duction', rank: 5 });
+      char.acquiredAbilities.push({ pathId: 'voie-de-la-seduction', rank: 5 });
       stats = computeCharacterStats(char);
       expect(stats.maxPm).toBe(5);
     });
@@ -805,21 +805,21 @@ describe('COF2 Rules Engine', () => {
       char.equippedArmorId = undefined;
 
       // Voie du déplacement (Voleur): R1 gives +1 DEF, +1 Init; R3 gives +1 DEF, +1 Init (total +2); R5 gives +1 DEF, +1 Init (total +3)
-      char.acquiredAbilities = [{ pathId: 'voie-du-d-placement', rank: 1 }];
+      char.acquiredAbilities = [{ pathId: 'voie-du-deplacement', rank: 1 }];
       let stats = computeCharacterStats(char);
       // base DEF = 10 + 2 (AGI) + 1 (voie) = 13
       expect(stats.defense).toBe(13);
       // base Init = 10 + 1 (PER) + 1 (voie) = 12
       expect(stats.initiative).toBe(12);
 
-      char.acquiredAbilities.push({ pathId: 'voie-du-d-placement', rank: 2 });
-      char.acquiredAbilities.push({ pathId: 'voie-du-d-placement', rank: 3 });
+      char.acquiredAbilities.push({ pathId: 'voie-du-deplacement', rank: 2 });
+      char.acquiredAbilities.push({ pathId: 'voie-du-deplacement', rank: 3 });
       stats = computeCharacterStats(char);
       expect(stats.defense).toBe(14);
       expect(stats.initiative).toBe(13);
 
-      char.acquiredAbilities.push({ pathId: 'voie-du-d-placement', rank: 4 });
-      char.acquiredAbilities.push({ pathId: 'voie-du-d-placement', rank: 5 });
+      char.acquiredAbilities.push({ pathId: 'voie-du-deplacement', rank: 4 });
+      char.acquiredAbilities.push({ pathId: 'voie-du-deplacement', rank: 5 });
       stats = computeCharacterStats(char);
       // Rank 4 adds +1 AGI (AGI becomes 3), Rank 5 brings path DEF to +3 and Init to +3
       // DEF = 10 + 3 (AGI) + 3 (voie) = 16
@@ -832,20 +832,20 @@ describe('COF2 Rules Engine', () => {
       monk.profileId = 'moine';
       monk.baseStats = { FOR: 1, AGI: 2, CON: 1, PER: 0, INT: 0, VOL: 3, CHA: 0 };
       monk.equippedArmorId = undefined;
-      monk.acquiredAbilities = [{ pathId: 'voie-de-la-ma-trise', rank: 1 }];
+      monk.acquiredAbilities = [{ pathId: 'voie-de-la-maitrise', rank: 1 }];
       stats = computeCharacterStats(monk);
       expect(stats.defense).toBe(14); // 10 + 2 AGI + 2 Voie
 
-      monk.acquiredAbilities.push({ pathId: 'voie-de-la-ma-trise', rank: 2 });
-      monk.acquiredAbilities.push({ pathId: 'voie-de-la-ma-trise', rank: 3 });
-      monk.acquiredAbilities.push({ pathId: 'voie-de-la-ma-trise', rank: 4 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-maitrise', rank: 2 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-maitrise', rank: 3 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-maitrise', rank: 4 });
       stats = computeCharacterStats(monk);
       expect(stats.defense).toBe(15); // 10 + 2 AGI + 3 Voie
 
       // Moine: Voie de la méditation R3 (+2 DEF, +VOL Init, +VOL PV)
-      monk.acquiredAbilities.push({ pathId: 'voie-de-la-m-ditation', rank: 1 });
-      monk.acquiredAbilities.push({ pathId: 'voie-de-la-m-ditation', rank: 2 });
-      monk.acquiredAbilities.push({ pathId: 'voie-de-la-m-ditation', rank: 3 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-meditation', rank: 1 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-meditation', rank: 2 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-meditation', rank: 3 });
       stats = computeCharacterStats(monk);
       // DEF: 10 + 2 AGI + 3 (maîtrise) + 2 (méditation) = 17
       expect(stats.defense).toBe(17);
@@ -893,14 +893,14 @@ describe('COF2 Rules Engine', () => {
     });
 
     it('should ensure all profiles have exactly 5 paths including Rôdeur with Voie de l\'archer', () => {
-      const rodeur = getProfileById('r-deur');
+      const rodeur = getProfileById('rodeur');
       expect(rodeur).toBeDefined();
       expect(rodeur?.paths).toHaveLength(5);
       expect(rodeur?.paths).toContain('voie-de-l-archer');
 
       // Check Voie de l'archer initiative scaling (+1 per rank)
       const char = createDefaultCharacter();
-      char.profileId = 'r-deur';
+      char.profileId = 'rodeur';
       char.baseStats = { FOR: 0, AGI: 2, CON: 1, PER: 3, INT: 0, VOL: 0, CHA: 0 };
       char.acquiredAbilities = [{ pathId: 'voie-de-l-archer', rank: 1 }];
       let stats = computeCharacterStats(char);
