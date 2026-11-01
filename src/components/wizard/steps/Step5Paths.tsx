@@ -14,6 +14,7 @@ import {
 } from '../../../engine/rulesEngine';
 import { ChevronDown, ChevronUp, Sparkles, Shield, BookOpen, Shuffle } from 'lucide-react';
 import { ActionBadges } from '../../sheet/ActionBadges';
+import { CompanionCard } from '../../sheet/CompanionCard';
 
 interface Step5PathsProps {
   character: CharacterSheet;
@@ -275,6 +276,13 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                           <p className="text-stone-400 pl-7 leading-relaxed">
                             {r.description}
                           </p>
+                          {r.companions && r.companions.length > 0 && (
+                            <div className="pl-7 space-y-2 mt-2">
+                              {r.companions.map((comp, cIdx) => (
+                                <CompanionCard key={cIdx} companion={comp} />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -397,6 +405,13 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                             <p className="text-stone-400 pl-7 leading-relaxed">
                               {r.description}
                             </p>
+                            {r.companions && r.companions.length > 0 && (
+                              <div className="pl-7 space-y-2 mt-2">
+                                {r.companions.map((comp, cIdx) => (
+                                  <CompanionCard key={cIdx} companion={comp} />
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -630,6 +645,13 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                           <p className="text-stone-400 pl-7 leading-relaxed">
                             {r.description}
                           </p>
+                          {r.companions && r.companions.length > 0 && (
+                            <div className="pl-7 space-y-2 mt-2">
+                              {r.companions.map((comp, cIdx) => (
+                                <CompanionCard key={cIdx} companion={comp} />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -792,6 +814,13 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                           <p className="text-stone-400 pl-7 leading-relaxed">
                             {r.description}
                           </p>
+                          {r.companions && r.companions.length > 0 && (
+                            <div className="pl-7 space-y-2 mt-2">
+                              {r.companions.map((comp, cIdx) => (
+                                <CompanionCard key={cIdx} companion={comp} />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

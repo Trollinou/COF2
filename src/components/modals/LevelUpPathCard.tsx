@@ -12,6 +12,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { ActionBadges } from '../sheet/ActionBadges';
+import { CompanionCard } from '../sheet/CompanionCard';
 
 interface LevelUpPathCardProps {
   pathData: PathData;
@@ -353,6 +354,14 @@ export const LevelUpPathCard: React.FC<LevelUpPathCardProps> = ({
                 <p className="text-stone-300 pl-7 leading-relaxed whitespace-pre-line text-[11px]">
                   {r.description}
                 </p>
+
+                {r.companions && r.companions.length > 0 && (
+                  <div className="pl-7 space-y-2 mt-2">
+                    {r.companions.map((comp, cIdx) => (
+                      <CompanionCard key={cIdx} companion={comp} />
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}

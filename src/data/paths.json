@@ -288,7 +288,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonusPC": 1,
+          "situationalNotes": [
+            "+1 PC, +3 tests interaction sociale (sauf intimidation)"
+          ]
+        }
       },
       {
         "rank": 3,
@@ -1195,11 +1201,56 @@
         "title": "Charmant",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le barde ajoute son rang + 2 aux tests effectués pour séduire, convaincre, mentir ou baratiner. Désormais, il peut dépenser 1 point de chance pour améliorer l'action d'un compagnon en vue, ce PC permet d'ajouter [1d4° + CHA] sur le résultat du test (au lieu de +10).\n\n#### 2. Dentelles et rapière :\n\nLe barde ne met pas d'armure, cela ne sied point en société. Sa seule armure est la dentelle, sa seule défense, la rapière. Lorsqu'il ne porte aucune armure, le barde ajoute son CHA en DEF (en plus de son AGI), toutefois ce bonus ne peut pas dépasser le rang atteint dans la voie.\n\n#### 3. Baratineur de génie :\n\nSi le barde peut passer 10 minutes avec un humanoïde dont le niveau est inférieur ou égal à 1 (NC 1), il peut dépenser un 1 PC pour le charmer. La cible répond favorablement à vos requêtes dans la limite de ce que ferait un ami et ce lien peut se renforcer avec le temps. Si vous ne partagez pas une langue commune, cela vous coûte 2 PC.\n\n#### 4. Charisme héroïque :\n\nLe barde augmente sa valeur de CHA de +1. Désormais, il obtient un *dé bonus* aux tests de CHA. De plus, le barde peut désormais utiliser son CHA au lieu de sa VOL pour calculer le nombre de PM dont il dispose.\n\n#### 5. Suggestion (A)\\*:\n\nLe barde peut suggérer une action à une créature en réussissant un test opposé d'attaque magique. En cas de réussite, la créature fera tout son possible pour satisfaire cette demande pendant 1 heure ou jusqu'à avoir réussi. Elle évitera les actions suicidaires (ce qui lui donnerait immédiatement un test d'INT difficulté 10 pour échapper au sort). Le sort ne peut pas affecter une créature de niveau supérieur ou égal à celui du lanceur.",
+        "description": "Le barde ajoute son rang + 2 aux tests effectués pour séduire, convaincre, mentir ou baratiner. Désormais, il peut dépenser 1 point de chance pour améliorer l'action d'un compagnon en vue, ce PC permet d'ajouter [1d4° + CHA] sur le résultat du test (au lieu de +10).",
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": true
+      },
+      {
+        "rank": 2,
+        "title": "Dentelles et rapière",
+        "actionType": "Action",
+        "isSpell": false,
+        "description": "Le barde ne met pas d'armure, cela ne sied point en société. Sa seule armure est la dentelle, sa seule défense, la rapière. Lorsqu'il ne porte aucune armure, le barde ajoute son CHA en DEF (en plus de son AGI), toutefois ce bonus ne peut pas dépasser le rang atteint dans la voie.",
+        "modifiers": {
+          "defenseStatBonus": "CHA",
+          "defenseCondition": "noArmor",
+          "defenseMaxRankCapped": true,
+          "situationalNotes": [
+            "Dentelles et rapière : +CHA en DEF sans armure (max rang dans la voie)"
+          ]
+        },
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": true
+      },
+      {
+        "rank": 3,
+        "title": "Baratineur de génie",
+        "actionType": "Action",
+        "isSpell": false,
+        "description": "Si le barde peut passer 10 minutes avec un humanoïde dont le niveau est inférieur ou égal à 1 (NC 1), il peut dépenser un 1 PC pour le charmer. La cible répond favorablement à vos requêtes dans la limite de ce que ferait un ami et ce lien peut se renforcer avec le temps. Si vous ne partagez pas une langue commune, cela vous coûte 2 PC.",
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 4,
+        "title": "Charisme héroïque",
+        "actionType": "Action",
+        "isSpell": false,
+        "description": "Le barde augmente sa valeur de CHA de +1. Désormais, il obtient un *dé bonus* aux tests de CHA. De plus, le barde peut désormais utiliser son CHA au lieu de sa VOL pour calculer le nombre de PM dont il dispose.",
         "modifiers": {
           "stats": {
             "CHA": 1
           },
+          "manaStatReplacement": "CHA",
           "situationalNotes": [
             "Dé bonus aux tests de CHA"
           ]
@@ -1209,6 +1260,18 @@
         "isMovement": false,
         "isFreeAction": false,
         "isPassive": true
+      },
+      {
+        "rank": 5,
+        "title": "Suggestion",
+        "actionType": "Attaque",
+        "isSpell": true,
+        "description": "Le barde peut suggérer une action à une créature en réussissant un test opposé d'attaque magique. En cas de réussite, la créature fera tout son possible pour satisfaire cette demande pendant 1 heure ou jusqu'à avoir réussi. Elle évitera les actions suicidaires (ce qui lui donnerait immédiatement un test d'INT difficulté 10 pour échapper au sort). Le sort ne peut pas affecter une créature de niveau supérieur ou égal à celui du lanceur.",
+        "isLimited": false,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
       }
     ],
     "type": "profile",
@@ -1284,6 +1347,105 @@
     "owner": "BARDE"
   },
   {
+    "id": "voie-de-l-archer",
+    "name": "VOIE DE L'ARCHER",
+    "symbol": "▲",
+    "ranks": [
+      {
+        "rank": 1,
+        "title": "Archer émérite",
+        "actionType": "Action",
+        "isSpell": false,
+        "description": "Le rôdeur ajoute sa PER aux DM qu'il inflige à l'arc et +1 par rang dans la voie en initiative. Le joueur peut souhaiter une variante de cette capacité s'appliquant aux armes de jet (dague, hachette, javelot) plutôt qu'à l'arc (rebaptisez‑la voie du lancer). Dans ce cas, le PJ ajoute sa FOR aux DM qu'il inflige et double la portée de jet (pas de bonus d'Init.). Par ailleurs, toutes les capacités de la voie qui suivent s'appliquent aux armes de jet plutôt qu'à l'arc.",
+        "modifiers": {
+          "initiative": 1,
+          "situationalNotes": [
+            "+PER aux DM à l'arc, +1 en Init par rang dans la voie"
+          ]
+        },
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": true
+      },
+      {
+        "rank": 2,
+        "title": "Tir chirurgical",
+        "actionType": "Action",
+        "isSpell": false,
+        "description": "Le rôdeur peut tirer sur une cible engagée en mêlée sans pénalité (mais pas sur une cible à couvert). Il ne risque jamais de toucher un allié, même en cas d'échec critique.",
+        "modifiers": {
+          "initiative": 1,
+          "situationalNotes": [
+            "Tir en mêlée sans pénalité ni risque pour les alliés"
+          ]
+        },
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": true
+      },
+      {
+        "rank": 3,
+        "title": "Dans le mille",
+        "actionType": "Action",
+        "isSpell": false,
+        "description": "Pour une attaque à distance, le rôdeur peut choisir de s'imposer un *dé malus* en attaque. Si elle est réussie, il ajoute 2d4° aux DM. Cette capacité peut être utilisée avec Tir rapide ou Flèche de mort par exemple. Transformez cette capacité en action limitée (L) pour obtenir +3d4° aux DM au lieu de 2d4°.",
+        "modifiers": {
+          "initiative": 1,
+          "situationalNotes": [
+            "Option : dé malus pour +2d4° DM à distance (+3d4° en action limitée)"
+          ]
+        },
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 4,
+        "title": "Tir rapide",
+        "actionType": "Limitée",
+        "isSpell": false,
+        "description": "Le rôdeur peut faire deux attaques à distance pendant son tour avec un malus de -2.",
+        "modifiers": {
+          "initiative": 1,
+          "situationalNotes": [
+            "Action limitée : 2 attaques à distance à -2"
+          ]
+        },
+        "isLimited": true,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 5,
+        "title": "Flèche de mort",
+        "actionType": "Limitée",
+        "isSpell": false,
+        "description": "Vous obtenez un dé bonus en attaque à distance et vous ajoutez 1d4° aux DM. Au lieu du dé bonus et de +1d4° aux DM, vous pouvez infliger un état préjudiciable de votre choix parmi aveuglé, affaibli, ralenti ou immobilisé pendant 1 round à une cible d'un NC inférieur au vôtre. Vous ne pouvez infliger chaque état préjudiciable qu'une seule fois par combat.",
+        "modifiers": {
+          "initiative": 1,
+          "situationalNotes": [
+            "Action limitée : dé bonus à distance et +1d4° DM (ou état préjudiciable 1 rd)"
+          ]
+        },
+        "isLimited": true,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      }
+    ],
+    "type": "profile",
+    "owner": "RÔDEUR"
+  },
+  {
     "id": "voie-du-compagnon-animal",
     "name": "VOIE DU COMPAGNON ANIMAL",
     "symbol": "▲",
@@ -1293,12 +1455,40 @@
         "title": "Le loup",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le rôdeur obtient un loup pour compagnon animal. En combat, le loup attaque en même temps que le rôdeur. Le loup comprend des ordres simples comme : garde, reste, apporte, attaque, etc.\n\n> [!INFO] LOUP\n> CRÉATURE VIVANTE\n> **AGI** +1 | **CON** +1\\* | **FOR** +2 | **PER** +2\\* | **CHA** -2 | **INT** -3 | **VOL** +2\n> **Défense** [12 + rang dans la voie]\n> **Points de vigueur** [niv. du rôdeur × 4]\n> **Initiative** [Init. du rôdeur]\n> **Attaque au contact**\n> [attaque magique du rôdeur] **DM** 1d4+2\n> \\*Le loup obtient un dé bonus sur ses tests.\n\n> [!TIPS] GÉRER UN COMPAGNON ANIMAL\n> En ville: le loup du rôdeur n'est pas très à l'aise en milieu urbain. Généralement, il préfère rester à l'extérieur de l'agglomération et se débrouiller seul en attendant que son maître le réclame. Toutefois le joueur peut décider que son personnage adopte un très gros chien plutôt qu'un loup; dans ce cas, les aventures urbaines ne poseront aucun problème. En revanche, le chien voudra suivre son maître partout.\n> **Soigner un compagnon animal :** un compagnon animal peut être soigné par magie et récupère tous les PV perdus après une récupération complète.\n> **Compagnon animal à 0 PV :** lorsque le compagnon animal tombe à 0 PV, s'il est en milieu naturel considérez qu'il s'enfuit (il revient au bout de 8 h avec tous ses PV). S'il ne peut pas, il doit être soigné comme le serait un personnage.\n> **Mort d'un compagnon animal :** le PJ pourra retrouver un nouveau compagnon au passage de niveau suivant. Joueur et MJ doivent se mettre d'accord quant au moment opportun et cela peut faire l'objet d'une scène de jeu.\n> **Montreur d'ours :** alternativement, le MJ peut autoriser le joueur à adopter un autre animal et modifier la voie en conséquence. Par exemple, un montreur d'ours pourrait bénéficier des modifications suivantes : au rang 2, remplacer le bonus aux tests pour pister et de surprise par un bonus en intimidation et en spectacle. Retrancher 2 en DEF et ajouter +2 en FOR (et donc +2 aux DM) du compagnon.",
+        "description": "Le rôdeur obtient un loup pour compagnon animal. En combat, le loup attaque en même temps que le rôdeur. Le loup comprend des ordres simples comme : garde, reste, apporte, attaque, etc.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Loup",
+            "category": "Créature vivante",
+            "stats": {
+              "FOR": "+2",
+              "AGI": "+1",
+              "CON": "+1*",
+              "PER": "+2*",
+              "INT": "-3",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "12 + rang dans la voie",
+            "hp": "Niv. du rôdeur × 4",
+            "initiative": "Init. du rôdeur",
+            "attacks": [
+              {
+                "name": "Morsure",
+                "attackBonus": "Attaque magique du rôdeur",
+                "damage": "1d4+2"
+              }
+            ],
+            "specialFeatures": [
+              "Le loup obtient un dé bonus sur ses tests d'AGI, de CON et de PER."
+            ]
+          }
+        ]
       },
       {
         "rank": 2,
@@ -1329,7 +1519,7 @@
         "title": "Loup alpha",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le loup du rôdeur devient un spécimen particulièrement puissant.\n\n> [!INFO] MÂLE ALPHA\n> **CON** +3\\* | **FOR** +5\n> **Défense** 18\n> **Points de vigueur** [Niveau × 5]\n> **DM** 1d4°+5",
+        "description": "Le loup du rôdeur devient un spécimen particulièrement puissant.",
         "modifiers": {
           "hpBonus": 5,
           "situationalNotes": [
@@ -1340,7 +1530,32 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Loup alpha",
+            "category": "Créature vivante",
+            "stats": {
+              "FOR": "+5",
+              "AGI": "+1",
+              "CON": "+3*",
+              "PER": "+2*",
+              "INT": "-3",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "18",
+            "hp": "Niveau × 5",
+            "initiative": "Init. du rôdeur",
+            "attacks": [
+              {
+                "name": "Morsure féroce",
+                "attackBonus": "Attaque magique du rôdeur",
+                "damage": "1d4°+5"
+              }
+            ]
+          }
+        ]
       },
       {
         "rank": 5,
@@ -1716,7 +1931,14 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 2,
+          "initiative": 2,
+          "situationalNotes": [
+            "+2 en DEF et en Initiative (+3 au rang 5)"
+          ]
+        }
       },
       {
         "rank": 4,
@@ -1751,7 +1973,11 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1,
+          "initiative": 1
+        }
       }
     ],
     "type": "profile",
@@ -1772,7 +1998,14 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1,
+          "initiative": 1,
+          "situationalNotes": [
+            "+1 en DEF et en Initiative (+2 au R3, +3 au R5)"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -1796,7 +2029,11 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": true,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1,
+          "initiative": 1
+        }
       },
       {
         "rank": 4,
@@ -1828,7 +2065,11 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": true,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1,
+          "initiative": 1
+        }
       }
     ],
     "type": "profile",
@@ -1981,7 +2222,7 @@
         "title": "Botte secrète",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Lorsque le voleur obtient un critique sur le dé d'une attaque au contact de sa main principale avec une arme légère (mais pas sur une ouverture mortelle), il inflige à sa cible un état préjudiciable au choix parmi affaibli, aveuglé, étourdi, immobilisé ou ralenti pendant 1 round. Vous ne pouvez infliger chaque état préjudiciable qu'une seule fois par combat. Alternativement, le voleur peut choisir que l'attaque devienne une attaque sournoise dont les DM s'ajoutent au critique (au lieu d'infliger un état préjudiciable).\n\n## CHAPITRE 5 : FAMILLE DES COMBATTANTS\n\nVous trouverez dans ce chapitre la description des trois profils de la famille des combattants: barbare, chevalier et guerrier. En cas de conflit, ces profils privilégient la force brute et le combat au contact.\n\nCes profils partagent les éléments suivants.\n\n- **Points de vigueur / niveau :** 5\n- **Dé de récupération :** d10\n\n> [!INFO] Résumé des voies des profils de la famille des combattants\n> - Barbare\n>     - Voie de la brute\n>     - Voie du pagne\n>     - Voie du pourfendeur\n>     - Voie du primitif\n>     - Voie de la rage\n> - Chevalier\n>     - Voie du cavalier\n>     - Voie de la guerre\n>     - Voie du preux\n>     - Voie du meneur d'homme\n>     - Voie de la noblesse\n> - Guerrier\n>     - Voie du bouclier\n>     - Voie du combat\n>     - Voie du maître d'armes\n>     - Voie de la résistance\n>     - Voie du soldat",
+        "description": "Lorsque le voleur obtient un critique sur le dé d'une attaque au contact de sa main principale avec une arme légère (mais pas sur une ouverture mortelle), il inflige à sa cible un état préjudiciable au choix parmi affaibli, aveuglé, étourdi, immobilisé ou ralenti pendant 1 round. Vous ne pouvez infliger chaque état préjudiciable qu'une seule fois par combat. Alternativement, le voleur peut choisir que l'attaque devienne une attaque sournoise dont les DM s'ajoutent au critique (au lieu d'infliger un état préjudiciable).\n\n## CHAPITRE 5 : FAMILLE DES COMBATTANTS\n\nVous trouverez dans ce chapitre la description des trois profils de la famille des combattants: barbare, chevalier et guerrier. En cas de conflit, ces profils privilégient la force brute et le combat au contact.\n\nCes profils partagent les éléments suivants.\n\n- **Points de vigueur / niveau :** 5\n- **Dé de récupération :** d10",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -2175,7 +2416,14 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1,
+          "initiative": 3,
+          "situationalNotes": [
+            "+3 en Initiative, +1 en DEF (+2 au rang 5)"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -2231,7 +2479,10 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1
+        }
       }
     ],
     "type": "profile",
@@ -2385,7 +2636,7 @@
         "title": "Furie du berserk",
         "actionType": "Limitée",
         "isSpell": false,
-        "description": "Au lieu de la *Rage du berserk*, le barbare peut entrer en *Furie du berserk*, mais cela consomme deux utilisations de la rage. Cet état est similaire à la rage, mais le barbare ajoute 2d4° aux DM (au lieu de 1d4°) et subit -4 en DEF. La difficulté du test pour mettre prématurément fin à la furie est égale à 20.\n\n> [!TIPS] RAGE ET AUTRES CAPACITÉS\n> La rage du barbare est basée sur une explosion de colère primitive et elle ne s'accorde avec aucune capacité qui nécessite maîtrise et concentration. Pour cette raison, il est impossible de lancer un sort en état de rage, mais il est aussi impossible d'utiliser certaines capacités comme l'Attaque sournoise du voleur. Les capacités issues des voies suivantes ne sont pas cumulables avec la rage (ou la furie) du barbare :\n> - Voie du maître d'armes du guerrier\n> - Voie de l'escrime du barde\n> - Voie de la maîtrise, voie de la méditation de moine\n> - Voie du spadassin, voie de l'assassin du voleur\n> \n> La liste exacte des cumuls est laissée à la discrétion du MJ, mais le nom d'une capacité est souvent un bon indice. Par exemple, Attaque puissante ou Attaque brutale sont des cumuls possibles évidents.",
+        "description": "Au lieu de la *Rage du berserk*, le barbare peut entrer en *Furie du berserk*, mais cela consomme deux utilisations de la rage. Cet état est similaire à la rage, mais le barbare ajoute 2d4° aux DM (au lieu de 1d4°) et subit -4 en DEF. La difficulté du test pour mettre prématurément fin à la furie est égale à 20.",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
@@ -2472,12 +2723,41 @@
         "title": "Monture fantastique",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le chevalier obtient une monture puissante (cheval de guerre lourd, ours, félin géant, etc.). Init. [Init. du chevalier], DEF 20, PV [10 + niveau du chevalier × 6], Ruade ou morsure [attaque magique], DM 2d4°+5. La valeur exacte des caractéristiques peut varier selon la créature. Lorsqu'il est en selle, le chevalier peut faire attaquer sa monture une fois par round en action gratuite. À partir du niveau 9, le chevalier peut obtenir une monture volante (pégase, griffon, hippogriffe, etc.) si le MJ l'autorise (il devra vérifier qu'une monture volante n'entre pas en contradiction avec les aventures prévues). Dans ce cas, en vol, la monture couvre une distance de 20 m par action de mouvement, mais ses PV sont seulement égaux à [10 + niveau × 5].\n\n> [!INFO] FIDÈLE MONTURE\n> **AGI** +0 | **CON** +4\\* | **FOR** +5 | **PER** +0 | **CHA** +0 | **INT** -2 | **VOL** +2\n> **Défense** [12 + rang]\n> **Points de vigueur** [10 + Niveau × 4]\n> **Initiative** [Init. du chevalier]\n> **Attaque :**\n> > **Ruade** +5 • **DM** 1d4°+5\n>\n> La monture peut être soignée comme un personnage et elle récupère 1d8+4 PV par nuit. Si la fidèle monture meurt, le chevalier en récupère une au niveau suivant.\n> Selon son peuple, un personnage peut obtenir une monture différente ayant les mêmes caractéristiques : yack ou sanglier (nain), cerf ou orignal (elfe).",
+        "description": "Le chevalier obtient une monture puissante (cheval de guerre lourd, ours, félin géant, etc.). Init. [Init. du chevalier], DEF 20, PV [10 + niveau du chevalier × 6], Ruade ou morsure [attaque magique], DM 2d4°+5. La valeur exacte des caractéristiques peut varier selon la créature. Lorsqu'il est en selle, le chevalier peut faire attaquer sa monture une fois par round en action gratuite. À partir du niveau 9, le chevalier peut obtenir une monture volante (pégase, griffon, hippogriffe, etc.) si le MJ l'autorise (il devra vérifier qu'une monture volante n'entre pas en contradiction avec les aventures prévues). Dans ce cas, en vol, la monture couvre une distance de 20 m par action de mouvement, mais ses PV sont seulement égaux à [10 + niveau × 5].\n\n>\n> La monture peut être soignée comme un personnage et elle récupère 1d8+4 PV par nuit. Si la fidèle monture meurt, le chevalier en récupère une au niveau suivant.\n> Selon son peuple, un personnage peut obtenir une monture différente ayant les mêmes caractéristiques : yack ou sanglier (nain), cerf ou orignal (elfe).",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Fidèle monture",
+            "category": "Monture fantastique (cheval lourd, ours, félin géant)",
+            "stats": {
+              "FOR": "+5",
+              "AGI": "+0",
+              "CON": "+4*",
+              "PER": "+0",
+              "INT": "-2",
+              "VOL": "+2",
+              "CHA": "+0"
+            },
+            "defense": "20 (ou 12 + rang)",
+            "hp": "10 + Niveau × 6",
+            "initiative": "Init. du chevalier",
+            "attacks": [
+              {
+                "name": "Ruade ou morsure",
+                "attackBonus": "Attaque magique du chevalier",
+                "damage": "2d4°+5"
+              }
+            ],
+            "specialFeatures": [
+              "En selle, le chevalier peut faire attaquer sa monture une fois par round en action gratuite.",
+              "Dès le niveau 9 : monture volante possible (PV : 10 + Niv. × 5, vol 20 m/mouvement)."
+            ]
+          }
+        ]
       }
     ],
     "type": "profile",
@@ -2787,9 +3067,8 @@
         "isSpell": false,
         "description": "S'il n'est pas *surpris*, le guerrier peut accorder un bonus de DEF de +2 à un allié à son contact contre une attaque par round. Il doit annoncer son intention avant de connaître le résultat de l'attaque. De plus, vous ajoutez votre rang + 2 à tous les tests destinés à éviter d'être *surpris*.",
         "modifiers": {
-          "defense": 1,
           "situationalNotes": [
-            "+1 en DEF avec un bouclier (+2 au rang 4)"
+            "Protéger un allié : +2 DEF à un allié au contact contre 1 attaque/round"
           ]
         },
         "isLimited": false,
@@ -2820,7 +3099,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1,
+          "situationalNotes": [
+            "Défense au bouclier : +1 DEF avec bouclier (+2 au rang 5)"
+          ]
+        }
       },
       {
         "rank": 4,
@@ -2829,9 +3114,8 @@
         "isSpell": false,
         "description": "Lorsqu'il s'est préparé à parer un coup, le guerrier peut décider à la place d'absorber un sort. S'il réussit un test d'attaque au contact (il peut remplacer la FOR par l'AGI pour ce test) opposé à un test d'attaque magique du lanceur de sort, le sort est absorbé par le bouclier et n'a aucun effet sur le guerrier (mais s'il s'agit d'un sort de zone, les autres cibles sont affectées normalement).",
         "modifiers": {
-          "defense": 1,
           "situationalNotes": [
-            "Bonus bouclier total passe à +2 DEF"
+            "Absorber un sort : peut absorber un sort ciblé au contact"
           ]
         },
         "isLimited": false,
@@ -2850,7 +3134,10 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": true,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1
+        }
       }
     ],
     "type": "profile",
@@ -3017,7 +3304,14 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "hpBonus": 2,
+          "hpPerRankInPath": true,
+          "situationalNotes": [
+            "Robustesse : + (rang + 2) PV max"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -3333,7 +3627,14 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1,
+          "initiative": 1,
+          "situationalNotes": [
+            "+1 en Init et DEF (+2 au R3, +3 au R5)"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -3357,7 +3658,11 @@
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1,
+          "initiative": 1
+        }
       },
       {
         "rank": 4,
@@ -3389,7 +3694,11 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1,
+          "initiative": 1
+        }
       }
     ],
     "type": "profile",
@@ -3822,7 +4131,7 @@
         "title": "Endurer",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le forgesort est habitué aux travaux et à la chaleur de la forge. Il divise par deux tous les DM de feu subis et augmente sa CON de +1. Désormais, il obtient un dé bonus aux tests de CON. Finalement, il peut ajouter sa valeur de CON au nombre de PM qu'il obtient.\n\n> [!WARNING] SCIENCE, PAS SCIENCE?\n> Ce profil est particulièrement adapté aux univers où le développement technologique n'est pas en reste (tendance steampunk). Dans ce genre d'univers, vous pouvez renommer la voie du golem en voie du méca et décrire les effets comme provenant d'objets étranges portés, ingérés ou greffés...",
+        "description": "Le forgesort est habitué aux travaux et à la chaleur de la forge. Il divise par deux tous les DM de feu subis et augmente sa CON de +1. Désormais, il obtient un dé bonus aux tests de CON. Finalement, il peut ajouter sa valeur de CON au nombre de PM qu'il obtient.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -3855,12 +4164,37 @@
         "title": "Golem",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le golem est une créature humanoïde fabriquée par le forgesort pour lui servir de serviteur et de garde du corps. Il comprend des ordres simples, comme suivre, attaquer, monter la garde, mais il est incapable d'actions complexes ou nécessitant une motricité fine (comme de la couture par exemple!).\n\n> [!INFO] GOLEM\n> CRÉATURE NON VIVANTE\n> AGI -1 | CON +10 | FOR +1 | PER -3 | CHA -4 | INT -3 | VOL +4\n> **Défense** [10 + rang dans la voie]\n> **Points de vigueur** [niv. du forgesort × 5]\n> Initiative [Init. du forgesort]\n> **Attaque**\n> > [attaque magique du forgesort] • DM 1d4°+1",
+        "description": "Le golem est une créature humanoïde fabriquée par le forgesort pour lui servir de serviteur et de garde du corps. Il comprend des ordres simples, comme suivre, attaquer, monter la garde, mais il est incapable d'actions complexes ou nécessitant une motricité fine (comme de la couture par exemple!).",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Golem",
+            "category": "Créature non-vivante (serviteur & garde du corps)",
+            "stats": {
+              "FOR": "+1",
+              "AGI": "-1",
+              "CON": "+10",
+              "PER": "-3",
+              "INT": "-3",
+              "VOL": "+4",
+              "CHA": "-4"
+            },
+            "defense": "10 + rang dans la voie",
+            "hp": "Niv. du forgesort × 5",
+            "initiative": "Init. du forgesort",
+            "attacks": [
+              {
+                "name": "Coup de poing",
+                "attackBonus": "Attaque magique du forgesort",
+                "damage": "1d4°+1"
+              }
+            ]
+          }
+        ]
       },
       {
         "rank": 3,
@@ -3891,7 +4225,7 @@
         "title": "Golem supérieur",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le forgesort peut améliorer son golem en choisissant une option parmi les suivantes. Le joueur peut choisir une option différente supplémentaire à chaque fois qu'il atteint le rang 5 dans une voie de forgesort.\n\n- Armure: +5 en DEF\n- Forme de félin : +3 en AGI et en DEF, dé bonus en AGI\n- Baliste: portée 20 m, [1d4°+AGI] DM\n- Grande taille: +2 PV par niveau et +1 en FOR et DM\n- Vol: des « sauts » de 40 m en action limitée\n- Cerveau amélioré: +2 en INT, PER et CHA, doué de parole\n- Puissant: +2 en FOR et aux DM, dé bonus en FOR\n- Arme à deux mains: +1d4° aux DM au contact\n\n> [!INFO] PARTICULARITÉS LIÉES AU GOLEM\n> **Soigner un golem :** le golem ne guérit pas naturellement, mais le forgesort peut le réparer au rythme de [1d6 par rang + INT] PV par heure.\n> **Golem à 0 PV :** si le golem est réduit à 0 PV, il cesse de fonctionner, mais le forgesort peut le réparer.\n> **Mort d'un golem:** si le golem est détruit ou perdu, le forgesort peut en construire un nouveau en1d6 + 3 jours (+1d6jours par amélioration de golem supérieur). Un forgesort peut utiliser tous les matériaux à sa disposition dans son environnement, par exemple pierre et bois s'il est dans une forêt.",
+        "description": "Le forgesort peut améliorer son golem en choisissant une option parmi les suivantes. Le joueur peut choisir une option différente supplémentaire à chaque fois qu'il atteint le rang 5 dans une voie de forgesort.\n\n- Armure: +5 en DEF\n- Forme de félin : +3 en AGI et en DEF, dé bonus en AGI\n- Baliste: portée 20 m, [1d4°+AGI] DM\n- Grande taille: +2 PV par niveau et +1 en FOR et DM\n- Vol: des « sauts » de 40 m en action limitée\n- Cerveau amélioré: +2 en INT, PER et CHA, doué de parole\n- Puissant: +2 en FOR et aux DM, dé bonus en FOR\n- Arme à deux mains: +1d4° aux DM au contact",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -3912,12 +4246,18 @@
         "title": "Runes de défense",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le forgesort inscrit des runes de protection sur l'ensemble de son équipement et parfois jusque sur sa peau. Il obtient un bonus de +2 en DEF. Ce bonus augmente de +1 au rang 3 puis au rang 5. S'il possède un golem, il peut inscrire les runes sur celui‑ci avec le même effet.\n\n> [!TIPS] PROFIL HYBRIDE\n> Exceptionnellement, un profil hybride peut utiliser cette capacité avec une armure qu'il est capable de porter, supérieure à l'armure de cuir, bien que, dans ce cas, le bonus de DEF soit alors divisé par deux (+1 en DEF au rang 1, +2 au rang 4). Bien que cette capacité ne soit pas considérée comme un sort, elle requiert au moins +1 en INT pour être apprise, comme toutes les runes de forgesort.",
+        "description": "Le forgesort inscrit des runes de protection sur l'ensemble de son équipement et parfois jusque sur sa peau. Il obtient un bonus de +2 en DEF. Ce bonus augmente de +1 au rang 3 puis au rang 5. S'il possède un golem, il peut inscrire les runes sur celui‑ci avec le même effet.\n\n*Profil hybride :* Exceptionnellement, un profil hybride peut utiliser cette capacité avec une armure qu'il est capable de porter supérieure au cuir, bien que le bonus de DEF soit alors divisé par deux (+1 en DEF au rang 1, +2 au rang 4).",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 2,
+          "situationalNotes": [
+            "Runes de défense : +2 DEF (+3 au R3, +4 au R5)"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -3941,7 +4281,10 @@
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1
+        }
       },
       {
         "rank": 4,
@@ -3973,7 +4316,10 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1
+        }
       }
     ],
     "type": "profile",
@@ -4301,12 +4647,34 @@
         "title": "Familier",
         "actionType": "Attaque",
         "isSpell": true,
-        "description": "Le magicien choisit un petit animal (écureuil, corbeau, chat, dragonnet). Il peut utiliser les sens de son familier (voir par ses yeux, entendre ce qu'il entend, etc.) et communiquer avec lui à distance illimitée. Il gagne +2 en Initiative et en DEF lorsque son familier est en vue.\n\nS'il est réduit à 0 PV, le familier disparaît dans un nuage de fumée et le personnage perd 1d4° PV en contrecoup. Toutefois, le maître pourra à nouveau invoquer son familier dès qu'il aura terminé une récupération complète (c'est toujours le même animal qui apparaît). Le familier récupère tous les PV perdus après une récupération rapide.\n\n> [!INFO] FAMILIER\n> **AGI** +3\\* | **CON** 0 | **FOR** -4 | **PER** +2 | **CHA** -2 | **INT** -2 | **VOL** +2\n> **Défense** [13 + rang dans la voie]\n> **Points de vigueur** [niveau du magicien]\n> **Initiative** [Init. du magicien]\n>\n> Un familier est une créature trop petite pour attaquer et infliger des dommages.",
+        "description": "Le magicien choisit un petit animal (écureuil, corbeau, chat, dragonnet). Il peut utiliser les sens de son familier (voir par ses yeux, entendre ce qu'il entend, etc.) et communiquer avec lui à distance illimitée. Il gagne +2 en Initiative et en DEF lorsque son familier est en vue.\n\nS'il est réduit à 0 PV, le familier disparaît dans un nuage de fumée et le personnage perd 1d4° PV en contrecoup. Toutefois, le maître pourra à nouveau invoquer son familier dès qu'il aura terminé une récupération complète (c'est toujours le même animal qui apparaît). Le familier récupère tous les PV perdus après une récupération rapide.\n\n>\n> Un familier est une créature trop petite pour attaquer et infliger des dommages.",
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Familier",
+            "category": "Taille minuscule (chat, rat, corbeau...)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+1",
+              "PER": "+2*",
+              "INT": "+0",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du magicien × 2",
+            "initiative": "Init. du magicien",
+            "specialFeatures": [
+              "Partage sensoriel (voir et entendre par le familier).",
+              "Communication télépathique à distance illimitée."
+            ]
+          }
+        ]
       },
       {
         "rank": 3,
@@ -4414,12 +4782,37 @@
         "title": "Invocation d'un démon",
         "actionType": "Limitée",
         "isSpell": true,
-        "description": "En sacrifiant 1d4° PV, le sorcier invoque un démon à son service pour INT minutes. Ce démon possède l'apparence d'un humanoïde musclé d'environ 2,30 m doté d'une épée et d'ailes de chauve-souris. Le démon divise par deux tous les DM non magiques subis, les sorts et les armes magiques lui infligent des DM normaux. Il est capable de voler à une vitesse équivalente à un déplacement normal. Lorsque le sorcier atteint le niveau 15, le démon devient capable d'attaquer deux fois à son tour, au prix d'une action limitée.\n\n> [!INFO] DÉMON\n>  **AGI** +2 | **CON** +4\\* | **FOR** +5\\* | **PER** +2 | | **CHA** +0 | **INT** +2 | **VOL** +4\n> - **Défense** 18\n> - **Points de vigueur** [niveau du sorcier × 5]\n> - **Initiative** [Init. du sorcier]\n> **Attaque au contact**\n> > [attaque magique du sorcier] • **DM** 2d4°+5",
+        "description": "En sacrifiant 1d4° PV, le sorcier invoque un démon à son service pour INT minutes. Ce démon possède l'apparence d'un humanoïde musclé d'environ 2,30 m doté d'une épée et d'ailes de chauve-souris. Le démon divise par deux tous les DM non magiques subis, les sorts et les armes magiques lui infligent des DM normaux. Il est capable de voler à une vitesse équivalente à un déplacement normal. Lorsque le sorcier atteint le niveau 15, le démon devient capable d'attaquer deux fois à son tour, au prix d'une action limitée.",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Démon",
+            "category": "Créature démoniaque",
+            "stats": {
+              "FOR": "+4",
+              "AGI": "+3*",
+              "CON": "+5",
+              "PER": "+3",
+              "INT": "+1",
+              "VOL": "+4",
+              "CHA": "+0"
+            },
+            "defense": "20",
+            "hp": "Niv. de l'ensorceleur × 5",
+            "initiative": "Init. de l'ensorceleur",
+            "attacks": [
+              {
+                "name": "Griffes",
+                "attackBonus": "Attaque magique de l'ensorceleur",
+                "damage": "1d4°+4"
+              }
+            ]
+          }
+        ]
       }
     ],
     "type": "profile",
@@ -4536,12 +4929,37 @@
         "title": "Animation des morts",
         "actionType": "Limitée",
         "isSpell": true,
-        "description": "Le sorcier anime le cadavre d'un humanoïde de taille moyenne, décédé depuis moins d'INT jours. Le zombie comprend les ordres « Attaquer », « Suivre », « Garder » et « Pas bouger ». Le sorcier peut contrôler un seul zombie, plus un zombie chaque fois qu'il atteint le rang 5 dans une voie de sorcier. Un zombie réduit à 0 PV tombe en poussière.\n\n> [!INFO] ZOMBIE\n>  **AGI** -1 | **CON** +1 | **FOR** +2 | **PER** -2 | **CHA** -4 | **INT** -4 | **VOL** +6\n> **Défense** 10\n> **Points de vigueur** [10 + niveau]\n> **Initiative** 8\n> **Attaque au contact**\n> > [attaque magique du sorcier] • **DM** 1d4°+2\n>\n> Le zombie se déplace de 5 m par action de mouvement",
+        "description": "Le sorcier anime le cadavre d'un humanoïde de taille moyenne, décédé depuis moins d'INT jours. Le zombie comprend les ordres « Attaquer », « Suivre », « Garder » et « Pas bouger ». Le sorcier peut contrôler un seul zombie, plus un zombie chaque fois qu'il atteint le rang 5 dans une voie de sorcier. Un zombie réduit à 0 PV tombe en poussière.\n\n>\n> Le zombie se déplace de 5 m par action de mouvement",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Zombie",
+            "category": "Créature non-vivante",
+            "stats": {
+              "FOR": "+2",
+              "AGI": "-2",
+              "CON": "+4",
+              "PER": "-2",
+              "INT": "-4",
+              "VOL": "+0",
+              "CHA": "-4"
+            },
+            "defense": "12",
+            "hp": "Niv. du sorcier × 4",
+            "initiative": "Init. du sorcier - 5",
+            "attacks": [
+              {
+                "name": "Coup",
+                "attackBonus": "Attaque magique du sorcier",
+                "damage": "1d4+2"
+              }
+            ]
+          }
+        ]
       },
       {
         "rank": 4,
@@ -4618,7 +5036,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 2,
+          "situationalNotes": [
+            "Exsangue : +2 en DEF (+3 au rang 5, -1 si armure autre qu'os)"
+          ]
+        }
       },
       {
         "rank": 4,
@@ -4650,7 +5074,10 @@
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1
+        }
       }
     ],
     "type": "profile",
@@ -4722,7 +5149,7 @@
         "title": "Pacte ténébreux",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le sorcier augmente sa CON de +1. Désormais, il obtient un *dé bonus* aux tests de CON et voit dans le noir comme s'il s'agissait de pénombre. De plus, lorsqu'il lance un sort, il peut sacrifier 1d4° PV pour ajouter +2d4° aux DM de ce sort. S'il s'agit d'un sort dont les DM durent de round en round (comme strangulation), il peut sacrifier 1d4° PV chaque round.\n\n## CHAPITRE 7 : FAMILLE DES MYSTIQUES\n\nVous trouverez dans ce chapitre la description des trois profils de la famille des mystiques: druide, moine et prêtre. Ce sont des profils basés sur la spiritualité et les pouvoirs divins, qu'il s'agisse de sorts ou de capacités surnaturelles. Ce sont des profils orientés vers la vie et parfois capables de prodiguer des soins.\n\nCes profils partagent les éléments suivants.\n\n- **Points de vigueur / niveau :** 4\n- **Dé de récupération :** d8\n- **+1** dé de récupération\n\n> [!TIPS] SORTS (CAPACITÉS\\*)\n> Les capacités signalées par le symbole \\* accolé à leur nom sont des sorts (par exemple, Télékinésie\\*). Un sort suit des règles particulières, comme la dépense de points de mana pour pouvoir être lancé.\n> Lorsque vous rencontrez la formulation « En plus de ce sort, ... », la suite de la capacité est indépendante du sort. Elle s'applique comme un bonus permanent offert par une capacité, peu importe que le sort soit lancé ou pas.\n> Par exemple, «En plus de ce sort, le personnage ajoute +1 en DEF » signifie que la DEF augmente d'un point de façon permanente sans que le sort soit lancé.\n\n> [!INFO] Résumé des voies des profils de la famille des mystiques\n> - Druide\n>     - Voie des animaux\n>     - Voie du fauve\n>     - Voie de la nature\n>     - Voie du protecteur\n>     - Voie des végétaux\n> - Moine\n>     - Voie de l'energy vitale\n>     - Voie de la maîtrise\n>     - Voie de la méditation\n>     - Voie du poing\n>     - Voie du vent\n> - Prêtre\n>     - Voie de la foi\n>     - Voie de la guerre sainte\n>     - Voie de la prière\n>     - Voie des soins\n>     - Voie de la spiritualité",
+        "description": "Le sorcier augmente sa CON de +1. Désormais, il obtient un *dé bonus* aux tests de CON et voit dans le noir comme s'il s'agissait de pénombre. De plus, lorsqu'il lance un sort, il peut sacrifier 1d4° PV pour ajouter +2d4° aux DM de ce sort. S'il s'agit d'un sort dont les DM durent de round en round (comme strangulation), il peut sacrifier 1d4° PV chaque round.\n\n## CHAPITRE 7 : FAMILLE DES MYSTIQUES\n\nVous trouverez dans ce chapitre la description des trois profils de la famille des mystiques: druide, moine et prêtre. Ce sont des profils basés sur la spiritualité et les pouvoirs divins, qu'il s'agisse de sorts ou de capacités surnaturelles. Ce sont des profils orientés vers la vie et parfois capables de prodiguer des soins.\n\nCes profils partagent les éléments suivants.\n\n- **Points de vigueur / niveau :** 4\n- **Dé de récupération :** d8\n- **+1** dé de récupération",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -4755,12 +5182,33 @@
         "title": "Petit compagnon",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le druide choisit un petit animal (écureuil, corbeau, chat). Il peut utiliser les sens de son familier (voir par ses yeux, entendre ce qu'il entend, etc.) et communiquer avec lui à distance illimitée. Il gagne +2 en DEF lorsque son familier est en vue. Le familier récupère tous les PV perdus après une récupération rapide. S'il est réduit à 0 PV, le familier prend la fuite et réapparaît auprès de son maître 24 h plus tard, complètement soigné. S'il est tué (lors d'un fait de jeu que le MJ juge inévitable), le druide perd 1d4° PV en contrecoup et pourra trouver un autre familier au prochain passage de niveau (pas forcément le même animal).\n\n> [!INFO] FAMILIER\n>  AGI +3\\* | CON 0 | FOR -4 | PER +2\\* | | INT -2 | CHA -2 | VOL +2\n> Défense [13 + rang dans la voie]\n> Points de vigueur [niveau du druide × 2]\n> Initiative [Init. du druide]\n>\n> Un familier est une créature trop petite pour attaquer et infliger des dommages.\n\n**Note :** Petit compagnon est une version non magique du Familier du magicien (voie de la magie universelle). Si un personnage décide de faire l'acquisition de ces deux capacités, le bonus de DEF ne se cumule pas.",
+        "description": "Le druide choisit un petit animal (écureuil, corbeau, chat). Il peut utiliser les sens de son familier (voir par ses yeux, entendre ce qu'il entend, etc.) et communiquer avec lui à distance illimitée. Il gagne +2 en DEF lorsque son familier est en vue. Le familier récupère tous les PV perdus après une récupération rapide. S'il est réduit à 0 PV, le familier prend la fuite et réapparaît auprès de son maître 24 h plus tard, complètement soigné. S'il est tué (lors d'un fait de jeu que le MJ juge inévitable), le druide perd 1d4° PV en contrecoup et pourra trouver un autre familier au prochain passage de niveau (pas forcément le même animal).\n\n>\n> Un familier est une créature trop petite pour attaquer et infliger des dommages.\n\n**Note :** Petit compagnon est une version non magique du Familier du magicien (voie de la magie universelle). Si un personnage décide de faire l'acquisition de ces deux capacités, le bonus de DEF ne se cumule pas.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Petit compagnon",
+            "category": "Taille minuscule (belette, faucon, écureuil...)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+1",
+              "PER": "+2*",
+              "INT": "+0",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du druide × 2",
+            "initiative": "Init. du druide",
+            "specialFeatures": [
+              "Partage sensoriel et communication télépathique à distance illimitée."
+            ]
+          }
+        ]
       },
       {
         "rank": 3,
@@ -4779,7 +5227,7 @@
         "title": "Masque du prédateur",
         "actionType": "Attaque",
         "isSpell": true,
-        "description": "Pendant PER minutes, le druide prend les traits d'un fauve ou d'un loup. Il gagne +2 en Initiative, en DEF, en attaque et aux DM au contact et peut voir dans la nuit (comme un elfe).\n\n> [!TIPS] QU'EST-CE QU'UN ANIMAL?\n> Dans le cadre de la forme animale du druide, tout animal qui vit sur notre planète Terre est un animal. Si votre monde comporte des animaux fantastiques (griffon, pégase, etc.), ils sont a priori exclus. Tout animal bénéficiant d'une capacité surnaturelle est exclu aussi. Enfin, il est important de se placer du point de vue du druide plutôt que de celui du joueur. Un druide des forêts tempérées qui n'a jamais vu de singe ne peut pas adopter cette forme. Vous trouverez une liste des profils des animaux les plus courants au chapitre « Adversité ».",
+        "description": "Pendant PER minutes, le druide prend les traits d'un fauve ou d'un loup. Il gagne +2 en Initiative, en DEF, en attaque et aux DM au contact et peut voir dans la nuit (comme un elfe).",
         "modifiers": {
           "stats": {
             "PER": 1
@@ -4822,11 +5270,10 @@
         "isSpell": false,
         "description": "Le druide ajoute son rang + 2 aux tests de course, d'escalade ou de saut. De plus, il gagne +3 en Initiative et +1 en DEF. Le bonus de DEF passe à +2 au rang 3 et +3 au rang 5.",
         "modifiers": {
-          "damageBonus": {
-            "contact": 1
-          },
+          "defense": 1,
+          "initiative": 3,
           "situationalNotes": [
-            "+1 DM contact"
+            "+3 en Initiative, +1 en DEF (+2 au R3, +3 au R5)"
           ]
         },
         "isLimited": false,
@@ -4840,12 +5287,37 @@
         "title": "Panthère",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le druide apprivoise une panthère (ou un puma) qui lui obéit au doigt et à l'œil.\n\n> [!INFO] PANTHÈRE\n> **AGI** +4\\* | **CON** +2 | **FOR** +2 | **PER** +2\\* **CHA** -2 | **INT** -3 | **VOL** +2\n> **Défense** [13 + rang dans la voie]\n> **Points de vigueur** [niveau du druide × 4]\n> **Initiative** [Init. du druide]\n> **Attaque au contact**\n> > [attaque magique] • **DM** 1d4+2",
+        "description": "Le druide apprivoise une panthère (ou un puma) qui lui obéit au doigt et à l'œil.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Panthère (ou puma)",
+            "category": "Créature vivante",
+            "stats": {
+              "FOR": "+2",
+              "AGI": "+4*",
+              "CON": "+2",
+              "PER": "+2*",
+              "INT": "-3",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "13 + rang dans la voie",
+            "hp": "Niveau du druide × 4",
+            "initiative": "Init. du druide",
+            "attacks": [
+              {
+                "name": "Griffes & crocs",
+                "attackBonus": "Attaque magique du druide",
+                "damage": "1d4+2"
+              }
+            ]
+          }
+        ]
       },
       {
         "rank": 3,
@@ -4857,14 +5329,17 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1
+        }
       },
       {
         "rank": 4,
         "title": "Grand félin",
         "actionType": "Action",
         "isSpell": false,
-        "description": "La panthère devient un animal fabuleux ou est remplacée par un félin plus grand (tigre, lion). Le grand félin peut servir de monture au druide et il se déplace de 20 m par action de mouvement. Le druide peut communiquer avec son félin par télépathie et le guérir à distance en dépensant ses propres PV (-1 PV au druide par PV octroyé au félin).\n\n> [!INFO] ANIMAL FABULEUX\n> **AGI** +4\\* | **CON** +5 | **FOR** +5 | **PER** +2\\* | **CHA** -2 | **INT** -2 | **VOL** +4\n> **Défense** [15 + rang]\n> **Points de vigueur** [niveau du druide × 5]\n> **Initiative** [Init. du druide]\n> **Attaque au contact**\n> > [attaque magique] • DM 1d4°+5",
+        "description": "La panthère devient un animal fabuleux ou est remplacée par un félin plus grand (tigre, lion). Le grand félin peut servir de monture au druide et il se déplace de 20 m par action de mouvement. Le druide peut communiquer avec son félin par télépathie et le guérir à distance en dépensant ses propres PV (-1 PV au druide par PV octroyé au félin).",
         "modifiers": {
           "stats": {
             "FOR": 1
@@ -4877,19 +5352,51 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Grand félin (Animal fabuleux)",
+            "category": "Créature fabuleuse (tigre, lion)",
+            "stats": {
+              "FOR": "+5",
+              "AGI": "+4*",
+              "CON": "+5",
+              "PER": "+2*",
+              "INT": "-2",
+              "VOL": "+4",
+              "CHA": "-2"
+            },
+            "defense": "15 + rang dans la voie",
+            "hp": "Niveau du druide × 5",
+            "initiative": "Init. du druide",
+            "attacks": [
+              {
+                "name": "Morsure & griffes",
+                "attackBonus": "Attaque magique du druide",
+                "damage": "1d4°+5"
+              }
+            ],
+            "specialFeatures": [
+              "Monture (20 m par action de mouvement).",
+              "Communication télépathique et guérison à distance en dépensant ses propres PV."
+            ]
+          }
+        ]
       },
       {
         "rank": 5,
         "title": "Les sept vies du chat",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Cette capacité ne peut être utilisée que six fois, et pas plus d'une fois par niveau. Lorsque les PV du druide tombent à 0 ou qu'il meurt, le druide peut choisir d'ignorer ce qui a provoqué la mort ou l'inconscience! Le MJ et le joueur doivent se mettre d'accord et trouver une raison plausible (ou pas!) pour expliquer la survie du personnage, et le faire réapparaître immédiatement ou un peu plus tard dans l’aventure si nécessaire.\n\n> [!TIPS] GÉRER UN COMPAGNON ANIMAL\n> **En ville :** le compagnon du druide reste un fauve et généralement il ne se sentira pas à l'aise en milieu urbain. Dans la plupart des cas, la bête restera à l'extérieur de l'agglomération et se débrouillera seule en attendant que son maître la réclame.\n> **Soigner un compagnon animal :** un compagnon animal peut être soigné par magie et il récupère les PV perdus comme un PJ. Son niveau est égal à celui de son maître.\n> **Compagnon animal à 0 PV :** lorsque le compagnon animal tombe à 0 PV, s'il est en milieu naturel considérez qu'il s'enfuit (il revient au bout de 8 h avec tous ses PV). S'il ne peut pas, il doit être soigné comme le serait un personnage.\n> **Mort d'un compagnon animal :** le PJ pourra retrouver un nouveau compagnon au passage de niveau suivant. Joueur et MJ doivent se mettre d'accord du moment opportun et cela peut être l'occasion d'une scène de jeu.",
+        "description": "Cette capacité ne peut être utilisée que six fois, et pas plus d'une fois par niveau. Lorsque les PV du druide tombent à 0 ou qu'il meurt, le druide peut choisir d'ignorer ce qui a provoqué la mort ou l'inconscience! Le MJ et le joueur doivent se mettre d'accord et trouver une raison plausible (ou pas!) pour expliquer la survie du personnage, et le faire réapparaître immédiatement ou un peu plus tard dans l’aventure si nécessaire.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1
+        }
       }
     ],
     "type": "profile",
@@ -5095,12 +5602,37 @@
         "title": "Animation d'un arbre",
         "actionType": "Limitée",
         "isSpell": true,
-        "description": "Le druide peut animer un arbre en le touchant. Il combat à son service pendant [niveau du druide] rounds. Il peut animer un seul arbre à la fois.\n\n> [!INFO]  ARBRE ANIMÉ\n>  **AGI** -2 | **CON** +3 | **FOR** +3 | **PER** -2 | | **CHA** -2 | **INT** -2 | **VOL** +0\n> **Défense** [10 + rang]\n> **Points de vigueur** [Niveau × 5]\n> **Initiative** 8\n>\n> **Attaque de contact**\n> > [attaque magique] • DM 1d4°+3\n>\n> **Déplacement**\n> > 5 m par action de mouvement.",
+        "description": "Le druide peut animer un arbre en le touchant. Il combat à son service pendant [niveau du druide] rounds. Il peut animer un seul arbre à la fois.\n\n>\n> **Attaque de contact**\n> > [attaque magique] • DM 1d4°+3\n>\n> **Déplacement**\n> > 5 m par action de mouvement.",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Arbre animé",
+            "category": "Plante animée (taille très grande)",
+            "stats": {
+              "FOR": "+8",
+              "AGI": "-2",
+              "CON": "+8",
+              "PER": "+0",
+              "INT": "-4",
+              "VOL": "+4",
+              "CHA": "-4"
+            },
+            "defense": "14",
+            "hp": "Niv. du druide × 6",
+            "initiative": "Init. du druide - 5",
+            "attacks": [
+              {
+                "name": "Balayage de branches",
+                "attackBonus": "Attaque magique du druide",
+                "damage": "2d6+8"
+              }
+            ]
+          }
+        ]
       },
       {
         "rank": 5,
@@ -5202,7 +5734,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 2,
+          "situationalNotes": [
+            "+2 en DEF (+3 au rang 4)"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -5226,7 +5764,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "critRangeBonus": 1,
+          "situationalNotes": [
+            "+1 à la plage de critique à mains nues"
+          ]
+        }
       },
       {
         "rank": 4,
@@ -5238,7 +5782,10 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1
+        }
       },
       {
         "rank": 5,
@@ -5274,8 +5821,8 @@
         "isPassive": true
       },
       {
-        "rank": 1,
-        "title": "Pacifisme",
+        "rank": 2,
+        "title": "Méditation",
         "actionType": "Action",
         "isSpell": false,
         "description": "Le moine peut méditer pendant 10 min et récupérer ainsi [1d4°+VOL] PV. Les soins augmentent de +1d4° chaque fois que le personnage atteint le rang 4 dans une voie de moine. Il doit terminer une récupération rapide avant de pouvoir à nouveau utiliser cette capacité et il ne peut pas l’utiliser plus de trois fois par jour.",
@@ -5295,7 +5842,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 2,
+          "initiativeStatBonus": "VOL",
+          "hpStatBonus": "VOL",
+          "situationalNotes": [
+            "Maîtrise du ki : +VOL à l'Initiative et aux PV, +2 DEF (+3 au R5)"
+          ]
+        }
       },
       {
         "rank": 4,
@@ -5307,7 +5862,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "stats": {
+            "VOL": 1
+          },
+          "situationalNotes": [
+            "Dé bonus aux tests de VOL"
+          ]
+        }
       },
       {
         "rank": 5,
@@ -5319,7 +5882,10 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1
+        }
       }
     ],
     "type": "profile",
@@ -5364,7 +5930,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 2,
+          "situationalNotes": [
+            "+2 en DEF (+3 au rang 5), divise par 2 les DM temporaires"
+          ]
+        }
       },
       {
         "rank": 3,
@@ -5400,7 +5972,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1,
+          "situationalNotes": [
+            "Puissance du ki : dé malus pour +2d4° DM"
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -5416,7 +5994,7 @@
         "title": "Pas du vent",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le moine peut se déplacer avant et après avoir attaqué (mais il couvre toujours une distance normale, il divise son mouvement en deux). De plus, il gagne +3 en Initiative et son rang + 2 à tous les tests de saut, de course ou d'escalade.\n\n> [!TIPS] MAINS NUES OU ARMES\n> Plutôt que de se battre à mains nues, le moine peut décider d'utiliser une arme de son choix. Dans ce cas, dans les différentes capacités de la voie du moine mentionnant « à mains nues », vous pouvez remplacer « à mains nues » par « avec l'arme de son choix »; et la voie du poing doit alors être renommée en fonction de l'arme choisie (par exemple, voie du bâton ou voie du sabre).\n> Attention, dans le cas d'un profil hybride, ces capacités imposent toujours de ne porter aucune armure ni bouclier.",
+        "description": "Le moine peut se déplacer avant et après avoir attaqué (mais il couvre toujours une distance normale, il divise son mouvement en deux). De plus, il gagne +3 en Initiative et son rang + 2 à tous les tests de saut, de course ou d'escalade.",
         "modifiers": {
           "initiative": 2,
           "situationalNotes": [
@@ -5592,7 +6170,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1,
+          "situationalNotes": [
+            "Bouclier de la foi : +1 DEF avec bouclier (+2 au rang 5)"
+          ]
+        }
       },
       {
         "rank": 3,
@@ -5636,7 +6220,10 @@
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "defense": 1
+        }
       }
     ],
     "type": "profile",
@@ -5846,7 +6433,7 @@
         "title": "Marche des plans",
         "actionType": "Limitée",
         "isSpell": true,
-        "description": "Une fois par jour, le prêtre peut passer dans une dimension entre les plans d'existence où le temps et l'espace sont déformés pendant un maximum de CHA rounds. Il se déplace dans une sorte de brouillard gris où le paysage défile à toute vitesse. Pour chaque round de *Marche des plans*, il se déplace en réalité de 10 km. Le lieu de sortie n'est cependant pas très précis et le MJ doit déterminer une position au hasard autour du point visé (à 1d6 km près).\n\n> [!INFO] LA GENÈSE D'OSGILD VUE PAR LES HUMAINS\n> Au commencement, Ada, la première femme et Ivu, le premier homme, furent créés par les dieux et autorisés à vivre parmi eux, dans un monde parfait. Ils peuplèrent le Paradis de leurs enfants et ils se multiplièrent, donnant naissance à de nombreux peuples. Les Élus régnaient sur les animaux et toutes les autres créatures, mais, aveuglés par l'ambition de ressembler à leurs créateurs, ils essayèrent de s'emparer de l'immortalité. Hélas, dans leur arrogance, ils ne virent que trop tard où les menaient leurs expériences : le néant. Leur échec se solda par une catastrophe cosmique, le Paradis fut anéanti et la vie passa tout près de l'extinction. Les Élus furent expulsés sur le Mitan avec des fragments de néant, Kaer Ouros, les Pierres du Ciel. Les survivants durent apprendre à prier, car ils avaient brisé le lien privilégié avec leurs créateurs. Pire, ils avaient ouvert la porte à la corruption du néant et, désormais, certains dieux n'étaient plus l'incarnation de la bienveillance, mais la personnification des valeurs destructrices engendrées par le néant.\n> Certains dieux portent parfois des noms différents chez les peuples non humains, par exemple Arshran est appelé Thürdim chez les nains.",
+        "description": "Une fois par jour, le prêtre peut passer dans une dimension entre les plans d'existence où le temps et l'espace sont déformés pendant un maximum de CHA rounds. Il se déplace dans une sorte de brouillard gris où le paysage défile à toute vitesse. Pour chaque round de *Marche des plans*, il se déplace en réalité de 10 km. Le lieu de sortie n'est cependant pas très précis et le MJ doit déterminer une position au hasard autour du point visé (à 1d6 km près).",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
@@ -6487,7 +7074,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1,
+          "situationalNotes": [
+            "Minus : +1 DEF (+2 au rang 4), +3 discrétion"
+          ]
+        }
       },
       {
         "rank": 3,
@@ -6499,7 +7092,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "initiative": 3,
+          "situationalNotes": [
+            "+3 Init, tests surprise, demi-DM sournois"
+          ]
+        }
       },
       {
         "rank": 4,
@@ -6511,7 +7110,10 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "defense": 1
+        }
       },
       {
         "rank": 5,
@@ -6523,7 +7125,37 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "choiceOptions": [
+            {
+              "id": "opt_agi_con",
+              "label": "+1 AGI, +1 CON",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1,
+                  "CON": 1
+                },
+                "situationalNotes": [
+                  "Champion de la survie : +1 AGI, +1 CON"
+                ]
+              }
+            },
+            {
+              "id": "opt_per_con",
+              "label": "+1 PER, +1 CON",
+              "modifiers": {
+                "stats": {
+                  "PER": 1,
+                  "CON": 1
+                },
+                "situationalNotes": [
+                  "Champion de la survie : +1 PER, +1 CON"
+                ]
+              }
+            }
+          ]
+        }
       }
     ],
     "type": "racial",
@@ -7500,12 +8132,37 @@
         "title": "Garde",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le caravanier engage un garde incorruptible et fidèle jusqu'à la mort, qui lui coûte 10 % de toutes les richesses qu'il gagne (trésors trouvés et récompenses). Le garde suit les ordres du PJ, mais rechigne à s'éloigner de lui.\n\nLe joueur ne peut pas équiper le garde d'objets magiques qui lui confèrent des bonus ; l'évolution du profil de ce PNJ remplace les règles qui permettent de gérer l'équipement. Le garde récupère un quart de ses PV (soit le niveau du PJ) après chaque récupération rapide ou la totalité après une récupération complète. S'il est tué, le PJ peut embaucher un nouveau garde au niveau suivant.\n\n> [!NOTE] GARDE PERSONNEL\n> **TAILLE MOYENNE**\n> | **AGI** +1 | **CON** +3 | **FOR** +2 | **PER** +1 | CHA -1 | INT +0 | VOL [CHA du caravanier] |\n> **Défense** [12 + rangs dans la voie]\n> **Points de vigueur** [niv. du caravanier × 4]\n> **Initiative** [Init. du caravanier]\n>\n> **Attaque** [attaque magique du caravanier]\n> **• DM** 1d4° +3",
+        "description": "Le caravanier engage un garde incorruptible et fidèle jusqu'à la mort, qui lui coûte 10 % de toutes les richesses qu'il gagne (trésors trouvés et récompenses). Le garde suit les ordres du PJ, mais rechigne à s'éloigner de lui.\n\nLe joueur ne peut pas équiper le garde d'objets magiques qui lui confèrent des bonus ; l'évolution du profil de ce PNJ remplace les règles qui permettent de gérer l'équipement. Le garde récupère un quart de ses PV (soit le niveau du PJ) après chaque récupération rapide ou la totalité après une récupération complète. S'il est tué, le PJ peut embaucher un nouveau garde au niveau suivant.\n\n>\n> **Attaque** [attaque magique du caravanier]\n> **• DM** 1d4° +3",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Garde personnel",
+            "category": "Humanoïde",
+            "stats": {
+              "FOR": "+3",
+              "AGI": "+1",
+              "CON": "+3",
+              "PER": "+1",
+              "INT": "+0",
+              "VOL": "+1",
+              "CHA": "+0"
+            },
+            "defense": "15 + rang dans la voie",
+            "hp": "Niv. du caravanier × 5",
+            "initiative": "Init. du caravanier",
+            "attacks": [
+              {
+                "name": "Épée longue",
+                "attackBonus": "Attaque contact du caravanier",
+                "damage": "1d8+3"
+              }
+            ]
+          }
+        ]
       },
       {
         "rank": 2,
@@ -7627,12 +8284,37 @@
         "title": "Caravane sur pattes",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le caravanier obtient une monture géante destinée à transporter des quantités considérables de denrées ou de voyageurs. La monture est caractérisée par sa valeur de masse (abrégée M dans son profil) qui débute à 1 et augmente de 1 chaque fois que le personnage atteint le rang 5 dans une autre voie de caravanier. Cette monture peut accueillir sur son dos jusqu'à [10 × M] ballots de marchandise d'environ 100 kg, chaque ballot pouvant être remplacé par un humanoïde de taille *moyenne*. Initialement de taille *énorme* (M = 1), la monture devient *colossale* lorsque sa masse atteint 2. À partir d'une masse de 3, elle est capable d'accueillir sur son dos une maisonnette (et une de plus par point). Elle se déplace lentement, mais sûrement, à la vitesse d'un poney (15 km par période de déplacement). La description de la créature doit être négociée avec le MJ : une tortue géante (au choix terrestre ou maritime), un animal préhistorique exceptionnel, une créature mécanique ou un puissant navire sont toutes des propositions valables.\n\n> [!INFO] MONTURE GÉANTE\n> TAILLE [SELON M]\n> | **AGI** -2 | **CON** [10 + (M × 2)] | **FOR** [10 +(M × 2)] | **PER** -1 |**CHA** -1 | **INT** -2 | **VOL** +5 |\n> **Défense** [16 + M]\n> **Points de vigueur** [niv. du caravanier × 10]\n> **Initiative** 9\n>\n> **Attaque** [10 + M]\n> **· DM** Md12+10\n>\n> **RÉDUCTION DES · DM :**\n> La monture géante bénéficie d'une RD égale au double de sa masse. Elle est placide et on ne peut pas lui ordonner d'attaquer, bien qu'elle se défende si elle est blessée. Elle récupère 10 % de ses PV par jour. Si la monture est détruite, en trouver une nouvelle serait une quête à part entière.",
+        "description": "Le caravanier obtient une monture géante destinée à transporter des quantités considérables de denrées ou de voyageurs. La monture est caractérisée par sa valeur de masse (abrégée M dans son profil) qui débute à 1 et augmente de 1 chaque fois que le personnage atteint le rang 5 dans une autre voie de caravanier. Cette monture peut accueillir sur son dos jusqu'à [10 × M] ballots de marchandise d'environ 100 kg, chaque ballot pouvant être remplacé par un humanoïde de taille *moyenne*. Initialement de taille *énorme* (M = 1), la monture devient *colossale* lorsque sa masse atteint 2. À partir d'une masse de 3, elle est capable d'accueillir sur son dos une maisonnette (et une de plus par point). Elle se déplace lentement, mais sûrement, à la vitesse d'un poney (15 km par période de déplacement). La description de la créature doit être négociée avec le MJ : une tortue géante (au choix terrestre ou maritime), un animal préhistorique exceptionnel, une créature mécanique ou un puissant navire sont toutes des propositions valables.\n\n>\n> **Attaque** [10 + M]\n> **· DM** Md12+10\n>\n> **RÉDUCTION DES · DM :**\n> La monture géante bénéficie d'une RD égale au double de sa masse. Elle est placide et on ne peut pas lui ordonner d'attaquer, bien qu'elle se défende si elle est blessée. Elle récupère 10 % de ses PV par jour. Si la monture est détruite, en trouver une nouvelle serait une quête à part entière.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Monture géante",
+            "category": "Taille grande ou très grande (éléphant, mammouth)",
+            "stats": {
+              "FOR": "+7",
+              "AGI": "-1",
+              "CON": "+7",
+              "PER": "+1",
+              "INT": "-3",
+              "VOL": "+3",
+              "CHA": "-2"
+            },
+            "defense": "18",
+            "hp": "Niv. du caravanier × 6",
+            "initiative": "Init. du caravanier",
+            "attacks": [
+              {
+                "name": "Écrasement",
+                "attackBonus": "Attaque magique du caravanier",
+                "damage": "2d6+7"
+              }
+            ]
+          }
+        ]
       }
     ],
     "type": "profile",
@@ -7948,7 +8630,7 @@
         "title": "Esprit lié",
         "actionType": "Attaque",
         "isSpell": true,
-        "description": "Le chamane invoque et lie un puissant esprit à sa cible (portée = contact). C'est un sort puissant, mais dangereux. Tant que la cible est protégée par l'esprit, elle bénéficie d'une RD 5 dans la limite d'un total de DM égal à [niv. du chamane × 5]. Cette mécanique correspond à l'épuisement de la vitalité de l'esprit. Lorsque le cumul de DM atteint cette limite, l'esprit est détruit et disparaît dans un hurlement qui laisse le chamane affaibli jusqu'à ce qu'il prenne une récupération rapide (ou complète).\n\n> [!TIPS] CONSEIL DE JEU\n> Lorsqu'un joueur utilise des capacités qui, comme celles de la voie de la forme d'esprit, séparent son PJ du groupe et l'amènent à vivre une séquence sans ses compagnons (voir aussi la capacité de moine *Projection mentale*), il peut sembler amusant de le faire jouer à l'écart afin de garder le suspense pour les autres joueurs. Toutefois, ce n'est pas toujours une bonne idée, car cela casse le rythme de jeu.\n> Nous vous conseillons au contraire de le faire de façon conviviale et de permettre aux autres joueurs autour de la table d'interagir et de faire des suggestions. Si un combat devait survenir, pourquoi ne pas demander aux autres joueurs de lancer les dés pour les créatures. La priorité nous semble de permettre à tout le monde de s'amuser, mais vous pouvez bien entendu décider que le suspense et le secret sont préférables, selon le contexte du moment.",
+        "description": "Le chamane invoque et lie un puissant esprit à sa cible (portée = contact). C'est un sort puissant, mais dangereux. Tant que la cible est protégée par l'esprit, elle bénéficie d'une RD 5 dans la limite d'un total de DM égal à [niv. du chamane × 5]. Cette mécanique correspond à l'épuisement de la vitalité de l'esprit. Lorsque le cumul de DM atteint cette limite, l'esprit est détruit et disparaît dans un hurlement qui laisse le chamane affaibli jusqu'à ce qu'il prenne une récupération rapide (ou complète).",
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -9706,12 +10388,37 @@
         "title": "Transformation en loup",
         "actionType": "Limitée",
         "isSpell": false,
-        "description": "Le personnage peut prendre la forme d'un loup pendant une durée maximale de 1 h par rang chaque jour. Le personnage conserve toutes ses caractéristiques sauf celles ci-dessous, ainsi que sa valeur d'attaque au contact habituelle.\n\n> [!INFO] LOUP\n> **FOR** +3 | **AGI** +1\n> Défense [12 + rang]\n> Initiative 15\n> **DM** 1d4+3\n> Bonus de +5 aux tests basés sur la PER. Sous cette forme, il réduit de 5 les DM qui lui sont infligés par des armes qui ne sont pas en argent, et il gagne un bonus de +5 à tous les tests de poursuite et pour pister une trace.",
+        "description": "Le personnage peut prendre la forme d'un loup pendant une durée maximale de 1 h par rang chaque jour. Le personnage conserve toutes ses caractéristiques sauf celles ci-dessous, ainsi que sa valeur d'attaque au contact habituelle.",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Loup (Forme animale)",
+            "category": "Loup",
+            "stats": {
+              "FOR": "+3",
+              "AGI": "+3*",
+              "CON": "+3*",
+              "PER": "+3*",
+              "INT": "-2",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "17",
+            "hp": "PV du lycanthrope",
+            "initiative": "Init. du lycanthrope",
+            "attacks": [
+              {
+                "name": "Morsure",
+                "attackBonus": "Attaque contact du lycanthrope",
+                "damage": "1d6+3"
+              }
+            ]
+          }
+        ]
       },
       {
         "rank": 6,
@@ -9818,7 +10525,7 @@
         "title": "Écailles de dragon",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le corps du personnage se renforce et se couvre d'écailles lorsqu'il reçoit des blessures graves. Lorsque le personnage passe sous la moitié de ses PV, il gagne une réduction des DM de 5 face à tous les types de dommages.\n\n> [!TIPS] ASCENDANCE DÉMONIAQUE\n> Il est possible de décliner cette voie avec d'autres types d'ascendance, par exemple, ascendance démoniaque. Dans ce cas, la résistance du rang 4 s'applique au choix à l'acide ou au feu. Le souffle du dragon est remplacé par la capacité de couvrir son arme d'acide ou de l'enflammer pour infliger +1d4° DM supplémentaire par attaque pendant [rang] rounds. Au rang 8, l'armure naturelle se traduit par des caractéristiques démoniaques (cornes, queue, pupilles verticales, etc.) et la résistance aux armes qui ne sont pas bénies contre les démons.",
+        "description": "Le corps du personnage se renforce et se couvre d'écailles lorsqu'il reçoit des blessures graves. Lorsque le personnage passe sous la moitié de ses PV, il gagne une réduction des DM de 5 face à tous les types de dommages.",
         "modifiers": {
           "defense": 2,
           "damageReduction": 2
@@ -9844,12 +10551,34 @@
         "title": "Familier fantastique",
         "actionType": "Attaque",
         "isSpell": false,
-        "description": "Le personnage fait l'acquisition d'un familier fantastique. Le familier récupère tous les PV perdus après une récupération rapide.\n\n> [!INFO] FAMILIER\n> TAILLE MINUSCULE\n> **AGI** +3\\* | **CON** +2 | **FOR** -4 | **PER** +2 | **CHA** -2 | **INT** +1 | **VOL** +2\n> **Défense** [14 + rang dans la voie]\n> **Points de vigueur** [niv.du personnage × 2]\n> **Initiative** [Init. du personnage]\n> Le personnage peut utiliser les sens de son familier (voir par ses yeux, entendre ce qu'il entend, etc.) et communiquer avec lui à distance illimitée. Vous trouverez les caractéristiques spéciales de ces créatures plus loin.",
+        "description": "Le personnage fait l'acquisition d'un familier fantastique. Le familier récupère tous les PV perdus après une récupération rapide.",
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Familier fantastique",
+            "category": "Taille minuscule",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "specialFeatures": [
+              "Récupère tous ses PV après une récupération rapide.",
+              "Partage sensoriel et communication télépathique à distance illimitée."
+            ]
+          }
+        ]
       },
       {
         "rank": 4,
@@ -9883,7 +10612,7 @@
         "title": "Inséparables",
         "actionType": "Mouvement",
         "isSpell": false,
-        "description": "Le personnage rappelle son familier à son contact par magie. Le familier est téléporté sur son maître au prix d'une action de mouvement. De plus le familier confère au personnage 1 PC supplémentaire.\n\n> [!WARNING] EXCEPTION DE NIVEAU\n> Comme vous pouvez le constater, la voie du familier fantastique est une exception aux règles générales des voies de prestige. Ses rangs sont répartis de 3 à 7 au lieu de 4 à 8. Ce qui signifie que le premier rang de la voie peut être acquis dès le niveau 3, les autres rangs étant acquis aux niveaux habituels correspondant à chaque rang d'une voie de prestige.",
+        "description": "Le personnage rappelle son familier à son contact par magie. Le familier est téléporté sur son maître au prix d'une action de mouvement. De plus le familier confère au personnage 1 PC supplémentaire.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": true,
@@ -9895,12 +10624,98 @@
         "title": "Pouvoir supérieur",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le familier confère au personnage un second pouvoir magique indiqué dans sa description, ainsi qu'un bonus de +1 sur la valeur de caractéristique indiquée dans la description du familier.\n\n> [!INFO] LES FAMILIERS FANTASTIQUES**\n> Plutôt que de décortiquer cette liste à la recherche d'une optimisation de pouvoirs, nous vous conseillons de privilégier la spontanéité et l'envie. Votre choix devrait plutôt se faire en fonction du caractère du personnage.\n> Les mentions R4, R5 et R7 figurant pour chaque familier font références aux capacités de rang 4, 5 et 7 de la voie du familier fantastique.\n>\n> **ANIMAL CÉLESTE**\n> Un familier ordinaire auquel des ailes ont poussé. Celles‑ci symbolisent son élévation spirituelle. Le familier obtient la faculté de parler et la capacité de voler sur une distance de 20 m par action de mouvement.\n> *R4 ‑ Pouvoir mineur :* Compréhension des langues (rang 4, voie du vagabond, barde), 1 fois par jour, seulement à l'oral, pas à l'écrit.\n> *R5 ‑ Profil de magie associé :* prêtre\n> *R7 ‑ Pouvoir supérieur :* Prescience (rang 5, voie de la divination, ensorceleur), une fois par jour. *Caractéristique* : CHA.\n>\n> **ANIMAL MORT‑VIVANT**\n> Le personnage obtient la version morte‑vivante d'un familier ordinaire (rat, chat, corbeau, etc.). Ce peut être un nouveau familier ou son ancien familier passé de vie à trépas et fidèle par‑delà la mort. Le familier acquiert le type « non‑vivant » et tous les avantages qui en découlent (voir les créatures). Il obtient une attaque qui draine la force vitale des créatures vivantes (attaque = attaque magique du personnage), l'attaque inflige 1d4° DM et permet au magicien ou au familier de récupérer 1 PV par attaque réussie.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient la capacité Siphon des âmes (rang 1, voie de la mort, sorcier). S'il possède déjà cette capacité, il double son effet.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Exsangue (rang 3, voie du sang de sorcier). S'il possède déjà cette capacité, le personnage ne subit plus de pénalité à ses tests lorsqu'il est à 0 PV. *Caractéristique* : CON.\n>\n> **ARAIGNÉE GÉANTE**\n> Une araignée de la taille d'un familier normal, c'est‑à‑dire un monstre d'environ 30 cm de diamètre pattes comprises! L'araignée possède une attaque (attaque = attaque magique du personnage) qui inflige 1 DM et oblige la victime à faire un test de CON difficulté [10 + rang atteint dans la voie]. En cas d'échec, la cible subit 1d4° DM de poison. Elle est capable de grimper aux murs.\n> *R4 ‑ Pouvoir mineur :* Toile (L). Une fois par combat, le personnage peut projeter des toiles gluantes du bout de ses doigts sur une cible à une distance maximale de 5 m. Cette action lui demande la réussite d'un test d'attaque magique contre la DEF de la cible. La victime de cette attaque est *immobilisée* par la toile pour 1d6 rounds. À son tour, la victime peut tenter un test de FOR difficulté 12 pour se libérer par une action de mouvement (M). Une réussite lui restitue sa complète liberté d'action.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur :* Poison. Une fois par round, une attaque que le personnage effectue avec une arme tranchante ou perforante inflige +1d4° DM supplémentaires de poison. *Caractéristique* : AGI.\n>\n> **DIABLOTIN**\n> Cette créature a tout du démon miniature : ailes de chauve‑souris, queue fourchue et surtout caractère pervers et cruel. Heureusement, le diablotin est aussi un couard et obéit à son maître dès lors que celui‑ci se montre suffisamment persuasif… Ce qui ne l'empêche pas de passer son temps à lui suggérer les actions les plus dépravées possibles. Le diablotin vole à une vitesse de 10 m par action de mouvement et est doué de parole.\n> *R4 ‑ Pouvoir mineur :* Le diablotin devient capable de se transformer en animal (de taille très petite) de son choix (corbeau, chouette, serpent, chat, chien, singe ou même saumon). Cela lui demande une action de mouvement pour changer de forme. Une fois transformé, il acquiert tous les modes de locomotion de l'animal imité.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Pacte démoniaque (rang 3, voie du démon, sorcier). Si le personnage possède déjà cette capacité, il divise par 2 les DM subis (arrondi au supérieur). *Caractéristique* : INT.\n>\n> **DRAGON FÉÉRIQUE**\n> Le dragon féérique est un cousin du pseudo‑dragon que l'on reconnaît facilement à ses grandes ailes colorées de papillon. Les dragons féériques sont d'un naturel farceur et prisent les sorts d'illusion. Le dragon féérique vole à une vitesse de 10 m par action de mouvement. Il est capable de communiquer par télépathie avec toutes les créatures comprenant le langage commun ou le sylvestre (le langage de la forêt) jusqu'à une portée de 20 m.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient le sort Image décalée (rang 2, voie des illusions, ensorceleur), 2 fois par jour.\n> *R5 ‑ Profil de magie associé :* ensorceleur\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient le sort Mirage (rang 1, voie des Illusions, ensorceleur), 1 fois par combat. *Caractéristique* : CHA.\n>\n> **FÉE OU LUTIN**\n> Le personnage adopte un lutin (30 cm) ou une fée (15 cm). Ce sont des créatures espiègles et farceuses (CHA +2) dont le MJ pourra parfois prendre le contrôle pour jouer des tours pendables aux alliés du personnage, et pourquoi pas au personnage lui‑même. Fée et lutin possèdent la capacité de se rendre invisible à volonté. La fée peut voler (10m par action de mouvement) et le lutin est capable de se téléporter sur une distance de 10 m par action de mouvement.\n> *R4 ‑ Pouvoir mineur :* 2 fois par jour, le personnage peut se rendre invisible comme avec la capacité de magicien (rang 3, voie de la magie universelle).\n> *R5 ‑ Profil de magie associé :* ensorceleur\n> *R7 ‑ Pouvoir supérieur.* Une fois par jour, le personnage peut basculer dans le monde invisible et s'y déplacer pour en ressortir là où il le souhaite. Ce pouvoir fonctionne exactement comme la capacité Marche des plans de la voie de la spiritualité du profil de prêtre. *Caractéristique* : AGI.\n>\n> **GRIG**\n> Le buste humanoïde de cet esprit follet de 45 cm de haut surmonte un bas‑ventre et des pattes inférieures semblables au corps d'une sauterelle. Tête brûlée veillant à la protection des zones naturelles, le Grig n'a peur de rien et prend souvent des risques inconsidérés. Le Grig aime jouer du violon et, une fois par jour, il peut reproduire avec cet instrument les effets d'un sort de Danse irrésistible (rang 5 de la voie du musicien, barde).\n> *R4 ‑ Pouvoir mineur :* Prison végétale comme la capacité de rang 2 de la voie des végétaux du druide, 2 fois par jour.\n> *R5 ‑ Profil de magie associé :* druide\n> *R7 ‑ Pouvoir supérieur :* Nuée d'insectes (rang 3 de la voie des animaux, druide), 3 fois par jour. *Caractéristique* : AGI.\n>\n> **LÉZARD VOLTAÏQUE**\n> Plus grand que les autres créatures proposées (FOR ‑2), ce familier pèse une dizaine de kilogrammes et fait la taille d'un petit chien, un animal dont il partage le tempérament joueur et affectueux. Ce gros lézard de couleur bleue ou verte possède deux cornes qui produisent des arcs électriques. Le lézard voltaïque est immunisé aux DM d'électricité et il peut délivrer une décharge étourdissante à ses ennemis. Cette attaque de contact (attaque magique du personnage] inflige 1d4° DM et contraint à réussir un test de CON difficulté 10 pour ne pas être *affaibli* durant 1 tour.\n> *R4 ‑ Pouvoir mineur.* Le personnage obtient la capacité Sous tension (rang 1, voie de l'air, ensorceleur), 2 fois par jour.\n> *R5 ‑ Profil de magie associé :* magicien\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Foudre (rang 4, voie de l'air, ensorceleur), 2 fois par jour. *Caractéristique* : INT.\n>\n> **MINIMOI**\n> À partir d'un petit morceau de sa chair, le personnage se dote d'une réplique miniature de sa personne. Cette réplique peut être créée à la suite d'une péripétie jouée ou subie par le personnage. Le familier est l'exacte copie de son maître, mais il mesure environ 30 cm. Son caractère et son attitude tendent à caricaturer les défauts et les qualités du personnage (en les accentuant ou au contraire en prenant le contrepied). Lorsqu'ils sont au contact l'un de l'autre, le personnage peut guérir le minimoi en lui transférant ses propres PV.\n> *Caractéristiques :* le minimoi a FOR ‑3 et AGI [AGI du personnage + 2] ; toutes ses autres caractéristiques sont égales à celles du personnage ‑ 2.\n> *R4 ‑ Pouvoir mineur :* Imitation. Le personnage obtient la capacité Imitation (rang 4, voie des illusions, ensorceleur) qu'il peut utiliser une fois par jour.\n> *R5 ‑ Profil de magie associé :* Le profil principal du personnage. Même si le personnage n'est pas un lanceur de sort, le personnage choisit tout de même une capacité de son propre profil principal.\n> *R7 ‑ Pouvoir supérieur :* Clone. Une fois par jour, par une action limitée, le minimoi peut grandir jusqu'à prendre une taille normale et devenir le double exact du personnage pendant INT rounds. Les deux personnages ont exactement les mêmes caractéristiques, le joueur les fait agir une fois par round de façon indépendante. Toutefois, ils partagent une unique réserve de PM (celle du PJ) et tous les sorts lancés par le familier sont déduits des PM du personnage. Durant sa transformation, le familier perd sa RD (il conserve ses PV habituels). *Caractéristique* : CHA.\n>\n> **PSEUDO‑DRAGON**\n> Le pseudo‑dragon est un petit lézard ailé de 30 cm environ pourvu d'une longue queue de 60 cm qui se termine par un dard empoisonné. Le pseudo‑dragon vole à une vitesse de 10 m par action de mouvement. Il est capable de communiquer par télépathie avec toutes les créatures comprenant le langage commun ou celui de la forêt (le sylvestre) à une portée de 20 m.\n> Il attaque avec la valeur d'attaque magique du personnage et, en cas de réussite, son poison oblige la victime à réussir un test de CON difficulté 10 ou à s'endormir pendant 2d6 min. Les créatures de NC supérieur à 1 sont immunisées à ce poison.\n> *R4 ‑ Pouvoir mineur :* Télépathie. Le personnage peut communiquer par télépathie à une distance de 50 m avec toutes les créatures douées de conscience avec lesquelles il partage un langage commun.\n> *R5 ‑ Profil de magie associé :* ensorceleur\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Sommeil (rang 2, voie de l'envoûteur, ensorceleur), une fois par combat. *Caractéristique* : CHA.\n>\n> **PANTIN OU POUPÉE**\n> Le personnage obtient un familier artificiel, qui peut être une poupée de chiffon, une merveille de miniaturisation et d'engrenages, ou encore une statuette s'animant par magie. Le pantin ou la poupée peut être un ancien familier transformé ou une nouvelle créature. Le familier acquiert le type «non‑vivant» et tous les avantages qui en découlent. Le pantin possède une RD 5. Celle‑ci s'ajoute à celle obtenue à partir du rang 6.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient la capacité Serviteur invisible (rang 2, voie de l'invocation, ensorceleur), 3 fois par jour.\n> *R5 ‑ Profil de magie associé :* forgesort\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Peau de pierre (rang 5, voie de la magie élémentaire, magicien) qu'il peut utiliser une fois par jour. *Caractéristique* : CON.\n>\n> **STIQUE**\n> La stique est une affreuse petite créature de couleur verte de 30 cm de haut, croisement entre un moustique géant et une chauve‑souris pourvue de quatre ailes. Elle possède six pattes barbelées lui permettant de s'accrocher férocement à ses victimes pour leur sucer le sang. Son exosquelette est excessivement dur et très difficile à briser sans blesser ces dernières au passage.\n> Une stique attaque avec la valeur d'attaque magique du personnage. Si elle réussit son attaque, elle s'agrippe à sa proie pour lui aspirer le sang et inflige ainsi 1d4° DM par round. La stique vole à une vitesse de 10 m par action de mouvement.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient la capacité Saignement (rang 1, voie du sang, sorcier), 3 fois par jour.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur.* Le personnage obtient la capacité Rituel de sang (rang 4, voie du sang, sorcier), 1 fois par combat. *Caractéristique* : CON.",
+        "description": "Le familier confère au personnage un second pouvoir magique indiqué dans sa description, ainsi qu'un bonus de +1 sur la valeur de caractéristique indiquée dans la description du familier.\n\n>\n> **ANIMAL CÉLESTE**\n> Un familier ordinaire auquel des ailes ont poussé. Celles‑ci symbolisent son élévation spirituelle. Le familier obtient la faculté de parler et la capacité de voler sur une distance de 20 m par action de mouvement.\n> *R4 ‑ Pouvoir mineur :* Compréhension des langues (rang 4, voie du vagabond, barde), 1 fois par jour, seulement à l'oral, pas à l'écrit.\n> *R5 ‑ Profil de magie associé :* prêtre\n> *R7 ‑ Pouvoir supérieur :* Prescience (rang 5, voie de la divination, ensorceleur), une fois par jour. *Caractéristique* : CHA.\n>\n> **ANIMAL MORT‑VIVANT**\n> Le personnage obtient la version morte‑vivante d'un familier ordinaire (rat, chat, corbeau, etc.). Ce peut être un nouveau familier ou son ancien familier passé de vie à trépas et fidèle par‑delà la mort. Le familier acquiert le type « non‑vivant » et tous les avantages qui en découlent (voir les créatures). Il obtient une attaque qui draine la force vitale des créatures vivantes (attaque = attaque magique du personnage), l'attaque inflige 1d4° DM et permet au magicien ou au familier de récupérer 1 PV par attaque réussie.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient la capacité Siphon des âmes (rang 1, voie de la mort, sorcier). S'il possède déjà cette capacité, il double son effet.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Exsangue (rang 3, voie du sang de sorcier). S'il possède déjà cette capacité, le personnage ne subit plus de pénalité à ses tests lorsqu'il est à 0 PV. *Caractéristique* : CON.\n>\n> **ARAIGNÉE GÉANTE**\n> Une araignée de la taille d'un familier normal, c'est‑à‑dire un monstre d'environ 30 cm de diamètre pattes comprises! L'araignée possède une attaque (attaque = attaque magique du personnage) qui inflige 1 DM et oblige la victime à faire un test de CON difficulté [10 + rang atteint dans la voie]. En cas d'échec, la cible subit 1d4° DM de poison. Elle est capable de grimper aux murs.\n> *R4 ‑ Pouvoir mineur :* Toile (L). Une fois par combat, le personnage peut projeter des toiles gluantes du bout de ses doigts sur une cible à une distance maximale de 5 m. Cette action lui demande la réussite d'un test d'attaque magique contre la DEF de la cible. La victime de cette attaque est *immobilisée* par la toile pour 1d6 rounds. À son tour, la victime peut tenter un test de FOR difficulté 12 pour se libérer par une action de mouvement (M). Une réussite lui restitue sa complète liberté d'action.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur :* Poison. Une fois par round, une attaque que le personnage effectue avec une arme tranchante ou perforante inflige +1d4° DM supplémentaires de poison. *Caractéristique* : AGI.\n>\n> **DIABLOTIN**\n> Cette créature a tout du démon miniature : ailes de chauve‑souris, queue fourchue et surtout caractère pervers et cruel. Heureusement, le diablotin est aussi un couard et obéit à son maître dès lors que celui‑ci se montre suffisamment persuasif… Ce qui ne l'empêche pas de passer son temps à lui suggérer les actions les plus dépravées possibles. Le diablotin vole à une vitesse de 10 m par action de mouvement et est doué de parole.\n> *R4 ‑ Pouvoir mineur :* Le diablotin devient capable de se transformer en animal (de taille très petite) de son choix (corbeau, chouette, serpent, chat, chien, singe ou même saumon). Cela lui demande une action de mouvement pour changer de forme. Une fois transformé, il acquiert tous les modes de locomotion de l'animal imité.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Pacte démoniaque (rang 3, voie du démon, sorcier). Si le personnage possède déjà cette capacité, il divise par 2 les DM subis (arrondi au supérieur). *Caractéristique* : INT.\n>\n> **DRAGON FÉÉRIQUE**\n> Le dragon féérique est un cousin du pseudo‑dragon que l'on reconnaît facilement à ses grandes ailes colorées de papillon. Les dragons féériques sont d'un naturel farceur et prisent les sorts d'illusion. Le dragon féérique vole à une vitesse de 10 m par action de mouvement. Il est capable de communiquer par télépathie avec toutes les créatures comprenant le langage commun ou le sylvestre (le langage de la forêt) jusqu'à une portée de 20 m.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient le sort Image décalée (rang 2, voie des illusions, ensorceleur), 2 fois par jour.\n> *R5 ‑ Profil de magie associé :* ensorceleur\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient le sort Mirage (rang 1, voie des Illusions, ensorceleur), 1 fois par combat. *Caractéristique* : CHA.\n>\n> **FÉE OU LUTIN**\n> Le personnage adopte un lutin (30 cm) ou une fée (15 cm). Ce sont des créatures espiègles et farceuses (CHA +2) dont le MJ pourra parfois prendre le contrôle pour jouer des tours pendables aux alliés du personnage, et pourquoi pas au personnage lui‑même. Fée et lutin possèdent la capacité de se rendre invisible à volonté. La fée peut voler (10m par action de mouvement) et le lutin est capable de se téléporter sur une distance de 10 m par action de mouvement.\n> *R4 ‑ Pouvoir mineur :* 2 fois par jour, le personnage peut se rendre invisible comme avec la capacité de magicien (rang 3, voie de la magie universelle).\n> *R5 ‑ Profil de magie associé :* ensorceleur\n> *R7 ‑ Pouvoir supérieur.* Une fois par jour, le personnage peut basculer dans le monde invisible et s'y déplacer pour en ressortir là où il le souhaite. Ce pouvoir fonctionne exactement comme la capacité Marche des plans de la voie de la spiritualité du profil de prêtre. *Caractéristique* : AGI.\n>\n> **GRIG**\n> Le buste humanoïde de cet esprit follet de 45 cm de haut surmonte un bas‑ventre et des pattes inférieures semblables au corps d'une sauterelle. Tête brûlée veillant à la protection des zones naturelles, le Grig n'a peur de rien et prend souvent des risques inconsidérés. Le Grig aime jouer du violon et, une fois par jour, il peut reproduire avec cet instrument les effets d'un sort de Danse irrésistible (rang 5 de la voie du musicien, barde).\n> *R4 ‑ Pouvoir mineur :* Prison végétale comme la capacité de rang 2 de la voie des végétaux du druide, 2 fois par jour.\n> *R5 ‑ Profil de magie associé :* druide\n> *R7 ‑ Pouvoir supérieur :* Nuée d'insectes (rang 3 de la voie des animaux, druide), 3 fois par jour. *Caractéristique* : AGI.\n>\n> **LÉZARD VOLTAÏQUE**\n> Plus grand que les autres créatures proposées (FOR ‑2), ce familier pèse une dizaine de kilogrammes et fait la taille d'un petit chien, un animal dont il partage le tempérament joueur et affectueux. Ce gros lézard de couleur bleue ou verte possède deux cornes qui produisent des arcs électriques. Le lézard voltaïque est immunisé aux DM d'électricité et il peut délivrer une décharge étourdissante à ses ennemis. Cette attaque de contact (attaque magique du personnage] inflige 1d4° DM et contraint à réussir un test de CON difficulté 10 pour ne pas être *affaibli* durant 1 tour.\n> *R4 ‑ Pouvoir mineur.* Le personnage obtient la capacité Sous tension (rang 1, voie de l'air, ensorceleur), 2 fois par jour.\n> *R5 ‑ Profil de magie associé :* magicien\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Foudre (rang 4, voie de l'air, ensorceleur), 2 fois par jour. *Caractéristique* : INT.\n>\n> **MINIMOI**\n> À partir d'un petit morceau de sa chair, le personnage se dote d'une réplique miniature de sa personne. Cette réplique peut être créée à la suite d'une péripétie jouée ou subie par le personnage. Le familier est l'exacte copie de son maître, mais il mesure environ 30 cm. Son caractère et son attitude tendent à caricaturer les défauts et les qualités du personnage (en les accentuant ou au contraire en prenant le contrepied). Lorsqu'ils sont au contact l'un de l'autre, le personnage peut guérir le minimoi en lui transférant ses propres PV.\n> *Caractéristiques :* le minimoi a FOR ‑3 et AGI [AGI du personnage + 2] ; toutes ses autres caractéristiques sont égales à celles du personnage ‑ 2.\n> *R4 ‑ Pouvoir mineur :* Imitation. Le personnage obtient la capacité Imitation (rang 4, voie des illusions, ensorceleur) qu'il peut utiliser une fois par jour.\n> *R5 ‑ Profil de magie associé :* Le profil principal du personnage. Même si le personnage n'est pas un lanceur de sort, le personnage choisit tout de même une capacité de son propre profil principal.\n> *R7 ‑ Pouvoir supérieur :* Clone. Une fois par jour, par une action limitée, le minimoi peut grandir jusqu'à prendre une taille normale et devenir le double exact du personnage pendant INT rounds. Les deux personnages ont exactement les mêmes caractéristiques, le joueur les fait agir une fois par round de façon indépendante. Toutefois, ils partagent une unique réserve de PM (celle du PJ) et tous les sorts lancés par le familier sont déduits des PM du personnage. Durant sa transformation, le familier perd sa RD (il conserve ses PV habituels). *Caractéristique* : CHA.\n>\n> **PSEUDO‑DRAGON**\n> Le pseudo‑dragon est un petit lézard ailé de 30 cm environ pourvu d'une longue queue de 60 cm qui se termine par un dard empoisonné. Le pseudo‑dragon vole à une vitesse de 10 m par action de mouvement. Il est capable de communiquer par télépathie avec toutes les créatures comprenant le langage commun ou celui de la forêt (le sylvestre) à une portée de 20 m.\n> Il attaque avec la valeur d'attaque magique du personnage et, en cas de réussite, son poison oblige la victime à réussir un test de CON difficulté 10 ou à s'endormir pendant 2d6 min. Les créatures de NC supérieur à 1 sont immunisées à ce poison.\n> *R4 ‑ Pouvoir mineur :* Télépathie. Le personnage peut communiquer par télépathie à une distance de 50 m avec toutes les créatures douées de conscience avec lesquelles il partage un langage commun.\n> *R5 ‑ Profil de magie associé :* ensorceleur\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Sommeil (rang 2, voie de l'envoûteur, ensorceleur), une fois par combat. *Caractéristique* : CHA.\n>\n> **PANTIN OU POUPÉE**\n> Le personnage obtient un familier artificiel, qui peut être une poupée de chiffon, une merveille de miniaturisation et d'engrenages, ou encore une statuette s'animant par magie. Le pantin ou la poupée peut être un ancien familier transformé ou une nouvelle créature. Le familier acquiert le type «non‑vivant» et tous les avantages qui en découlent. Le pantin possède une RD 5. Celle‑ci s'ajoute à celle obtenue à partir du rang 6.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient la capacité Serviteur invisible (rang 2, voie de l'invocation, ensorceleur), 3 fois par jour.\n> *R5 ‑ Profil de magie associé :* forgesort\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Peau de pierre (rang 5, voie de la magie élémentaire, magicien) qu'il peut utiliser une fois par jour. *Caractéristique* : CON.\n>\n> **STIQUE**\n> La stique est une affreuse petite créature de couleur verte de 30 cm de haut, croisement entre un moustique géant et une chauve‑souris pourvue de quatre ailes. Elle possède six pattes barbelées lui permettant de s'accrocher férocement à ses victimes pour leur sucer le sang. Son exosquelette est excessivement dur et très difficile à briser sans blesser ces dernières au passage.\n> Une stique attaque avec la valeur d'attaque magique du personnage. Si elle réussit son attaque, elle s'agrippe à sa proie pour lui aspirer le sang et inflige ainsi 1d4° DM par round. La stique vole à une vitesse de 10 m par action de mouvement.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient la capacité Saignement (rang 1, voie du sang, sorcier), 3 fois par jour.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur.* Le personnage obtient la capacité Rituel de sang (rang 4, voie du sang, sorcier), 1 fois par combat. *Caractéristique* : CON.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Animal céleste",
+            "category": "Familier volant doué de parole",
+            "specialFeatures": [
+              "Vol 20 m par action de mouvement.",
+              "R4 (Pouvoir mineur) : Compréhension des langues (1/jour, oral).",
+              "R5 : Sorts de prêtre.",
+              "R7 (Pouvoir supérieur) : Prescience (1/jour). Statistique : CHA +1."
+            ]
+          },
+          {
+            "name": "Animal mort-vivant",
+            "category": "Non-vivant",
+            "attacks": [
+              {
+                "name": "Drain vital",
+                "attackBonus": "Attaque magique",
+                "damage": "1d4° (+1 PV récupéré)"
+              }
+            ],
+            "specialFeatures": [
+              "R4 : Détection de la magie (à volonté).",
+              "R5 : Sorts de sorcier.",
+              "R7 : Forme de brume (1/combat). Statistique : CON +1."
+            ]
+          },
+          {
+            "name": "Minimoi",
+            "category": "Double miniature de 30 cm",
+            "stats": {
+              "FOR": "-3",
+              "AGI": "AGI du maître + 2"
+            },
+            "specialFeatures": [
+              "Toutes autres caractéristiques = caractéristiques du maître - 2.",
+              "R4 : Imitation (1/jour).",
+              "R5 : Capacité du profil principal du maître.",
+              "R7 : Clone (taille normale pendant INT rounds, 1/jour). Statistique : CHA +1."
+            ]
+          },
+          {
+            "name": "Pseudo-dragon",
+            "category": "Lézard ailé (30 cm, queue 60 cm)",
+            "attacks": [
+              {
+                "name": "Dard empoisonné",
+                "attackBonus": "Attaque magique",
+                "damage": "Poison (test CON 10 ou sommeil 2d6 min)"
+              }
+            ],
+            "specialFeatures": [
+              "Vol 10 m par action de mouvement. Télépathie 20 m.",
+              "R4 : Télépathie 50 m.",
+              "R5 : Sorts d'ensorceleur.",
+              "R7 : Sommeil (1/combat). Statistique : CHA +1."
+            ]
+          },
+          {
+            "name": "Pantin ou poupée",
+            "category": "Familier artificiel (non-vivant)",
+            "defense": "RD 5",
+            "specialFeatures": [
+              "R4 : Serviteur invisible (3/jour).",
+              "R5 : Sorts de forgesort.",
+              "R7 : Peau de pierre (1/jour). Statistique : CON +1."
+            ]
+          },
+          {
+            "name": "Stique",
+            "category": "Créature volante suceuse de sang",
+            "attacks": [
+              {
+                "name": "Succion sanguine",
+                "attackBonus": "Attaque magique",
+                "damage": "1d4° par round (s'agrippe)"
+              }
+            ],
+            "specialFeatures": [
+              "Vol 10 m par action de mouvement.",
+              "R4 : Saignement (3/jour).",
+              "R5 : Sorts de sorcier.",
+              "R7 : Rituel de sang (1/combat). Statistique : CON +1."
+            ]
+          }
+        ]
       }
     ],
     "type": "prestige",

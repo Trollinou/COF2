@@ -48,7 +48,7 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
     [character.equippedShieldId]
   );
 
-  // Determine racial / domain path for Page 1
+  // Determine racial / domain path for Page 1.
   const racialPath = useMemo(() => {
     const replacementId = character.selectedPathIds?.find(id => isRacialReplacementPath(id));
     if (replacementId) {
@@ -69,7 +69,7 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
 
   const replacedRacial = useMemo(() => getReplacedRacialPath(character), [character]);
 
-  // Determine ONLY the non-racial paths actually learned/chosen by the character for Page 2
+  // Determine ONLY the non-racial paths actually learned/chosen by the character for Page 2.
   const learnedPaths = useMemo(() => {
     const result: PathData[] = [];
     const seenIds = new Set<string>();
@@ -83,14 +83,14 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
       }
     };
 
-    // 1. Paths where abilities have been acquired (excluding the racial/domain path on Page 1)
+    // 1. Paths where abilities have been acquired (excluding the racial/domain path on Page 1).
     if (character.acquiredAbilities) {
       for (const acq of character.acquiredAbilities) {
         addPathById(acq.pathId);
       }
     }
 
-    // 2. Paths that were explicitly selected by the player
+    // 2. Paths that were explicitly selected by the player.
     if (character.selectedPathIds) {
       for (const id of character.selectedPathIds) {
         addPathById(id);
@@ -100,7 +100,7 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
     return result;
   }, [character.acquiredAbilities, character.selectedPathIds, racialPath]);
 
-  // Determine path category label for badge
+  // Determine path category label for badge.
   const getPathCategoryLabel = (path: PathData): string => {
     if (path.type === 'prestige') return 'VOIE DE PRESTIGE';
     if (secondaryProfile && secondaryProfile.paths.includes(path.id)) {
@@ -114,11 +114,11 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
     return 'VOIE';
   };
 
-  // Weapons with fallback blank rows
+  // Weapons with fallback blank rows.
   const filledWeapons = character.weapons || [];
   const emptyWeaponsCount = Math.max(0, 2 - filledWeapons.length);
 
-  // Exactly 6 non-racial slots total in the official 3x2 grid (per COF2 rules)
+  // Exactly 6 non-racial slots total in the official 3x2 grid (per COF2 rules).
   const TOTAL_SLOTS = 6;
   const emptySlotsCount = Math.max(0, TOTAL_SLOTS - learnedPaths.length);
 
@@ -342,6 +342,19 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
                             </strong>{' '}
                             <ActionBadges rank={r} variant="print" />
                             <span className="text-stone-700"> : {r.description}</span>
+                            {r.companions && r.companions.length > 0 && (
+                              <div className="mt-0.5 text-[6.5px] text-amber-950 font-mono bg-amber-50/70 p-0.5 rounded border border-amber-200">
+                                {r.companions.map((comp, cIdx) => (
+                                  <div key={cIdx}>
+                                    <strong>🐾 {comp.name}</strong> {comp.category ? `(${comp.category}) ` : ''}
+                                    {comp.hp ? `• PV: ${comp.hp} ` : ''}
+                                    {comp.defense ? `• DEF: ${comp.defense} ` : ''}
+                                    {comp.initiative ? `• Init: ${comp.initiative} ` : ''}
+                                    {comp.attacks && comp.attacks.length > 0 && `• Atk: ${comp.attacks.map(a => `${a.name} [DM ${a.damage}]`).join(', ')}`}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                             {r.rank === 1 && replacedRacial && (
                               <div className="mt-0.5 p-0.5 bg-emerald-50 border border-emerald-300 rounded text-[7px] text-stone-800">
                                 <strong className="text-emerald-900">
@@ -372,7 +385,7 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
 
                   {/* Defense */}
                   <div className="col-span-8 border border-stone-700 rounded p-1 bg-white">
-                    <div className="grid grid-cols-4 text-center items-center">
+                    <div className="grid grid-cols-5 text-center items-center">
                       <div>
                         <div className="text-[7.5px] font-bold uppercase text-stone-600">DÉFENSE</div>
                         <div className="font-mono font-black text-sm text-stone-900 leading-tight">
@@ -380,11 +393,13 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
                         </div>
                       </div>
                       <div>
-                        <div className="text-[7px] font-semibold text-stone-500 uppercase">AGI</div>
+                        <div className="text-[7px] font-semibold text-stone-500 uppercase">
+                          {stats.defenseStat || 'AGI'}
+                        </div>
                         <div className="font-mono text-xs font-bold text-stone-800">
-                          {stats.finalStats[stats.defenseStat || 'AGI'] >= 0
-                            ? `+${stats.finalStats[stats.defenseStat || 'AGI']}`
-                            : stats.finalStats[stats.defenseStat || 'AGI']}
+                          {stats.effectiveAgi >= 0
+                            ? `+${stats.effectiveAgi}`
+                            : stats.effectiveAgi}
                         </div>
                       </div>
                       <div>
@@ -397,6 +412,12 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
                         <div className="text-[7px] font-semibold text-stone-500 uppercase">BOUCLIER</div>
                         <div className="font-mono text-xs font-bold text-stone-800 truncate" title={shield ? `${shield.name} (+${shield.def})` : '0'}>
                           {shield ? `+${shield.def}` : '0'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[7px] font-semibold text-stone-500 uppercase">VOIES/DIV.</div>
+                        <div className="font-mono text-xs font-bold text-stone-800">
+                          {stats.pathBonusDefense >= 0 ? `+${stats.pathBonusDefense}` : stats.pathBonusDefense}
                         </div>
                       </div>
                     </div>
@@ -693,6 +714,19 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
                               </strong>{' '}
                               <ActionBadges rank={r} variant="print" />
                               <span className="text-stone-700"> : {r.description}</span>
+                            {r.companions && r.companions.length > 0 && (
+                              <div className="mt-0.5 text-[6.5px] text-amber-950 font-mono bg-amber-50/70 p-0.5 rounded border border-amber-200">
+                                {r.companions.map((comp, cIdx) => (
+                                  <div key={cIdx}>
+                                    <strong>🐾 {comp.name}</strong> {comp.category ? `(${comp.category}) ` : ''}
+                                    {comp.hp ? `• PV: ${comp.hp} ` : ''}
+                                    {comp.defense ? `• DEF: ${comp.defense} ` : ''}
+                                    {comp.initiative ? `• Init: ${comp.initiative} ` : ''}
+                                    {comp.attacks && comp.attacks.length > 0 && `• Atk: ${comp.attacks.map(a => `${a.name} [DM ${a.damage}]`).join(', ')}`}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                             </div>
                           </div>
                         );

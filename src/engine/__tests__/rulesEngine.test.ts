@@ -742,5 +742,179 @@ describe('COF2 Rules Engine', () => {
       expect(updated.acquiredAbilities.some(a => a.pathId === 'voie-des-animaux')).toBe(true);
       expect(updated.acquiredAbilities.some(a => a.pathId === 'voie-du-nain')).toBe(true);
     });
+
+    it('correctly configures and applies Voie de la Séduction (ranks 1 to 5, Dentelles et rapière DEF bonus, and Charisme héroïque PM stat replacement)', () => {
+      const pth = getPathById('voie-de-la-s-duction');
+      expect(pth).toBeDefined();
+      expect(pth?.ranks.length).toBe(5);
+      expect(pth?.ranks.map(r => r.rank)).toEqual([1, 2, 3, 4, 5]);
+      expect(pth?.ranks[0].title).toBe('Charmant');
+      expect(pth?.ranks[1].title).toBe('Dentelles et rapière');
+      expect(pth?.ranks[1].modifiers).toBeDefined();
+      expect(pth?.ranks[1].modifiers?.defenseStatBonus).toBe('CHA');
+      expect(pth?.ranks[1].modifiers?.defenseCondition).toBe('noArmor');
+      expect(pth?.ranks[1].modifiers?.defenseMaxRankCapped).toBe(true);
+      expect(pth?.ranks[2].title).toBe('Baratineur de génie');
+      expect(pth?.ranks[3].title).toBe('Charisme héroïque');
+      expect(pth?.ranks[4].title).toBe('Suggestion');
+      expect(pth?.ranks[4].isSpell).toBe(true);
+
+      const char = createDefaultCharacter();
+      char.profileId = 'barde';
+      char.baseStats = { FOR: 0, AGI: 2, CON: 1, PER: 0, INT: 1, VOL: 0, CHA: 3 };
+      char.equippedArmorId = undefined; // No armor
+
+      // Rank 1 acquired: DEF = 10 + AGI (2) = 12
+      char.acquiredAbilities = [{ pathId: 'voie-de-la-s-duction', rank: 1 }];
+      let stats = computeCharacterStats(char);
+      expect(stats.defense).toBe(12);
+
+      // Rank 2 acquired (Dentelles et rapière): bonus CHA (3) capped at rank in path (2) -> DEF = 10 + 2 (AGI) + 2 (CHA cap) = 14
+      char.acquiredAbilities.push({ pathId: 'voie-de-la-s-duction', rank: 2 });
+      stats = computeCharacterStats(char);
+      expect(stats.defense).toBe(14);
+      expect(stats.pathSituationalNotes).toContain(
+        'Dentelles et rapière : +CHA en DEF sans armure (max rang dans la voie)'
+      );
+
+      // If wearing armor (cuir-simple, def 2), Dentelles et rapière bonus is disabled: DEF = 10 + 2 (AGI) + 2 (armor) = 14
+      char.equippedArmorId = 'cuir-simple';
+      stats = computeCharacterStats(char);
+      expect(stats.defense).toBe(14);
+
+      // Rank 3 and 4: Rank 4 increases CHA by +1 (CHA becomes 4)
+      char.equippedArmorId = undefined;
+      char.acquiredAbilities.push({ pathId: 'voie-de-la-s-duction', rank: 3 });
+      char.acquiredAbilities.push({ pathId: 'voie-de-la-s-duction', rank: 4 });
+      stats = computeCharacterStats(char);
+      expect(stats.finalStats.CHA).toBe(4);
+      // DEF with no armor: 10 + 2 (AGI) + min(CHA 4, rank 4) = 16
+      expect(stats.defense).toBe(16);
+
+      // Rank 5 (Suggestion is a spell): With Rank 4, PM uses CHA instead of VOL
+      // CHA is 4, 1 spell acquired (Suggestion), no extra PM bonus -> maxPm = 4 + 1 = 5 (instead of VOL 0 + 1 = 1)
+      char.acquiredAbilities.push({ pathId: 'voie-de-la-s-duction', rank: 5 });
+      stats = computeCharacterStats(char);
+      expect(stats.maxPm).toBe(5);
+    });
+
+    it('correctly applies scaling path bonuses across ranks (Voleur Agile, Moine Agilité/Peau de fer/Ki, Druide Félin, Forgesort Runes)', () => {
+      const char = createDefaultCharacter();
+      char.profileId = 'voleur';
+      char.baseStats = { FOR: 0, AGI: 2, CON: 1, PER: 1, INT: 0, VOL: 2, CHA: 0 };
+      char.equippedArmorId = undefined;
+
+      // Voie du déplacement (Voleur): R1 gives +1 DEF, +1 Init; R3 gives +1 DEF, +1 Init (total +2); R5 gives +1 DEF, +1 Init (total +3)
+      char.acquiredAbilities = [{ pathId: 'voie-du-d-placement', rank: 1 }];
+      let stats = computeCharacterStats(char);
+      // base DEF = 10 + 2 (AGI) + 1 (voie) = 13
+      expect(stats.defense).toBe(13);
+      // base Init = 10 + 1 (PER) + 1 (voie) = 12
+      expect(stats.initiative).toBe(12);
+
+      char.acquiredAbilities.push({ pathId: 'voie-du-d-placement', rank: 2 });
+      char.acquiredAbilities.push({ pathId: 'voie-du-d-placement', rank: 3 });
+      stats = computeCharacterStats(char);
+      expect(stats.defense).toBe(14);
+      expect(stats.initiative).toBe(13);
+
+      char.acquiredAbilities.push({ pathId: 'voie-du-d-placement', rank: 4 });
+      char.acquiredAbilities.push({ pathId: 'voie-du-d-placement', rank: 5 });
+      stats = computeCharacterStats(char);
+      // Rank 4 adds +1 AGI (AGI becomes 3), Rank 5 brings path DEF to +3 and Init to +3
+      // DEF = 10 + 3 (AGI) + 3 (voie) = 16
+      expect(stats.defense).toBe(16);
+      // Init = 10 + 1 (PER) + 3 (voie) = 14
+      expect(stats.initiative).toBe(14);
+
+      // Moine: Voie de la maîtrise R1 (+2 DEF), R4 (+3 DEF total)
+      const monk = createDefaultCharacter();
+      monk.profileId = 'moine';
+      monk.baseStats = { FOR: 1, AGI: 2, CON: 1, PER: 0, INT: 0, VOL: 3, CHA: 0 };
+      monk.equippedArmorId = undefined;
+      monk.acquiredAbilities = [{ pathId: 'voie-de-la-ma-trise', rank: 1 }];
+      stats = computeCharacterStats(monk);
+      expect(stats.defense).toBe(14); // 10 + 2 AGI + 2 Voie
+
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-ma-trise', rank: 2 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-ma-trise', rank: 3 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-ma-trise', rank: 4 });
+      stats = computeCharacterStats(monk);
+      expect(stats.defense).toBe(15); // 10 + 2 AGI + 3 Voie
+
+      // Moine: Voie de la méditation R3 (+2 DEF, +VOL Init, +VOL PV)
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-m-ditation', rank: 1 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-m-ditation', rank: 2 });
+      monk.acquiredAbilities.push({ pathId: 'voie-de-la-m-ditation', rank: 3 });
+      stats = computeCharacterStats(monk);
+      // DEF: 10 + 2 AGI + 3 (maîtrise) + 2 (méditation) = 17
+      expect(stats.defense).toBe(17);
+      // Init: 10 + 0 (PER) + 3 (VOL bonus) = 13
+      expect(stats.initiative).toBe(13);
+
+      // Druide: Voie du fauve R1 (+3 Init, +1 DEF), R3 (+2 DEF), R5 (+3 DEF)
+      const druid = createDefaultCharacter();
+      druid.profileId = 'druide';
+      druid.baseStats = { FOR: 0, AGI: 1, CON: 1, PER: 2, INT: 0, VOL: 2, CHA: 0 };
+      druid.equippedArmorId = undefined;
+      druid.acquiredAbilities = [{ pathId: 'voie-du-fauve', rank: 1 }];
+      stats = computeCharacterStats(druid);
+      expect(stats.defense).toBe(12); // 10 + 1 AGI + 1 Voie
+      expect(stats.initiative).toBe(15); // 10 + 2 PER + 3 Voie
+
+      druid.acquiredAbilities.push({ pathId: 'voie-du-fauve', rank: 2 });
+      druid.acquiredAbilities.push({ pathId: 'voie-du-fauve', rank: 3 });
+      stats = computeCharacterStats(druid);
+      expect(stats.defense).toBe(13); // 10 + 1 AGI + 2 Voie
+
+      druid.acquiredAbilities.push({ pathId: 'voie-du-fauve', rank: 4 });
+      druid.acquiredAbilities.push({ pathId: 'voie-du-fauve', rank: 5 });
+      stats = computeCharacterStats(druid);
+      expect(stats.defense).toBe(14); // 10 + 1 AGI + 3 Voie
+
+      // Forgesort: Voie des runes R1 (+2 DEF), R3 (+3 DEF), R5 (+4 DEF)
+      const forge = createDefaultCharacter();
+      forge.profileId = 'forgesort';
+      forge.baseStats = { FOR: 0, AGI: 1, CON: 2, PER: 0, INT: 3, VOL: 1, CHA: 0 };
+      forge.equippedArmorId = undefined;
+      forge.acquiredAbilities = [{ pathId: 'voie-des-runes', rank: 1 }];
+      stats = computeCharacterStats(forge);
+      expect(stats.defense).toBe(13); // 10 + 1 AGI + 2 Voie
+
+      forge.acquiredAbilities.push({ pathId: 'voie-des-runes', rank: 2 });
+      forge.acquiredAbilities.push({ pathId: 'voie-des-runes', rank: 3 });
+      stats = computeCharacterStats(forge);
+      expect(stats.defense).toBe(14); // 10 + 1 AGI + 3 Voie
+
+      forge.acquiredAbilities.push({ pathId: 'voie-des-runes', rank: 4 });
+      forge.acquiredAbilities.push({ pathId: 'voie-des-runes', rank: 5 });
+      stats = computeCharacterStats(forge);
+      expect(stats.defense).toBe(15); // 10 + 1 AGI + 4 Voie
+    });
+
+    it('should ensure all profiles have exactly 5 paths including Rôdeur with Voie de l\'archer', () => {
+      const rodeur = getProfileById('r-deur');
+      expect(rodeur).toBeDefined();
+      expect(rodeur?.paths).toHaveLength(5);
+      expect(rodeur?.paths).toContain('voie-de-l-archer');
+
+      // Check Voie de l'archer initiative scaling (+1 per rank)
+      const char = createDefaultCharacter();
+      char.profileId = 'r-deur';
+      char.baseStats = { FOR: 0, AGI: 2, CON: 1, PER: 3, INT: 0, VOL: 0, CHA: 0 };
+      char.acquiredAbilities = [{ pathId: 'voie-de-l-archer', rank: 1 }];
+      let stats = computeCharacterStats(char);
+      expect(stats.initiative).toBe(14); // 10 + 3 PER + 1 Voie
+
+      char.acquiredAbilities.push({ pathId: 'voie-de-l-archer', rank: 2 });
+      char.acquiredAbilities.push({ pathId: 'voie-de-l-archer', rank: 3 });
+      stats = computeCharacterStats(char);
+      expect(stats.initiative).toBe(16); // 10 + 3 PER + 3 Voie
+
+      char.acquiredAbilities.push({ pathId: 'voie-de-l-archer', rank: 4 });
+      char.acquiredAbilities.push({ pathId: 'voie-de-l-archer', rank: 5 });
+      stats = computeCharacterStats(char);
+      expect(stats.initiative).toBe(18); // 10 + 3 PER + 5 Voie
+    });
   });
 });

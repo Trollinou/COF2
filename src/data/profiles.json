@@ -107,6 +107,7 @@
     "weaponsAndArmor": "Le rôdeur sait manier les armes de contact à une main et toutes les armes à distance.\n\nLes voies de rôdeur limitent l'armure au cuir renforcé et interdisent le port du bouclier.",
     "startingEquipment": "Épée longue (DM 1d8), arc court et carquois (DM 1d6, portée 30 m) ou une autre arme de contact (épée courte, hachette, lance), dague (DM 1d4), armure de cuir renforcé (DEF +3).",
     "paths": [
+      "voie-de-l-archer",
       "voie-du-compagnon-animal",
       "voie-de-la-survie",
       "voie-du-traqueur",

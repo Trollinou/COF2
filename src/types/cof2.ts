@@ -21,26 +21,29 @@ export interface RankChoiceOption {
 }
 
 export interface RankModifiers {
-  // Stat bonuses
+  // Stat bonuses.
   stats?: Partial<Record<StatCode, number>>;
   
-  // Stat substitutions (e.g. AGI instead of FOR for contact attack, PER instead of AGI for ranged, CON instead of AGI for DEF)
+  // Stat substitutions (e.g. AGI instead of FOR for contact attack, PER instead of AGI for ranged, CON instead of AGI for DEF).
   statSubstitutions?: StatSubstitutionRule[];
   
-  // Defense & Protections
+  // Defense & Protections.
   defense?: number;
+  defenseStatBonus?: StatCode; // Ex: 'CHA' (Voie de la séduction)
+  defenseCondition?: 'noArmor'; // Ex: 'noArmor' (Dentelles et rapière)
+  defenseMaxRankCapped?: boolean; // Plafonné au rang atteint dans la voie
   damageReduction?: number;
   
-  // Initiative
+  // Initiative.
   initiative?: number;
   initiativeStatBonus?: StatCode; // Ex: 'CHA' (Voie du baroudeur) or 'VOL' (Contrôle du métabolisme)
   
-  // Hit Points (PV)
+  // Hit Points (PV).
   hpBonus?: number;
   hpStatBonus?: StatCode; // Ex: 'VOL' (Voie du contrôle corporel, Talent personnel)
   hpPerRankInPath?: boolean; // Ex: +1 PV par rang atteint dans cette voie
   
-  // Attack & Damage bonuses
+  // Attack & Damage bonuses.
   attackBonus?: {
     contact?: number;
     distance?: number;
@@ -53,21 +56,42 @@ export interface RankModifiers {
     magique?: number;
   };
   
-  // Resources (PC & DR & PM)
+  // Resources (PC & DR & PM).
   bonusPC?: number;
   bonusDR?: number;
   bonusPm?: number;
   luckStatReplacement?: StatCode; // Ex: 'VOL' remplace CHA pour les PC (Voie de l'honneur)
+  manaStatReplacement?: StatCode; // Ex: 'CHA' remplace VOL pour les PM (Voie de la séduction)
   manaStatBonus?: StatCode; // Ex: 'PER' s'ajoute au total de PM (Perception des esprits)
   
-  // Combat specifics
+  // Combat specifics.
   critRangeBonus?: number; // Ex: +1 à la plage de critique
   
-  // Player choice options (e.g. PER +1 ou CON +1)
+  // Player choice options (e.g. PER +1 ou CON +1).
   choiceOptions?: RankChoiceOption[];
   
-  // Situational notes / reminders
+  // Situational notes / reminders.
   situationalNotes?: string[];
+}
+
+export interface CreatureAttack {
+  name: string;
+  attackBonus?: string;
+  damage: string;
+  range?: string;
+  special?: string;
+}
+
+export interface CompanionStatBlock {
+  name: string;
+  category?: string;
+  stats?: Partial<Record<StatCode, string>>;
+  defense?: string;
+  hp?: string;
+  initiative?: string;
+  attacks?: CreatureAttack[];
+  specialFeatures?: string[];
+  notes?: string[];
 }
 
 export interface ActionRank {
@@ -82,6 +106,7 @@ export interface ActionRank {
   isPassive?: boolean;
   description: string;
   modifiers?: RankModifiers;
+  companions?: CompanionStatBlock[];
 }
 
 export interface PriestDeity {
@@ -237,7 +262,7 @@ export interface CharacterSheet {
   version: string;
   updatedAt: string;
   
-  // Identity
+  // Identity.
   name: string;
   playerName: string;
   sex?: string;
@@ -252,7 +277,7 @@ export interface CharacterSheet {
   notes?: string;
   deity?: string;
 
-  // Heritage & Profession
+  // Heritage & Profession.
   peopleId: string;
   profileId: string;
   profileFamily?: ProfileFamily;
@@ -260,7 +285,7 @@ export interface CharacterSheet {
   secondaryProfileId?: string;
   level: number;
 
-  // Stats
+  // Stats.
   baseStats: Record<StatCode, number>;
   selectedRacialBonus?: StatCode;
   selectedRacialMalus?: StatCode;
@@ -268,12 +293,12 @@ export interface CharacterSheet {
   selectedRacialMaluses?: StatCode[];
   manualStatBonuses?: Partial<Record<StatCode, number>>;
 
-  // Paths & Abilities
+  // Paths & Abilities.
   selectedPathIds: string[];
   acquiredAbilities: Array<{ pathId: string; rank: number }>;
   pathRankChoices?: Record<string, string>; // Maps `${pathId}_${rank}` -> choiceOptionId
 
-  // Live state during play
+  // Live state during play.
   currentHp: number;
   maxHpBonus: number;
   levelUpHpGains?: number[]; // Exact base HP gained at each level (index 0 = level 1)
@@ -282,7 +307,7 @@ export interface CharacterSheet {
   currentPc: number;
   currentPm: number;
 
-  // Equipment
+  // Equipment.
   equippedArmorId?: string;
   equippedShieldId?: string;
   weapons: CharacterWeaponInstance[];
@@ -318,7 +343,7 @@ export interface ComputedCharacterStats {
   shieldDefense: number;
   effectiveAgi: number;
   
-  // Stat substitutions
+  // Stat substitutions.
   contactAttackStat?: StatCode;
   contactAttackStatSource?: string;
   distanceAttackStat?: StatCode;
@@ -327,7 +352,7 @@ export interface ComputedCharacterStats {
   defenseStatSource?: string;
   activeSubstitutions?: StatSubstitutionRule[];
   
-  // Breakdown of path passive bonuses
+  // Breakdown of path passive bonuses.
   pathBonusStats: Record<StatCode, number>;
   pathBonusDefense: number;
   pathBonusInitiative: number;

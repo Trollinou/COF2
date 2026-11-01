@@ -19,6 +19,7 @@ import {
   Shield,
 } from 'lucide-react';
 import { ActionBadges } from '../ActionBadges';
+import { CompanionCard } from '../CompanionCard';
 
 interface AbilitiesTabProps {
   character: CharacterSheet;
@@ -213,6 +214,15 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                         {rank.description}
                       </p>
 
+                      {/* Companion / Creature stat cards */}
+                      {rank.companions && rank.companions.length > 0 && (
+                        <div className="pl-7 space-y-2">
+                          {rank.companions.map((comp, idx) => (
+                            <CompanionCard key={idx} companion={comp} />
+                          ))}
+                        </div>
+                      )}
+
                       {/* Passive bonus indicator pill */}
                       {rank.modifiers && (
                         <div className="mt-2 ml-7 flex flex-wrap items-center gap-1.5 text-[10px]">
@@ -224,6 +234,11 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                           {rank.modifiers.defense && (
                             <span className="px-1.5 py-0.5 rounded bg-blue-950/80 text-blue-200 border border-blue-800/60 font-mono font-bold">
                               +{rank.modifiers.defense} DEF
+                            </span>
+                          )}
+                          {rank.modifiers.defenseStatBonus && (
+                            <span className="px-1.5 py-0.5 rounded bg-blue-950/80 text-blue-200 border border-blue-800/60 font-mono font-bold">
+                              +{rank.modifiers.defenseStatBonus} DEF {rank.modifiers.defenseCondition === 'noArmor' ? '(sans armure)' : ''}
                             </span>
                           )}
                           {rank.modifiers.initiative && (
@@ -328,6 +343,14 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                             {replacedRacial.rank1.description}
                           </p>
 
+                          {replacedRacial.rank1.companions && replacedRacial.rank1.companions.length > 0 && (
+                            <div className="pl-7 space-y-2">
+                              {replacedRacial.rank1.companions.map((comp, idx) => (
+                                <CompanionCard key={idx} companion={comp} />
+                              ))}
+                            </div>
+                          )}
+
                           {/* Passive modifiers for racial rank 1 */}
                           {replacedRacial.rank1.modifiers && (
                             <div className="ml-7 flex flex-wrap items-center gap-1.5 text-[10px]">
@@ -339,6 +362,11 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                               {replacedRacial.rank1.modifiers.defense && (
                                 <span className="px-1.5 py-0.5 rounded bg-blue-950 text-blue-200 border border-blue-800/60 font-mono font-bold">
                                   +{replacedRacial.rank1.modifiers.defense} DEF
+                                </span>
+                              )}
+                              {replacedRacial.rank1.modifiers.defenseStatBonus && (
+                                <span className="px-1.5 py-0.5 rounded bg-blue-950 text-blue-200 border border-blue-800/60 font-mono font-bold">
+                                  +{replacedRacial.rank1.modifiers.defenseStatBonus} DEF {replacedRacial.rank1.modifiers.defenseCondition === 'noArmor' ? '(sans armure)' : ''}
                                 </span>
                               )}
                               {replacedRacial.rank1.modifiers.initiative && (

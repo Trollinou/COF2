@@ -13,12 +13,12 @@ import {
   WeaponFilterCategory,
   PriestDeity,
   ProfileFamily,
-} from '../types/cof2';
+} from "../types/cof2";
 
-import peoplesData from '../data/peoples.json';
-import profilesData from '../data/profiles.json';
-import pathsData from '../data/paths.json';
-import equipmentData from '../data/equipment.json';
+import peoplesData from "../data/peoples.json";
+import profilesData from "../data/profiles.json";
+import pathsData from "../data/paths.json";
+import equipmentData from "../data/equipment.json";
 
 export const PEOPLES = peoplesData as PeopleData[];
 export const PROFILES = profilesData as ProfileData[];
@@ -28,11 +28,19 @@ export const WEAPONS = equipmentData.weapons as WeaponItem[];
 export const ADVENTURER_KIT = equipmentData.startingAdventurerKit;
 
 // O(1) Precomputed Maps
-export const PEOPLES_MAP = new Map<string, PeopleData>(PEOPLES.map(p => [p.id, p]));
-export const PROFILES_MAP = new Map<string, ProfileData>(PROFILES.map(p => [p.id, p]));
-export const PATHS_MAP = new Map<string, PathData>(PATHS.map(p => [p.id, p]));
-export const ARMORS_MAP = new Map<string, ArmorItem>(ARMORS.map(a => [a.id, a]));
-export const WEAPONS_MAP = new Map<string, WeaponItem>(WEAPONS.map(w => [w.id, w]));
+export const PEOPLES_MAP = new Map<string, PeopleData>(
+  PEOPLES.map((p) => [p.id, p]),
+);
+export const PROFILES_MAP = new Map<string, ProfileData>(
+  PROFILES.map((p) => [p.id, p]),
+);
+export const PATHS_MAP = new Map<string, PathData>(PATHS.map((p) => [p.id, p]));
+export const ARMORS_MAP = new Map<string, ArmorItem>(
+  ARMORS.map((a) => [a.id, a]),
+);
+export const WEAPONS_MAP = new Map<string, WeaponItem>(
+  WEAPONS.map((w) => [w.id, w]),
+);
 
 export function getPeopleById(id: string): PeopleData | undefined {
   return PEOPLES_MAP.get(id);
@@ -58,47 +66,51 @@ export function getWeaponById(id: string): WeaponItem | undefined {
 // Priest Deities & Domain Paths (Voies de Domaine de Prêtre)
 // ---------------------------------------------------------
 export const PRIEST_DEITIES: PriestDeity[] = (PATHS as PathData[])
-  .filter(p => p.type === 'domain' && p.deity)
-  .map(p => ({
+  .filter((p) => p.type === "domain" && p.deity)
+  .map((p) => ({
     name: p.deity!,
-    domainTitle: p.domainTitle || '',
-    symbolDesc: p.symbolDesc || '',
-    sacredWeapon: p.sacredWeapon || '',
+    domainTitle: p.domainTitle || "",
+    symbolDesc: p.symbolDesc || "",
+    sacredWeapon: p.sacredWeapon || "",
     domainPathId: p.id,
   }));
 
 export const DEITIES_MAP = new Map<string, PriestDeity>(
-  PRIEST_DEITIES.map(d => [d.name.toLowerCase(), d])
+  PRIEST_DEITIES.map((d) => [d.name.toLowerCase(), d]),
 );
 
 export const DOMAIN_PATHS_MAP = new Map<string, PriestDeity>(
-  PRIEST_DEITIES.map(d => [d.domainPathId, d])
+  PRIEST_DEITIES.map((d) => [d.domainPathId, d]),
 );
 
 export function isDomainPath(pathId: string): boolean {
   const p = getPathById(pathId);
-  return p?.type === 'domain' && pathId.startsWith('voie-du-domaine-');
+  return p?.type === "domain" && pathId.startsWith("voie-du-domaine-");
 }
 
 export function isMageProfile(profileId: string): boolean {
-  return ['ensorceleur', 'forgesort', 'magicien', 'sorcier'].includes(profileId);
+  return ["ensorceleur", "forgesort", "magicien", "sorcier"].includes(
+    profileId,
+  );
 }
 
 export function isRacialReplacementPath(pathId: string): boolean {
-  return isDomainPath(pathId) || pathId === 'voie-du-mage';
+  return isDomainPath(pathId) || pathId === "voie-du-mage";
 }
 
 export function getReplacedRacialPath(char: CharacterSheet): {
   path: PathData;
   rank1: ActionRank;
 } | null {
-  const replacementPathId = char.selectedPathIds?.find(id => isRacialReplacementPath(id));
+  const replacementPathId = char.selectedPathIds?.find((id) =>
+    isRacialReplacementPath(id),
+  );
   if (!replacementPathId) return null;
 
   // Find acquired racial ability if any, otherwise default for people
-  const racialAcq = char.acquiredAbilities?.find(a => {
+  const racialAcq = char.acquiredAbilities?.find((a) => {
     const p = getPathById(a.pathId);
-    return p?.type === 'racial' && a.rank === 1;
+    return p?.type === "racial" && a.rank === 1;
   });
 
   const racialPathId = racialAcq?.pathId || getRacialPathId(char.peopleId);
@@ -112,10 +124,12 @@ export function getReplacedRacialPath(char: CharacterSheet): {
 }
 
 export function getDomainPaths(): PathData[] {
-  return PATHS.filter(p => p.type === 'domain');
+  return PATHS.filter((p) => p.type === "domain");
 }
 
-export function getDeityByDomainPathId(pathId: string): PriestDeity | undefined {
+export function getDeityByDomainPathId(
+  pathId: string,
+): PriestDeity | undefined {
   return DOMAIN_PATHS_MAP.get(pathId);
 }
 
@@ -131,51 +145,67 @@ export function getDomainPathForDeity(deityName: string): PathData | undefined {
 
 export function isWeaponEligibleForFilter(
   weapon: WeaponItem | CharacterWeaponInstance,
-  filter?: WeaponFilterCategory
+  filter?: WeaponFilterCategory,
 ): boolean {
-  if (!filter || filter === 'any') return true;
+  if (!filter || filter === "any") return true;
 
-  const weaponRefId = 'weaponRefId' in weapon ? weapon.weaponRefId : weapon.id;
-  const baseW = getWeaponById(weaponRefId) || ('category' in weapon ? (weapon as WeaponItem) : undefined);
-  const notes = baseW?.notes || '';
+  const weaponRefId = "weaponRefId" in weapon ? weapon.weaponRefId : weapon.id;
+  const baseW =
+    getWeaponById(weaponRefId) ||
+    ("category" in weapon ? (weapon as WeaponItem) : undefined);
+  const notes = baseW?.notes || "";
 
   switch (filter) {
-    case 'bareHands':
-      return weaponRefId === 'mains-nues';
+    case "bareHands":
+      return weaponRefId === "mains-nues";
 
-    case 'lightWeapons':
+    case "lightWeapons":
       return (
-        ['dague', 'epee-courte', 'rapiere', 'sabre-court'].includes(weaponRefId) ||
-        notes.toLowerCase().includes('arme légère')
+        ["dague", "epee-courte", "rapiere", "sabre-court"].includes(
+          weaponRefId,
+        ) || notes.toLowerCase().includes("arme légère")
       );
 
-    case 'sabres':
-      return ['sabre-court', 'sabre-droit', 'vivelame'].includes(weaponRefId);
+    case "sabres":
+      return ["sabre-court", "sabre-droit", "vivelame"].includes(weaponRefId);
 
-    case 'duellisteWeapons':
-      return ['dague', 'epee-courte', 'epee-longue', 'rapiere', 'vivelame'].includes(weaponRefId);
-
-    case 'danseurWeapons':
+    case "duellisteWeapons":
       return [
-        'dague',
-        'epee-courte',
-        'epee-longue',
-        'epee-batarde',
-        'epee-deux-mains',
-        'sabre-court',
-        'sabre-droit',
-        'vivelame',
-        'lance',
+        "dague",
+        "epee-courte",
+        "epee-longue",
+        "rapiere",
+        "vivelame",
       ].includes(weaponRefId);
 
-    case 'projectiles':
+    case "danseurWeapons":
+      return [
+        "dague",
+        "epee-courte",
+        "epee-longue",
+        "epee-batarde",
+        "epee-deux-mains",
+        "sabre-court",
+        "sabre-droit",
+        "vivelame",
+        "lance",
+      ].includes(weaponRefId);
+
+    case "projectiles":
       return (
-        baseW?.category === 'distance' &&
+        baseW?.category === "distance" &&
         !baseW.isPowder &&
-        ['arc-court', 'arc-long', 'arbalete-legere', 'arbalete-lourde', 'arbalete-poing', 'fronde'].includes(weaponRefId)
+        [
+          "arc-court",
+          "arc-long",
+          "arbalete-legere",
+          "arbalete-lourde",
+          "arbalete-poing",
+          "fronde",
+        ].includes(weaponRefId)
       );
 
-    case 'oneHanded':
+    case "oneHanded":
       return baseW ? baseW.hands === 1 : true;
 
     default:
@@ -183,7 +213,7 @@ export function isWeaponEligibleForFilter(
   }
 }
 
-export type ShieldPermission = 'none' | 'small' | 'any';
+export type ShieldPermission = "none" | "small" | "any";
 
 export interface ProfileEquipmentRule {
   maxArmorId: string | null;
@@ -194,19 +224,21 @@ export interface ProfileEquipmentRule {
 }
 
 // 1. Data-driven armor hierarchy from equipment.json
-export const ARMOR_HIERARCHY: string[] = (equipmentData as { armorHierarchy?: string[] }).armorHierarchy || [
-  'tissus',
-  'cuir-simple',
-  'cuir-renforce',
-  'chemise-mailles',
-  'cotte-mailles',
-  'plaques',
-  'plaque-complete',
+export const ARMOR_HIERARCHY: string[] = (
+  equipmentData as { armorHierarchy?: string[] }
+).armorHierarchy || [
+  "tissus",
+  "cuir-simple",
+  "cuir-renforce",
+  "chemise-mailles",
+  "cotte-mailles",
+  "plaques",
+  "plaque-complete",
 ];
 
 // 2. Data-driven profile rules mapped dynamically from profiles.json
 export const PROFILE_EQUIPMENT_RULES: Record<string, ProfileEquipmentRule> = {};
-PROFILES.forEach(p => {
+PROFILES.forEach((p) => {
   if (p.equipmentRules) {
     PROFILE_EQUIPMENT_RULES[p.id] = {
       maxArmorId: p.equipmentRules.maxArmorId,
@@ -218,9 +250,14 @@ PROFILES.forEach(p => {
   }
 });
 
-export function getAllowedArmors(profileId: string, secondaryProfileId?: string): ArmorItem[] {
+export function getAllowedArmors(
+  profileId: string,
+  secondaryProfileId?: string,
+): ArmorItem[] {
   const p1 = getProfileById(profileId);
-  const p2 = secondaryProfileId ? getProfileById(secondaryProfileId) : undefined;
+  const p2 = secondaryProfileId
+    ? getProfileById(secondaryProfileId)
+    : undefined;
 
   const max1 = p1?.equipmentRules?.maxArmorId;
   const max2 = p2?.equipmentRules?.maxArmorId;
@@ -231,38 +268,51 @@ export function getAllowedArmors(profileId: string, secondaryProfileId?: string)
 
   if (maxIdx === -1) return [];
   const allowedIds = ARMOR_HIERARCHY.slice(0, maxIdx + 1);
-  return ARMORS.filter(a => a.type === 'armor' && allowedIds.includes(a.id));
+  return ARMORS.filter((a) => a.type === "armor" && allowedIds.includes(a.id));
 }
 
-export function getAllowedShields(profileId: string, secondaryProfileId?: string): ArmorItem[] {
+export function getAllowedShields(
+  profileId: string,
+  secondaryProfileId?: string,
+): ArmorItem[] {
   const p1 = getProfileById(profileId);
-  const p2 = secondaryProfileId ? getProfileById(secondaryProfileId) : undefined;
+  const p2 = secondaryProfileId
+    ? getProfileById(secondaryProfileId)
+    : undefined;
 
-  const perm1 = p1?.equipmentRules?.shieldPermission || 'none';
-  const perm2 = p2?.equipmentRules?.shieldPermission || 'none';
+  const perm1 = p1?.equipmentRules?.shieldPermission || "none";
+  const perm2 = p2?.equipmentRules?.shieldPermission || "none";
 
-  if (perm1 !== 'none' && perm1 !== 'small') {
-    return ARMORS.filter(a => a.type === 'shield');
+  if (perm1 !== "none" && perm1 !== "small") {
+    return ARMORS.filter((a) => a.type === "shield");
   }
-  if (perm2 !== 'none' && perm2 !== 'small') {
-    return ARMORS.filter(a => a.type === 'shield');
+  if (perm2 !== "none" && perm2 !== "small") {
+    return ARMORS.filter((a) => a.type === "shield");
   }
-  if (perm1 === 'small' || perm2 === 'small') {
-    return ARMORS.filter(a => a.id === 'petit-bouclier');
+  if (perm1 === "small" || perm2 === "small") {
+    return ARMORS.filter((a) => a.id === "petit-bouclier");
   }
   return [];
 }
 
-export function isArmorAllowed(armorId: string | undefined, profileId: string, secondaryProfileId?: string): boolean {
+export function isArmorAllowed(
+  armorId: string | undefined,
+  profileId: string,
+  secondaryProfileId?: string,
+): boolean {
   if (!armorId) return true;
   const allowed = getAllowedArmors(profileId, secondaryProfileId);
-  return allowed.some(a => a.id === armorId);
+  return allowed.some((a) => a.id === armorId);
 }
 
-export function isShieldAllowed(shieldId: string | undefined, profileId: string, secondaryProfileId?: string): boolean {
+export function isShieldAllowed(
+  shieldId: string | undefined,
+  profileId: string,
+  secondaryProfileId?: string,
+): boolean {
   if (!shieldId) return true;
   const allowed = getAllowedShields(profileId, secondaryProfileId);
-  return allowed.some(s => s.id === shieldId);
+  return allowed.some((s) => s.id === shieldId);
 }
 
 export interface WeaponProficiencyCheck {
@@ -271,58 +321,112 @@ export interface WeaponProficiencyCheck {
   requiresTwoHands?: boolean;
 }
 
-export function matchesSacredWeapon(weaponId: string, sacredWeaponDesc: string): boolean {
+export function matchesSacredWeapon(
+  weaponId: string,
+  sacredWeaponDesc: string,
+): boolean {
   const desc = sacredWeaponDesc.toLowerCase();
   const weapon = getWeaponById(weaponId);
   if (!weapon) return false;
   const name = weapon.name.toLowerCase();
 
   if (desc.includes(name) || name.includes(desc)) return true;
-  if (desc.includes('bâton') && weaponId.includes('baton')) return true;
-  if (desc.includes('marteau') && weaponId.includes('marteau')) return true;
-  if (desc.includes('arc') && weaponId.includes('arc')) return true;
-  if (desc.includes('épée courte') && weaponId === 'epee-courte') return true;
-  if (desc.includes('épée longue') && weaponId === 'epee-longue') return true;
-  if (desc.includes('épée à deux mains') && weaponId === 'epee-deux-mains') return true;
-  if (desc.includes('masse') && weaponId.includes('masse')) return true;
-  if (desc.includes('dague') && weaponId === 'dague') return true;
-  if (desc.includes('rapière') && weaponId === 'rapiere') return true;
-  if (desc.includes('arbalète légère') && weaponId === 'arbalete-legere') return true;
-  if (desc.includes('mains nues') && weaponId === 'mains-nues') return true;
+  if (desc.includes("bâton") && weaponId.includes("baton")) return true;
+  if (desc.includes("marteau") && weaponId.includes("marteau")) return true;
+  if (desc.includes("arc") && weaponId.includes("arc")) return true;
+  if (desc.includes("épée courte") && weaponId === "epee-courte") return true;
+  if (desc.includes("épée longue") && weaponId === "epee-longue") return true;
+  if (desc.includes("épée à deux mains") && weaponId === "epee-deux-mains")
+    return true;
+  if (desc.includes("masse") && weaponId.includes("masse")) return true;
+  if (desc.includes("dague") && weaponId === "dague") return true;
+  if (desc.includes("rapière") && weaponId === "rapiere") return true;
+  if (desc.includes("arbalète légère") && weaponId === "arbalete-legere")
+    return true;
+  if (desc.includes("mains nues") && weaponId === "mains-nues") return true;
   return false;
 }
 
-function checkProfileWeaponRule(weapon: WeaponItem, profileId: string): { allowed: boolean; reason?: string } {
+function checkProfileWeaponRule(
+  weapon: WeaponItem,
+  profileId: string,
+): { allowed: boolean; reason?: string } {
   const profile = getProfileById(profileId);
   const wRules = profile?.equipmentRules?.weaponRules;
   if (!wRules) return { allowed: true };
 
-  if (wRules.allowedCategories && !wRules.allowedCategories.includes(weapon.category)) {
-    return { allowed: false, reason: `${profile?.name || 'Ce profil'} dédaigne les armes à distance.` };
+  if (
+    wRules.allowedCategories &&
+    !wRules.allowedCategories.includes(weapon.category)
+  ) {
+    return {
+      allowed: false,
+      reason: `${profile?.name || "Ce profil"} dédaigne les armes à distance.`,
+    };
   }
-  if (wRules.allowedDamageTypes && !wRules.allowedDamageTypes.includes(weapon.damageType)) {
-    return { allowed: false, reason: `${profile?.name || 'Ce profil'} a l'interdiction de faire couler le sang (${wRules.allowedDamageTypes.join(', ')} uniquement).` };
+  if (
+    wRules.allowedDamageTypes &&
+    !wRules.allowedDamageTypes.includes(weapon.damageType)
+  ) {
+    return {
+      allowed: false,
+      reason: `${profile?.name || "Ce profil"} a l'interdiction de faire couler le sang (${wRules.allowedDamageTypes.join(", ")} uniquement).`,
+    };
   }
   if (wRules.forbidPowder && weapon.isPowder) {
-    return { allowed: false, reason: `${profile?.name || 'Ce profil'} refuse les armes à poudre.` };
+    return {
+      allowed: false,
+      reason: `${profile?.name || "Ce profil"} refuse les armes à poudre.`,
+    };
   }
   if (wRules.forbidCrossbows && weapon.isCrossbow) {
-    return { allowed: false, reason: `${profile?.name || 'Ce profil'} refuse les arbalètes.` };
+    return {
+      allowed: false,
+      reason: `${profile?.name || "Ce profil"} refuse les arbalètes.`,
+    };
   }
   if (wRules.maxHands && weapon.hands > wRules.maxHands) {
-    return { allowed: false, reason: `${profile?.name || 'Ce profil'} manie uniquement les armes à 1 main (doit conserver une main libre).` };
+    return {
+      allowed: false,
+      reason: `${profile?.name || "Ce profil"} manie uniquement les armes à 1 main (doit conserver une main libre).`,
+    };
   }
-  if (wRules.maxHandsMelee && weapon.category === 'contact' && weapon.hands > wRules.maxHandsMelee) {
-    if (!wRules.allowedExceptionWeaponIds || !wRules.allowedExceptionWeaponIds.includes(weapon.id)) {
-      return { allowed: false, reason: `${profile?.name || 'Ce profil'} sait manier les armes de contact à 1 main uniquement.` };
+  if (
+    wRules.maxHandsMelee &&
+    weapon.category === "contact" &&
+    weapon.hands > wRules.maxHandsMelee
+  ) {
+    if (
+      !wRules.allowedExceptionWeaponIds ||
+      !wRules.allowedExceptionWeaponIds.includes(weapon.id)
+    ) {
+      return {
+        allowed: false,
+        reason: `${profile?.name || "Ce profil"} sait manier les armes de contact à 1 main uniquement.`,
+      };
     }
   }
-  if (wRules.explicitAllowedWeaponIds && !wRules.explicitAllowedWeaponIds.includes(weapon.id)) {
-    return { allowed: false, reason: `${profile?.name || 'Ce profil'} ne maîtrise pas cette arme.` };
+  if (
+    wRules.explicitAllowedWeaponIds &&
+    !wRules.explicitAllowedWeaponIds.includes(weapon.id)
+  ) {
+    return {
+      allowed: false,
+      reason: `${profile?.name || "Ce profil"} ne maîtrise pas cette arme.`,
+    };
   }
-  if (wRules.maxDamageDice && (weapon.maxDamageDice || 0) > wRules.maxDamageDice) {
-    if (!wRules.allowedExceptionWeaponIds || !wRules.allowedExceptionWeaponIds.includes(weapon.id)) {
-      return { allowed: false, reason: `${profile?.name || 'Ce profil'} est limité aux armes n'excédant pas ${wRules.maxDamageDice} de DM.` };
+  if (
+    wRules.maxDamageDice &&
+    (weapon.maxDamageDice || 0) > wRules.maxDamageDice
+  ) {
+    if (
+      !wRules.allowedExceptionWeaponIds ||
+      !wRules.allowedExceptionWeaponIds.includes(weapon.id)
+    ) {
+      return {
+        allowed: false,
+        reason: `${profile?.name || "Ce profil"} est limité aux armes n'excédant pas ${wRules.maxDamageDice} de DM.`,
+      };
     }
   }
   return { allowed: true };
@@ -334,14 +438,19 @@ export function checkWeaponProficiency(
   profileId: string,
   peopleId: string,
   deityOrDomainPathId?: string,
-  secondaryProfileId?: string
+  secondaryProfileId?: string,
 ): WeaponProficiencyCheck {
   const weapon = getWeaponById(weaponId);
-  if (!weapon) return { allowed: false, reason: 'Arme inconnue' };
+  if (!weapon) return { allowed: false, reason: "Arme inconnue" };
 
   // Sacred weapon exception for Priests (Règles COF2 / Compagnon):
-  if ((profileId === 'pr-tre' || secondaryProfileId === 'pr-tre') && deityOrDomainPathId) {
-    const deity = getDeityByDomainPathId(deityOrDomainPathId) || getDeityByName(deityOrDomainPathId);
+  if (
+    (profileId === "pr-tre" || secondaryProfileId === "pr-tre") &&
+    deityOrDomainPathId
+  ) {
+    const deity =
+      getDeityByDomainPathId(deityOrDomainPathId) ||
+      getDeityByName(deityOrDomainPathId);
     if (deity && matchesSacredWeapon(weaponId, deity.sacredWeapon)) {
       return { allowed: true, requiresTwoHands: weapon.hands === 2 };
     }
@@ -372,19 +481,37 @@ export function checkWeaponProficiency(
   let requiresTwoHands = weapon.hands === 2;
   const pRules = people?.equipmentRules;
   if (pRules) {
-    if (pRules.forbiddenWeaponIds && pRules.forbiddenWeaponIds.includes(weapon.id)) {
-      return { allowed: false, reason: `Morphologie ${people?.name || 'raciale'} : arme interdite.` };
-    }
-    if (pRules.maxDamageDice && (weapon.maxDamageDice || 0) > pRules.maxDamageDice) {
-      return { allowed: false, reason: `Taille ${people?.name || 'raciale'} : armes supérieures à 1d10 DM interdites.` };
+    if (
+      pRules.forbiddenWeaponIds &&
+      pRules.forbiddenWeaponIds.includes(weapon.id)
+    ) {
+      return {
+        allowed: false,
+        reason: `Morphologie ${people?.name || "raciale"} : arme interdite.`,
+      };
     }
     if (
-      (pRules.twoHandedWeaponIds && pRules.twoHandedWeaponIds.includes(weapon.id)) ||
-      (pRules.twoHandedMinDamageDice && (weapon.maxDamageDice || 0) >= pRules.twoHandedMinDamageDice && (weapon.maxDamageDice || 0) <= 10)
+      pRules.maxDamageDice &&
+      (weapon.maxDamageDice || 0) > pRules.maxDamageDice
+    ) {
+      return {
+        allowed: false,
+        reason: `Taille ${people?.name || "raciale"} : armes supérieures à 1d10 DM interdites.`,
+      };
+    }
+    if (
+      (pRules.twoHandedWeaponIds &&
+        pRules.twoHandedWeaponIds.includes(weapon.id)) ||
+      (pRules.twoHandedMinDamageDice &&
+        (weapon.maxDamageDice || 0) >= pRules.twoHandedMinDamageDice &&
+        (weapon.maxDamageDice || 0) <= 10)
     ) {
       requiresTwoHands = true;
       if (wRules?.maxHands === 1 && !secondaryProfileId) {
-        return { allowed: false, reason: `Un ${people?.name || 'personnage de petite taille'} doit manier cette arme à deux mains, or ${profile?.name || 'ce profil'} requiert une main libre.` };
+        return {
+          allowed: false,
+          reason: `Un ${people?.name || "personnage de petite taille"} doit manier cette arme à deux mains, or ${profile?.name || "ce profil"} requiert une main libre.`,
+        };
       }
     }
   }
@@ -392,10 +519,20 @@ export function checkWeaponProficiency(
   return { allowed: true, requiresTwoHands };
 }
 
-export function getAllowedWeapons(profileId: string, peopleId: string, secondaryProfileId?: string): Array<WeaponItem & { requiresTwoHands?: boolean }> {
+export function getAllowedWeapons(
+  profileId: string,
+  peopleId: string,
+  secondaryProfileId?: string,
+): Array<WeaponItem & { requiresTwoHands?: boolean }> {
   const result: Array<WeaponItem & { requiresTwoHands?: boolean }> = [];
-  (WEAPONS as WeaponItem[]).forEach(w => {
-    const check = checkWeaponProficiency(w.id, profileId, peopleId, undefined, secondaryProfileId);
+  (WEAPONS as WeaponItem[]).forEach((w) => {
+    const check = checkWeaponProficiency(
+      w.id,
+      profileId,
+      peopleId,
+      undefined,
+      secondaryProfileId,
+    );
     if (check.allowed) {
       result.push({
         ...w,
@@ -407,7 +544,10 @@ export function getAllowedWeapons(profileId: string, peopleId: string, secondary
 }
 
 // 4. Data-driven default equipment resolution from profiles.json
-export function getDefaultEquipmentForProfile(profileId: string, peopleId: string): {
+export function getDefaultEquipmentForProfile(
+  profileId: string,
+  peopleId: string,
+): {
   armorId?: string;
   shieldId?: string;
   weapons: CharacterWeaponInstance[];
@@ -419,19 +559,23 @@ export function getDefaultEquipmentForProfile(profileId: string, peopleId: strin
   const armorId = def?.armorId || undefined;
   const shieldId = def?.shieldId || undefined;
 
-  let targetWeaponIds = def?.defaultWeaponIds ? [...def.defaultWeaponIds] : ['epee-courte'];
+  let targetWeaponIds = def?.defaultWeaponIds
+    ? [...def.defaultWeaponIds]
+    : ["epee-courte"];
 
   // Smart resolution for small races (e.g. Halfelin, Frouïn, Gobelin, Kobold, Fée, Farfadet)
-  const isSmallRace = people?.equipmentRules?.forbiddenWeaponIds?.includes('rapiere') || people?.id === 'halfelin';
+  const isSmallRace =
+    people?.equipmentRules?.forbiddenWeaponIds?.includes("rapiere") ||
+    people?.id === "halfelin";
   if (isSmallRace) {
-    targetWeaponIds = targetWeaponIds.map(wid => {
-      if (wid === 'rapiere') return 'epee-courte';
-      if (wid === 'hache-deux-mains') return 'hache-armes';
-      if (wid === 'epee-deux-mains') return 'epee-longue';
-      if (wid === 'arc-long') return 'arc-court';
-      if (wid === 'arbalete-lourde') return 'arbalete-legere';
-      if (wid === 'mousquet') return 'petoire';
-      if (wid === 'epee-longue' && profile.id === 'barde') return 'epee-courte';
+    targetWeaponIds = targetWeaponIds.map((wid) => {
+      if (wid === "rapiere") return "epee-courte";
+      if (wid === "hache-deux-mains") return "hache-armes";
+      if (wid === "epee-deux-mains") return "epee-longue";
+      if (wid === "arc-long") return "arc-court";
+      if (wid === "arbalete-lourde") return "arbalete-legere";
+      if (wid === "mousquet") return "petoire";
+      if (wid === "epee-longue" && profile.id === "barde") return "epee-courte";
       return wid;
     });
   }
@@ -458,29 +602,43 @@ export function getDefaultEquipmentForProfile(profileId: string, peopleId: strin
   return { armorId, shieldId, weapons };
 }
 
-export function sanitizeCharacterEquipment(char: CharacterSheet): CharacterSheet {
+export function sanitizeCharacterEquipment(
+  char: CharacterSheet,
+): CharacterSheet {
   const allowedArmors = getAllowedArmors(char.profileId);
   const allowedShields = getAllowedShields(char.profileId);
 
   let equippedArmorId = char.equippedArmorId;
-  if (equippedArmorId && !allowedArmors.some(a => a.id === equippedArmorId)) {
+  if (equippedArmorId && !allowedArmors.some((a) => a.id === equippedArmorId)) {
     // If not allowed, fallback to highest allowed armor or undefined
-    equippedArmorId = allowedArmors.length > 0 ? allowedArmors[allowedArmors.length - 1].id : undefined;
+    equippedArmorId =
+      allowedArmors.length > 0
+        ? allowedArmors[allowedArmors.length - 1].id
+        : undefined;
   }
 
   let equippedShieldId = char.equippedShieldId;
-  if (equippedShieldId && !allowedShields.some(s => s.id === equippedShieldId)) {
-    equippedShieldId = allowedShields.length > 0 ? allowedShields[0].id : undefined;
+  if (
+    equippedShieldId &&
+    !allowedShields.some((s) => s.id === equippedShieldId)
+  ) {
+    equippedShieldId =
+      allowedShields.length > 0 ? allowedShields[0].id : undefined;
   }
 
   // Find priest domain path or deity for sacred weapon checks
-  const domainPathId = char.selectedPathIds?.find(pid => isDomainPath(pid));
+  const domainPathId = char.selectedPathIds?.find((pid) => isDomainPath(pid));
   const deityContext = domainPathId || char.deity;
 
   // Filter and sanitize weapons
   const sanitizedWeapons: CharacterWeaponInstance[] = [];
   for (const w of char.weapons) {
-    const check = checkWeaponProficiency(w.weaponRefId, char.profileId, char.peopleId, deityContext);
+    const check = checkWeaponProficiency(
+      w.weaponRefId,
+      char.profileId,
+      char.peopleId,
+      deityContext,
+    );
     if (check.allowed) {
       sanitizedWeapons.push({
         ...w,
@@ -491,7 +649,10 @@ export function sanitizeCharacterEquipment(char: CharacterSheet): CharacterSheet
 
   // If no weapons left after sanitization, give default starting weapons
   if (sanitizedWeapons.length === 0) {
-    const defaultEq = getDefaultEquipmentForProfile(char.profileId, char.peopleId);
+    const defaultEq = getDefaultEquipmentForProfile(
+      char.profileId,
+      char.peopleId,
+    );
     sanitizedWeapons.push(...defaultEq.weapons);
   }
 
@@ -504,33 +665,41 @@ export function sanitizeCharacterEquipment(char: CharacterSheet): CharacterSheet
 }
 
 export const STAT_NAMES: Record<StatCode, string> = {
-  FOR: 'Force',
-  AGI: 'Agilité',
-  CON: 'Constitution',
-  PER: 'Perception',
-  INT: 'Intelligence',
-  VOL: 'Volonté',
-  CHA: 'Charisme',
+  FOR: "Force",
+  AGI: "Agilité",
+  CON: "Constitution",
+  PER: "Perception",
+  INT: "Intelligence",
+  VOL: "Volonté",
+  CHA: "Charisme",
 };
 
-export function computeCharacterStats(char: CharacterSheet): ComputedCharacterStats {
+export function computeCharacterStats(
+  char: CharacterSheet,
+): ComputedCharacterStats {
   const profile = getProfileById(char.profileId) || PROFILES[0];
   const stats: Record<StatCode, number> = { ...char.baseStats };
 
   // Apply racial bonus & malus
   if (char.selectedRacialBonuses && char.selectedRacialBonuses.length > 0) {
-    char.selectedRacialBonuses.forEach(b => {
+    char.selectedRacialBonuses.forEach((b) => {
       if (stats[b] !== undefined) stats[b] += 1;
     });
-  } else if (char.selectedRacialBonus && stats[char.selectedRacialBonus] !== undefined) {
+  } else if (
+    char.selectedRacialBonus &&
+    stats[char.selectedRacialBonus] !== undefined
+  ) {
     stats[char.selectedRacialBonus] += 1;
   }
 
   if (char.selectedRacialMaluses && char.selectedRacialMaluses.length > 0) {
-    char.selectedRacialMaluses.forEach(m => {
+    char.selectedRacialMaluses.forEach((m) => {
       if (stats[m] !== undefined) stats[m] -= 1;
     });
-  } else if (char.selectedRacialMalus && stats[char.selectedRacialMalus] !== undefined) {
+  } else if (
+    char.selectedRacialMalus &&
+    stats[char.selectedRacialMalus] !== undefined
+  ) {
     stats[char.selectedRacialMalus] -= 1;
   }
 
@@ -554,6 +723,13 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
     CHA: 0,
   };
   let pathBonusDefense = 0;
+  const pendingDefenseStatBonuses: Array<{
+    pathId: string;
+    rank: number;
+    stat: StatCode;
+    condition?: 'noArmor';
+    maxRankCapped?: boolean;
+  }> = [];
   let pathBonusInitiative = 0;
   let pathInitiativeStatBonus: StatCode | undefined;
   let pathBonusHp = 0;
@@ -567,14 +743,15 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
   let pathBonusDr = 0;
   let pathBonusPm = 0;
   let pathLuckStatReplacement: StatCode | undefined;
+  let pathManaStatReplacement: StatCode | undefined;
   let pathManaStatBonus: StatCode | undefined;
   const pathSituationalNotes: string[] = [];
   const allStatSubstitutions: StatSubstitutionRule[] = [];
 
-  char.acquiredAbilities.forEach(acq => {
+  char.acquiredAbilities.forEach((acq) => {
     const pth = getPathById(acq.pathId);
     if (!pth) return;
-    const rankData = pth.ranks.find(r => r.rank === acq.rank);
+    const rankData = pth.ranks.find((r) => r.rank === acq.rank);
     if (!rankData || !rankData.modifiers) return;
 
     const mod = rankData.modifiers;
@@ -583,7 +760,9 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
     if (mod.choiceOptions && mod.choiceOptions.length > 0) {
       const choiceKey = `${acq.pathId}_${acq.rank}`;
       const chosenId = char.pathRankChoices?.[choiceKey];
-      const selectedOption = mod.choiceOptions.find(o => o.id === chosenId) || mod.choiceOptions[0];
+      const selectedOption =
+        mod.choiceOptions.find((o) => o.id === chosenId) ||
+        mod.choiceOptions[0];
       if (selectedOption && selectedOption.modifiers) {
         const optMod = selectedOption.modifiers;
         if (optMod.stats) {
@@ -592,6 +771,15 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
           }
         }
         if (optMod.defense) pathBonusDefense += optMod.defense;
+        if (optMod.defenseStatBonus) {
+          pendingDefenseStatBonuses.push({
+            pathId: acq.pathId,
+            rank: acq.rank,
+            stat: optMod.defenseStatBonus,
+            condition: optMod.defenseCondition,
+            maxRankCapped: optMod.defenseMaxRankCapped,
+          });
+        }
         if (optMod.initiative) pathBonusInitiative += optMod.initiative;
         if (optMod.hpBonus) pathBonusHp += optMod.hpBonus;
         if (optMod.damageReduction) {
@@ -601,7 +789,7 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
           allStatSubstitutions.push(...optMod.statSubstitutions);
         }
         if (optMod.situationalNotes) {
-          optMod.situationalNotes.forEach(n => {
+          optMod.situationalNotes.forEach((n) => {
             if (!pathSituationalNotes.includes(n)) pathSituationalNotes.push(n);
           });
         }
@@ -618,18 +806,33 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
       allStatSubstitutions.push(...mod.statSubstitutions);
     }
     if (mod.defense) pathBonusDefense += mod.defense;
+    if (mod.defenseStatBonus) {
+      pendingDefenseStatBonuses.push({
+        pathId: acq.pathId,
+        rank: acq.rank,
+        stat: mod.defenseStatBonus,
+        condition: mod.defenseCondition,
+        maxRankCapped: mod.defenseMaxRankCapped,
+      });
+    }
     if (mod.initiative) pathBonusInitiative += mod.initiative;
-    if (mod.initiativeStatBonus) pathInitiativeStatBonus = mod.initiativeStatBonus;
+    if (mod.initiativeStatBonus)
+      pathInitiativeStatBonus = mod.initiativeStatBonus;
     if (mod.hpBonus) pathBonusHp += mod.hpBonus;
     if (mod.hpStatBonus) pathHpStatBonus = mod.hpStatBonus;
     if (mod.hpPerRankInPath) {
-      const ranksInPath = char.acquiredAbilities.filter(a => a.pathId === acq.pathId).length;
+      const ranksInPath = char.acquiredAbilities.filter(
+        (a) => a.pathId === acq.pathId,
+      ).length;
       pathBonusHp += ranksInPath;
     }
     if (mod.attackBonus) {
-      if (mod.attackBonus.contact) pathBonusAttacks.contact += mod.attackBonus.contact;
-      if (mod.attackBonus.distance) pathBonusAttacks.distance += mod.attackBonus.distance;
-      if (mod.attackBonus.magique) pathBonusAttacks.magique += mod.attackBonus.magique;
+      if (mod.attackBonus.contact)
+        pathBonusAttacks.contact += mod.attackBonus.contact;
+      if (mod.attackBonus.distance)
+        pathBonusAttacks.distance += mod.attackBonus.distance;
+      if (mod.attackBonus.magique)
+        pathBonusAttacks.magique += mod.attackBonus.magique;
       if (mod.attackBonus.all) {
         pathBonusAttacks.contact += mod.attackBonus.all;
         pathBonusAttacks.distance += mod.attackBonus.all;
@@ -639,10 +842,13 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
     if (mod.bonusPC) pathBonusPc += mod.bonusPC;
     if (mod.bonusDR) pathBonusDr += mod.bonusDR;
     if (mod.bonusPm) pathBonusPm += mod.bonusPm;
-    if (mod.luckStatReplacement) pathLuckStatReplacement = mod.luckStatReplacement;
+    if (mod.luckStatReplacement)
+      pathLuckStatReplacement = mod.luckStatReplacement;
+    if (mod.manaStatReplacement)
+      pathManaStatReplacement = mod.manaStatReplacement;
     if (mod.manaStatBonus) pathManaStatBonus = mod.manaStatBonus;
     if (mod.situationalNotes) {
-      mod.situationalNotes.forEach(n => {
+      mod.situationalNotes.forEach((n) => {
         if (!pathSituationalNotes.includes(n)) pathSituationalNotes.push(n);
       });
     }
@@ -659,15 +865,21 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
   const bab = Math.min(level, 10);
 
   // Armor & Defense
-  const armor = char.equippedArmorId ? getArmorById(char.equippedArmorId) : undefined;
-  const shield = char.equippedShieldId ? getArmorById(char.equippedShieldId) : undefined;
+  const armor = char.equippedArmorId
+    ? getArmorById(char.equippedArmorId)
+    : undefined;
+  const shield = char.equippedShieldId
+    ? getArmorById(char.equippedShieldId)
+    : undefined;
 
-  let defenseStat: StatCode = 'AGI';
+  let defenseStat: StatCode = "AGI";
   let defenseStatSource: string | undefined = undefined;
 
   // Check defense substitutions (e.g. CON from Peau de pierre, PER from Défense intuitive)
-  const defSubstitutions = allStatSubstitutions.filter(s => s.target === 'defense');
-  
+  const defSubstitutions = allStatSubstitutions.filter(
+    (s) => s.target === "defense",
+  );
+
   // Default effective AGI with armor maxAgi cap
   let effectiveStatMod = stats.AGI;
   if (armor && armor.maxAgi !== null && effectiveStatMod > armor.maxAgi) {
@@ -691,25 +903,68 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
 
   // Voie du pagne (Peau de pierre R2) fallback rule:
   // "Autrement (si son AGI est supérieure ou égale à sa CON), il reçoit +1 en DEF et ce bonus passe à +2 au rang 4."
-  const pagneAcq = char.acquiredAbilities.find(a => a.pathId === 'voie-du-pagne');
-  if (pagneAcq && pagneAcq.rank >= 2 && defenseStat !== 'CON') {
+  const pagneAcq = char.acquiredAbilities.find(
+    (a) => a.pathId === "voie-du-pagne",
+  );
+  if (pagneAcq && pagneAcq.rank >= 2 && defenseStat !== "CON") {
     const fallbackDefBonus = pagneAcq.rank >= 4 ? 2 : 1;
     pathBonusDefense += fallbackDefBonus;
   }
 
+  // Dynamic stat bonuses to defense (e.g. Voie de la séduction R2: Dentelles et rapière)
+  for (const bonusRule of pendingDefenseStatBonuses) {
+    const isConditionMet =
+      bonusRule.condition === "noArmor" ? !armor || armor.def === 0 : true;
+
+    if (isConditionMet) {
+      let statBonus = Math.max(0, stats[bonusRule.stat]);
+      if (bonusRule.maxRankCapped) {
+        const ranksInPath = char.acquiredAbilities
+          .filter((a) => a.pathId === bonusRule.pathId)
+          .map((a) => a.rank);
+        const maxRankInPath =
+          ranksInPath.length > 0 ? Math.max(...ranksInPath) : bonusRule.rank;
+        statBonus = Math.min(statBonus, maxRankInPath);
+      }
+      pathBonusDefense += statBonus;
+    }
+  }
+
+  // Backwards compatibility safeguard for Voie de la séduction (Dentelles et rapière R2)
+  if (
+    pendingDefenseStatBonuses.length === 0 &&
+    (!armor || armor.def === 0)
+  ) {
+    const seductionAbilities = char.acquiredAbilities.filter(
+      (a) => a.pathId === "voie-de-la-s-duction",
+    );
+    if (seductionAbilities.length > 0) {
+      const seductionMaxRank = Math.max(
+        ...seductionAbilities.map((a) => a.rank),
+      );
+      if (seductionMaxRank >= 2) {
+        const chaDefBonus = Math.min(Math.max(0, stats.CHA), seductionMaxRank);
+        pathBonusDefense += chaDefBonus;
+      }
+    }
+  }
+
   const armorDefense = armor ? armor.def : 0;
   const shieldDefense = shield ? shield.def : 0;
-  const defense = 10 + effectiveStatMod + armorDefense + shieldDefense + pathBonusDefense;
+  const defense =
+    10 + effectiveStatMod + armorDefense + shieldDefense + pathBonusDefense;
   const effectiveAgi = effectiveStatMod;
 
   // Attacks base stats & general substitutions
-  let contactAttackStat: StatCode = 'FOR';
+  let contactAttackStat: StatCode = "FOR";
   let contactAttackStatSource: string | undefined = undefined;
-  let distanceAttackStat: StatCode = 'AGI';
+  let distanceAttackStat: StatCode = "AGI";
   let distanceAttackStatSource: string | undefined = undefined;
 
   const contactGeneralSubs = allStatSubstitutions.filter(
-    s => s.target === 'attackContact' && (!s.weaponFilter || s.weaponFilter === 'any')
+    (s) =>
+      s.target === "attackContact" &&
+      (!s.weaponFilter || s.weaponFilter === "any"),
   );
   for (const sub of contactGeneralSubs) {
     if (stats[sub.replacementStat] > stats[contactAttackStat]) {
@@ -719,7 +974,9 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
   }
 
   const distanceGeneralSubs = allStatSubstitutions.filter(
-    s => s.target === 'attackDistance' && (!s.weaponFilter || s.weaponFilter === 'any')
+    (s) =>
+      s.target === "attackDistance" &&
+      (!s.weaponFilter || s.weaponFilter === "any"),
   );
   for (const sub of distanceGeneralSubs) {
     if (stats[sub.replacementStat] > stats[distanceAttackStat]) {
@@ -736,15 +993,17 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
 
   // Evaluate weapon instances in char.weapons
   if (char.weapons) {
-    char.weapons.forEach(w => {
-      const isContact = w.category === 'contact';
-      const defaultStat: StatCode = isContact ? 'FOR' : 'AGI';
+    char.weapons.forEach((w) => {
+      const isContact = w.category === "contact";
+      const defaultStat: StatCode = isContact ? "FOR" : "AGI";
       let bestStat: StatCode = defaultStat;
       let bestSource: string | undefined = undefined;
       let bestMod = stats[defaultStat];
 
-      const target = isContact ? 'attackContact' : 'attackDistance';
-      const applicableSubs = allStatSubstitutions.filter(s => s.target === target);
+      const target = isContact ? "attackContact" : "attackDistance";
+      const applicableSubs = allStatSubstitutions.filter(
+        (s) => s.target === target,
+      );
 
       for (const sub of applicableSubs) {
         if (isWeaponEligibleForFilter(w, sub.weaponFilter)) {
@@ -773,43 +1032,54 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
   let baseHp: number;
   if (char.levelUpHpGains && char.levelUpHpGains.length > 0) {
     baseHp = char.levelUpHpGains.reduce((acc, v) => acc + v, 0);
-  } else if ((char.isHybrid || (char.secondaryProfileId && char.secondaryProfileId !== char.profileId)) && level === 1) {
-    const secProfile = char.secondaryProfileId ? getProfileById(char.secondaryProfileId) : undefined;
+  } else if (
+    (char.isHybrid ||
+      (char.secondaryProfileId &&
+        char.secondaryProfileId !== char.profileId)) &&
+    level === 1
+  ) {
+    const secProfile = char.secondaryProfileId
+      ? getProfileById(char.secondaryProfileId)
+      : undefined;
     const secHp = secProfile?.hpPerLevel || profile.hpPerLevel;
     baseHp = profile.hpPerLevel + secHp;
   } else {
     baseHp = (level + 1) * profile.hpPerLevel;
   }
 
-  let maxHp = Math.max(1, baseHp + (level * stats.CON) + (char.maxHpBonus || 0) + pathBonusHp);
+  let maxHp = Math.max(
+    1,
+    baseHp + level * stats.CON + (char.maxHpBonus || 0) + pathBonusHp,
+  );
   if (pathHpStatBonus && stats[pathHpStatBonus] !== undefined) {
     maxHp += stats[pathHpStatBonus];
   }
 
   // Effective profile family (player choice for Psionique, standard profile family otherwise)
-  const effectiveFamily = (char.profileId === 'psionique' && char.profileFamily)
-    ? char.profileFamily
-    : profile.family;
+  const effectiveFamily =
+    char.profileId === "psionique" && char.profileFamily
+      ? char.profileFamily
+      : profile.family;
 
   let bonusPC = profile.bonusPC || 0;
   let bonusDR = profile.bonusDR || 0;
-  let drDice = profile.hd || 'd8';
+  let drDice = profile.hd || "d8";
 
-  if (char.profileId === 'psionique') {
-    if (effectiveFamily === 'Combattants') {
-      drDice = 'd10';
+  if (char.profileId === "psionique") {
+    if (effectiveFamily === "Combattants") {
+      drDice = "d10";
       bonusPC = 0;
       bonusDR = 0;
-    } else if (effectiveFamily === 'Aventuriers') {
-      drDice = 'd8';
+    } else if (effectiveFamily === "Aventuriers") {
+      drDice = "d8";
       bonusPC = 1;
       bonusDR = 0;
-    } else if (effectiveFamily === 'Mystiques') {
-      drDice = 'd8';
+    } else if (effectiveFamily === "Mystiques") {
+      drDice = "d8";
       bonusPC = 0;
       bonusDR = 1;
-    } else if (effectiveFamily === 'Mages') {
-      drDice = 'd6';
+    } else if (effectiveFamily === "Mages") {
+      drDice = "d6";
       bonusPC = 0;
       bonusDR = 0;
     }
@@ -819,38 +1089,46 @@ export function computeCharacterStats(char: CharacterSheet): ComputedCharacterSt
   const maxDr = Math.max(0, 2 + stats.CON + bonusDR + pathBonusDr);
 
   // Luck Points (PC): [2 + CHA (or luck replacement)] + bonusPC + pathBonusPc
-  const luckStatVal = pathLuckStatReplacement ? stats[pathLuckStatReplacement] : stats.CHA;
+  const luckStatVal = pathLuckStatReplacement
+    ? stats[pathLuckStatReplacement]
+    : stats.CHA;
   const maxPc = Math.max(0, 2 + luckStatVal + bonusPC + pathBonusPc);
 
-  // Mana / Ego Points (PM / PE): VOL + spellsCount (if spellsCount > 0)
+  // Mana / Ego Points (PM / PE): VOL (or mana replacement) + spellsCount (if spellsCount > 0)
   let spellCount = 0;
-  char.acquiredAbilities.forEach(acq => {
+  char.acquiredAbilities.forEach((acq) => {
     const pth = getPathById(acq.pathId);
     if (pth) {
-      const rankData = pth.ranks.find(r => r.rank === acq.rank);
+      const rankData = pth.ranks.find((r) => r.rank === acq.rank);
       if (rankData && rankData.isSpell) {
         spellCount++;
       }
     }
   });
 
-  let maxPm = spellCount > 0 ? Math.max(0, stats.VOL + spellCount + pathBonusPm) : 0;
+  const manaBaseStat = pathManaStatReplacement
+    ? stats[pathManaStatReplacement]
+    : stats.VOL;
+  let maxPm =
+    spellCount > 0 ? Math.max(0, manaBaseStat + spellCount + pathBonusPm) : 0;
   if (pathManaStatBonus && stats[pathManaStatBonus] !== undefined) {
     maxPm += stats[pathManaStatBonus];
     pathBonusPm += stats[pathManaStatBonus];
   }
 
-  const energyType: 'PM' | 'PE' = char.profileId === 'psionique' ? 'PE' : 'PM';
+  const energyType: "PM" | "PE" = char.profileId === "psionique" ? "PE" : "PM";
 
   const isHybrid = Boolean(
     char.isHybrid ||
     (char.secondaryProfileId && char.secondaryProfileId !== char.profileId) ||
-    char.acquiredAbilities.some(a => {
+    char.acquiredAbilities.some((a) => {
       const pth = getPathById(a.pathId);
-      return pth && pth.type === 'profile' && !profile.paths.includes(a.pathId);
-    })
+      return pth && pth.type === "profile" && !profile.paths.includes(a.pathId);
+    }),
   );
-  const secProfile = char.secondaryProfileId ? getProfileById(char.secondaryProfileId) : undefined;
+  const secProfile = char.secondaryProfileId
+    ? getProfileById(char.secondaryProfileId)
+    : undefined;
   const secondaryProfileName = secProfile?.name;
 
   return {
@@ -900,24 +1178,26 @@ export interface WeaponAttackInfo {
 
 export function getWeaponAttackInfo(
   w: CharacterWeaponInstance,
-  stats: ComputedCharacterStats
+  stats: ComputedCharacterStats,
 ): WeaponAttackInfo {
-  const isContact = w.category === 'contact';
-  const defaultStat: StatCode = isContact ? 'FOR' : 'AGI';
+  const isContact = w.category === "contact";
+  const defaultStat: StatCode = isContact ? "FOR" : "AGI";
   const statUsed = w.attackStatUsed || defaultStat;
   const isSubstituted = statUsed !== defaultStat;
   const sourceName = w.attackStatSource;
 
   const statMod = stats.finalStats[statUsed] ?? 0;
-  const pathBonus = isContact ? stats.pathBonusAttacks.contact : stats.pathBonusAttacks.distance;
+  const pathBonus = isContact
+    ? stats.pathBonusAttacks.contact
+    : stats.pathBonusAttacks.distance;
   const customBonus = w.bonusAttack || 0;
   const atkBonus = stats.bab + statMod + pathBonus + customBonus;
 
   // Damage bonus
-  let dmBonus = '';
+  let dmBonus = "";
   if (isContact) {
     const forMod = stats.finalStats.FOR ?? 0;
-    const extraDm = (w.bonusDamage || 0);
+    const extraDm = w.bonusDamage || 0;
     const totalDmMod = forMod + extraDm;
     if (totalDmMod > 0) {
       dmBonus = `+ ${totalDmMod}`;
@@ -925,7 +1205,8 @@ export function getWeaponAttackInfo(
       dmBonus = `- ${Math.abs(totalDmMod)}`;
     }
   } else if (w.bonusDamage) {
-    dmBonus = w.bonusDamage > 0 ? `+ ${w.bonusDamage}` : `- ${Math.abs(w.bonusDamage)}`;
+    dmBonus =
+      w.bonusDamage > 0 ? `+ ${w.bonusDamage}` : `- ${Math.abs(w.bonusDamage)}`;
   }
 
   return {
@@ -942,9 +1223,12 @@ export function getWeaponAttackInfo(
  * For Halfelin, Nain, Elfe, Gnome, Demi-orc, Humain: always their dedicated racial path.
  * For Demi-elfe: returns the chosen cultural path among the 3 options.
  */
-export function getRacialPathId(peopleId: string, currentRacialPathId?: string): string {
+export function getRacialPathId(
+  peopleId: string,
+  currentRacialPathId?: string,
+): string {
   const p = getPeopleById(peopleId);
-  if (!p) return 'voie-de-l-humain';
+  if (!p) return "voie-de-l-humain";
 
   // Dedicated racial path
   if (p.path?.id) {
@@ -953,13 +1237,16 @@ export function getRacialPathId(peopleId: string, currentRacialPathId?: string):
 
   // Demi-elfe cultural choice
   if (p.selectableRacialPaths && p.selectableRacialPaths.length > 0) {
-    if (currentRacialPathId && p.selectableRacialPaths.includes(currentRacialPathId)) {
+    if (
+      currentRacialPathId &&
+      p.selectableRacialPaths.includes(currentRacialPathId)
+    ) {
       return currentRacialPathId;
     }
     return p.selectableRacialPaths[0]; // defaults to 'voie-de-l-humain'
   }
 
-  return 'voie-de-l-humain';
+  return "voie-de-l-humain";
 }
 
 /**
@@ -969,45 +1256,61 @@ export function getRacialPathId(peopleId: string, currentRacialPathId?: string):
 export function applyRacialDefaults(
   char: CharacterSheet,
   peopleId: string,
-  chosenRacialPathId?: string
+  chosenRacialPathId?: string,
 ): CharacterSheet {
   const p = getPeopleById(peopleId);
   if (!p) return char;
 
   const racialBonuses: StatCode[] = [];
-  p.bonusOptions.forEach(optGroup => {
+  p.bonusOptions.forEach((optGroup) => {
     const first = optGroup[0];
-    if (first && first !== 'ANY_LOWEST') {
+    if (first && first !== "ANY_LOWEST") {
       racialBonuses.push(first as StatCode);
     }
   });
 
   const racialMaluses: StatCode[] = [];
-  p.malusOptions.forEach(optGroup => {
+  p.malusOptions.forEach((optGroup) => {
     const first = optGroup[0];
     if (first) {
       racialMaluses.push(first as StatCode);
     }
   });
 
-  const racialBonus = racialBonuses[0] || (p.bonusOptions[0]?.[0] !== 'ANY_LOWEST' ? p.bonusOptions[0]?.[0] as StatCode : 'FOR');
+  const racialBonus =
+    racialBonuses[0] ||
+    (p.bonusOptions[0]?.[0] !== "ANY_LOWEST"
+      ? (p.bonusOptions[0]?.[0] as StatCode)
+      : "FOR");
   const racialMalus = racialMaluses[0];
 
   const racialPathId = getRacialPathId(peopleId, chosenRacialPathId);
 
   // Keep the 2 profile paths, replace the racial path (at index 2)
   const profile = getProfileById(char.profileId) || PROFILES[0];
-  const secProfile = char.isHybrid && char.secondaryProfileId ? getProfileById(char.secondaryProfileId) : undefined;
-  const allProfilePaths = [...profile.paths, ...(secProfile ? secProfile.paths : [])];
+  const secProfile =
+    char.isHybrid && char.secondaryProfileId
+      ? getProfileById(char.secondaryProfileId)
+      : undefined;
+  const allProfilePaths = [
+    ...profile.paths,
+    ...(secProfile ? secProfile.paths : []),
+  ];
 
-  const currentProfilePaths = char.selectedPathIds.filter(id => allProfilePaths.includes(id));
+  const currentProfilePaths = char.selectedPathIds.filter((id) =>
+    allProfilePaths.includes(id),
+  );
   const p1 = currentProfilePaths[0] || profile.paths[0];
-  const p2 = currentProfilePaths[1] || (secProfile ? secProfile.paths[0] : (profile.paths.find(id => id !== p1) || profile.paths[1]));
+  const p2 =
+    currentProfilePaths[1] ||
+    (secProfile
+      ? secProfile.paths[0]
+      : profile.paths.find((id) => id !== p1) || profile.paths[1]);
   const updatedPaths = [p1, p2, racialPathId];
 
   // Keep profile abilities, replace racial ability
   const updatedAcquired = [
-    ...char.acquiredAbilities.filter(a => a.pathId === p1 || a.pathId === p2),
+    ...char.acquiredAbilities.filter((a) => a.pathId === p1 || a.pathId === p2),
     { pathId: racialPathId, rank: 1 },
   ];
 
@@ -1042,24 +1345,24 @@ export function applyRacialDefaults(
  */
 export function createDefaultCharacter(): CharacterSheet {
   const defaultProfile = PROFILES[0]; // Arquebusier
-  const defaultPeople = getPeopleById('humain') || PEOPLES[0];
+  const defaultPeople = getPeopleById("humain") || PEOPLES[0];
 
   const initialChar: CharacterSheet = {
-    id: 'char_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-    version: '1.0.0',
+    id: "char_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7),
+    version: "1.0.0",
     updatedAt: new Date().toISOString(),
-    name: 'Nouveau Héros',
-    playerName: '',
-    sex: 'Masculin',
+    name: "Nouveau Héros",
+    playerName: "",
+    sex: "Masculin",
     age: defaultPeople.startingAge,
     height: defaultPeople.heightRange,
     weight: defaultPeople.weightRange,
     physicalTraits: defaultPeople.physicalTraits,
     languages: defaultPeople.defaultLanguages,
-    background: '',
-    ideal: 'Courage',
-    flaw: 'Impulsif',
-    notes: '',
+    background: "",
+    ideal: "Courage",
+    flaw: "Impulsif",
+    notes: "",
     peopleId: defaultPeople.id,
     profileId: defaultProfile.id,
     level: 1,
@@ -1072,7 +1375,7 @@ export function createDefaultCharacter(): CharacterSheet {
       VOL: 0,
       CHA: -1,
     },
-    selectedRacialBonus: 'FOR',
+    selectedRacialBonus: "FOR",
     selectedRacialMalus: undefined,
     manualStatBonuses: {},
     selectedPathIds: [
@@ -1090,28 +1393,28 @@ export function createDefaultCharacter(): CharacterSheet {
     currentDr: 3,
     currentPc: 2,
     currentPm: 0,
-    equippedArmorId: 'cuir-simple',
+    equippedArmorId: "cuir-simple",
     equippedShieldId: undefined,
     weapons: [
       {
-        id: 'w_1',
-        weaponRefId: 'epee-longue',
-        name: 'Épée longue',
-        damage: '1d8',
-        range: 'Contact',
-        category: 'contact',
+        id: "w_1",
+        weaponRefId: "epee-longue",
+        name: "Épée longue",
+        damage: "1d8",
+        range: "Contact",
+        category: "contact",
       },
       {
-        id: 'w_2',
-        weaponRefId: 'dague',
-        name: 'Dague',
-        damage: '1d4',
-        range: 'Contact (ou 10 m)',
-        category: 'contact',
+        id: "w_2",
+        weaponRefId: "dague",
+        name: "Dague",
+        damage: "1d4",
+        range: "Contact (ou 10 m)",
+        category: "contact",
       },
     ],
     inventory: ADVENTURER_KIT.map((item, idx) => ({
-      id: 'inv_' + idx,
+      id: "inv_" + idx,
       name: item,
       quantity: 1,
     })),
@@ -1147,7 +1450,7 @@ export function calculateCapabilityPoints(char: CharacterSheet) {
   // First two profile rank 1s are free
   // All other rank 1 & 2 cost 1 point
   // Rank 3, 4, 5 cost 2 points
-  char.acquiredAbilities.forEach(acq => {
+  char.acquiredAbilities.forEach((acq) => {
     // If it's rank 1 in the chosen starting paths, we don't bill up to 3 starting rank 1s
     // Simple way: rank 1 & 2 cost 1, rank 3+ cost 2
     const cost = acq.rank <= 2 ? 1 : 2;
@@ -1157,16 +1460,18 @@ export function calculateCapabilityPoints(char: CharacterSheet) {
   // Base free points at creation = 3 (1 racial rank 1 + 2 profile rank 1).
   // If character has chosen a domain path (which replaces the racial path but retains racial R1 per rules),
   // they start with 4 rank 1 abilities (2 profile + 1 racial R1 + 1 domain R1).
-  const hasDomainR1 = char.acquiredAbilities.some(a => {
+  const hasDomainR1 = char.acquiredAbilities.some((a) => {
     const p = getPathById(a.pathId);
-    return (p?.type === 'domain' || a.pathId === 'voie-du-mage') && a.rank === 1;
+    return (
+      (p?.type === "domain" || a.pathId === "voie-du-mage") && a.rank === 1
+    );
   });
-  const hasRacialR1 = char.acquiredAbilities.some(a => {
+  const hasRacialR1 = char.acquiredAbilities.some((a) => {
     const p = getPathById(a.pathId);
-    return p?.type === 'racial' && a.rank === 1;
+    return p?.type === "racial" && a.rank === 1;
   });
 
-  const baseFreePoints = (hasDomainR1 && hasRacialR1) ? 4 : 3;
+  const baseFreePoints = hasDomainR1 && hasRacialR1 ? 4 : 3;
   const netSpent = Math.max(0, pointsSpent - baseFreePoints);
   const available = levelUpPoints - netSpent;
 
@@ -1181,7 +1486,7 @@ export function calculateCapabilityPoints(char: CharacterSheet) {
  * Checks whether a path is a prestige path.
  */
 export function isPrestigePath(pathId: string): boolean {
-  return PATHS_MAP.get(pathId)?.type === 'prestige';
+  return PATHS_MAP.get(pathId)?.type === "prestige";
 }
 
 /**
@@ -1204,35 +1509,57 @@ export function getRankPointCost(rank: number): number {
  * - Rank 4: level 5
  * - Rank 5: level 7
  */
-export function getRankLevelRequirement(isPrestige: boolean, rank: number, pathId?: string): number {
+export function getRankLevelRequirement(
+  isPrestige: boolean,
+  rank: number,
+  pathId?: string,
+): number {
   if (isPrestige) {
-    if (pathId === 'voie-du-familier-fantastique') {
+    if (pathId === "voie-du-familier-fantastique") {
       switch (rank) {
-        case 3: return 3;
-        case 4: return 5;
-        case 5: return 7;
-        case 6: return 9;
-        case 7: return 11;
-        default: return 3;
+        case 3:
+          return 3;
+        case 4:
+          return 5;
+        case 5:
+          return 7;
+        case 6:
+          return 9;
+        case 7:
+          return 11;
+        default:
+          return 3;
       }
     }
     switch (rank) {
-      case 3: return 3;
-      case 4: return 5;
-      case 5: return 7;
-      case 6: return 9;
-      case 7: return 11;
-      case 8: return 13;
-      default: return 5;
+      case 3:
+        return 3;
+      case 4:
+        return 5;
+      case 5:
+        return 7;
+      case 6:
+        return 9;
+      case 7:
+        return 11;
+      case 8:
+        return 13;
+      default:
+        return 5;
     }
   }
   switch (rank) {
     case 1:
-    case 2: return 1;
-    case 3: return 3;
-    case 4: return 5;
-    case 5: return 7;
-    default: return 1;
+    case 2:
+      return 1;
+    case 3:
+      return 3;
+    case 4:
+      return 5;
+    case 5:
+      return 7;
+    default:
+      return 1;
   }
 }
 
@@ -1243,17 +1570,23 @@ export function checkPrestigePathPrerequisites(
   char: CharacterSheet,
   pathId: string,
   targetLevel: number = char.level || 1,
-  currentAcquired: Array<{ pathId: string; rank: number }> = char.acquiredAbilities
+  currentAcquired: Array<{
+    pathId: string;
+    rank: number;
+  }> = char.acquiredAbilities,
 ): { eligible: boolean; reason?: string } {
   const path = PATHS_MAP.get(pathId);
-  if (!path || path.type !== 'prestige') {
-    return { eligible: false, reason: "Cette voie n'est pas une voie de prestige." };
+  if (!path || path.type !== "prestige") {
+    return {
+      eligible: false,
+      reason: "Cette voie n'est pas une voie de prestige.",
+    };
   }
 
   // Check if character already has a different prestige path
   const existingPrestige = char.selectedPathIds
-    .map(id => PATHS_MAP.get(id))
-    .find(p => p?.type === 'prestige' && p.id !== pathId);
+    .map((id) => PATHS_MAP.get(id))
+    .find((p) => p?.type === "prestige" && p.id !== pathId);
   if (existingPrestige) {
     return {
       eligible: false,
@@ -1262,7 +1595,7 @@ export function checkPrestigePathPrerequisites(
   }
 
   // Level requirement check
-  const minLevel = pathId === 'voie-du-familier-fantastique' ? 3 : 5;
+  const minLevel = pathId === "voie-du-familier-fantastique" ? 3 : 5;
   if (targetLevel < minLevel) {
     return {
       eligible: false,
@@ -1272,11 +1605,12 @@ export function checkPrestigePathPrerequisites(
 
   // Profile family check
   const profile = getProfileById(char.profileId);
-  const effectiveFamily: ProfileFamily = (char.profileId === 'psionique' && char.profileFamily)
-    ? char.profileFamily
-    : (profile?.family || 'Combattants');
+  const effectiveFamily: ProfileFamily =
+    char.profileId === "psionique" && char.profileFamily
+      ? char.profileFamily
+      : profile?.family || "Combattants";
 
-  if (pathId === 'voie-de-l-entite' && effectiveFamily !== 'Mages') {
+  if (pathId === "voie-de-l-entite" && effectiveFamily !== "Mages") {
     return {
       eligible: false,
       reason: "Réservé aux membres de la famille des Mages.",
@@ -1284,9 +1618,9 @@ export function checkPrestigePathPrerequisites(
   }
 
   if (
-    pathId !== 'voie-des-mutations' &&
+    pathId !== "voie-des-mutations" &&
     path.familyRestriction &&
-    path.familyRestriction !== 'All' &&
+    path.familyRestriction !== "All" &&
     path.familyRestriction !== effectiveFamily
   ) {
     return {
@@ -1297,14 +1631,14 @@ export function checkPrestigePathPrerequisites(
 
   // Check owner field if familyRestriction not explicitly set
   if (
-    pathId !== 'voie-des-mutations' &&
-    pathId !== 'voie-de-l-entite' &&
+    pathId !== "voie-des-mutations" &&
+    pathId !== "voie-de-l-entite" &&
     !path.familyRestriction &&
     path.owner &&
-    path.owner !== 'Générique' &&
-    path.owner !== 'Mage / Générique'
+    path.owner !== "Générique" &&
+    path.owner !== "Mage / Générique"
   ) {
-    const normOwner = path.owner === 'Mage' ? 'Mages' : path.owner;
+    const normOwner = path.owner === "Mage" ? "Mages" : path.owner;
     if (normOwner !== effectiveFamily) {
       return {
         eligible: false,
@@ -1314,11 +1648,11 @@ export function checkPrestigePathPrerequisites(
   }
 
   // Specific path mechanics prerequisites
-  if (pathId === 'voie-de-l-expert') {
+  if (pathId === "voie-de-l-expert") {
     // Requires rank 2 in at least 3 paths of the same profile
     const profilePathIds = profile ? profile.paths : [];
-    const countPathsWithRank2 = profilePathIds.filter(pid =>
-      currentAcquired.some(a => a.pathId === pid && a.rank >= 2)
+    const countPathsWithRank2 = profilePathIds.filter((pid) =>
+      currentAcquired.some((a) => a.pathId === pid && a.rank >= 2),
     ).length;
 
     if (countPathsWithRank2 < 3) {
@@ -1329,17 +1663,18 @@ export function checkPrestigePathPrerequisites(
     }
   }
 
-  if (pathId === 'voie-du-specialiste') {
+  if (pathId === "voie-du-specialiste") {
     // Requires rank 4 in at least one path of the main profile
     const profilePathIds = profile ? profile.paths : [];
     const hasRank4 = currentAcquired.some(
-      a => profilePathIds.includes(a.pathId) && a.rank >= 4
+      (a) => profilePathIds.includes(a.pathId) && a.rank >= 4,
     );
 
     if (!hasRank4) {
       return {
         eligible: false,
-        reason: "Prérequis : avoir acquis au moins le rang 4 dans une voie de votre profil principal.",
+        reason:
+          "Prérequis : avoir acquis au moins le rang 4 dans une voie de votre profil principal.",
       };
     }
   }
@@ -1353,11 +1688,19 @@ export function checkPrestigePathPrerequisites(
 export function getEligiblePrestigePaths(
   char: CharacterSheet,
   targetLevel: number = char.level || 1,
-  currentAcquired: Array<{ pathId: string; rank: number }> = char.acquiredAbilities
+  currentAcquired: Array<{
+    pathId: string;
+    rank: number;
+  }> = char.acquiredAbilities,
 ): Array<{ path: PathData; eligible: boolean; reason?: string }> {
-  const prestigePaths = PATHS.filter(p => p.type === 'prestige');
-  return prestigePaths.map(path => {
-    const check = checkPrestigePathPrerequisites(char, path.id, targetLevel, currentAcquired);
+  const prestigePaths = PATHS.filter((p) => p.type === "prestige");
+  return prestigePaths.map((path) => {
+    const check = checkPrestigePathPrerequisites(
+      char,
+      path.id,
+      targetLevel,
+      currentAcquired,
+    );
     return {
       path,
       eligible: check.eligible,
@@ -1378,14 +1721,14 @@ export function getAccessiblePathsForLevelUp(char: CharacterSheet): PathData[] {
 
   const orderedIds: string[] = [...profilePathIds];
 
-  char.selectedPathIds.forEach(id => {
+  char.selectedPathIds.forEach((id) => {
     if (!orderedIds.includes(id)) {
       orderedIds.push(id);
     }
   });
 
   return orderedIds
-    .map(id => PATHS_MAP.get(id))
+    .map((id) => PATHS_MAP.get(id))
     .filter((p): p is PathData => Boolean(p));
 }
 
@@ -1400,8 +1743,10 @@ export function getCharacterMasteredProfileIds(char: CharacterSheet): string[] {
   if (char.profileId) ids.add(char.profileId);
   if (char.secondaryProfileId) ids.add(char.secondaryProfileId);
 
-  PROFILES.forEach(p => {
-    const ranksInProfile = char.acquiredAbilities.filter(a => p.paths.includes(a.pathId)).length;
+  PROFILES.forEach((p) => {
+    const ranksInProfile = char.acquiredAbilities.filter((a) =>
+      p.paths.includes(a.pathId),
+    ).length;
     if (ranksInProfile >= 2) {
       ids.add(p.id);
     }
@@ -1413,13 +1758,16 @@ export function getCharacterMasteredProfileIds(char: CharacterSheet): string[] {
 /**
  * Checks whether a path is considered racial or a racial replacement (domain / voie du mage)
  */
-export function isRacialOrReplacementPath(pathId: string, peopleId: string): boolean {
+export function isRacialOrReplacementPath(
+  pathId: string,
+  peopleId: string,
+): boolean {
   const pth = getPathById(pathId);
   if (!pth) return false;
   return (
-    pth.type === 'racial' ||
-    pth.type === 'domain' ||
-    pathId === 'voie-du-mage' ||
+    pth.type === "racial" ||
+    pth.type === "domain" ||
+    pathId === "voie-du-mage" ||
     pathId === getRacialPathId(peopleId)
   );
 }
@@ -1431,8 +1779,8 @@ export function isRacialOrReplacementPath(pathId: string, peopleId: string): boo
 export function getNonRacialActivePathsCount(char: CharacterSheet): number {
   const activeNonRacialPathIds = new Set(
     char.acquiredAbilities
-      .map(a => a.pathId)
-      .filter(pid => !isRacialOrReplacementPath(pid, char.peopleId))
+      .map((a) => a.pathId)
+      .filter((pid) => !isRacialOrReplacementPath(pid, char.peopleId)),
   );
   return activeNonRacialPathIds.size;
 }
@@ -1445,14 +1793,14 @@ export function getNonRacialActivePathsCount(char: CharacterSheet): number {
  */
 export function canCharacterAdoptHybridPath(
   char: CharacterSheet,
-  candidatePathId?: string
+  candidatePathId?: string,
 ): { eligible: boolean; reason?: string } {
   const profile = getProfileById(char.profileId);
   if (!profile) return { eligible: true };
 
   // 1. Règle des 5 voies du profil principal
-  const profilePathsInvested = profile.paths.filter(pathId =>
-    char.acquiredAbilities.some(a => a.pathId === pathId)
+  const profilePathsInvested = profile.paths.filter((pathId) =>
+    char.acquiredAbilities.some((a) => a.pathId === pathId),
   ).length;
 
   if (profilePathsInvested >= profile.paths.length) {
@@ -1466,14 +1814,14 @@ export function canCharacterAdoptHybridPath(
   // 2. Plafond absolu : max 6 voies (hors voie de peuple/domaine/mage)
   const currentNonRacialCount = getNonRacialActivePathsCount(char);
   const isNewPath = candidatePathId
-    ? !char.acquiredAbilities.some(a => a.pathId === candidatePathId)
+    ? !char.acquiredAbilities.some((a) => a.pathId === candidatePathId)
     : true;
 
   if (isNewPath && currentNonRacialCount >= 6) {
     return {
       eligible: false,
       reason:
-        'Plafond atteint : un personnage ne peut jamais posséder plus de 6 voies au total, plus la voie de peuple (Règles COF2, p. 622).',
+        "Plafond atteint : un personnage ne peut jamais posséder plus de 6 voies au total, plus la voie de peuple (Règles COF2, p. 622).",
     };
   }
 
@@ -1495,17 +1843,19 @@ export interface LevelUpHpGainResult {
 export function calculateLevelUpHpGain(
   char: CharacterSheet,
   newlyAcquiredRanks: Array<{ pathId: string; rank: number }>,
-  pendingHalfHp: boolean = false
+  pendingHalfHp: boolean = false,
 ): LevelUpHpGainResult {
   const profile = getProfileById(char.profileId) || PROFILES[0];
   const stats = computeCharacterStats(char);
   const conBonus = stats.finalStats.CON;
 
-  const getPathHpPerLevel = (pathId: string): { hp: number; familyName: string } => {
+  const getPathHpPerLevel = (
+    pathId: string,
+  ): { hp: number; familyName: string } => {
     if (isRacialOrReplacementPath(pathId, char.peopleId)) {
       return { hp: profile.hpPerLevel, familyName: profile.family };
     }
-    const owningProfile = PROFILES.find(p => p.paths.includes(pathId));
+    const owningProfile = PROFILES.find((p) => p.paths.includes(pathId));
     if (owningProfile) {
       return { hp: owningProfile.hpPerLevel, familyName: owningProfile.family };
     }
@@ -1522,8 +1872,8 @@ export function calculateLevelUpHpGain(
     };
   }
 
-  const hpInfos = newlyAcquiredRanks.map(r => getPathHpPerLevel(r.pathId));
-  const uniqueFamilies = Array.from(new Set(hpInfos.map(h => h.familyName)));
+  const hpInfos = newlyAcquiredRanks.map((r) => getPathHpPerLevel(r.pathId));
+  const uniqueFamilies = Array.from(new Set(hpInfos.map((h) => h.familyName)));
 
   if (uniqueFamilies.length <= 1) {
     const baseHp = hpInfos[0].hp;
@@ -1554,7 +1904,7 @@ export function calculateLevelUpHpGain(
     }
   }
 
-  const details = `${baseHp} base (moyenne ${uniqueFamilies.join('/')}${hasHalfPoint ? (pendingHalfHp ? ' + ½ PV récupéré' : ' - ½ PV reporté') : ''}) + ${conBonus} CON`;
+  const details = `${baseHp} base (moyenne ${uniqueFamilies.join("/")}${hasHalfPoint ? (pendingHalfHp ? " + ½ PV récupéré" : " - ½ PV reporté") : ""}) + ${conBonus} CON`;
 
   return {
     hpGain: baseHp + conBonus,
@@ -1575,31 +1925,29 @@ export function calculateLevelUpHpGain(
 export function calculateArmorSpellManaCost(
   char: CharacterSheet,
   pathId: string,
-  rank: number
+  rank: number,
 ): number {
   const pth = getPathById(pathId);
   if (!pth) return 0;
-  const rankData = pth.ranks.find(r => r.rank === rank);
+  const rankData = pth.ranks.find((r) => r.rank === rank);
   if (!rankData || !rankData.isSpell) return 0;
 
   if (!char.equippedArmorId) return 0;
   const armor = getArmorById(char.equippedArmorId);
   if (!armor || armor.def <= 0) return 0;
 
-  const owningProfile = PROFILES.find(p => p.paths.includes(pathId));
-  if (owningProfile?.id === 'pr-tre' || pth.type === 'domain') {
+  const owningProfile = PROFILES.find((p) => p.paths.includes(pathId));
+  if (owningProfile?.id === "pr-tre" || pth.type === "domain") {
     return 0;
   }
 
-  if (owningProfile?.id === 'barde') {
+  if (owningProfile?.id === "barde") {
     return Math.max(0, armor.def - 3);
   }
 
-  if (owningProfile?.id === 'druide' || owningProfile?.id === 'forgesort') {
+  if (owningProfile?.id === "druide" || owningProfile?.id === "forgesort") {
     return Math.max(0, armor.def - 2);
   }
 
   return armor.def;
 }
-
-

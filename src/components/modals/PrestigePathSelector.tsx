@@ -14,6 +14,7 @@ import {
   Info,
 } from 'lucide-react';
 import { ActionBadges } from '../sheet/ActionBadges';
+import { CompanionCard } from '../sheet/CompanionCard';
 
 interface PrestigePathSelectorProps {
   character: CharacterSheet;
@@ -157,6 +158,13 @@ export const PrestigePathSelector: React.FC<PrestigePathSelectorProps> = ({
                   <p className="text-[11px] text-stone-300 leading-relaxed whitespace-pre-line pl-5">
                     {r.description}
                   </p>
+                  {r.companions && r.companions.length > 0 && (
+                    <div className="pl-5 space-y-2 mt-2">
+                      {r.companions.map((comp, cIdx) => (
+                        <CompanionCard key={cIdx} companion={comp} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
