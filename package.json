@@ -1,0 +1,73 @@
+{
+  "name": "cof2-character-creator",
+  "version": "1.0.0",
+  "description": "Application de création et gestion de personnages pour Chroniques Oubliées Fantasy 2",
+  "author": {
+    "name": "Faerian",
+    "email": "faerian@gmail.com"
+  },
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "compile:electron": "tsc -p tsconfig.electron.json",
+    "electron:dev": "npm run compile:electron && concurrently -k \"vite\" \"cross-env NODE_ENV=development electron .\"",
+    "electron:build": "npm run build && npm run compile:electron && electron-builder",
+    "build:mac": "npm run build && npm run compile:electron && electron-builder --mac",
+    "build:win": "npm run build && npm run compile:electron && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.cof2.charactercreator",
+    "productName": "COF2 Compagnon",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "mac": {
+      "icon": "build/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.games",
+      "identity": null
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
+  },
+  "dependencies": {
+    "@fontsource/cinzel": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.16.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^35.0.0",
+    "electron-builder": "^25.1.8",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0",
+    "vitest": "^5.0.5"
+  }
+}

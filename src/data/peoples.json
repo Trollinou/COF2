@@ -1,0 +1,2541 @@
+[
+  {
+    "id": "demi-elfe",
+    "name": "Demi-elfe",
+    "description": "Le demi‑elfe a hérité des qualités de ses deux parents (humain et elfe). Il est généralement traité avec condescendance parmi les elfes et perçu comme un elfe parmi les humains.",
+    "bonusOptions": [
+      [
+        "PER",
+        "CHA"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR",
+        "CON"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 20+\n\n**Espérance de vie :** 150 ans\n\n**Taille :** 1,50 m à 1,90 m\n\n**Poids :** 40 à 80 kg\n\n**Traits :** grâce naturelle, oreilles légèrement pointues, pilosité faible.",
+    "startingAge": "20 ans",
+    "lifeExpectancy": "150 ans",
+    "heightRange": "1,50 m à 1,90 m",
+    "weightRange": "40 à 80 kg",
+    "physicalTraits": "Grâce naturelle, oreilles légèrement pointues, silhouette élancée, pilosité faible.",
+    "defaultLanguages": "Commun, Sylvestre",
+    "interpretationTip": "Vous êtes souvent d'une nature poétique, voire mélancolique. L'écart d'espérance de vie entre vos parents et votre famille vous pousse à des réflexions existentielles.",
+    "selectableRacialPaths": [
+      "voie-de-l-humain",
+      "voie-de-l-elfe-haut",
+      "voie-de-l-elfe-sylvain",
+      "voie-du-demi-elfe"
+    ],
+    "names": {
+      "masculine": [
+        "Aerindir",
+        "Caeldor",
+        "Elidan",
+        "Faelar",
+        "Gildor",
+        "Kaelen",
+        "Lorien",
+        "Rowan",
+        "Silas",
+        "Tristan"
+      ],
+      "feminine": [
+        "Aeloria",
+        "Danielle",
+        "Elianne",
+        "Faelynn",
+        "Kaelia",
+        "Laureline",
+        "Miriel",
+        "Nolwen",
+        "Sylviane",
+        "Viviane"
+      ],
+      "namingTip": "Prénom elfique associé à un nom de famille humain."
+    },
+    "path": null,
+    "equipmentRules": null
+  },
+  {
+    "id": "demi-orc",
+    "name": "Demi-orc",
+    "description": "Le demi‑orc est de grande taille. Il possède une force physique hors du commun, et est généralement méprisé par les autres peuples, en particulier par les nains et les elfes.",
+    "bonusOptions": [
+      [
+        "FOR",
+        "CON"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "CHA",
+        "INT"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 1,70 m à 2,10 m\n\n**Poids :** 70 à 150 kg\n\n**Traits :** grand et athlétique. Peau verdâtre qui tend parfois vers un vert plus franc, mâchoire large, front bas, petits yeux.",
+    "startingAge": "15 ans",
+    "lifeExpectancy": "60 ans",
+    "heightRange": "1,70 m à 2,10 m",
+    "weightRange": "70 à 150 kg",
+    "physicalTraits": "Grand et athlétique. Peau verdâtre qui tend parfois vers un vert plus franc, mâchoire large, front bas, petits yeux, crocs apparents.",
+    "defaultLanguages": "Commun, Noir parlé",
+    "interpretationTip": "Endurci par les préjugés, vous savez qu'il faut se montrer fort pour survivre. Vous savourez la crainte que vous allumez chez vos adversaires.",
+    "names": {
+      "masculine": [
+        "Krush",
+        "Aog",
+        "Bargul",
+        "Carok",
+        "Drog",
+        "Erok",
+        "Farg",
+        "Gorog",
+        "Hurl",
+        "Jorgul",
+        "Krok",
+        "Lugn",
+        "Mog",
+        "Norok",
+        "Rork",
+        "Urdu"
+      ],
+      "feminine": [
+        "Aoga",
+        "Bargula",
+        "Caroka",
+        "Droga",
+        "Eroka",
+        "Farga",
+        "Goroga",
+        "Hurla",
+        "Jorgula",
+        "Kroka",
+        "Krusha",
+        "Lugna",
+        "Moga",
+        "Noroka",
+        "Rorka",
+        "Urdua"
+      ],
+      "namingTip": "Noms orcs courts et gutturaux (R, G, K, O). Pour les femmes, terminaison en A."
+    },
+    "path": {
+      "id": "voie-du-demi-orc",
+      "name": "VOIE DU DEMI‑ORC",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Impressionnant",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le demi‑orc gagne un bonus de +3 à tous les tests d'intimidation. De plus, dans le noir total, le demi‑orc voit comme dans la pénombre jusqu'à 30 m."
+        },
+        {
+          "rank": 2,
+          "title": "Talent pour la violence",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le joueur choisit une capacité de rang 1 de n'importe quelle voie de barbare ou de guerrier."
+        },
+        {
+          "rank": 3,
+          "title": "Critique brutal",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le demi‑orc augmente de 1 point la zone de critique sur une attaque au contact (19‑20 au d20) et ajoute +1d4° aux DM en cas de critique."
+        },
+        {
+          "rank": 4,
+          "title": "Attaque sanglante",
+          "actionType": "Limitée",
+          "isSpell": false,
+          "description": "Le demi‑orc réalise une attaque de contact qui provoque une hémorragie. En plus des DM normaux, l'attaque produit un saignement qui inflige à la victime 1d4° DM à chaque round suivant jusqu'à ce que la cible soit soignée (tout effet de soins ou une action limitée utilisée à cet effet). On ne peut pas cumuler plusieurs effets de saignement."
+        },
+        {
+          "rank": 5,
+          "title": "Colosse",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le demi‑orc augmente ses valeurs de FOR et de CON de +1."
+        }
+      ]
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "elfe-haut",
+    "name": "Elfe haut",
+    "description": "L'elfe haut est un être féérique qui vit extrêmement longtemps et dont le niveau de civilisation et de culture se révèle généralement supérieur à celui des autres peuples. Proche de la nature, il maîtrise aussi bien les arts de la magie que ceux de la guerre.",
+    "bonusOptions": [
+      [
+        "INT",
+        "CHA"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 80+\n\n**Espérance de vie :** 450 ans\n\n**Taille :** 1,50 m à 1,80 m\n\n**Poids :** 40 à 70 kg\n\n**Traits :** élancé, svelte et gracieux. Jeunesse éternelle. Oreilles pointues, yeux en amandes (verts, violets), cheveux parfois blancs, argent ou or.",
+    "startingAge": "80 ans",
+    "lifeExpectancy": "450 ans",
+    "heightRange": "1,50 m à 1,80 m",
+    "weightRange": "40 à 70 kg",
+    "physicalTraits": "Élancé, svelte et gracieux. Jeunesse éternelle. Oreilles pointues, yeux en amande (verts, violets), cheveux blancs, argent, blond or ou platine.",
+    "defaultLanguages": "Commun, Sylvestre",
+    "interpretationTip": "Vous gardez une hauteur de vue et une réserve distinguée. Vous détestez la vulgarité et la violence gratuite et appréciez le luxe, les arts et les étoffes nobles.",
+    "names": {
+      "masculine": [
+        "Arwendil",
+        "Caëldwendir",
+        "Eldwyndor",
+        "Elberenhdir",
+        "Elendur",
+        "Gilgalendil",
+        "Irwildur",
+        "Laurelith",
+        "Linaëndir",
+        "Laendoril",
+        "Nennendir"
+      ],
+      "feminine": [
+        "Elberenh",
+        "Elidhwen",
+        "Ellenúviel",
+        "Laurelinn",
+        "Linaëwen",
+        "Laendorië",
+        "Maelwë",
+        "Maerwen",
+        "Nennenvaël",
+        "Ninwelotë",
+        "Tintaëlle"
+      ],
+      "namingTip": "Sonorités douces mais complexes (L, W, N, M). Terminaisons masculines en -dir, -dur, -dor ; féminines en -wen, -wë, -ië, -aël."
+    },
+    "path": {
+      "id": "voie-de-l-elfe-haut",
+      "name": "VOIE DE L'ELFE HAUT",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Lumière intérieure",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Pour un elfe, l'obscurité de la nuit sous la lumière des étoiles est considérée comme de la pénombre. De plus, il gagne un bonus de +3 à tous les tests d'érudition (INT) et artistiques (CHA)."
+        },
+        {
+          "rank": 2,
+          "title": "Force d'âme",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe est immunisé à la peur et au sommeil magique. De plus, il obtient un bonus égal à son rang lorsqu'il doit faire un test opposé d'attaque magique pour résister à un sort."
+        },
+        {
+          "rank": 3,
+          "title": "Talent pour la magie",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le joueur choisit une capacité de rang 1 de n'importe quelle voie de magicien ou d'ensorceleur. Il peut utiliser cette capacité en armure sans pénalité (mais pas une capacité qui offre un bonus de DEF). À la place, il peut choisir une capacité de rang 2, mais ne doit alors pas porter d'armure pour lancer le sort."
+        },
+        {
+          "rank": 4,
+          "title": "Immortel",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe n'a besoin que de la moitié du repos, de la nourriture ou de la boisson d'un humain normal pour être en pleine forme. Il est immunisé aux effets des poisons et des maladies."
+        },
+        {
+          "rank": 5,
+          "title": "Supériorité elfique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe augmente sa valeur de VOL de +1 et sa valeur d'INT ou de CHA de +1."
+        }
+      ]
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "elfe-sylvain",
+    "name": "Elfe sylvain",
+    "description": "L'**elfe sylvain** est issu d'une culture différente de celle des elfes hauts. Légèrement plus petits, ils vivent au plus profond des forêts, s'abritant dans les arbres et vivant simplement de la chasse et de la cueillette. Moins arrogants que leurs cousins hauts elfes, ils sont cependant beaucoup plus méfiants. Ils maîtrisent particulièrement l'art du camouflage et l'utilisation de l'arc.",
+    "bonusOptions": [
+      [
+        "AGI",
+        "PER"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 50+\n\n**Espérance de vie :** 350 ans\n\n**Taille :** 1,40 m à 1,70 m\n\n**Poids :** 30 à 60 kg\n\n**Traits :** menu, svelte. Oreilles pointues, yeux en amandes (verts, violets), cheveux sombres (bruns, noirs, roux), tatouages, pilosité absente.",
+    "startingAge": "50 ans",
+    "lifeExpectancy": "350 ans",
+    "heightRange": "1,40 m à 1,70 m",
+    "weightRange": "30 à 60 kg",
+    "physicalTraits": "Menu, agile et svelte. Oreilles pointues, yeux en amande, cheveux sombres (bruns, noirs, roux), tatouages rituels, pilosité corporelle absente.",
+    "defaultLanguages": "Commun, Sylvestre",
+    "interpretationTip": "Instinctif et intimement lié aux mystères de la forêt. Moins hautain que l'elfe haut mais protecteur farouche de son sanctuaire végétal.",
+    "names": {
+      "masculine": [
+        "Aëdin",
+        "Caëndor",
+        "Cirion",
+        "Doralion",
+        "Ealdor",
+        "Findalion",
+        "Glorfindor",
+        "Haëldion",
+        "Laurendor",
+        "Morwendir",
+        "Raëldirion"
+      ],
+      "feminine": [
+        "Aëldill",
+        "Aluinill",
+        "Aliann",
+        "Dianaë",
+        "Eilinelle",
+        "Elenwëe",
+        "Lúthill",
+        "Nínielle",
+        "Nolwaënn",
+        "Mírielle",
+        "Keltienn"
+      ],
+      "namingTip": "Terminaisons masculines en -din, -dor, -ion ; chez les femmes, consonne ou voyelle finale doublée."
+    },
+    "path": {
+      "id": "voie-de-l-elfe-sylvain",
+      "name": "VOIE DE L'ELFE SYLVAIN",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Lumière des étoiles",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Pour un elfe sylvain, l'obscurité de la nuit sous la lumière des étoiles est considérée comme de la pénombre. De plus, l'elfe gagne un bonus de +3 à tous les tests de survie en forêt (escalade, discrétion, chasse, etc.)."
+        },
+        {
+          "rank": 2,
+          "title": "Enfant de la forêt",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le joueur choisit une capacité de rang 1 de n'importe quelle voie de druide ou de rôdeur. Il peut utiliser cette capacité en armure jusqu'à l'armure de cuir renforcé sans pénalité."
+        },
+        {
+          "rank": 3,
+          "title": "Archer émérite",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe augmente de 1 la zone de critique lorsqu'il utilise un arc (19‑20 au d20) et ajoute +1d4° aux DM en cas de critique. Il sait utiliser les arcs courts, quel que soit son profil."
+        },
+        {
+          "rank": 4,
+          "title": "Flèche sanglante",
+          "actionType": "Limitée",
+          "isSpell": false,
+          "description": "L'elfe fait une attaque à distance qui provoque une hémorragie. En plus des DM normaux, la flèche produit un effet de saignement qui inflige à la victime 1d4° DM à chaque round suivant jusqu'à ce que la cible soit soignée (tout effet de soins ou une action limitée utilisée à cet effet). On ne peut cumuler plusieurs effets de saignement."
+        },
+        {
+          "rank": 5,
+          "title": "Supériorité elfique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe augmente ses valeurs d'AGI et PER de +1."
+        }
+      ]
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "gnome",
+    "name": "Gnome",
+    "description": "Le gnome est une créature de petite taille pourvue d'un gros nez, d'une bonne nature et d'une curiosité insatiable pour la magie et les sciences. C'est un compagnon souvent agréable, bien qu'un peu original. Les nains et les halfelins l'apprécient, tandis que les « grandes » personnes se montrent plutôt indifférentes à leur égard.",
+    "bonusOptions": [
+      [
+        "INT",
+        "PER"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 40+\n\n**Espérance de vie :** 250 ans\n\n**Taille :** 1 m à 1,20 m\n\n**Poids :** 30 à 50 kg\n\n**Traits :** Petit et rondouillard, gros nez. Moustaches et rouflaquettes pour les gnomes, couettes pour les gnomettes. Oreilles un peu pointues ou grandes et rondes.",
+    "startingAge": "40 ans",
+    "lifeExpectancy": "250 ans",
+    "heightRange": "1,00 m à 1,20 m",
+    "weightRange": "30 à 50 kg",
+    "physicalTraits": "Petit et rondouillard, gros nez. Moustaches et rouflaquettes soignées pour les gnomes, couettes pour les gnomettes. Oreilles arrondies ou pointues.",
+    "defaultLanguages": "Commun, Runique",
+    "interpretationTip": "Joyeux, optimiste, curieux de tout et intarissable sur ses passions insolites ou ses collections improbables.",
+    "names": {
+      "masculine": [
+        "Albert Blumdenplick",
+        "Eustache Dimtigballen",
+        "Firmin Vondemacht",
+        "Isidore Kolerbiltag",
+        "Nestor Wurmenship",
+        "Casimir Poldenkrast"
+      ],
+      "feminine": [
+        "Thérèse Aliserwilp",
+        "Huguette Uhldimmerstelp",
+        "Rose Molkenpulp",
+        "Eugénie Bimpbelinedor",
+        "Agathe Fladerpenn"
+      ],
+      "namingTip": "Prénoms désuets avec nom de famille germanique long et composé."
+    },
+    "path": {
+      "id": "voie-du-gnome",
+      "name": "VOIE DU GNOME",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Don étrange",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le gnome possède un talent inné pour les sciences, qu'elles soient occultes ou plus ordinaires. Il gagne un bonus de +3 à tous les tests scientifiques (INT) et il choisit une capacité de rang 1 d'ensorceleur. S'il porte une armure, il ne peut pas utiliser ce sort plus d'une fois par jour (il doit payer le coût en PM de façon normale). Dans le noir total, le gnome voit comme dans la pénombre jusqu'à 10 m."
+        },
+        {
+          "rank": 2,
+          "title": "Petit pote",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le gnome est un compagnon sympathique et difficile à considérer comme dangereux ou malintentionné. Il gagne +3 à tous les tests d'interaction sociale sauf pour intimider. Il gagne aussi 1 point de chance."
+        },
+        {
+          "rank": 3,
+          "title": "Insignifiant",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le gnome sait comment échapper aux attaques des grandes créatures comme les géants. Il gagne un bonus de +2 en DEF contre les créatures de taille *grande* ou supérieure. Ce bonus passe à +3 au rang 5."
+        },
+        {
+          "rank": 4,
+          "title": "Merveille technologique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le gnome sait utiliser les arbalètes (et les armes à poudre si votre MJ autorise leur usage), quel que soit son profil. Il ajoute son AGI aux DM qu'il inflige avec ces armes."
+        },
+        {
+          "rank": 5,
+          "title": "Bonne nature",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le gnome augmente ses valeurs de CON et de CHA de +1."
+        }
+      ]
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "halfelin",
+    "name": "Halfelin",
+    "description": "Les halfelins représentent le plus petit des peuples jouables. Toujours bons vivants, souvent vifs, curieux, et parfois farceurs, les halfelins sont des incompris que les autres peuples considèrent souvent comme turbulents, pénibles, si ce n'est comme des voleurs.",
+    "bonusOptions": [
+      [
+        "AGI",
+        "VOL"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 20+\n\n**Espérance de vie :** 150 ans\n\n**Taille:** 80 cm à 1 m\n\n**Poids:** 20 à 30 kg\n\n**Traits:** petit et vif. Pieds poilus, regard espiègle.",
+    "startingAge": "20 ans",
+    "lifeExpectancy": "150 ans",
+    "heightRange": "80 cm à 1,00 m",
+    "weightRange": "20 à 30 kg",
+    "physicalTraits": "Petit, vif et bien nourri. Pieds poilus et solides pour marcher pieds nus, regard malicieux et souriant.",
+    "defaultLanguages": "Commun",
+    "interpretationTip": "Attaché au confort, à la bonne cuisine et aux récits d'auberge, mais capable d'une témérité extraordinaire quand ses amis sont en péril.",
+    "names": {
+      "masculine": [
+        "Bill",
+        "Bern",
+        "Don",
+        "Duky",
+        "Eckel",
+        "Fili",
+        "Ged",
+        "Gerry",
+        "Hek",
+        "Hicks",
+        "Jack",
+        "Karl",
+        "Litle",
+        "Luky",
+        "Mike",
+        "Polo",
+        "Sam",
+        "Titi"
+      ],
+      "feminine": [
+        "Églantine",
+        "Lila",
+        "Jacinthe",
+        "Marguerite",
+        "Muguette",
+        "Pâquerette",
+        "Prune",
+        "Rose",
+        "Cerise",
+        "Violette"
+      ],
+      "namingTip": "Prénoms courts masculins ; noms de fleurs/fruits féminins ; noms de famille ruraux (Dubois, Sur-le-pont, Sous-colline)."
+    },
+    "path": {
+      "id": "voie-du-halfelin",
+      "name": "VOIE DU HALFELIN",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Petite taille",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le halfelin obtient un bonus de +1 en DEF et de +3 à tous les tests de discrétion ainsi qu'à tous les tests effectués pour subtiliser quelque chose (pickpocket, vol à l'étalage, etc.). En revanche, un halfelin ne peut pas utiliser à une main une arme dont les DM dépassent 1d6 (épée courte, masse, etc., mais pas rapière). Il lui faut utiliser les deux mains pour les armes qui infligent 1d8 à 1d10 de DM (épée longue) et il lui est interdit d'utiliser les armes qui infligent plus de 1d10 DM. Il ne peut pas utiliser d'arc long ni d'arbalète lourde."
+        },
+        {
+          "rank": 2,
+          "title": "Résistance légendaire",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le halfelin obtient un bonus égal à son rang à tous les tests opposés d'attaque magique effectués pour résister à un sort."
+        },
+        {
+          "rank": 3,
+          "title": "Bon pour le moral",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Un halfelin qui mange bien est un halfelin heureux. À chaque repas (jusqu'à 4 fois par jour, espacés d'au moins 3 h) au cours duquel le personnage boit et mange des mets de qualité et en quantité, il récupère 1d4° PV."
+        },
+        {
+          "rank": 4,
+          "title": "Petit veinard",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le halfelin gagne 1 PC supplémentaire. De plus, il peut esquiver une attaque de son choix par combat (avant d'avoir pris connaissance des DM, mais pas un critique)."
+        },
+        {
+          "rank": 5,
+          "title": "Vif et bien nourri",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le halfelin augmente ses valeurs d'AGI et de CON de +1."
+        }
+      ]
+    },
+    "equipmentRules": {
+      "forbiddenWeaponIds": [
+        "rapiere",
+        "arc-long",
+        "arbalete-lourde"
+      ],
+      "maxDamageDice": 10,
+      "twoHandedMinDamageDice": 8,
+      "twoHandedWeaponIds": [
+        "epee-longue",
+        "epee-batarde",
+        "hache-armes",
+        "marteau-guerre",
+        "lance",
+        "petoire",
+        "arbalete-legere"
+      ],
+      "summary": "Taille Halfelin : Armes 1d8 à 1d10 DM obligatoirement à deux mains. Armes >1d10 DM, rapière, arc long et arbalète lourde interdits."
+    }
+  },
+  {
+    "id": "humain",
+    "name": "Humain",
+    "description": "L'humain se distingue par sa capacité d'adaptation et son instinct qui le pousse à coloniser tous les territoires qui l'entourent. Le peuple humain est le plus représenté et le plus répandu dans les zones dites civilisées.",
+    "bonusOptions": [
+      [
+        "ANY_LOWEST"
+      ]
+    ],
+    "malusOptions": [],
+    "reperes": "**Âge de départ :** 18+\n\n**Espérance de vie :** 100 ans\n\n**Taille :** 1,50 m à 2 m\n\n**Poids :** 40 à 120 kg\n\n**Traits :** toute la diversité possible à l'exception des couleurs trop exotiques (cheveux violets, etc.).",
+    "startingAge": "18 ans",
+    "lifeExpectancy": "100 ans",
+    "heightRange": "1,50 m à 2,00 m",
+    "weightRange": "40 à 120 kg",
+    "physicalTraits": "Toute la diversité humaine possible en termes de carnations, de corpulences et de visages.",
+    "defaultLanguages": "Commun",
+    "interpretationTip": "Vie courte et frénétique, soif permanente de découverte, d'accomplissement et d'adaptation rapide.",
+    "names": {
+      "masculine": [
+        "Gareth",
+        "Adalrik",
+        "Arn",
+        "Bernulf",
+        "Brand",
+        "Edwald",
+        "Ketil",
+        "Ferwin",
+        "Gerulf",
+        "Godfred",
+        "Gunter",
+        "Halfdan",
+        "Ingvar",
+        "Knud",
+        "Lothar",
+        "Osvald",
+        "Roderick",
+        "Rurik",
+        "Sigmar",
+        "Svenn",
+        "Thorsten"
+      ],
+      "feminine": [
+        "Annia",
+        "Alaina",
+        "Berthille",
+        "Bérénia",
+        "Télinne",
+        "Koralie",
+        "Floraline",
+        "Gadrielle",
+        "Jocynthe",
+        "Kéline",
+        "Myrthinne",
+        "Marille",
+        "Naelwen",
+        "Natasha",
+        "Odaelle",
+        "Prescille",
+        "Sorsha",
+        "Véronelle",
+        "Wendoline"
+      ],
+      "namingTip": "Inspirations médiévales, scandinaves, franques ou celtiques variées."
+    },
+    "path": {
+      "id": "voie-de-l-humain",
+      "name": "VOIE DE L'HUMAIN",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Diversité",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Un humain obtient un bonus de +3 aux tests de deux domaines associés à son origine géographique ou sociale (voir ci-dessous). De plus, il gagne 1 PC supplémentaire.\n\n**Origine géographique ou sociale (choisissez ou lancez un d6):**\n\n- 1 : Montagnard (escalade et résistance au froid).\n- 2 : Citadin (commerce et résistance aux maladies).\n- 3 : Campagnard (météorologie et équitation).\n- 4 : Riverain (natation et navigation).\n- 5 : Sauvage (chasser et pister).\n- 6 : Nomade (orientation et résistance à la chaleur ou au froid).\n\nLe MJ peut en inventer d'autres selon les cultures présentes dans son univers de jeu (troglodyte, marais, etc.). Éventuellement, le joueur peut remplacer un des bonus d'origine géographique par un bonus en relation avec son origine sociale ou un gagne‑pain de son choix (serrurier, forgeron, scribe, maçon, chasseur, cuisinier, acrobate, pickpocket, bibliothécaire, étudiant, etc.). Le gagne‑pain ne peut pas être un profil et le bonus obtenu ne s'applique jamais à des tests de combat.\n\n> ***Exemple*** *: Un citadin étudiant en magie pourrait obtenir un bonus de +3 aux tests de commerce et +3 aux tests d'érudition occulte, même si son personnage est finalement devenu guerrier.*"
+        },
+        {
+          "rank": 2,
+          "title": "Instinct de survie",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Une fois par combat, lorsqu'une attaque devrait amener l'humain à 0 PV, les DM qu'elle inflige sont divisés par 2 (minimum 1). Après avoir bénéficié de cette capacité, l'humain gagne pour le reste du combat un bonus de +2 en DEF."
+        },
+        {
+          "rank": 3,
+          "title": "Touche-à-tout",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le personnage obtient une capacité de rang 1 ou 2 de n'importe quel profil au choix du joueur. Si la capacité est de rang 2 ou accorde un bonus de DEF, il doit respecter les limitations d'armure."
+        },
+        {
+          "rank": 4,
+          "title": "Loup parmi les loups",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Une fois par round, l'humain gagne +1d4° aux DM qu'il inflige lorsqu'il combat un adversaire humanoïde de taille moyenne. Ce bonus ne s'applique qu'aux DM initiaux d'une attaque, pas aux DM sur la durée"
+        },
+        {
+          "rank": 5,
+          "title": "Polyvalence",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le personnage augmente sa caractéristique la plus faible de +1 et sa Volonté de +1."
+        }
+      ]
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "nain",
+    "name": "Nain",
+    "description": "Le nain est petit mais robuste. Célèbre pour sa barbe, il aime les profondeurs de la terre, dont il extrait des métaux et des pierres précieuses. Isolé, il est généralement ouvert et chaleureux, mais la société naine peut paraître sévère, car le travail et l'entraînement militaire y sont des obligations.",
+    "bonusOptions": [
+      [
+        "CON",
+        "VOL"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "AGI"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 40+\n\n**Espérance de vie :** 250 ans\n\n**Taille :** 1,15 m à 1,35 m\n\n**Poids :** 50 à 100 kg\n\n**Traits:** robuste et trapu. Pilosité très développée, tresses dans les cheveux et la barbe, bijoux et piercing. Non, les naines n'ont pas de barbe, tout juste un fin duvet avec l'âge.",
+    "startingAge": "40 ans",
+    "lifeExpectancy": "250 ans",
+    "heightRange": "1,15 m à 1,35 m",
+    "weightRange": "50 à 100 kg",
+    "physicalTraits": "Robuste, large d'épaules et trapu. Pilosité très développée, tresses ornées de perles et d'anneaux dans la barbe et les cheveux. Bijoux martelés.",
+    "defaultLanguages": "Commun, Runique",
+    "interpretationTip": "Fier, loyal au clan, travailleur infatigable de la pierre et du métal, doté d'une mémoire sans faille pour ses dettes et ses rancunes.",
+    "names": {
+      "masculine": [
+        "Gloin Mâchefer",
+        "Krorin Briseroc",
+        "Thorin Forgefer",
+        "Buldur Tranchetroll",
+        "Trorin Cassegranit",
+        "Orik Briselame",
+        "Durok Écu-de-chêne",
+        "Guerann Marteleur",
+        "Korik Peau-de-pierre",
+        "Balin",
+        "Dwalin",
+        "Gimli"
+      ],
+      "feminine": [
+        "Astrid",
+        "Arnhild",
+        "Berthild",
+        "Brynild",
+        "Eldrid",
+        "Ermenhild",
+        "Frida",
+        "Gerda",
+        "Grimhild",
+        "Gudrun",
+        "Helga",
+        "Hilda",
+        "Ingrid",
+        "Klothild",
+        "Sigrid",
+        "Strida"
+      ],
+      "namingTip": "Prénoms courts et percutants (-in, -un, -ik, -ir) avec nom de clan traduit ; féminins en -hild ou -id."
+    },
+    "path": {
+      "id": "voie-du-nain",
+      "name": "VOIE DU NAIN",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Habitant des tunnels",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Dans le noir total, le nain voit comme dans la pénombre jusqu'à 30 m. De plus, il obtient un bonus de +3 à tous les tests en rapport avec la pierre, l'architecture ou les mines ainsi qu'avec les passages secrets et les pièges dans les murs et les parois rocheuses."
+        },
+        {
+          "rank": 2,
+          "title": "Haches et marteaux",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le nain gagne un bonus de +1 en attaque et aux DM lorsqu'il utilise une hache ou un marteau de guerre. Il sait utiliser ces armes, quel que soit son profil."
+        },
+        {
+          "rank": 3,
+          "title": "Résistance à la magie",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Une fois par jour, le nain peut choisir d'ignorer les effets d'un sort qui le prend pour cible (mais pas un sort de zone). Les créatures dont le niveau (NC) est au moins égal au double du nain ignorent cette capacité."
+        },
+        {
+          "rank": 4,
+          "title": "Fils du roc",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le nain réduit tous les DM subis de 2 points (mais il subit toujours au moins 1 DM par attaque reçue). La réduction passe à 3 au niveau 10. Elle est cumulable avec d'autres sources de réduction des DM comme la peau d'acier du barbare."
+        },
+        {
+          "rank": 5,
+          "title": "Ténacité",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le nain augmente ses valeurs de CON et de VOL de +1."
+        }
+      ]
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "ame-forgee",
+    "name": "Âme forgée",
+    "description": "Créatures mécaniques nées de la fusion du métal et d'une magie perdue, les âmes forgées sont animées d'une insatiable curiosité et d'une âme véritable.",
+    "bonusOptions": [
+      [
+        "CON"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "CHA",
+        "INT"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 0 à 5 ans\n\n**Espérance de vie :** 150 ans\n\n**Taille :** 1,30 m à 2,10 m\n\n**Poids :** 100 à 300 kg\n\n**Traits :** métal et pierre, angles ou rondeurs, rouages et engrenages, cristaux oculaires",
+    "startingAge": "0 à 5 ans",
+    "lifeExpectancy": "150 ans",
+    "heightRange": "1,30 m à 2,10 m",
+    "weightRange": "100 à 300 kg",
+    "physicalTraits": "Métal et pierre, angles ou rondeurs, rouages et engrenages, or, cuivre, acier, cristaux oculaires.",
+    "defaultLanguages": "Commun",
+    "interpretationTip": "Curieux et avide de découvertes, vous cherchez à comprendre le monde et avez développé un talent artistique particulier (calligraphie, dessin, conte...).",
+    "names": {
+      "masculine": [
+        "Abattoir",
+        "Blocus",
+        "Burin",
+        "Durandal",
+        "Enclume",
+        "Équarrisseur",
+        "Étincelle",
+        "Ferraille",
+        "Fléau",
+        "Grendel",
+        "Griffe",
+        "Guillotine",
+        "Havoc",
+        "Mangeclous",
+        "Nexus",
+        "Ravage",
+        "Rouille",
+        "Serpe",
+        "Talos",
+        "Vorpale",
+        "Vouge"
+      ],
+      "feminine": [
+        "Abattoir",
+        "Blocus",
+        "Burin",
+        "Durandal",
+        "Enclume",
+        "Équarrisseur",
+        "Étincelle",
+        "Ferraille",
+        "Fléau",
+        "Grendel",
+        "Griffe",
+        "Guillotine",
+        "Havoc",
+        "Mangeclous",
+        "Nexus",
+        "Ravage",
+        "Rouille",
+        "Serpe",
+        "Talos",
+        "Vorpale",
+        "Vouge"
+      ],
+      "namingTip": "Noms unisexes très simples, souvent inspirés d'armes, d'outils métalliques ou d'effets guerriers."
+    },
+    "path": {
+      "id": "voie-de-l-ame-forgee",
+      "name": "VOIE DE L'ÂME FORGÉE",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Métallique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Les parties métalliques d'une âme forgée lui offrent une protection naturelle (+1 en DEF) et lui permettent d'infliger des DM létaux à mains nues. De plus, l'âme forgée bénéficie d'une RD 5 à tous les DM de feu, de froid et aux drains de vie et est immunisée aux effets de saignement. Dans le noir, l'âme forgée voit comme dans la pénombre à une distance de 10 m."
+        },
+        {
+          "rank": 2,
+          "title": "Choc électrique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Une fois par round, l'âme forgée inflige +1d4° DM d'électricité sur une attaque à mains nues réussie (en plus des DM à mains nues égaux à [1d3+FOR])."
+        },
+        {
+          "rank": 3,
+          "title": "Infiltration",
+          "actionType": "Mouvement",
+          "isSpell": true,
+          "description": "L'âme forgée découvre une fonction d'infiltration programmée en elle. Une fois par jour, elle peut faire croire pendant 1 h par rang à ceux qui l'entourent qu'elle est un humain, un orc ou un elfe (illusion visuelle). Elle peut changer d'apparence à chaque utilisation sans pouvoir imiter une personne spécifique. Action de mouvement pour activer ou désactiver l'illusion."
+        },
+        {
+          "rank": 4,
+          "title": "Rayon ardent",
+          "actionType": "Limitée",
+          "isSpell": true,
+          "description": "Une fois par combat, rayon destructeur émis par ses yeux (portée 30 m). La nature du rayon dépend de la couleur des cristaux oculaires (transparent = foudre, rouge = feu/ardent, bleu = glacial). Sur un test réussi d'attaque magique contre la DEF, inflige [4d4° + CON] DM."
+        },
+        {
+          "rank": 5,
+          "title": "Machine de guerre",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'âme forgée devient une force impossible à ignorer sur le champ de bataille. Elle augmente ses valeurs de CON et de FOR de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Âme forgée"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "cambion",
+    "name": "Cambion",
+    "description": "Humanoïdes à l'ascendance démoniaque, les cambions possèdent une volonté tenace et une grande résistance, vivant souvent dans le secret ou le défi face aux préjugés.",
+    "bonusOptions": [
+      [
+        "VOL",
+        "CON"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "CHA"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 15 à 18 ans\n\n**Espérance de vie :** 90 à 180 ans\n\n**Taille :** 1,50 m à 2,00 m\n\n**Poids :** 40 à 120 kg\n\n**Traits :** cornes, queue fourchue, odeur de soufre, yeux jaunes ou rouges",
+    "startingAge": "15 à 18 ans",
+    "lifeExpectancy": "90 à 180 ans",
+    "heightRange": "1,50 m à 2,00 m",
+    "weightRange": "40 à 120 kg",
+    "physicalTraits": "Yeux rouges ou jaunes, petites cornes, queue atrophiée ou fourchue, langue fourchue, odeur de soufre.",
+    "defaultLanguages": "Commun, Démoniaque",
+    "interpretationTip": "Lutte intérieure permanente entre vos pulsions sombres et votre quête de rédemption ou d'acceptation, habitué à masquer vos marques physiques.",
+    "names": {
+      "masculine": [
+        "Maudit",
+        "Perdu",
+        "Fourchu",
+        "Cornu",
+        "Béni",
+        "Amour",
+        "Parfait",
+        "Damian",
+        "Balthazar",
+        "Lucien",
+        "Malakor",
+        "Valafar"
+      ],
+      "feminine": [
+        "Faute",
+        "Bénie",
+        "Grâce",
+        "Pitié",
+        "Lilith",
+        "Morrigan",
+        "Nahema",
+        "Carmilla",
+        "Jezebeth",
+        "Sybille"
+      ],
+      "namingTip": "Prénom ordinaire ou nom reflétant sa marque (Maudit, Perdu, Cornu) ou à l'inverse conjurant le sort (Béni, Amour, Parfait)."
+    },
+    "path": {
+      "id": "voie-du-cambion",
+      "name": "VOIE DU CAMBION",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Ami des ombres",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le cambion est habitué à cacher sa véritable nature et bénéficie de +3 à tous les tests pour mentir et se déguiser. De plus, dans le noir total, le cambion voit comme dans la pénombre jusqu'à 30 m."
+        },
+        {
+          "rank": 2,
+          "title": "Enfant des ténèbres",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Le cambion obtient le sort Ténèbres (sorcier, voie de la sombre magie). Il gagne le point de mana correspondant et peut lancer le sort sans pénalité s'il porte une armure ; il n'obtient pas le bonus de compétence associé. Si le personnage a déjà cette capacité, il lui suffit désormais d'une action gratuite pour lancer le sort."
+        },
+        {
+          "rank": 3,
+          "title": "Résistances",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le cambion bénéficie d'une RD 5 à tous les DM de feu, de froid et d'électricité."
+        },
+        {
+          "rank": 4,
+          "title": "La belle et la bête",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Le cambion peut utiliser le sort Beauté de la succube (rang 2 de la voie du démon) 1 fois par jour sans dépenser de mana et sans limitation d'armure. De plus, à partir du niveau 10, il peut utiliser le sort Aspect du démon 1 fois par jour (sans limitation d'armure)."
+        },
+        {
+          "rank": 5,
+          "title": "Forgé par les ténèbres",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le cambion a appris à faire de sa marque d'infamie une force qui lui donne la volonté de surmonter les obstacles et de résister aux pires traitements. Il augmente ses valeurs de CON et de VOL de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Cambion"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "demi-ogre",
+    "name": "Demi-ogre",
+    "description": "Colosses de plus de deux mètres, les demi-ogres luttent en permanence contre leur nature sauvage et brutale, déployant souvent une politesse touchante pour s'intégrer.",
+    "bonusOptions": [
+      [
+        "FOR"
+      ],
+      [
+        "FOR"
+      ],
+      [
+        "CON"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "AGI"
+      ],
+      [
+        "INT"
+      ],
+      [
+        "CHA"
+      ],
+      [
+        "VOL"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 2,00 m à 2,50 m\n\n**Poids :** 200 à 350 kg\n\n**Traits :** peu de pilosité, corpulence énorme, puissante mâchoire prognathe, grandes mains",
+    "startingAge": "15 ans",
+    "lifeExpectancy": "60 ans",
+    "heightRange": "2,00 m à 2,50 m",
+    "weightRange": "200 à 350 kg",
+    "physicalTraits": "Peu de pilosité, corpulence colossale, mâchoire prognathe, front bas, canines inférieures proéminentes, grandes mains.",
+    "defaultLanguages": "Commun, Géant",
+    "interpretationTip": "Vous luttez farouchement pour rester courtois, raffiné et poli afin de ne pas céder à vos pulsions sanguinaires. Vous adorez les plaisirs gargantuesques de la table.",
+    "names": {
+      "masculine": [
+        "Ambroise",
+        "Archambaud",
+        "Augustin",
+        "Charles",
+        "Édouard",
+        "Gontran",
+        "Lancelot",
+        "Perceval",
+        "Urbain",
+        "Valbert",
+        "Valmont",
+        "Gorgor",
+        "Brutus"
+      ],
+      "feminine": [
+        "Augustine",
+        "Béatrice",
+        "Charlotte",
+        "Clothilde",
+        "Éléonore",
+        "Geneviève",
+        "Hortense",
+        "Isabeau",
+        "Marguerite",
+        "Ursule"
+      ],
+      "namingTip": "Prénoms classiques et nobles sonnant très convenablement pour compenser leur nature monstrueuse."
+    },
+    "path": {
+      "id": "voie-du-demi-ogre",
+      "name": "VOIE DU DEMI-OGRE",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Réaction violente",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Si une créature se moque du personnage ou le provoque sur son origine ou son apparence, il doit réussir un test de VOL difficulté [10 - rang atteint dans la voie] ou être pris d'une crise de folie passagère (+2 en attaque et DM, attaque la cible et tous ceux qui s'interposent pendant 1d6 rounds). Stopper la crise inflige 1d4° DM par tour restant. De plus, dans le noir total, voit comme dans la pénombre jusqu'à 30 m."
+        },
+        {
+          "rank": 2,
+          "title": "Violence ciblée",
+          "actionType": "Gratuite",
+          "isSpell": false,
+          "description": "Chaque fois qu'il résiste à une crise de Réaction violente, le demi-ogre gagne un point de violence qu'il peut dépenser en action gratuite au moment de son choix dans la même journée pour obtenir les effets d'une Réaction violente (durée : 1d4 rounds) contre une cible choisie."
+        },
+        {
+          "rank": 3,
+          "title": "Vorace",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Une fois par jour, lors d'un repas, s'il avale à lui seul un sanglier ou l'équivalent (chevreuil, demi-bœuf), il récupère 3d4° PV."
+        },
+        {
+          "rank": 4,
+          "title": "Toujours plus lourd",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le demi-ogre inflige désormais 2d6 DM avec une arme à deux mains tenue à une main, 1d10 DM avec la vivelame, et 3d6 DM avec une arme à deux mains adaptée à sa taille. Il ignore la RD imposée par les créatures de grande taille."
+        },
+        {
+          "rank": 5,
+          "title": "Monumental",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le demi-ogre est une montagne de muscles : il augmente ses valeurs de CON et de FOR de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Demi-ogre"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "drakonide",
+    "name": "Drakonide",
+    "description": "Humanoïdes écailleux au sang draconique, dotés d'ailes atrophiées et d'une tête de reptile, guidés par un sens inébranlable de l'honneur, de la fierté et de la loyauté.",
+    "bonusOptions": [
+      [
+        "FOR"
+      ],
+      [
+        "VOL"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "AGI"
+      ],
+      [
+        "PER"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 30+\n\n**Espérance de vie :** 300 ans\n\n**Taille :** 1,80 m à 2,00 m\n\n**Poids :** 100 à 160 kg\n\n**Traits :** écailles épaisses, tête de dragon, ailes atrophiées, pieds griffus",
+    "startingAge": "30 ans",
+    "lifeExpectancy": "300 ans",
+    "heightRange": "1,80 m à 2,00 m",
+    "weightRange": "100 à 160 kg",
+    "physicalTraits": "Écailles dorées, bronze, brunes ou écarlates, yeux de reptile, langue bifide, ailes atrophiées, pieds griffus.",
+    "defaultLanguages": "Commun, Draconique",
+    "interpretationTip": "Fier, perfectionniste, réfléchi et patient comme un vieux reptile, vous ne transigez jamais avec votre parole et votre honneur.",
+    "names": {
+      "masculine": [
+        "Asrtzeech",
+        "Drriik'Anteeth",
+        "Kkreet'zal",
+        "Praatchekrr",
+        "SSessk'Art",
+        "Vrr'tkal",
+        "Gharash",
+        "Kazzarak",
+        "Torkhan"
+      ],
+      "feminine": [
+        "Asrtzeecha",
+        "Drriika",
+        "Kkreet'zala",
+        "Praatchekra",
+        "SSesska",
+        "Vrr'tkala",
+        "Gharasha",
+        "Kazzara"
+      ],
+      "namingTip": "Noms draconiques complexes et sifflants avec double consonnes et apostrophes."
+    },
+    "path": {
+      "id": "voie-du-drakonide",
+      "name": "VOIE DU DRAKONIDE",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Sang dragon",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Dans le noir total, le drakonide voit comme dans la pénombre jusqu'à 30 m. De plus, il bénéficie de +3 à tous ses tests d'intimidation."
+        },
+        {
+          "rank": 2,
+          "title": "Souffle",
+          "actionType": "Limitée",
+          "isSpell": true,
+          "description": "Le joueur choisit un souffle parmi feu, froid, électricité ou acide. Une fois par combat, souffle conique de 10 m de long sur 5 m de large infligeant 3d4° DM + 1d4° DM par rang dans la voie (test d'AGI diff 10 pour demi-DM)."
+        },
+        {
+          "rank": 3,
+          "title": "Écailles robustes",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le drakonide bénéficie de +1 en DEF et d'une RD égale au rang atteint dans la voie contre l'élément correspondant à son souffle."
+        },
+        {
+          "rank": 4,
+          "title": "Fureur drakonide / Ailes puissantes",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Au choix : 'Fureur drakonide' (lorsqu'un adversaire lui inflige un coup critique ou s'il passe sous la moitié de ses PV max, bénéficie de +1 en attaque et DM pour le reste du combat) ou 'Ailes puissantes' (vol de 10 m par action de mouvement, max 30 m avant de devoir se poser)."
+        },
+        {
+          "rank": 5,
+          "title": "Héritage draconique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "De son ascendance draconique, le drakonide révèle une aura naturelle et une résistance exceptionnelle. Il augmente ses valeurs de CON et de CHA de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Drakonide"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "elfe-pale",
+    "name": "Elfe pâle",
+    "description": "Originaires de la Forêt sombre, ces elfes indécis ont refusé la tyrannie de Maëdra sans pour autant rejoindre la surface lumineuse, vénérant les anciennes Puissances de la nature.",
+    "bonusOptions": [
+      [
+        "PER",
+        "VOL"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 50+\n\n**Espérance de vie :** 400 ans\n\n**Taille :** 1,50 m à 1,70 m\n\n**Poids :** 40 à 70 kg\n\n**Traits :** peau pâle, cheveux argent ou blancs, yeux violets ou verts, oreilles pointues",
+    "startingAge": "50 ans",
+    "lifeExpectancy": "400 ans",
+    "heightRange": "1,50 m à 1,70 m",
+    "weightRange": "40 à 70 kg",
+    "physicalTraits": "Peau pâle, silhouette élancée et svelte, oreilles pointues, yeux en amande violets ou verts, cheveux argentés ou blancs.",
+    "defaultLanguages": "Commun, Elfique",
+    "interpretationTip": "Prudent et habitué aux forêts hostiles, vous préférez éviter les conflits directs et vous méfiez des dieux nouveaux.",
+    "names": {
+      "masculine": [
+        "Allya'th",
+        "Faill'An",
+        "Lizu'Ar",
+        "Yellen'D",
+        "Zeill'N Dil",
+        "Silve'Ar",
+        "Kaell'An"
+      ],
+      "feminine": [
+        "Allya'the",
+        "Faill'Ana",
+        "Lizu'Ara",
+        "Yellen'Da",
+        "Zeill'Na",
+        "Silve'Ara",
+        "Kaell'Ana"
+      ],
+      "namingTip": "Noms doux aux consonances en L, Z et sons mouillés, avec apostrophes elfiques."
+    },
+    "path": {
+      "id": "voie-de-l-elfe-pale",
+      "name": "VOIE DE L'ELFE PÂLE",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Natif de la Forêt sombre",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Dans l'obscurité, les elfes pâles voient comme un humain dans la pénombre à une distance de 20 m. Dans la pénombre et le brouillard léger, aucun malus jusqu'à 20 m. De plus, +3 à tous leurs tests de vigilance pour échapper à une embuscade."
+        },
+        {
+          "rank": 2,
+          "title": "Résistance au poison",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Les elfes pâles obtiennent un dé bonus pour résister aux poisons et divisent par deux tous les effets des poisons (DM ou durée des effets)."
+        },
+        {
+          "rank": 3,
+          "title": "Fléau des morts",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Un elfe pâle inflige +1d4° DM par attaque contre tous les morts-vivants (s'applique aux DM initiaux d'une attaque)."
+        },
+        {
+          "rank": 4,
+          "title": "Provoquer la chance",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe pâle ajoute sa PER ou sa VOL (au choix) à son total de Points de Chance (PC)."
+        },
+        {
+          "rank": 5,
+          "title": "Supériorité elfique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe pâle augmente ses valeurs de PER et de VOL de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Elfe pâle"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "elfe-des-profondeurs",
+    "name": "Elfe des profondeurs",
+    "description": "Fuyant le monde de la surface depuis des millénaires, les elfes des profondeurs ont bâti une culture souterraine impitoyable. Rares sont ceux qui s'échappent pour gagner la surface.",
+    "bonusOptions": [
+      [
+        "AGI",
+        "VOL"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 50+\n\n**Espérance de vie :** 400 ans\n\n**Taille :** 1,50 m à 1,70 m\n\n**Poids :** 40 à 70 kg\n\n**Traits :** peau très pâle et translucide, cheveux blancs, yeux amande mauves ou rouges",
+    "startingAge": "50 ans",
+    "lifeExpectancy": "400 ans",
+    "heightRange": "1,50 m à 1,70 m",
+    "weightRange": "40 à 70 kg",
+    "physicalTraits": "Peau d'une pâleur translucide, cheveux blancs immaculés ou argent, yeux mauves ou rouges, svelte et gracieux.",
+    "defaultLanguages": "Commun, Elfique, Noir parlé",
+    "interpretationTip": "Fugitif déterminé ou traître à votre peuple, vous découvrez la dureté du soleil et le poids des regards soupçonneux.",
+    "names": {
+      "masculine": [
+        "Da'Ark",
+        "Koth'N Driz",
+        "Or'D Galtz",
+        "Vhaer'Un",
+        "Malag'Or",
+        "Ril'Aun"
+      ],
+      "feminine": [
+        "Da'Arka",
+        "Koth'N Driza",
+        "Or'D Galtza",
+        "Vhaer'Una",
+        "Malag'Ora",
+        "Ril'Auna"
+      ],
+      "namingTip": "Noms de clans courts avec apostrophes et lettres dures. Emploient souvent des pseudonymes à la surface."
+    },
+    "path": {
+      "id": "voie-de-l-elfe-des-profondeurs",
+      "name": "VOIE DE L'ELFE DES PROFONDEURS",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Enfant des ténèbres",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe des profondeurs ne subit aucune pénalité dans le noir total ou la pénombre jusqu'à 30 m. De plus, il bénéficie de +3 en Init. dans le noir complet ou la pénombre."
+        },
+        {
+          "rank": 2,
+          "title": "Lames et sorcellerie",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Le joueur choisit une capacité de rang 1 d'une voie de sorcier ou de guerrier (gagne 1 PM si sort, utilisable en armure sans pénalité). Au rang 4, capacité supplémentaire de rang 2 issue d'un de ces deux profils. Inutilisable en plein soleil."
+        },
+        {
+          "rank": 3,
+          "title": "Combat à deux armes",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe des profondeurs obtient la capacité de rôdeur Droite - gauche. S'il la possède déjà, il ne subit plus de dé malus lorsqu'il attaque une cible différente de chaque main."
+        },
+        {
+          "rank": 4,
+          "title": "Maîtrise des arbalètes",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Lorsqu'il utilise une arbalète de poing ou légère, l'elfe des profondeurs obtient une réussite critique sur un résultat de 19-20. Il sait manier ces arbalètes, quel que soit son profil."
+        },
+        {
+          "rank": 5,
+          "title": "Supériorité elfique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "L'elfe des profondeurs augmente ses valeurs d'AGI et de VOL de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Elfe des profondeurs"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "felis",
+    "name": "Félis",
+    "description": "Humanoïdes félins agiles et élégants, pourvus d'une longue queue, d'un pelage soyeux et d'yeux verticaux, souvent saltimbanques ou chasseurs solitaires.",
+    "bonusOptions": [
+      [
+        "AGI",
+        "PER"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR",
+        "INT"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 1,50 m à 1,80 m\n\n**Poids :** 40 à 80 kg\n\n**Traits :** pelage doux, queue de félin, griffes rétractables, moustaches, pupilles verticales",
+    "startingAge": "15 ans",
+    "lifeExpectancy": "60 ans",
+    "heightRange": "1,50 m à 1,80 m",
+    "weightRange": "40 à 80 kg",
+    "physicalTraits": "Corps agile et musclé, pelage fin tacheté ou uni, queue de félin d'un mètre, yeux de chat, moustaches discrètes.",
+    "defaultLanguages": "Commun",
+    "interpretationTip": "Alternance de paresse voluptueuse et d'explosions d'énergie vive. Très fier de votre allure, fidèle à votre clan mais prompt à la rancune.",
+    "names": {
+      "masculine": [
+        "Antonino",
+        "Dialigo",
+        "Loula",
+        "Malivio",
+        "Miguel",
+        "Tigro",
+        "Carlos",
+        "Sancho"
+      ],
+      "feminine": [
+        "Juanina",
+        "Kalila",
+        "Karmen",
+        "Lolita",
+        "Mirabella",
+        "Esmeralda",
+        "Paloma",
+        "Sirena"
+      ],
+      "namingTip": "Prénoms à consonance hispanique ou latine, accompagnés d'un nom de clan descriptif (Griffe, Velours, Dague, Roux)."
+    },
+    "path": {
+      "id": "voie-du-felis",
+      "name": "VOIE DU FÉLIS",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Âme féline",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Pour un félis, l'obscurité de la nuit sous la lumière des étoiles est considérée comme de la pénombre. De plus, il gagne +3 à tous les tests d'AGI en rapport avec l'escalade, les sauts et la course (sprint)."
+        },
+        {
+          "rank": 2,
+          "title": "Armes naturelles",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le félis inflige [1d4 + FOR] DM létaux avec ses griffes. En action limitée, il peut remplacer FOR par AGI en attaque et aux DM. S'il possède Attaque éclair, +1d4° DM. S'il possède la voie du poing, remplace FOR par AGI pour les DM de toutes ses attaques."
+        },
+        {
+          "rank": 3,
+          "title": "Vif et discret",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le félis bénéficie de +3 en Init. et à tous ses tests de discrétion. De plus, il bénéficie de +3 en jonglerie et acrobaties (saltimbanque) ou en survie en forêt (des forêts)."
+        },
+        {
+          "rank": 4,
+          "title": "Métamorphose féline",
+          "actionType": "Limitée",
+          "isSpell": true,
+          "description": "Peut prendre la forme d'une panthère (1 h par niveau). Première transformation du jour gratuite, suivantes coûtent 1 DR. Déplacement 15 m, DEF 17+, morsure et griffes [2d4° + 2]."
+        },
+        {
+          "rank": 5,
+          "title": "Nature féline",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "La nature féline du personnage transparaît dans chacun de ses mouvements : il augmente ses valeurs d'AGI et de PER de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Félis"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "frouin",
+    "name": "Frouïn",
+    "description": "Petits rats humanoïdes d'un mètre de haut, débrouillards et charognards vivant dans les égouts et bas-fonds des cités, champions méconnus de la survie collective.",
+    "bonusOptions": [
+      [
+        "AGI",
+        "PER"
+      ],
+      [
+        "CON"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR"
+      ],
+      [
+        "CHA"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 10+\n\n**Espérance de vie :** 30 ans\n\n**Taille :** 1,00 m à 1,10 m\n\n**Poids :** 30 à 40 kg\n\n**Traits :** pelage grisâtre, museau de rat, incisives acérées, queue dénudée",
+    "startingAge": "10 ans",
+    "lifeExpectancy": "30 ans",
+    "heightRange": "1,00 m à 1,10 m",
+    "weightRange": "30 à 40 kg",
+    "physicalTraits": "Pelage miteux, incisives proéminentes, truffe humide, queue de rat, petits yeux noirs vifs.",
+    "defaultLanguages": "Commun",
+    "interpretationTip": "Curieux, toujours à l'affût de débris utiles à récupérer. Attachiant et loyal envers votre meute d'amis dont vous cherchez la sécurité.",
+    "names": {
+      "masculine": [
+        "Knit",
+        "Knat",
+        "Knot",
+        "Knet",
+        "Knut",
+        "Ratichon",
+        "Gratte-poubelle",
+        "Trottin"
+      ],
+      "feminine": [
+        "Knita",
+        "Knata",
+        "Knota",
+        "Kneta",
+        "Knuta",
+        "Mulotte",
+        "Friponne",
+        "Crotte-de-nez"
+      ],
+      "namingTip": "Traditionnellement seulement cinq prénoms (Knit, Knat, Knot, Knet, Knut) que les frouïns partagent selon l'odeur et le contexte."
+    },
+    "path": {
+      "id": "voie-du-frouin",
+      "name": "VOIE DU FROUÏN",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Avarié",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "A besoin de trois fois moins de nourriture et peut manger des aliments avariés sans maladie (+3 pour résister aux maladies et poisons). Impose -1 aux tests de CHA des compagnons proches. Dans le noir total, voit comme dans la pénombre jusqu'à 30 m."
+        },
+        {
+          "rank": 2,
+          "title": "Minus",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Grâce à sa petite taille et sa discrétion, bénéficie de +3 à tous ses tests de discrétion et +1 en DEF (passe à +2 en DEF au rang 4)."
+        },
+        {
+          "rank": 3,
+          "title": "Parano",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Bénéficie de +3 en Init. et à tous ses tests pour éviter d'être surpris. Ne subit que la moitié des DM des attaques sournoises."
+        },
+        {
+          "rank": 4,
+          "title": "Attaque simultanée",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "S'il décale son Init. pour attaquer en même temps qu'un allié, il obtient au choix un dé bonus en attaque ou +1d4° DM (se cumule avec Attaque sournoise)."
+        },
+        {
+          "rank": 5,
+          "title": "Champion de la survie",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le frouïn est expert de la survie : il augmente sa valeur d'AGI ou de PER (au choix) et de CON de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Frouïn"
+    },
+    "equipmentRules": {
+      "forbiddenWeaponIds": [
+        "rapiere",
+        "arc-long",
+        "arbalete-lourde"
+      ],
+      "maxDamageDice": 10,
+      "twoHandedMinDamageDice": 8,
+      "twoHandedWeaponIds": [
+        "epee-longue",
+        "epee-batarde",
+        "hache-armes",
+        "marteau-guerre",
+        "lance",
+        "petoire",
+        "arbalete-legere"
+      ],
+      "summary": "Taille petite : Armes 1d8 à 1d10 DM obligatoirement à deux mains. Armes >1d10 DM, rapière, arc long et arbalète lourde interdits."
+    }
+  },
+  {
+    "id": "gobelin",
+    "name": "Gobelin",
+    "description": "Petits humanoïdes à la peau verte vifs, farceurs, bruyants ou furtifs selon les minutes, dotés d'un esprit retors et d'une joie de vivre communicative bien que chaotique.",
+    "bonusOptions": [
+      [
+        "AGI"
+      ],
+      [
+        "PER"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR"
+      ],
+      [
+        "VOL"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 8+\n\n**Espérance de vie :** 30 ans\n\n**Taille :** 0,80 m à 1,00 m\n\n**Poids :** 15 à 30 kg\n\n**Traits :** peau verte, traits disproportionnés, yeux rouges/jaunes souvent vairons, corps chétif",
+    "startingAge": "8 ans",
+    "lifeExpectancy": "30 ans",
+    "heightRange": "0,80 m à 1,00 m",
+    "weightRange": "15 à 30 kg",
+    "physicalTraits": "Peau verte, grandes oreilles pointues, nez proéminent, bouche large garnie de petites dents acérées, yeux rouges ou jaunes.",
+    "defaultLanguages": "Commun, Noir parlé (gobelin)",
+    "interpretationTip": "Imprévisible, rieur, un brin lâche mais opportuniste en diable. Vous surnommez les autres races avec des sobriquets affectueux mais moqueurs.",
+    "names": {
+      "masculine": [
+        "Arg",
+        "Didi",
+        "Gal",
+        "Kul",
+        "Mert",
+        "Mox",
+        "Olf",
+        "Bouffecaillou",
+        "Brise-rotule",
+        "Pied-qui-pue",
+        "Tête-à-claque"
+      ],
+      "feminine": [
+        "Arga",
+        "Didia",
+        "Gala",
+        "Kula",
+        "Merta",
+        "Moxa",
+        "Olfa",
+        "Dent-creuse",
+        "Langue-de-vipère",
+        "Puce"
+      ],
+      "namingTip": "Prénom court et percutant suivi d'un surnom flatteur ou risible (Brise-rotule, Pied-qui-pue, Tout-pourri)."
+    },
+    "path": {
+      "id": "voie-du-gobelin",
+      "name": "VOIE DU GOBELIN",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Vivacité gobeline",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le gobelin bénéficie de +3 en Init. et à tous ses tests de discrétion. De plus, dans le noir total, il voit comme dans la pénombre jusqu'à 30 m."
+        },
+        {
+          "rank": 2,
+          "title": "Attaque groupée",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le gobelin bénéficie de +2 en attaque au contact s'il vise la même cible qu'un allié (ou la même cible que sa monture au rang 4)."
+        },
+        {
+          "rank": 3,
+          "title": "Kafouiller",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Un gobelin bénéficie d'un dé bonus et de +1d4° DM lorsqu'il attaque au contact ou à distance une créature renversée."
+        },
+        {
+          "rank": 4,
+          "title": "Worg",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le gobelin attire un worg à son service comme monture. Juché sur le worg, il peut lui ordonner une attaque de morsure gratuite (G) par round ([att. magique + 2], DM 1d4° + 5, PV niv × 5, DEF 17)."
+        },
+        {
+          "rank": 5,
+          "title": "Vif et alerte",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le gobelin augmente ses valeurs d'AGI et de PER de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Gobelin"
+    },
+    "equipmentRules": {
+      "forbiddenWeaponIds": [
+        "rapiere",
+        "arc-long",
+        "arbalete-lourde"
+      ],
+      "maxDamageDice": 10,
+      "twoHandedMinDamageDice": 8,
+      "twoHandedWeaponIds": [
+        "epee-longue",
+        "epee-batarde",
+        "hache-armes",
+        "marteau-guerre",
+        "lance",
+        "petoire",
+        "arbalete-legere"
+      ],
+      "summary": "Taille petite : Armes 1d8 à 1d10 DM obligatoirement à deux mains. Armes >1d10 DM, rapière, arc long et arbalète lourde interdits."
+    }
+  },
+  {
+    "id": "kobold",
+    "name": "Kobold",
+    "description": "Minuscules humanoïdes reptiliens apparentés aux dragons, rusés, craintifs et ingénieux, experts dans la conception de pièges et l'embuscade en sous-sol.",
+    "bonusOptions": [
+      [
+        "AGI"
+      ],
+      [
+        "PER"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "FOR"
+      ],
+      [
+        "CON"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 10+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 0,70 m à 0,90 m\n\n**Poids :** 18 à 25 kg\n\n**Traits :** écailles colorées, museau entre chien et reptile, queue expressive, griffes acérées",
+    "startingAge": "10 ans",
+    "lifeExpectancy": "60 ans",
+    "heightRange": "0,70 m à 0,90 m",
+    "weightRange": "18 à 25 kg",
+    "physicalTraits": "Écailles rouge, vert, bleu ou or, mâchoire de petit crocodile, museau canin, queue effilée, petits crocs et griffes.",
+    "defaultLanguages": "Commun, Draconique",
+    "interpretationTip": "Fier de votre sang de dragon malgré votre taille menue, vous compensez votre faiblesse musculaire par des pièges perfides et une prudence constante.",
+    "names": {
+      "masculine": [
+        "Acamapichtli",
+        "Eztli",
+        "Ilhicamina",
+        "Itzcali",
+        "Mahuizoh",
+        "Nezahualpilli",
+        "Pacoehua",
+        "Quetzaltli",
+        "Xochitl"
+      ],
+      "feminine": [
+        "Acuecueyotl",
+        "Ahuilizhual",
+        "Mecanya",
+        "Mizyotli",
+        "Necatonal",
+        "Nenetl",
+        "Quauhlan",
+        "Xiloxoch",
+        "Xitzin"
+      ],
+      "namingTip": "Noms aux sonorités nahuatl / aztèques se terminant souvent par -oatl, -otloc, -tli, -itl ou -atl."
+    },
+    "path": {
+      "id": "voie-du-kobold",
+      "name": "VOIE DU KOBOLD",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Ruse kobold",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le kobold bénéficie de +3 à ses tests pour concevoir, fabriquer ou détecter les pièges. Dans le noir, voit comme dans la pénombre jusqu'à 30 m. Morsure au corps à corps [1d4 + FOR] DM létaux."
+        },
+        {
+          "rank": 2,
+          "title": "Chétif",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "La petite taille et les écailles du kobold lui confèrent +1 en DEF et +3 aux tests de discrétion."
+        },
+        {
+          "rank": 3,
+          "title": "Piège improvisé",
+          "actionType": "Limitée",
+          "isSpell": false,
+          "description": "Peut poser un piège en action limitée (test AGI diff 10) ou en 10 min automatique (zone 2 m). Victime qui pénètre doit réussir test PER ou AGI diff [10 + rang] ou subir 2d4° DM, être immobilisée 1 round, ou ralentie 1d4 rounds."
+        },
+        {
+          "rank": 4,
+          "title": "Attaque vicieuse",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Lorsque le kobold attaque par surprise ou combat le même ennemi qu'un allié au contact, il bénéficie de +2 en attaque et +1d4° DM (cumulable avec Attaque sournoise)."
+        },
+        {
+          "rank": 5,
+          "title": "Ruse instinctive",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le kobold est plus rapide et rusé que jamais. Il augmente son AGI et sa PER de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Kobold"
+    },
+    "equipmentRules": {
+      "forbiddenWeaponIds": [
+        "rapiere",
+        "arc-long",
+        "arbalete-lourde"
+      ],
+      "maxDamageDice": 10,
+      "twoHandedMinDamageDice": 8,
+      "twoHandedWeaponIds": [
+        "epee-longue",
+        "epee-batarde",
+        "hache-armes",
+        "marteau-guerre",
+        "lance",
+        "petoire",
+        "arbalete-legere"
+      ],
+      "summary": "Taille petite : Armes 1d8 à 1d10 DM obligatoirement à deux mains. Armes >1d10 DM, rapière, arc long et arbalète lourde interdits."
+    }
+  },
+  {
+    "id": "farfadet",
+    "name": "Farfadet (Lutin)",
+    "description": "Représentant masculin du peuple féerique des lutins, né dans un chou, farceur impénitent aux grands pieds et chapeau de champignon.",
+    "bonusOptions": [
+      [
+        "AGI"
+      ],
+      [
+        "PER"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "CON"
+      ],
+      [
+        "FOR"
+      ],
+      [
+        "FOR"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 3+\n\n**Espérance de vie :** 150 ans\n\n**Taille :** 25 à 35 cm\n\n**Poids :** 1 à 3 kg\n\n**Traits :** minuscule, grand nez, grands pieds, habits végétaux, chapeau de champignon",
+    "startingAge": "3 ans",
+    "lifeExpectancy": "150 ans",
+    "heightRange": "0,25 m à 0,35 m",
+    "weightRange": "1 à 3 kg",
+    "physicalTraits": "Très petite taille, grand nez, grands pieds, coiffure ébouriffée, vêtements d'écorce et chapeau en champignon.",
+    "defaultLanguages": "Commun, Sylvain",
+    "interpretationTip": "Sale gosse farceur, curieux et mauvais perdant, mais au cœur pur dévoué à la protection de la nature.",
+    "names": {
+      "masculine": [
+        "Poc",
+        "Roc",
+        "Puck",
+        "Pierre-Hugues",
+        "Bouton-d'Or",
+        "Grelot",
+        "Fripouille",
+        "Chanterelle"
+      ],
+      "feminine": [
+        "Poc",
+        "Roc",
+        "Puck",
+        "Bouton-d'Or",
+        "Grelot"
+      ],
+      "namingTip": "Noms courts et malicieux ou pompeusement comiques empruntés aux humains."
+    },
+    "path": {
+      "id": "voie-du-farfadet",
+      "name": "VOIE DU FARFADET",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Né d'un chou",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Dans le noir total, voit comme dans la pénombre jusqu'à 20 m. Se téléporte de 10 m par action de mouvement (en vue). RD aux armes qui ne sont pas en fer froid égale à 1 par rang dans la voie."
+        },
+        {
+          "rank": 2,
+          "title": "Langage des animaux",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Obtient la capacité Langage des animaux (druide). S'il la possède déjà, obtient une capacité de rôdeur ou druide de rang 1 au choix (utilisable en armure si sort)."
+        },
+        {
+          "rank": 3,
+          "title": "Invisibilité",
+          "actionType": "Limitée",
+          "isSpell": true,
+          "description": "Peut se rendre invisible comme le sort de magicien jusqu'à 3 fois par jour, sans contrainte d'armure. S'il la possède déjà, choisit Télékinésie ou Confusion."
+        },
+        {
+          "rank": 4,
+          "title": "Monture féerique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Apprivoise un animal (éventuellement volant) lui servant de monture avec lien télépathique à 50 m (DEF 16, PV niv × 4, Attaque magique, DM 1d4° + 2)."
+        },
+        {
+          "rank": 5,
+          "title": "Seigneur féerique",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le personnage devient plus décidé et charismatique : il augmente ses valeurs de CHA et de VOL de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Farfadet (Lutin)"
+    },
+    "equipmentRules": {
+      "forbiddenWeaponIds": [
+        "rapiere",
+        "arc-long",
+        "arbalete-lourde",
+        "epee-deux-mains",
+        "hache-deux-mains",
+        "mousquet"
+      ],
+      "maxDamageDice": 6,
+      "twoHandedMinDamageDice": 6,
+      "summary": "Taille très petite : Armes 1 main limitées à 1d4 DM, armes 2 mains à 1d6 DM. Bonus DEF +2 et +5 en discrétion."
+    }
+  },
+  {
+    "id": "fee",
+    "name": "Fée (Lutin)",
+    "description": "Représentante féminine des lutins née au cœur des fleurs, gracieuse, lumineuse et capricieuse, dotée d'ailes diaphanes et de puissants dons magiques.",
+    "bonusOptions": [
+      [
+        "AGI"
+      ],
+      [
+        "CHA"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "CON"
+      ],
+      [
+        "FOR"
+      ],
+      [
+        "FOR"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 3+\n\n**Espérance de vie :** 150 ans\n\n**Taille :** 18 à 25 cm\n\n**Poids :** 1 à 2 kg\n\n**Traits :** minuscule, ailes diaphanes, corps lumineux et féerique, yeux brillants",
+    "startingAge": "3 ans",
+    "lifeExpectancy": "150 ans",
+    "heightRange": "0,18 m à 0,25 m",
+    "weightRange": "1 à 2 kg",
+    "physicalTraits": "Diaphane, ailes de libellule scintillantes, silhouette gracieuse, peau lumineuse, yeux étincelants.",
+    "defaultLanguages": "Commun, Sylvain",
+    "interpretationTip": "Capricieuse, coquette et prompte à bouder, mais d'une générosité lumineuse quand la nature ou vos amis sont menacés.",
+    "names": {
+      "masculine": [
+        "Mélissin",
+        "Pétale",
+        "Zéphyr"
+      ],
+      "feminine": [
+        "Mélissine",
+        "Pétale-de-rose",
+        "Lili",
+        "Minette",
+        "Clochette",
+        "Rosée",
+        "Églantine",
+        "Fleur-de-Lys"
+      ],
+      "namingTip": "Noms floraux, doux et poétiques évoquant la nature féerique."
+    },
+    "path": {
+      "id": "voie-de-la-fee",
+      "name": "VOIE DE LA FÉE",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Née d'une fleur",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Vol à une vitesse de 10 m par action de mouvement. Dans le noir, voit comme dans la pénombre jusqu'à 20 m. RD aux armes non fer froid égale à 1 par rang dans la voie."
+        },
+        {
+          "rank": 2,
+          "title": "Pirouette",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Une fois par combat, après avoir été touchée par une attaque, ignore simplement les DM infligés. De plus, produit sa propre lumière à volonté (rayon 2 m)."
+        },
+        {
+          "rank": 3,
+          "title": "Poudre de fée",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Choisit une capacité de rang 1 de magicien ou ensorceleur (hors DEF) utilisable 3 fois par jour en armure sans pénalité (ou rang 2 sans armure)."
+        },
+        {
+          "rank": 4,
+          "title": "Fée révérée",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Peut prendre une taille humaine pendant [1d4° + CHA] minutes (3 fois par jour). Bénéficie alors de +3 en FOR et peut infliger des DM normaux d'armes."
+        },
+        {
+          "rank": 5,
+          "title": "Lady fée",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le personnage devient plus sage et charismatique. Il augmente ses valeurs de PER et de CHA de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Fée (Lutin)"
+    },
+    "equipmentRules": {
+      "forbiddenWeaponIds": [
+        "rapiere",
+        "arc-long",
+        "arbalete-lourde",
+        "epee-deux-mains",
+        "hache-deux-mains",
+        "mousquet"
+      ],
+      "maxDamageDice": 6,
+      "twoHandedMinDamageDice": 6,
+      "summary": "Taille très petite : Armes 1 main limitées à 1d4 DM, armes 2 mains à 1d6 DM. Bonus DEF +2 et +5 en discrétion."
+    }
+  },
+  {
+    "id": "minotaure",
+    "name": "Minotaure",
+    "description": "Puissants colosses mi-hommes mi-taureaux pourvus d'impressionnantes cornes et de sabots massifs, bâtisseurs de labyrinthes sacrés et combattants redoutables.",
+    "bonusOptions": [
+      [
+        "FOR"
+      ],
+      [
+        "FOR"
+      ],
+      [
+        "VOL"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "INT"
+      ],
+      [
+        "INT"
+      ],
+      [
+        "CHA"
+      ],
+      [
+        "CHA"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 1,90 m à 2,30 m\n\n**Poids :** 150 à 250 kg\n\n**Traits :** tête de taureau, cornes d'auroch, sabots, corps massif et musclé",
+    "startingAge": "15 ans",
+    "lifeExpectancy": "60 ans",
+    "heightRange": "1,90 m à 2,30 m",
+    "weightRange": "150 à 250 kg",
+    "physicalTraits": "Tête et cou de taureau, puissantes cornes d'auroch, sabots fourchus, queue bovine, musculature colossale.",
+    "defaultLanguages": "Commun",
+    "interpretationTip": "Taciturne, borné et susceptible face aux provocations, mais d'une orientation sans faille et loyal envers ceux qui respectent votre force.",
+    "names": {
+      "masculine": [
+        "Agamenès",
+        "Agônès",
+        "Akiléus",
+        "Céphaloster",
+        "Epôdiès",
+        "Galatos",
+        "Hégémôn",
+        "Héphaïdis",
+        "Kérunos",
+        "Thérion",
+        "Thésalidis"
+      ],
+      "feminine": [
+        "Agamenèa",
+        "Akiléa",
+        "Galatea",
+        "Karditis",
+        "Pélomidia",
+        "Perséphate",
+        "Rhoméné",
+        "Thériona"
+      ],
+      "namingTip": "Noms d'inspiration grecque antique terminés en -ès, -ter, -eps, -akos, -idis, parfois assortis d'un titre de bravoure."
+    },
+    "path": {
+      "id": "voie-du-minotaure",
+      "name": "VOIE DU MINOTAURE",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Coup de corne",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Peut réaliser une attaque de corne [1d4° + FOR] DM au lieu d'une attaque normale. En action limitée, attaque avec arme de contact + attaque de corne. De plus, +3 à tous ses tests d'orientation."
+        },
+        {
+          "rank": 2,
+          "title": "Charge puissante",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Après au moins 10 m en ligne droite, attaque de corne à [2d4° + FOR] DM. Si cible de taille moyenne ou moins : test de FOR diff [10 + rang] ou renversée."
+        },
+        {
+          "rank": 3,
+          "title": "Frénésie",
+          "actionType": "Gratuite",
+          "isSpell": false,
+          "description": "Après avoir reçu une blessure, peut entrer en frénésie (action gratuite) : +2 en attaque et RD 3 contre tous les DM, mais subit -3 en DEF."
+        },
+        {
+          "rank": 4,
+          "title": "Encorner",
+          "actionType": "Gratuite",
+          "isSpell": false,
+          "description": "Le minotaure peut désormais réaliser une attaque de corne en action gratuite une fois par round."
+        },
+        {
+          "rank": 5,
+          "title": "Colosse",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le minotaure est une montagne de muscles : il augmente ses valeurs de CON et de FOR de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Minotaure"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "nephilim",
+    "name": "Nephilim",
+    "description": "Descendants d'une lignée angélique céleste, caractérisés par une grâce radieuse, un regard semblable à des joyaux et une communion naturelle avec la lumière divine.",
+    "bonusOptions": [
+      [
+        "CHA",
+        "CON"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "PER"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 25 à 30 ans\n\n**Espérance de vie :** 120 à 270 ans\n\n**Taille :** 1,50 m à 2,00 m\n\n**Poids :** 40 à 120 kg\n\n**Traits :** beauté surnaturelle, cheveux dorés ou argent, yeux de joyau, peau pailletée",
+    "startingAge": "25 à 30 ans",
+    "lifeExpectancy": "120 à 270 ans",
+    "heightRange": "1,50 m à 2,00 m",
+    "weightRange": "40 à 120 kg",
+    "physicalTraits": "Traits harmonieux et réguliers, cheveux aux reflets métalliques ou or, yeux semblables à des pierres précieuses, halo subtil de clarté.",
+    "defaultLanguages": "Commun, Céleste",
+    "interpretationTip": "Fasciné par la beauté pure, rêveur et parfois distrait par rapport aux réalités prosaïques du monde mortel.",
+    "names": {
+      "masculine": [
+        "Amour",
+        "Ange",
+        "Joie",
+        "Lumière",
+        "Parfait",
+        "Radieux",
+        "Soleil",
+        "Auriel",
+        "Caelum",
+        "Seraphin",
+        "Uriel"
+      ],
+      "feminine": [
+        "Angélique",
+        "Céleste",
+        "Clarté",
+        "Grâce",
+        "Harmonie",
+        "Aura",
+        "Séraphine",
+        "Etoile",
+        "Lumina"
+      ],
+      "namingTip": "Prénoms lumineux, vertueux ou angéliques évoquant la bonté divine."
+    },
+    "path": {
+      "id": "voie-du-nephilim",
+      "name": "VOIE DU NEPHILIM",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Photosensible",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "La nuit sous les étoiles, voit comme en plein jour, rayon des sources lumineuses doublé. De plus, +3 aux tests de deux domaines d'origine sociale ou géographique (comme les humains)."
+        },
+        {
+          "rank": 2,
+          "title": "Enfant de la lumière",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Obtient le sort Lumière (magicien) et 1 PM, utilisable sans pénalité en armure. S'il a déjà le sort, action gratuite pour le lancer."
+        },
+        {
+          "rank": 3,
+          "title": "Résistances",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le sang céleste lui accorde une RD 5 contre les DM d'acide, de froid ou d'électricité."
+        },
+        {
+          "rank": 4,
+          "title": "La plume et l'acier",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Sort Ailes célestes (prêtre) 1 fois par jour (2 fois dès le niveau 10) sans limitation d'armure. De plus, +3 pour résister aux corruptions mentales et effets d'affaiblissement/drain."
+        },
+        {
+          "rank": 5,
+          "title": "Forgé par la lumière",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "La nature céleste le transcende et le rend éblouissant et résistant. Il augmente ses valeurs de CON et de CHA de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Nephilim"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "ophidien",
+    "name": "Ophidien",
+    "description": "Héritiers du peuple des serpents anciens ayant dominé le monde originel, dissimulant sous une apparence humaine une mémoire génétique millénaire et une soif de pouvoir.",
+    "bonusOptions": [
+      [
+        "INT",
+        "VOL"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "CON"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 30+\n\n**Espérance de vie :** 300 ans\n\n**Taille :** 1,50 m à 1,90 m\n\n**Poids :** 40 à 100 kg\n\n**Traits :** pupille verticale, écailles discrètes, langue bifide, peau fraîche",
+    "startingAge": "30 ans",
+    "lifeExpectancy": "300 ans",
+    "heightRange": "1,50 m à 1,90 m",
+    "weightRange": "40 à 100 kg",
+    "physicalTraits": "Pupille verticale, langue légèrement bifide, plaques d'écailles subtiles sur la nuque ou les avant-bras, regard magnétique.",
+    "defaultLanguages": "Commun, Ophidien",
+    "interpretationTip": "Calculateur, secret et doté d'une mémoire historique ancestrale, vous maniez le mensonge avec brio pour diriger les événements à votre avantage.",
+    "names": {
+      "masculine": [
+        "Sethos",
+        "Naja",
+        "Viperis",
+        "Kaa",
+        "Sissik",
+        "Apep",
+        "Ourobor",
+        "Nagasen",
+        "Zul"
+      ],
+      "feminine": [
+        "Setha",
+        "Najaïa",
+        "Vipera",
+        "Medusa",
+        "Sissika",
+        "Asida",
+        "Nagini",
+        "Shassia"
+      ],
+      "namingTip": "Noms sifflants et antiques évoquant les serpents légendaires et l'ancienne Égypte."
+    },
+    "path": {
+      "id": "voie-de-l-ophidien",
+      "name": "VOIE DE L'OPHIDIEN",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Sang des anciens",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "+3 à tous les tests en rapport avec l'histoire. +3 à tous les tests de CHA pour le mensonge et le bluff. Dans le noir total, voit comme dans la pénombre jusqu'à 30 m."
+        },
+        {
+          "rank": 2,
+          "title": "Regard hypnotique",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Sort Injonction 1 fois par combat (et Sommeil 1 fois/jour dès le rang 4) sans limitation d'armure. Reçoit 1 PE (point d'ego) par rang dans la voie."
+        },
+        {
+          "rank": 3,
+          "title": "Crachat",
+          "actionType": "Attaque",
+          "isSpell": false,
+          "description": "Une fois par combat, crachat de poison acide à 3 m (action d'attaque à distance) infligeant [1d4° + PER] DM. Test d'AGI diff 10 ou aveuglé pendant 1d4 rounds."
+        },
+        {
+          "rank": 4,
+          "title": "Mutation serpentine",
+          "actionType": "Limitée",
+          "isSpell": false,
+          "description": "Sa tête devient celle d'un serpent géant au cou étiré d'1 m. Morsure gratuite une fois par round (1d4° DM + 1d4° poison si échec au test de CON diff 10)."
+        },
+        {
+          "rank": 5,
+          "title": "Forme de serpent",
+          "actionType": "Limitée",
+          "isSpell": false,
+          "description": "Peut prendre à volonté la forme d'un serpent constricteur de 4 m (DEF 17+, morsure venimeuse [1d4° + 4] + poison, étreinte qui étouffe à +1d4° DM/tour et immobilise la cible)."
+        }
+      ],
+      "type": "racial",
+      "owner": "Ophidien"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "satyre",
+    "name": "Satyre",
+    "description": "Créatures des bois festives et insouciantes, aux jambes et sabots de bouc et aux cornes spiralées, hédonistes passionnés de musique, de vin et de liberté.",
+    "bonusOptions": [
+      [
+        "PER",
+        "CHA"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "VOL",
+        "INT"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 120 ans\n\n**Taille :** 1,60 m à 1,75 m\n\n**Poids :** 50 à 80 kg\n\n**Traits :** jambes de bouc, sabots, barbichette, petites cornes, sourire charmeur",
+    "startingAge": "15 ans",
+    "lifeExpectancy": "120 ans",
+    "heightRange": "1,60 m à 1,75 m",
+    "weightRange": "50 à 80 kg",
+    "physicalTraits": "Pattes et sabots de bouc velus, petites cornes sur le front, barbichette pointue, oreilles effilées, buste humain athlétique.",
+    "defaultLanguages": "Commun, Sylvain",
+    "interpretationTip": "L'art du bon temps et de la fête permanente. Vous voyez chaque aventure comme une opportunité de célébrer la vie et de faire de belles rencontres.",
+    "names": {
+      "masculine": [
+        "Achille",
+        "Aristote",
+        "Ascagne",
+        "Énée",
+        "Jason",
+        "Thésée",
+        "Ulysse",
+        "Pan",
+        "Silène",
+        "Dionysos"
+      ],
+      "feminine": [
+        "Antigone",
+        "Chrysothémis",
+        "Didon",
+        "Iphigénie",
+        "Électre",
+        "Daphné",
+        "Chloé",
+        "Némésis"
+      ],
+      "namingTip": "Prénoms empruntés aux héros, poètes et philosophes de la Grèce antique."
+    },
+    "path": {
+      "id": "voie-du-satyre",
+      "name": "VOIE DU SATYRE",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Bonne nature",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "+3 aux tests de survie et pour se cacher en forêt (trouve toujours à se nourrir). +3 en chant, danse et musique (flûte de pan). Nuit sous étoiles vue comme pénombre."
+        },
+        {
+          "rank": 2,
+          "title": "Encorner et ruer",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Cornes et sabots infligent [1d4° + FOR] DM létaux. En action limitée, peut effectuer 2 attaques (cornes + sabots). Dès le rang 4, coup de corne gratuit par round lors d'une attaque armée."
+        },
+        {
+          "rank": 3,
+          "title": "Compagnon de voyage",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "En fin de journée de voyage, les compagnons réussissant un test de PER gagnent 1 DR utilisable immédiatement ou durant la nuit."
+        },
+        {
+          "rank": 4,
+          "title": "Magie sauvage",
+          "actionType": "Action",
+          "isSpell": true,
+          "description": "Choisit 1 sort de rang 3 ou 2 sorts de rang 1 à 2 de barde, druide ou ensorceleur, utilisables 1 fois par jour sans contrainte d'armure."
+        },
+        {
+          "rank": 5,
+          "title": "Ascendance naturelle",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le satyre est parfaitement vigilant et très démonstratif : il augmente ses valeurs de PER et de CHA de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Satyre"
+    },
+    "equipmentRules": null
+  },
+  {
+    "id": "wolfer",
+    "name": "Wolfer",
+    "description": "Chasseurs robustes des forêts et steppes sauvages à la pilosité fournie et aux canines aiguisées, organisés en clans loyaux où la meute fait la force.",
+    "bonusOptions": [
+      [
+        "PER",
+        "VOL"
+      ]
+    ],
+    "malusOptions": [
+      [
+        "INT"
+      ]
+    ],
+    "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 1,60 m à 1,85 m\n\n**Poids :** 50 à 90 kg\n\n**Traits :** monosourcil, rouflaquettes, canines développées, démarche de prédateur",
+    "startingAge": "15 ans",
+    "lifeExpectancy": "60 ans",
+    "heightRange": "1,60 m à 1,85 m",
+    "weightRange": "50 à 90 kg",
+    "physicalTraits": "Pilosité développée, rouflaquettes et monosourcil, posture légèrement voûtée, canines proéminentes, regard perçant.",
+    "defaultLanguages": "Commun",
+    "interpretationTip": "Taiseux, direct et pragmatique. Vous placez la loyauté envers votre meute et votre parole au-dessus de tout.",
+    "names": {
+      "masculine": [
+        "Ander",
+        "Bhoris",
+        "Gerhar",
+        "Gunther",
+        "Heiner",
+        "Helmar",
+        "Klauser",
+        "Lothar",
+        "Rainer",
+        "Rhans",
+        "Rolf"
+      ],
+      "feminine": [
+        "Astrid",
+        "Bathilde",
+        "Hedwe",
+        "Hilde",
+        "Ida",
+        "Inge",
+        "Ingrid",
+        "Lottie",
+        "Sonja",
+        "Tanja",
+        "Tilde",
+        "Uda",
+        "Ulrike",
+        "Undine",
+        "Ursel",
+        "Ursula",
+        "Utta"
+      ],
+      "namingTip": "Noms germaniques rustiques prononcés selon les règles de phonétique nordique."
+    },
+    "path": {
+      "id": "voie-du-wolfer",
+      "name": "VOIE DU WOLFER",
+      "symbol": "■",
+      "ranks": [
+        {
+          "rank": 1,
+          "title": "Chasseur né",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "+3 aux tests de PER pour pister, chasser, détecter en pleine nature. +3 aux tests de marche/course d'endurance (-3 équitation). Dans le noir, voit comme dans la pénombre jusqu'à 30 m."
+        },
+        {
+          "rank": 2,
+          "title": "Griffes et crocs",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Griffes et crocs infligent [1d4° + FOR] DM. Peut attaquer deux fois en action limitée. Dès le rang 4, attaque naturelle gratuite par round en plus de ses autres attaques."
+        },
+        {
+          "rank": 3,
+          "title": "Loi de la meute",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Combat le même ennemi qu'un allié : +1 en attaque et DEF. Utilise sa PER pour calculer ses points de chance (2 + PER) au lieu du CHA."
+        },
+        {
+          "rank": 4,
+          "title": "Forme de loup",
+          "actionType": "Limitée",
+          "isSpell": true,
+          "description": "Peut prendre la forme d'un loup puissant pendant 1 h par niveau (1ère transformation/jour gratuite, suivantes 1 DR). Vitesse de voyage +5 km/période. DEF 17+, morsure [2d4° + 3]."
+        },
+        {
+          "rank": 5,
+          "title": "Esprit du loup",
+          "actionType": "Action",
+          "isSpell": false,
+          "description": "Le wolfer augmente ses valeurs de PER et de VOL de +1."
+        }
+      ],
+      "type": "racial",
+      "owner": "Wolfer"
+    },
+    "equipmentRules": null
+  }
+]

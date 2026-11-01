@@ -1,0 +1,54 @@
+{
+  "characteristicArrays": [
+    {
+      "id": "polyvalent",
+      "name": "Polyvalent",
+      "values": [2, 2, 2, 1, 1, 0, -1],
+      "description": "Équilibré dans la plupart des domaines sans faiblesse majeure."
+    },
+    {
+      "id": "expert",
+      "name": "Expert",
+      "values": [3, 2, 1, 1, 0, 0, -1],
+      "description": "Un point fort très marqué (+3) et des bases solides."
+    },
+    {
+      "id": "specialiste",
+      "name": "Spécialiste",
+      "values": [4, 2, 1, 0, 0, -1, -1],
+      "description": "Un talent exceptionnel (+4) compensé par deux faiblesses."
+    }
+  ],
+  "characteristicsList": [
+    { "code": "FOR", "name": "Force", "type": "physique", "description": "Puissance physique, dégâts au contact" },
+    { "code": "AGI", "name": "Agilité", "type": "physique", "description": "Coordination, réflexes, attaque à distance, défense" },
+    { "code": "CON", "name": "Constitution", "type": "physique", "description": "Santé, endurance, points de vigueur (PV)" },
+    { "code": "PER", "name": "Perception", "type": "physique", "description": "Sens, intuition, initiative" },
+    { "code": "INT", "name": "Intelligence", "type": "mental", "description": "Érudition, raisonnement, magie profane" },
+    { "code": "VOL", "name": "Volonté", "type": "mental", "description": "Force de caractère, attaque magique, points de mana (PM)" },
+    { "code": "CHA", "name": "Charisme", "type": "mental", "description": "Persuasion, présence, points de chance (PC), magie innée/divine" }
+  ],
+  "idealsAndFlaws": [
+    { "roll": 1, "ideal": "Abnégation", "flaw": "Alcoolique" },
+    { "roll": 2, "ideal": "Clémence", "flaw": "Couard" },
+    { "roll": 3, "ideal": "Compassion", "flaw": "Crédule" },
+    { "roll": 4, "ideal": "Courage", "flaw": "Cupide" },
+    { "roll": 5, "ideal": "Curiosité", "flaw": "Distrait" },
+    { "roll": 6, "ideal": "Devoir", "flaw": "Dogmatique" },
+    { "roll": 7, "ideal": "Fidélité", "flaw": "Égoïste" },
+    { "roll": 8, "ideal": "Franchise", "flaw": "Grossier" },
+    { "roll": 9, "ideal": "Générosité", "flaw": "Hâbleur" },
+    { "roll": 10, "ideal": "Honneur", "flaw": "Impulsif" },
+    { "roll": 11, "ideal": "Humble", "flaw": "Intolérant" },
+    { "roll": 12, "ideal": "Indépendance", "flaw": "Jaloux" },
+    { "roll": 13, "ideal": "Justice", "flaw": "Manipulateur" },
+    { "roll": 14, "ideal": "Loyauté", "flaw": "Menteur" },
+    { "roll": 15, "ideal": "Patience", "flaw": "Moqueur" },
+    { "roll": 16, "ideal": "Pitié", "flaw": "Naïf" },
+    { "roll": 17, "ideal": "Prudence", "flaw": "Paresseux" },
+    { "roll": 18, "ideal": "Respect", "flaw": "Rancunier" },
+    { "roll": 19, "ideal": "Sincérité", "flaw": "Superstitieux" },
+    { "roll": 20, "ideal": "Tempérance", "flaw": "Vantard" }
+  ]
+}
+

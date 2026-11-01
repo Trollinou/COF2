@@ -1,0 +1,903 @@
+[
+  {
+    "id": "arquebusier",
+    "name": "Arquebusier",
+    "family": "Aventuriers",
+    "tagline": "Spécialiste du maniement des armes à feu et des explosifs",
+    "primaryStats": [
+      "AGI",
+      "INT",
+      "CON"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 1,
+    "bonusDR": 0,
+    "hasMageBonus": false,
+    "description": "L'arquebusier est un dur à cuire, un mercenaire qui vient généralement d'un pays lointain et maîtrise un style de combat exotique : les armes à feu et les explosifs.",
+    "weaponsAndArmor": "L'arquebusier sait manier toutes les armes de contact à une main, les armes à distance, armes à poudre incluses. Un arquebusier sait fabriquer sa propre poudre et elle ne risque pas d'exploser malgré lui (voir la section Équipement).\n\nCe personnage utilise des armes à feu et peut être joué dans un cadre équivalent à la Renaissance, mais si votre contexte de jeu ne le permet pas, vous pouvez remplacer la pétoire par une arbalète de poing, le mousquet par une arbalète lourde et la couleuvrine par une baliste… Supprimez la voie des explosifs et remplacez‑la par la voie du maître d'armes du profil de guerrier, en la limitant aux arbalètes. Le nom du profil devient alors «Arbalétrier».\n\nLes voies d'arquebusier limitent l'armure à la chemise de mailles et interdisent l'utilisation du bouclier.",
+    "startingEquipment": "Pétoire (DM 1d10, portée 20 m), épée longue (DM 1d8), dague (DM 1d4), cuir renforcé (DEF +3).",
+    "paths": [
+      "voie-de-l-artilleur",
+      "voie-des-explosifs",
+      "voie-du-mercenaire",
+      "voie-du-pistolero",
+      "voie-de-la-pr-cision"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "chemise-mailles",
+      "shieldPermission": "none",
+      "summaryArmor": "Chemise de mailles maximum",
+      "summaryShield": "Aucun bouclier autorisé",
+      "summaryWeapons": "Armes de contact à 1 main, toutes armes à distance (armes à feu incluses).",
+      "weaponRules": {
+        "maxHandsMelee": 1
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-renforce",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "petoire",
+        "epee-longue",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "barde",
+    "name": "Barde",
+    "family": "Aventuriers",
+    "tagline": "Artiste polyvalent maniant le verbe, la rapière et la magie",
+    "primaryStats": [
+      "CHA",
+      "AGI",
+      "VOL"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 1,
+    "bonusDR": 0,
+    "hasMageBonus": false,
+    "description": "Le barde est un personnage polyvalent qui utilise la magie et le spectacle pour divertir et parvenir à ses fins. Il est aussi habitué aux ruses qu'à la diplomatie. Ses capacités sont globalement moins tournées vers le combat et davantage vers les interactions douces.",
+    "weaponsAndArmor": "Le barde sait manier les armes à une main.\n\nLes voies de barde limitent l'armure au cuir renforcé et interdisent l'utilisation du bouclier. Il est nécessaire d'avoir une main libre pour utiliser les capacités de bardes (ni arme secondaire ni bouclier).",
+    "startingEquipment": "Rapière (DM 1d6, Crit 19‑20), dague (DM 1d4), instrument de musique, armure de cuir (DEF +2).",
+    "paths": [
+      "voie-de-l-escrime",
+      "voie-du-musicien",
+      "voie-du-saltimbanque",
+      "voie-de-la-s-duction",
+      "voie-du-vagabond"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "cuir-renforce",
+      "shieldPermission": "none",
+      "summaryArmor": "Cuir renforcé maximum",
+      "summaryShield": "Aucun bouclier (nécessite une main libre)",
+      "summaryWeapons": "Armes à 1 main uniquement (contact ou distance).",
+      "weaponRules": {
+        "maxHands": 1
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-simple",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "rapiere",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "r-deur",
+    "name": "Rôdeur",
+    "family": "Aventuriers",
+    "tagline": "Chasseur et pisteur en milieu sauvage, archer d'élite",
+    "primaryStats": [
+      "AGI",
+      "PER",
+      "CON"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 1,
+    "bonusDR": 0,
+    "hasMageBonus": false,
+    "description": "Le rôdeur est à l'aise dans les forêts ténébreuses, où il traque les animaux dangereux et les créatures monstrueuses ou, au contraire, se fait l'ami des bêtes et le protecteur des lieux sauvages.",
+    "weaponsAndArmor": "Le rôdeur sait manier les armes de contact à une main et toutes les armes à distance.\n\nLes voies de rôdeur limitent l'armure au cuir renforcé et interdisent le port du bouclier.",
+    "startingEquipment": "Épée longue (DM 1d8), arc court et carquois (DM 1d6, portée 30 m) ou une autre arme de contact (épée courte, hachette, lance), dague (DM 1d4), armure de cuir renforcé (DEF +3).",
+    "paths": [
+      "voie-du-compagnon-animal",
+      "voie-de-la-survie",
+      "voie-du-traqueur",
+      "voie-du-combat-deux-armes"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "cuir-renforce",
+      "shieldPermission": "none",
+      "summaryArmor": "Cuir renforcé maximum",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Armes de contact à 1 main, toutes armes à distance.",
+      "weaponRules": {
+        "maxHandsMelee": 1
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-renforce",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "epee-longue",
+        "arc-court",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "voleur",
+    "name": "Voleur",
+    "family": "Aventuriers",
+    "tagline": "Expert en discrétion, crocheteur habile et combattant sournois",
+    "primaryStats": [
+      "AGI",
+      "INT",
+      "CHA"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 1,
+    "bonusDR": 0,
+    "hasMageBonus": false,
+    "description": "Le voleur crochète les portes, détecte les pièges et préfère piller les cadavres des ennemis que se salir les mains pendant le combat. Toutefois, s'il doit combattre, il possède un répertoire impressionnant de coups tordus qui font de lui un redoutable adversaire.",
+    "weaponsAndArmor": "Le voleur sait manier les armes de contact à une main et toutes les armes à distance.\n\nLes voies de voleur limitent l'armure au cuir simple et interdisent l'utilisation du bouclier.",
+    "startingEquipment": "Rapière (DM 1d6, Crit 19‑20), 5 dagues (DM 1d4, portée 5 m), outils de crochetage, armure de cuir (DEF +2), une corde de 10 m.",
+    "paths": [
+      "voie-de-l-assassin",
+      "voie-de-l-aventurier",
+      "voie-du-d-placement",
+      "voie-du-roublard",
+      "voie-du-spadassin"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "cuir-simple",
+      "shieldPermission": "none",
+      "summaryArmor": "Cuir simple maximum",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Armes de contact à 1 main, toutes armes à distance.",
+      "weaponRules": {
+        "maxHandsMelee": 1
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-simple",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "rapiere",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "barbare",
+    "name": "Barbare",
+    "family": "Combattants",
+    "tagline": "Guerrier sauvage colossal capable d'entrer en rage",
+    "primaryStats": [
+      "FOR",
+      "CON",
+      "AGI"
+    ],
+    "hpPerLevel": 5,
+    "hd": "d10",
+    "bonusPC": 0,
+    "bonusDR": 0,
+    "hasMageBonus": false,
+    "description": "Le barbare est un combattant sauvage issu d'une culture primitive. Il affronte ses ennemis avec rage sans se cacher derrière une lourde armure.",
+    "weaponsAndArmor": "Le barbare sait manier toutes les armes au contact, toutes les armes à distance (sauf les arbalètes et les armes d'une technologie trop complexe).\n\nLes voies de barbare limitent l'armure au cuir renforcé. Le barbare peut en revanche utiliser tous les boucliers.",
+    "startingEquipment": "Hache à deux mains (DM 2d6) ou Arme à une main (d8) et bouclier (+2 en DEF), 2 javelots (DM 1d6, portée 20 m), dague (DM 1d4), armure de cuir (DEF +2).",
+    "paths": [
+      "voie-de-la-brute",
+      "voie-du-pagne",
+      "voie-du-pourfendeur",
+      "voie-du-primitif",
+      "voie-de-la-rage"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "cuir-renforce",
+      "shieldPermission": "any",
+      "summaryArmor": "Cuir renforcé maximum",
+      "summaryShield": "Tous boucliers autorisés",
+      "summaryWeapons": "Toutes armes de contact et à distance, sauf arbalètes et armes à poudre.",
+      "weaponRules": {
+        "forbidPowder": true,
+        "forbidCrossbows": true
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-renforce",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "hache-deux-mains",
+        "hachette"
+      ]
+    }
+  },
+  {
+    "id": "chevalier",
+    "name": "Chevalier",
+    "family": "Combattants",
+    "tagline": "Champion en armure lourde monté sur un destrier d'exception",
+    "primaryStats": [
+      "FOR",
+      "CHA",
+      "CON"
+    ],
+    "hpPerLevel": 5,
+    "hd": "d10",
+    "bonusPC": 0,
+    "bonusDR": 0,
+    "hasMageBonus": false,
+    "description": "Le chevalier est un noble guerrier errant, monté sur un puissant destrier et protégé par une armure lourde. Il parcourt la campagne en quête de torts à redresser et d'occasions de mettre son courage à l'épreuve.",
+    "weaponsAndArmor": "Le chevalier sait manier toutes les armes de contact, mais il dédaigne les armes à distance qu'il considère comme des armes de couard.\n\nLes voies de chevalier limitent l'armure à celle de plaque (l'armure de plaque complète nécessite une capacité particulière). Il peut utiliser tous les boucliers.",
+    "startingEquipment": "Épée longue (DM 1d8), grand bouclier (DEF +2), lance de cavalerie (DM 2d6), dague (DM 1d4), cotte de mailles (DEF +5).",
+    "paths": [
+      "voie-du-cavalier",
+      "voie-de-la-guerre",
+      "voie-du-preux",
+      "voie-du-meneur-d-hommes",
+      "voie-de-la-noblesse"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "plaques",
+      "shieldPermission": "any",
+      "summaryArmor": "Armure de plaques maximum (Plaque complète nécessite capacité spéciale)",
+      "summaryShield": "Tous boucliers autorisés",
+      "summaryWeapons": "Toutes armes de contact. Refuse catégoriquement les armes à distance.",
+      "weaponRules": {
+        "allowedCategories": [
+          "contact"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "plaques",
+      "shieldId": "grand-bouclier",
+      "defaultWeaponIds": [
+        "epee-longue",
+        "lance",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "guerrier",
+    "name": "Guerrier",
+    "family": "Combattants",
+    "tagline": "Maître d'armes incontesté et soldat d'élite du corps-à-corps",
+    "primaryStats": [
+      "FOR",
+      "CON",
+      "AGI"
+    ],
+    "hpPerLevel": 5,
+    "hd": "d10",
+    "bonusPC": 0,
+    "bonusDR": 0,
+    "hasMageBonus": false,
+    "description": "Le guerrier est un combattant émérite qui ne craint pas le danger et qui affronte ses ennemis l'arme à la main. De tous les profils de combattant, il est le plus spécialisé et le plus complet dans l'art du combat au corps à corps.",
+    "weaponsAndArmor": "Le guerrier sait manier toutes les armes de contact et toutes les armes à distance.\n\nLes voies de guerrier limitent l'armure à la cotte de mailles. Il peut utiliser tous les boucliers.",
+    "startingEquipment": "Épée longue (DM 1d8), épée ou hache à deux mains (DM 2d6), une dague ou une hachette de lancer, un grand bouclier (DEF +2) et chemise de mailles (DEF +4).",
+    "paths": [
+      "voie-du-bouclier",
+      "voie-du-combat",
+      "voie-du-ma-tre-d-armes",
+      "voie-de-la-r-sistance",
+      "voie-du-soldat"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "cotte-mailles",
+      "shieldPermission": "any",
+      "summaryArmor": "Cotte de mailles maximum",
+      "summaryShield": "Tous boucliers autorisés",
+      "summaryWeapons": "Toutes armes de contact et toutes armes à distance.",
+      "weaponRules": {}
+    },
+    "defaultEquipment": {
+      "armorId": "chemise-mailles",
+      "shieldId": "grand-bouclier",
+      "defaultWeaponIds": [
+        "epee-longue",
+        "arc-court"
+      ]
+    }
+  },
+  {
+    "id": "ensorceleur",
+    "name": "Ensorceleur",
+    "family": "Mages",
+    "tagline": "Lanceur de sorts dont la magie innée découle du charisme",
+    "primaryStats": [
+      "CHA",
+      "VOL",
+      "AGI"
+    ],
+    "hpPerLevel": 3,
+    "hd": "d6",
+    "bonusPC": 0,
+    "bonusDR": 0,
+    "hasMageBonus": true,
+    "description": "L'ensorceleur tire son pouvoir d'un talent inné pour la magie. Il pratique une magie subtile à base de tromperie et de contrôle, et possède peu de sorts de destruction massive.",
+    "weaponsAndArmor": "L'ensorceleur sait manier la dague et le bâton ferré. De plus, chaque ensorceleur peut choisir une arme supplémentaire de son choix qu'il a appris à utiliser, sans dépasser 1d6 DM (malgré ses DM de 2d4, l'arbalète légère est aussi une arme éligible).\n\nLes voies d'ensorceleur interdisent de porter une armure ou d'utiliser un bouclier.",
+    "startingEquipment": "Bâton ferré (DM 1d6), dague (DM d4) ou autre arme maîtrisée au choix.",
+    "paths": [
+      "voie-de-l-air",
+      "voie-de-la-divination",
+      "voie-de-l-envo-teur",
+      "voie-des-illusions",
+      "voie-de-l-invocation"
+    ],
+    "equipmentRules": {
+      "maxArmorId": null,
+      "shieldPermission": "none",
+      "summaryArmor": "Aucune armure autorisée",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Dague, bâton, arbalète légère ou arme n'excédant pas 1d6 DM.",
+      "weaponRules": {
+        "maxDamageDice": 6,
+        "allowedExceptionWeaponIds": [
+          "baton",
+          "baton-ferre",
+          "dague",
+          "mains-nues",
+          "arbalete-legere"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": null,
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "baton-ferre",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "forgesort",
+    "name": "Forgesort",
+    "family": "Mages",
+    "tagline": "Mage-artisan fabriquant élixirs, artefacts runiques et armures",
+    "primaryStats": [
+      "INT",
+      "VOL",
+      "CON"
+    ],
+    "hpPerLevel": 3,
+    "hd": "d6",
+    "bonusPC": 0,
+    "bonusDR": 0,
+    "hasMageBonus": true,
+    "description": "À la fois artisan et enchanteur, artiste et magicien, le forgesort lie les énergies occultes à la matière qu'il façonne pour créer des artefacts magiques ou des breuvages aux propriétés fantastiques. Le forgesort est aussi le seul utilisateur de magie profane à pouvoir porter une armure.",
+    "weaponsAndArmor": "Le forgesort sait manier la dague, le bâton, le marteau et l'arbalète légère.\n\nLes voies de forgesort limitent l'armure au cuir simple et interdisent d'utiliser un bouclier.",
+    "startingEquipment": "Dague (DM 1d4), bâton ferré (DM 1d6), marteau (DM 1d6).",
+    "paths": [
+      "voie-des-artefacts",
+      "voie-des-lixirs",
+      "voie-du-m-tal",
+      "voie-du-golem",
+      "voie-des-runes"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "cuir-simple",
+      "shieldPermission": "none",
+      "summaryArmor": "Cuir simple maximum",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Dague, bâton, marteau de guerre, masse d'armes, arbalète légère.",
+      "weaponRules": {
+        "explicitAllowedWeaponIds": [
+          "dague",
+          "baton",
+          "baton-ferre",
+          "mains-nues",
+          "marteau-guerre",
+          "masse-armes",
+          "arbalete-legere"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-simple",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "marteau-guerre",
+        "dague",
+        "arbalete-legere"
+      ]
+    }
+  },
+  {
+    "id": "magicien",
+    "name": "Magicien",
+    "family": "Mages",
+    "tagline": "Érudit des arcanes maîtrisant une magie académique puissante",
+    "primaryStats": [
+      "INT",
+      "VOL",
+      "AGI"
+    ],
+    "hpPerLevel": 3,
+    "hd": "d6",
+    "bonusPC": 0,
+    "bonusDR": 0,
+    "hasMageBonus": true,
+    "description": "Le magicien est un érudit qui a fait de longues études sur les fondements théoriques de la magie avant d'être capable de lancer ses premiers sorts. Toutefois, ce n'est pas qu'un rat de bibliothèque, il fait aussi appel à la magie pour se débarrasser de ses ennemis et pour aider ses compagnons. Son bien le plus précieux est son grimoire où il a inscrit tous ses sorts.",
+    "weaponsAndArmor": "Le magicien sait manier la dague et le bâton. Les voies de magicien interdisent de porter une armure ou d'utiliser un bouclier.",
+    "startingEquipment": "Bâton ferré (DM 1d6), dague (DM 1d4), grimoire de sorts.",
+    "paths": [
+      "voie-de-la-magie-des-arcanes",
+      "voie-de-la-magie-destructrice",
+      "voie-de-la-magie-l-mentaire",
+      "voie-de-la-magie-protectrice",
+      "voie-de-la-magie-universelle"
+    ],
+    "equipmentRules": {
+      "maxArmorId": null,
+      "shieldPermission": "none",
+      "summaryArmor": "Aucune armure autorisée",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Dague, bâton ferré et mains nues uniquement.",
+      "weaponRules": {
+        "explicitAllowedWeaponIds": [
+          "dague",
+          "baton",
+          "baton-ferre",
+          "mains-nues"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": null,
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "baton-ferre",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "sorcier",
+    "name": "Sorcier",
+    "family": "Mages",
+    "tagline": "Adepte des forces occultes, des démons et de la nécromancie",
+    "primaryStats": [
+      "INT",
+      "VOL",
+      "CON"
+    ],
+    "hpPerLevel": 3,
+    "hd": "d6",
+    "bonusPC": 0,
+    "bonusDR": 0,
+    "hasMageBonus": true,
+    "description": "Le sorcier est un lanceur de sorts qui s'intéresse aux forces obscures et au pouvoir de la mort. Parfois nommés nécromanciens ou démonistes, les sorciers sont généralement considérés comme maléfiques et sont peu appréciés. Toutefois, cela dépend des cultures : après tout, est‑il plus maléfique de vider un ennemi de son sang que de le découper à coup de hache ou de le carboniser à coup de Explosion de feu ? C'est une des questions que soulève le sorcier! Interprétez‑le de façon subtile afin d'en faire un personnage plutôt sombre ou désespéré, mais pas nécessairement «mauvais».",
+    "weaponsAndArmor": "Le sorcier sait manier la dague et le bâton.\n\nLes voies de sorcier interdisent de porter une armure ou d'utiliser un bouclier.",
+    "startingEquipment": "Bâton ferré (DM 1d6), dague (DM 1d4), grimoire de sorts ou parchemins anciens.",
+    "paths": [
+      "voie-du-d-mon",
+      "voie-de-la-mort",
+      "voie-de-l-outre-tombe",
+      "voie-du-sang",
+      "voie-de-la-sombre-magie"
+    ],
+    "equipmentRules": {
+      "maxArmorId": null,
+      "shieldPermission": "none",
+      "summaryArmor": "Aucune armure autorisée",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Dague, bâton ferré et mains nues uniquement.",
+      "weaponRules": {
+        "explicitAllowedWeaponIds": [
+          "dague",
+          "baton",
+          "baton-ferre",
+          "mains-nues"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": null,
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "baton-ferre",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "druide",
+    "name": "Druide",
+    "family": "Mystiques",
+    "tagline": "Protecteur sacré de la nature, des bêtes et des métamorphoses",
+    "primaryStats": [
+      "PER",
+      "VOL",
+      "CON"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 0,
+    "bonusDR": 1,
+    "hasMageBonus": false,
+    "description": "Le druide est un prêtre de la nature qui défend sa pureté originelle et tire ses pouvoirs de la vie, des animaux et des plantes.",
+    "weaponsAndArmor": "Le druide sait manier la dague, le bâton noueux (équivalent au bâton ferré), l'épieu, le javelot et l'arc court.\n\nLes voies de druide limitent l'armure au cuir simple. Il peut utiliser le petit bouclier en bois (DEF +1).",
+    "startingEquipment": "Bâton noueux (DM 1d6) ou épieu (DM 1d6 ou 1d10), dague (DM 1d4), arc court (DM 1d6, portée 30 m), armure de cuir (DEF +2).\n\n> [!TIPS] LA GENÈSE VUE PAR LES DRUIDES\n> Les six Puissances Vent, Terre, Feu, Eau, Esprit et Mort existent depuis toujours. Il n'y a ni commencement, ni fin, mais un cycle éternel, et nul ne sait ce qui fut avant et ce qui sera après. Les dieux eux‑mêmes ne sont arrivés qu'après; ils font partie du grand cycle, ni plus ni moins. De même qu'ils sont apparus, ils disparaîtront un jour. Aussi puissants soient‑ils, ils ne sont pas immortels, tandis que le monde et l'écoulement du temps sont infinis.",
+    "paths": [
+      "voie-des-animaux",
+      "voie-du-fauve",
+      "voie-de-la-nature",
+      "voie-du-protecteur",
+      "voie-des-v-g-taux"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "cuir-simple",
+      "shieldPermission": "small",
+      "summaryArmor": "Cuir simple maximum",
+      "summaryShield": "Petit bouclier en bois uniquement",
+      "summaryWeapons": "Dague, bâton noueux, épieu (lance), arc court, fronde, mains nues.",
+      "weaponRules": {
+        "explicitAllowedWeaponIds": [
+          "dague",
+          "baton",
+          "baton-ferre",
+          "lance",
+          "arc-court",
+          "fronde",
+          "mains-nues"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-simple",
+      "shieldId": "petit-bouclier",
+      "defaultWeaponIds": [
+        "baton-ferre",
+        "arc-court",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "moine",
+    "name": "Moine",
+    "family": "Mystiques",
+    "tagline": "Ascète voué à la perfection martiale et spirituelle à mains nues",
+    "primaryStats": [
+      "VOL",
+      "PER",
+      "AGI"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 0,
+    "bonusDR": 1,
+    "hasMageBonus": false,
+    "description": "Le moine combat à mains nues et utilise le contrôle qu'il a sur son esprit et son corps pour transformer ce dernier en arme de chair. Il peut être issu d'un monastère et pratiquer les arts martiaux, mais vous pouvez aussi développer toutes sortes de combattants à mains nues, depuis un gladiateur formé à la lutte, en passant par un enfant sauvage qui n'a jamais eu d'autre arme que ce que dame nature lui a donné. Toutefois, le profil de moine ne se cantonne pas au combat à mains nues, il couvre tous les combattants acrobates qui réalisent des prouesses martiales. Les capacités de moine peuvent être déclinées avec une arme de prédilection et elles ouvrent alors une infinité de profils hybrides.",
+    "weaponsAndArmor": "Le moine sait manier toutes les armes (sauf les armes à poudre), y compris celles à deux mains, mais la plupart des moines n'y font pas appel et sont plus efficaces à mains nues. En effet, tous les moines infligent des DM létaux avec les attaques à mains nues lorsqu'ils le souhaitent.\n\nLes voies de moine interdisent de porter une armure ou d'utiliser un bouclier.",
+    "startingEquipment": "Bâton (DM 1d6).",
+    "paths": [
+      "voie-de-l-nergie-vitale",
+      "voie-de-la-ma-trise",
+      "voie-de-la-m-ditation",
+      "voie-du-poing",
+      "voie-du-vent"
+    ],
+    "equipmentRules": {
+      "maxArmorId": null,
+      "shieldPermission": "none",
+      "summaryArmor": "Aucune armure autorisée",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Mains nues et armes traditionnelles (sauf armes à poudre).",
+      "weaponRules": {
+        "forbidPowder": true
+      }
+    },
+    "defaultEquipment": {
+      "armorId": null,
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "mains-nues",
+        "baton-ferre"
+      ]
+    }
+  },
+  {
+    "id": "pr-tre",
+    "name": "Prêtre",
+    "family": "Mystiques",
+    "tagline": "Guide spirituel et champion divin capable de soigner ou de châtier",
+    "primaryStats": [
+      "CHA",
+      "VOL",
+      "FOR"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 0,
+    "bonusDR": 1,
+    "hasMageBonus": false,
+    "description": "Le prêtre perçoit la nature divine du monde et les desseins des dieux. Il utilise l'énergie transmise par sa divinité pour mener à bien ses missions avec la force de la foi, mais aussi celle des armes si nécessaire.",
+    "weaponsAndArmor": "Le prêtre sait manier les armes contondantes à une main ainsi que le bâton ferré. Les prêtres ont l'interdiction morale de faire couler le sang (!) et n'utilisent donc pas les armes tranchantes ou perçantes pour des raisons religieuses. L'arme sacrée d'un prêtre spécialiste constitue une exception.\n\nLes voies de prêtre limitent l'armure à la chemise de mailles et permettent d'utiliser le petit bouclier (DEF +1).",
+    "startingEquipment": "Masse, marteau de guerre (DM 1d6) ou bâton ferré (DM 1d6, à deux mains), petit bouclier (DEF +1), chemise de mailles (DEF +4).",
+    "paths": [
+      "voie-de-la-foi",
+      "voie-de-la-guerre-sainte",
+      "voie-de-la-pri-re",
+      "voie-des-soins",
+      "voie-de-la-spiritualit-"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "chemise-mailles",
+      "shieldPermission": "small",
+      "summaryArmor": "Chemise de mailles maximum",
+      "summaryShield": "Petit bouclier uniquement",
+      "summaryWeapons": "Armes contondantes à 1 main, bâton ferré et fronde (armes sanglantes interdites).",
+      "weaponRules": {
+        "allowedDamageTypes": [
+          "Contondants"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "chemise-mailles",
+      "shieldId": "petit-bouclier",
+      "defaultWeaponIds": [
+        "masse-armes",
+        "baton-ferre"
+      ]
+    }
+  },
+  {
+    "id": "caravanier",
+    "name": "Caravanier",
+    "family": "Aventuriers",
+    "tagline": "Baroudeur des routes, négociant aguerri et explorateur au long cours",
+    "primaryStats": [
+      "CHA",
+      "PER",
+      "INT"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 1,
+    "bonusDR": 0,
+    "hasMageBonus": false,
+    "description": "Le caravanier peut être un marchand, un explorateur, un truand, un messager, un diplomate ou tout cela à la fois. C'est un baroudeur au long court qui sait organiser et mener une expédition, se tirer de tous les mauvais pas, le tout sans oublier de se faire de l'argent. Parfois, il est à son propre compte, mais il peut aussi être au service d'une puissante guilde ou même être l'agent sous couverture d'un royaume.\n\nDans les Terres d'Osgild, les caravaniers sont très courants sur les grandes routes commerciales, notamment entre la cité de Guilde et Ferrance, ou de Xélys à Syndoril.",
+    "weaponsAndArmor": "Le caravanier sait manier toutes les armes de contact à une main et toutes les armes à distance, ainsi que le bâton ou la lance à deux mains.\n\nLes voies de caravanier limitent l'armure à la chemise de mailles et autorisent le port du petit bouclier.",
+    "startingEquipment": "Une arme au choix parmi épée courte, marteau ou masse (DM 1d6). Un arc court (DM 1d6) ou une arbalète légère (DM 2d4), une dague (DM 1d4), une armure de cuir renforcé (DEF +3), un petit bouclier (DEF +1).",
+    "paths": [
+      "voie-du-baroudeur",
+      "voie-du-diplomate",
+      "voie-de-l-explorateur",
+      "voie-du-garde-personnel",
+      "voie-du-marchand"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "chemise-mailles",
+      "shieldPermission": "small",
+      "summaryArmor": "Chemise de mailles maximum",
+      "summaryShield": "Petit bouclier autorisé",
+      "summaryWeapons": "Armes de contact à 1 main, bâton, lance, toutes armes à distance.",
+      "weaponRules": {
+        "maxHandsMelee": 1,
+        "allowedExceptionWeaponIds": [
+          "baton",
+          "baton-ferre",
+          "lance"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-renforce",
+      "shieldId": "petit-bouclier",
+      "defaultWeaponIds": [
+        "epee-courte",
+        "arc-court",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "chamane",
+    "name": "Chamane",
+    "family": "Mystiques",
+    "tagline": "Lanceur de sorts en communion avec les esprits de la nature et des choses",
+    "primaryStats": [
+      "PER",
+      "VOL",
+      "CON"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 0,
+    "bonusDR": 1,
+    "hasMageBonus": false,
+    "description": "Le chamane est un lanceur de sorts proche de la nature. Il ne vénère pas de divinité et se distingue du druide, car il ne tire pas ses sorts des éléments naturels, mais des esprits, que lui seul sait percevoir et manipuler. Ces derniers constituent l'âme magique de chaque élément du monde, les créatures, mais aussi les choses inertes. Pour le chamane, les esprits sont partout, sauf dans les objets transformés par le métal fondu.",
+    "weaponsAndArmor": "Le chamane sait manier le bâton, la lance ou l'épieu, la masse, le marteau, la dague, la fronde et l'arc court. Il n'utilise pas d'armes en métal fondu, mais des équivalents en silex, pierre, os ou bois durci (DM normaux dans ses mains).\n\nLes voies de chamane limitent l'armure au cuir simple. Il ne sait pas utiliser le bouclier.",
+    "startingEquipment": "Armure de cuir simple (DEF +2), masse en pierre (1d6) ou lance à pointe d'os (1d8), dague en silex (1d4).",
+    "paths": [
+      "voie-de-l-esprit-animal",
+      "voie-des-esprits-des-choses",
+      "voie-des-esprits-malefiques",
+      "voie-de-l-esprit-vital",
+      "voie-de-la-forme-d-esprit"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "cuir-simple",
+      "shieldPermission": "none",
+      "summaryArmor": "Cuir simple maximum (matières naturelles uniquement)",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Bâton, lance, masse, marteau, dague, fronde et arc court.",
+      "weaponRules": {
+        "explicitAllowedWeaponIds": [
+          "baton",
+          "baton-ferre",
+          "lance",
+          "masse-armes",
+          "marteau-guerre",
+          "dague",
+          "fronde",
+          "arc-court",
+          "mains-nues"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-simple",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "lance",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "parangon",
+    "name": "Parangon",
+    "family": "Combattants",
+    "tagline": "Combattant d'élite rapide et précis, voué au sabre et à l'arc",
+    "primaryStats": [
+      "AGI",
+      "VOL",
+      "PER"
+    ],
+    "hpPerLevel": 5,
+    "hd": "d10",
+    "bonusPC": 0,
+    "bonusDR": 0,
+    "hasMageBonus": false,
+    "description": "Le parangon, parfois aussi appelé champion (ou samouraï dans le Protectorat de fer), est l'essence même du combattant vif et rapide, une véritable machine de guerre vouée au sabre et à l'arc. Il s'entraîne sans cesse comme un athlète d'élite, basant son escrime sur la vitesse et la précision plutôt que la force brute.",
+    "weaponsAndArmor": "Le parangon sait manier toutes les armes de contact et toutes les armes à distance. Il préfère généralement la vivelame ou les sabres (courts et droits). Il dédaigne les armes qui sont aussi des outils de travail du peuple (haches, bâtons, marteaux, fléaux, etc.).\n\nLes voies de parangon limitent l'armure à la chemise de mailles et n'autorisent pas le port du bouclier.",
+    "startingEquipment": "Sabre droit (DM 1d6/1d8, crit. 19-20), sabre court d'entraînement (DM 1d4, crit. 19-20), dague (DM 1d4), arc court (DM 1d6), chemise de mailles (DEF +4).",
+    "paths": [
+      "voie-de-l-arc-et-du-cheval",
+      "voie-de-l-honneur",
+      "voie-de-la-maitrise-interieure",
+      "voie-du-sabre",
+      "voie-des-traditions"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "chemise-mailles",
+      "shieldPermission": "none",
+      "summaryArmor": "Chemise de mailles maximum",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Toutes armes de contact nobles (sabres, vivelame, épées) et à distance (arcs). Dédaigne les armes outils.",
+      "weaponRules": {}
+    },
+    "defaultEquipment": {
+      "armorId": "chemise-mailles",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "sabre-droit",
+        "arc-court",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "primaliste",
+    "name": "Primaliste",
+    "family": "Mages",
+    "tagline": "Mage élémentaire populaire, ancré aux éléments pieds nus",
+    "primaryStats": [
+      "VOL",
+      "CON",
+      "PER"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 0,
+    "bonusDR": 0,
+    "hasMageBonus": true,
+    "description": "Le primaliste est le mage du peuple. Ses pouvoirs élémentaires et primaires touchent les rivières, les nuages, le bois ou le sol, et son arme favorite est une torche enflammée. Ses pouvoirs sont innés et transmis par tradition orale. Les sorts de primaliste nécessitent d'être en contact direct avec le sol (pieds nus) pour être ancré dans le monde.",
+    "weaponsAndArmor": "Le primaliste sait manier le bâton, le gourdin, la hachette (au contact et à distance), le marteau, la dague et la fronde.\n\nLes voies de primaliste limitent l'armure au cuir simple et empêchent l'utilisation du bouclier. De plus, les primalistes ne peuvent pas utiliser de parchemins ou de grimoires magiques sans investir dans une voie de magicien.",
+    "startingEquipment": "Armure de cuir simple (DEF +2), hachette ou marteau (DM 1d6), fronde (DM 1d4).",
+    "paths": [
+      "voie-du-bois",
+      "voie-des-brumes",
+      "voie-des-rivieres",
+      "voie-du-sol",
+      "voie-de-la-torche"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "cuir-simple",
+      "shieldPermission": "none",
+      "summaryArmor": "Cuir simple maximum (pieds nus pour incanter)",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Bâton, gourdin, hachette, marteau, dague, fronde.",
+      "weaponRules": {
+        "explicitAllowedWeaponIds": [
+          "baton",
+          "baton-ferre",
+          "hachette",
+          "marteau-guerre",
+          "dague",
+          "fronde",
+          "mains-nues"
+        ]
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-simple",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "hachette",
+        "fronde",
+        "dague"
+      ]
+    }
+  },
+  {
+    "id": "psionique",
+    "name": "Psionique",
+    "family": "Mystiques",
+    "isFamilySelectable": true,
+    "tagline": "Maître des pouvoirs psychiques, de la télékinésie et de l'ego",
+    "primaryStats": [
+      "VOL",
+      "PER",
+      "CON"
+    ],
+    "hpPerLevel": 4,
+    "hd": "d8",
+    "bonusPC": 0,
+    "bonusDR": 1,
+    "hasMageBonus": false,
+    "description": "Le psionique est un être d'exception né doté de pouvoirs psychiques extraordinaires qu'il développe par la force de son ego et de son intuition. Ce profil particulier ne correspond à aucune famille par défaut : le joueur lui attribue la famille de son choix (aventurier, combattant, mage ou mystique), ce qui détermine notamment son dé de récupération et ses voies de prestige accessibles. Ses pouvoirs consomment des Points d'Ego (PE) et ne sont gênés par aucune armure.",
+    "weaponsAndArmor": "Le psionique sait manier toutes les armes au contact et toutes les armes à distance qui n'infligent pas plus de 1d6 DM et n'ont pas une plage de critique améliorée.\n\nArmures jusqu'à la chemise de mailles, pas de bouclier. Pour éviter les interférences avec ses ondes mentales, le psionique ne doit pas porter de casque. Ses capacités ne subissent aucune restriction d'armure.",
+    "startingEquipment": "Armure de cuir renforcé (DEF +3), épée courte (DM 1d6), dague (DM 1d4).",
+    "paths": [
+      "voie-de-l-attaque-mentale",
+      "voie-du-controle-corporel",
+      "voie-de-l-empathie",
+      "voie-de-la-telekinesie",
+      "voie-de-la-telepathie"
+    ],
+    "equipmentRules": {
+      "maxArmorId": "chemise-mailles",
+      "shieldPermission": "none",
+      "summaryArmor": "Chemise de mailles maximum (pas de casque). Non limité par les armures.",
+      "summaryShield": "Aucun bouclier",
+      "summaryWeapons": "Armes de contact et à distance n'excédant pas 1d6 DM sans critique amélioré.",
+      "weaponRules": {
+        "maxDamageDice": 6
+      }
+    },
+    "defaultEquipment": {
+      "armorId": "cuir-renforce",
+      "shieldId": null,
+      "defaultWeaponIds": [
+        "epee-courte",
+        "dague"
+      ]
+    }
+  }
+]
