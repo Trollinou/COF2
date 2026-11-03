@@ -237,15 +237,15 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
       {/* TAB 1: CARACTÉRISTIQUES & VOIES RACIALES */}
       {activeTab === 'stats' && (
         <div className="space-y-6">
-          {/* Bonus Options (+2) */}
+          {/* Bonus Options (+1) */}
           <div className="bg-stone-900/80 border border-stone-800 rounded-xl p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-stone-800 pb-2">
               <div>
                 <h4 className="text-sm font-bold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
-                  <span>+2</span> Bonus Racial de Caractéristique (`bonusOptions`)
+                  <span>+1</span> Bonus Racial de Caractéristique (`bonusOptions`)
                 </h4>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  Chaque groupe représente un bonus de +2. Sélectionnez plusieurs caractéristiques au sein d'un groupe si le joueur a le choix (ex: AGI ou PER).
+                  Chaque groupe accorde un bonus de <strong>+1</strong>. Si plusieurs caractéristiques sont cochées, le joueur choisira <strong>une seule</strong> caractéristique parmi cette liste (ex: <em>+1 INT ou PER</em> pour le Gnome).
                 </p>
               </div>
               <button
@@ -253,7 +253,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                 onClick={addBonusGroup}
                 className="flex items-center gap-1 px-2.5 py-1 text-xs rounded bg-emerald-950/70 border border-emerald-800/80 text-emerald-300 hover:bg-emerald-900/70"
               >
-                <Plus className="w-3.5 h-3.5" /> Ajouter un choix +2
+                <Plus className="w-3.5 h-3.5" /> Ajouter un choix +1
               </button>
             </div>
 
@@ -263,16 +263,45 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                   Aucun bonus racial défini (ex: peuples neutres).
                 </div>
               ) : (
-                people.bonusOptions.map((group, gIdx) => (
-                  <div
-                    key={gIdx}
-                    className="p-3 bg-stone-950/70 border border-emerald-950 rounded-lg flex flex-wrap items-center justify-between gap-3"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-emerald-400 font-mono">
-                        Choix {gIdx + 1} (+2) :
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
+                people.bonusOptions.map((group, gIdx) => {
+                  const summaryText =
+                    group.length === 0
+                      ? 'Aucune caractéristique sélectionnée'
+                      : group.length === STATS.length
+                      ? '+1 à n\'importe quelle caractéristique (au choix libre)'
+                      : group.length === 1
+                      ? `Fixe : +1 ${group[0]}`
+                      : `Au choix : +1 ${group.join(' ou +1 ')}`;
+
+                  return (
+                    <div
+                      key={gIdx}
+                      className="p-3 bg-stone-950/70 border border-emerald-950/80 rounded-lg space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-emerald-400 font-mono">
+                            Bonus {gIdx + 1} (+1) :
+                          </span>
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800 text-emerald-200">
+                            {summaryText}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => removeBonusGroup(gIdx)}
+                          className="text-stone-500 hover:text-red-400 p-1"
+                          title="Supprimer ce groupe de bonus"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                        <span className="text-[10px] text-stone-400 mr-1 uppercase font-semibold">
+                          Cocher les options éligibles :
+                        </span>
                         {STATS.map(stat => {
                           const active = group.includes(stat);
                           return (
@@ -280,42 +309,33 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                               key={stat}
                               type="button"
                               onClick={() => updateBonusGroup(gIdx, stat)}
-                              className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
+                              className={`px-3 py-1 rounded text-xs font-bold transition-all ${
                                 active
-                                  ? 'bg-emerald-600 text-stone-950 shadow-md scale-105'
-                                  : 'bg-stone-900 text-stone-400 hover:bg-stone-800'
+                                  ? 'bg-emerald-600 text-stone-950 shadow-md scale-105 ring-2 ring-emerald-400'
+                                  : 'bg-stone-900 text-stone-400 hover:bg-stone-800 hover:text-stone-200'
                               }`}
                             >
-                              +{stat}
+                              {active ? `✓ ${stat}` : stat}
                             </button>
                           );
                         })}
                       </div>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeBonusGroup(gIdx)}
-                      className="text-stone-500 hover:text-red-400 p-1"
-                      title="Supprimer ce groupe de bonus"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
 
-          {/* Malus Options (-2) */}
+          {/* Malus Options (-1) */}
           <div className="bg-stone-900/80 border border-stone-800 rounded-xl p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-stone-800 pb-2">
               <div>
                 <h4 className="text-sm font-bold text-red-400 flex items-center gap-1.5 uppercase tracking-wider">
-                  <span>-2</span> Malus Racial de Caractéristique (`malusOptions`)
+                  <span>-1</span> Malus Racial de Caractéristique (`malusOptions`)
                 </h4>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  Chaque groupe représente un malus de -2. Sélectionnez plusieurs caractéristiques si le joueur peut choisir son malus.
+                  Chaque groupe applique un malus de <strong>-1</strong>. Si plusieurs caractéristiques sont cochées, le joueur choisit celle qui reçoit le malus (ex: <em>-1 INT ou CHA</em> pour le Demi-Orque).
                 </p>
               </div>
               <button
@@ -323,7 +343,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                 onClick={addMalusGroup}
                 className="flex items-center gap-1 px-2.5 py-1 text-xs rounded bg-red-950/70 border border-red-800/80 text-red-300 hover:bg-red-900/70"
               >
-                <Plus className="w-3.5 h-3.5" /> Ajouter un choix -2
+                <Plus className="w-3.5 h-3.5" /> Ajouter un choix -1
               </button>
             </div>
 
@@ -333,16 +353,45 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                   Aucun malus racial défini pour ce peuple.
                 </div>
               ) : (
-                people.malusOptions.map((group, gIdx) => (
-                  <div
-                    key={gIdx}
-                    className="p-3 bg-stone-950/70 border border-red-950 rounded-lg flex flex-wrap items-center justify-between gap-3"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-red-400 font-mono">
-                        Choix {gIdx + 1} (-2) :
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
+                people.malusOptions.map((group, gIdx) => {
+                  const summaryText =
+                    group.length === 0
+                      ? 'Aucune caractéristique sélectionnée'
+                      : group.length === STATS.length
+                      ? '-1 à n\'importe quelle caractéristique (au choix)'
+                      : group.length === 1
+                      ? `Fixe : -1 ${group[0]}`
+                      : `Au choix : -1 ${group.join(' ou -1 ')}`;
+
+                  return (
+                    <div
+                      key={gIdx}
+                      className="p-3 bg-stone-950/70 border border-red-950/80 rounded-lg space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-red-400 font-mono">
+                            Malus {gIdx + 1} (-1) :
+                          </span>
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-950 border border-red-800 text-red-200">
+                            {summaryText}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => removeMalusGroup(gIdx)}
+                          className="text-stone-500 hover:text-red-400 p-1"
+                          title="Supprimer ce groupe de malus"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                        <span className="text-[10px] text-stone-400 mr-1 uppercase font-semibold">
+                          Cocher les options éligibles :
+                        </span>
                         {STATS.map(stat => {
                           const active = group.includes(stat);
                           return (
@@ -350,29 +399,20 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                               key={stat}
                               type="button"
                               onClick={() => updateMalusGroup(gIdx, stat)}
-                              className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
+                              className={`px-3 py-1 rounded text-xs font-bold transition-all ${
                                 active
-                                  ? 'bg-red-600 text-stone-950 shadow-md scale-105'
-                                  : 'bg-stone-900 text-stone-400 hover:bg-stone-800'
+                                  ? 'bg-red-600 text-stone-950 shadow-md scale-105 ring-2 ring-red-400'
+                                  : 'bg-stone-900 text-stone-400 hover:bg-stone-800 hover:text-stone-200'
                               }`}
                             >
-                              -{stat}
+                              {active ? `✓ ${stat}` : stat}
                             </button>
                           );
                         })}
                       </div>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeMalusGroup(gIdx)}
-                      className="text-stone-500 hover:text-red-400 p-1"
-                      title="Supprimer ce groupe de malus"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
