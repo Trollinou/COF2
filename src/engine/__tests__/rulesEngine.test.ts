@@ -124,7 +124,7 @@ describe('COF2 Rules Engine', () => {
           VOL: 0,
           CHA: -1,
         },
-        selectedRacialBonus: 'FOR',
+        racialStatChoices: ['FOR'],
         manualStatBonuses: {},
         acquiredAbilities: [],
         equippedArmorId: 'cuir-simple', // DEF +2, maxDex 4
@@ -185,7 +185,7 @@ describe('COF2 Rules Engine', () => {
       const char = createDefaultCharacter();
       char.profileId = 'guerrier'; // hpPerLevel = 5
       char.baseStats.CON = 2;
-      char.selectedRacialBonus = 'CON'; // Final CON = 3
+      char.racialStatChoices = ['CON']; // Final CON = 3
       char.level = 3;
 
       const stats = computeCharacterStats(char);
@@ -356,7 +356,7 @@ describe('COF2 Rules Engine', () => {
       const char = createDefaultCharacter();
       char.profileId = 'pretre';
       char.baseStats.FOR = 1;
-      char.selectedRacialBonus = 'AGI'; // avoid racial bonus on FOR
+      char.racialStatChoices = ['AGI']; // avoid racial bonus on FOR
       char.acquiredAbilities = [
         { pathId: 'voie-du-domaine-forthur', rank: 4 },
       ];
@@ -933,7 +933,7 @@ describe('COF2 Rules Engine', () => {
       dwarf.peopleId = 'nain';
       dwarf.profileId = 'magicien';
       dwarf.baseStats = { FOR: 2, AGI: 0, CON: 2, PER: 0, INT: 3, VOL: 1, CHA: 0 };
-      dwarf.selectedRacialBonus = 'CON';
+      dwarf.racialStatChoices = ['CON'];
       dwarf.acquiredAbilities = [
         { pathId: 'voie-du-nain', rank: 1 },
         { pathId: 'voie-du-nain', rank: 2 },
@@ -990,7 +990,7 @@ describe('COF2 Rules Engine', () => {
       gnome.peopleId = 'gnome';
       gnome.profileId = 'voleur';
       gnome.baseStats = { FOR: 0, AGI: 3, CON: 1, PER: 1, INT: 2, VOL: 0, CHA: 0 };
-      gnome.selectedRacialBonus = 'INT';
+      gnome.racialStatChoices = ['INT'];
       gnome.acquiredAbilities = [{ pathId: 'voie-du-gnome', rank: 4 }];
       gnome.weapons = [
         {
@@ -1012,7 +1012,7 @@ describe('COF2 Rules Engine', () => {
       orc.peopleId = 'demi-orc';
       orc.profileId = 'barbare';
       orc.baseStats = { FOR: 3, AGI: 1, CON: 2, PER: 0, INT: -1, VOL: 0, CHA: -1 };
-      orc.selectedRacialBonus = 'FOR';
+      orc.racialStatChoices = ['FOR', 'CHA'];
       orc.acquiredAbilities = [
         { pathId: 'voie-du-demi-orc', rank: 1 },
         { pathId: 'voie-du-demi-orc', rank: 2 }, // Instinct guerrier: choose R1 of Barbare or Guerrier
@@ -1032,15 +1032,15 @@ describe('COF2 Rules Engine', () => {
 
     it('applies Tiny size +2 DEF and 1d4 one-handed limit for Farfadet and Fée', () => {
       const fee = createDefaultCharacter();
-      fee.peopleId = 'fee';
+      fee.peopleId = 'fee'; // Fixed stats: AGI +1, CHA +1, CON -1, FOR -2
       fee.profileId = 'ensorceleur';
-      fee.baseStats = { FOR: -2, AGI: 3, CON: 0, PER: 1, INT: 1, VOL: 2, CHA: 2 };
-      fee.selectedRacialBonus = 'AGI'; // AGI = 4
-      fee.selectedRacialMaluses = [];
+      fee.baseStats = { FOR: 0, AGI: 3, CON: 1, PER: 1, INT: 1, VOL: 2, CHA: 1 };
       fee.equippedArmorId = undefined;
       fee.acquiredAbilities = [{ pathId: 'voie-de-la-fee', rank: 1 }];
 
       const stats = computeCharacterStats(fee);
+      expect(stats.finalStats.AGI).toBe(4);
+      expect(stats.finalStats.FOR).toBe(-2);
       // DEF = 10 + 4 (AGI) + 2 (sizeDefenseBonus) = 16
       expect(stats.defense).toBe(16);
       expect(stats.pathSituationalNotes).toContain('RD 1 (sauf fer froid)');
@@ -1057,10 +1057,9 @@ describe('COF2 Rules Engine', () => {
 
     it('evaluates live companion formulas via resolveCompanionStats', () => {
       const char = createDefaultCharacter();
-      char.peopleId = 'gobelin';
+      char.peopleId = 'gobelin'; // Fixed stats: AGI +1, PER +1, FOR -1, VOL -1
       char.level = 4;
-      char.baseStats = { FOR: 0, AGI: 3, CON: 1, PER: 2, INT: 0, VOL: 2, CHA: 0 };
-      char.selectedRacialBonus = 'AGI';
+      char.baseStats = { FOR: 1, AGI: 2, CON: 1, PER: 1, INT: 0, VOL: 3, CHA: 0 };
       char.acquiredAbilities = [
         { pathId: 'voie-du-gobelin', rank: 1 }, // +3 Init
         { pathId: 'voie-du-gobelin', rank: 4 }, // Monture gobeline (Worg)
@@ -1135,7 +1134,7 @@ describe('COF2 Rules Engine', () => {
       const sorc = createDefaultCharacter();
       sorc.profileId = 'ensorceleur';
       sorc.baseStats = { FOR: 0, AGI: 1, CON: 1, PER: 2, INT: 1, VOL: 2, CHA: 3 };
-      sorc.selectedRacialBonus = 'CHA';
+      sorc.racialStatChoices = ['CHA'];
       sorc.equippedArmorId = undefined;
       sorc.acquiredAbilities = [{ pathId: 'voie-de-l-air', rank: 1 }];
       const sorcStats = computeCharacterStats(sorc);
@@ -1146,7 +1145,7 @@ describe('COF2 Rules Engine', () => {
       const priest = createDefaultCharacter();
       priest.profileId = 'pretre';
       priest.baseStats = { FOR: 1, AGI: 1, CON: 1, PER: 1, INT: 0, VOL: 3, CHA: 2 };
-      priest.selectedRacialBonus = 'VOL';
+      priest.racialStatChoices = ['VOL'];
       priest.equippedArmorId = undefined;
       priest.equippedShieldId = undefined;
       priest.acquiredAbilities = [{ pathId: 'voie-de-la-spiritualite', rank: 1 }];
@@ -1159,6 +1158,46 @@ describe('COF2 Rules Engine', () => {
       );
       priestStats = computeCharacterStats(priest);
       expect(priestStats.defense).toBe(14); // +3 at R3
+    });
+
+    it('applies fixed racial stats (+2/-2) and statChoices without repeating characteristic codes', () => {
+      // Minotaure: fixed stats { FOR: 2, VOL: 1, INT: -2, CHA: -2 }, no statChoices
+      let mino = createDefaultCharacter();
+      mino.baseStats = { FOR: 2, AGI: 0, CON: 1, PER: 0, INT: 0, VOL: 1, CHA: 0 };
+      mino = applyRacialDefaults(mino, 'minotaure');
+      expect(mino.racialStatChoices).toEqual([]);
+      const minoStats = computeCharacterStats(mino);
+      expect(minoStats.racialBonusStats).toEqual({
+        FOR: 2,
+        AGI: 0,
+        CON: 0,
+        PER: 0,
+        INT: -2,
+        VOL: 1,
+        CHA: -2,
+      });
+      expect(minoStats.finalStats.FOR).toBe(4);
+      expect(minoStats.finalStats.VOL).toBe(2);
+      expect(minoStats.finalStats.INT).toBe(-2);
+      expect(minoStats.finalStats.CHA).toBe(-2);
+
+      // Frouïn: fixed { CON: 1, FOR: -1, CHA: -1 } + choice [{ value: 1, options: ['AGI', 'PER'] }]
+      let frouin = createDefaultCharacter();
+      frouin.baseStats = { FOR: 0, AGI: 2, CON: 1, PER: 2, INT: 0, VOL: 0, CHA: 0 };
+      frouin = applyRacialDefaults(frouin, 'frouin');
+      expect(frouin.racialStatChoices).toEqual(['AGI']);
+      let frouinStats = computeCharacterStats(frouin);
+      expect(frouinStats.racialBonusStats.CON).toBe(1);
+      expect(frouinStats.racialBonusStats.FOR).toBe(-1);
+      expect(frouinStats.racialBonusStats.CHA).toBe(-1);
+      expect(frouinStats.racialBonusStats.AGI).toBe(1);
+      expect(frouinStats.racialBonusStats.PER).toBe(0);
+
+      // Switch choice to PER
+      frouin.racialStatChoices = ['PER'];
+      frouinStats = computeCharacterStats(frouin);
+      expect(frouinStats.racialBonusStats.AGI).toBe(0);
+      expect(frouinStats.racialBonusStats.PER).toBe(1);
     });
   });
 });

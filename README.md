@@ -7,7 +7,7 @@ Application Desktop et Web de création, de gestion et d'évolution de personnag
 ## 🌟 Fonctionnalités Principales
 
 1. **Règles Officielles de COF2 Intégrées (Livre de Base & Compagnon)** :
-   - **19 Peuples** complets (Livre de Base + Compagnon) avec leurs modificateurs raciaux, contraintes morphologiques et Voies de peuple.
+   - **25 Peuples** complets (8 du Livre de Base + 17 du Compagnon) avec leurs modificateurs raciaux déclaratifs (`stats` fixes et `statChoices` au choix), contraintes morphologiques et Voies de peuple.
    - **19 Profils** répartis dans les 4 familles (Aventuriers, Combattants, Mages, Mystiques).
    - **209 Voies et Capacités** (Voies de profil, de peuple, de domaine divin, de prestige et génériques) avec textes intégraux, modificateurs déclaratifs V2, compagnons dynamiques, types d'actions (A, L, G, M) et marqueurs de sorts (*).
    - Les **7 Caractéristiques de COF2** (AGI, CON, FOR, PER, INT, VOL, CHA) avec séries de valeurs officielles (*Polyvalent, Expert, Spécialiste*).

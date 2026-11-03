@@ -7,6 +7,7 @@ import type {
   StatCode,
   BookSource,
   PeopleEquipmentRules,
+  RacialStatChoice,
 } from '../../../../src/types/cof2.ts';
 import {
   Users,
@@ -31,33 +32,22 @@ interface PeopleFormProps {
 
 const STATS: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
 
-function computeRacialSummary(options: string[][] | undefined, sign: '+' | '-'): string {
-  if (!options || options.length === 0) return 'Aucun';
+function computeRacialSummary(people: PeopleData): string {
+  const parts: string[] = [];
 
-  const fixedCounts: Record<string, number> = {};
-  const choices: string[] = [];
-
-  for (const group of options) {
-    if (group.length === 1) {
-      const stat = group[0];
-      if (stat === 'ANY_LOWEST') {
-        choices.push('Caractéristique la plus faible');
-      } else {
-        fixedCounts[stat] = (fixedCounts[stat] || 0) + 1;
-      }
-    } else if (group.length === STATS.length) {
-      choices.push('Au choix libre (toutes caractéristiques)');
-    } else if (group.length > 1) {
-      choices.push(`${group.map(s => `${sign}1 ${s}`).join(' ou ')}`);
+  for (const [stat, val] of Object.entries(people.stats || {})) {
+    if (val && val !== 0) {
+      parts.push(`${val > 0 ? `+${val}` : val} ${stat}`);
     }
   }
 
-  const parts: string[] = [];
-  for (const [stat, count] of Object.entries(fixedCounts)) {
-    parts.push(`${sign}${count} ${stat}`);
-  }
-  for (const choice of choices) {
-    parts.push(`[Au choix : ${choice}]`);
+  for (const choice of people.statChoices || []) {
+    const signStr = choice.value > 0 ? `+${choice.value}` : `${choice.value}`;
+    if (choice.options.includes('ANY_LOWEST')) {
+      parts.push(`[Au choix : ${signStr} Caractéristique la plus faible]`);
+    } else if (choice.options.length > 0) {
+      parts.push(`[Au choix : ${choice.options.map(s => `${signStr} ${s}`).join(' ou ')}]`);
+    }
   }
 
   return parts.length > 0 ? parts.join(', ') : 'Aucun';
@@ -78,49 +68,55 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
 
   const racialPaths = allPaths.filter(p => p.type === 'racial');
 
-  // Bonus Options manipulation
-  const updateBonusGroup = (groupIndex: number, stat: string) => {
-    const nextBonus = [...(people.bonusOptions || [])];
-    const group = nextBonus[groupIndex] || [];
-    if (stat === 'ANY_LOWEST') {
-      nextBonus[groupIndex] = group.includes('ANY_LOWEST') ? ['FOR'] : ['ANY_LOWEST'];
+  // Fixed Stats manipulation
+  const updateFixedStat = (stat: StatCode, deltaOrVal: number, isAbsolute = false) => {
+    const current = { ...(people.stats || {}) };
+    const nextVal = isAbsolute ? deltaOrVal : (current[stat] || 0) + deltaOrVal;
+    if (nextVal === 0 || Number.isNaN(nextVal)) {
+      delete current[stat];
     } else {
-      const filtered = group.filter(s => s !== 'ANY_LOWEST');
-      const exists = filtered.includes(stat);
-      const nextGroup = exists ? filtered.filter(s => s !== stat) : [...filtered, stat];
-      nextBonus[groupIndex] = nextGroup.length > 0 ? nextGroup : [stat];
+      current[stat] = nextVal;
     }
-    updateField('bonusOptions', nextBonus);
+    updateField('stats', Object.keys(current).length > 0 ? current : undefined);
   };
 
-  const addBonusGroup = () => {
-    const nextBonus = [...(people.bonusOptions || []), ['FOR']];
-    updateField('bonusOptions', nextBonus);
+  // StatChoices manipulation
+  const updateStatChoiceOption = (choiceIndex: number, stat: StatCode | 'ANY_LOWEST') => {
+    const nextChoices = [...(people.statChoices || [])];
+    const current = nextChoices[choiceIndex];
+    if (!current) return;
+
+    let nextOptions: Array<StatCode | 'ANY_LOWEST'>;
+    if (stat === 'ANY_LOWEST') {
+      nextOptions = current.options.includes('ANY_LOWEST') ? ['FOR', 'AGI'] : ['ANY_LOWEST'];
+    } else {
+      const filtered = current.options.filter((s): s is StatCode => s !== 'ANY_LOWEST');
+      const exists = filtered.includes(stat);
+      const updated = exists ? filtered.filter(s => s !== stat) : [...filtered, stat];
+      nextOptions = updated.length > 0 ? updated : [stat];
+    }
+    nextChoices[choiceIndex] = { ...current, options: nextOptions };
+    updateField('statChoices', nextChoices);
   };
 
-  const removeBonusGroup = (groupIndex: number) => {
-    const nextBonus = (people.bonusOptions || []).filter((_, i) => i !== groupIndex);
-    updateField('bonusOptions', nextBonus);
+  const updateStatChoiceValue = (choiceIndex: number, value: number) => {
+    const nextChoices = [...(people.statChoices || [])];
+    if (!nextChoices[choiceIndex]) return;
+    nextChoices[choiceIndex] = { ...nextChoices[choiceIndex], value };
+    updateField('statChoices', nextChoices);
   };
 
-  // Malus Options manipulation
-  const updateMalusGroup = (groupIndex: number, stat: string) => {
-    const nextMalus = [...(people.malusOptions || [])];
-    const group = nextMalus[groupIndex] || [];
-    const exists = group.includes(stat);
-    const nextGroup = exists ? group.filter(s => s !== stat) : [...group, stat];
-    nextMalus[groupIndex] = nextGroup.length > 0 ? nextGroup : [stat];
-    updateField('malusOptions', nextMalus);
+  const addStatChoice = (defaultVal: number) => {
+    const nextChoices: RacialStatChoice[] = [
+      ...(people.statChoices || []),
+      { value: defaultVal, options: ['FOR', 'CON'] },
+    ];
+    updateField('statChoices', nextChoices);
   };
 
-  const addMalusGroup = () => {
-    const nextMalus = [...(people.malusOptions || []), ['FOR']];
-    updateField('malusOptions', nextMalus);
-  };
-
-  const removeMalusGroup = (groupIndex: number) => {
-    const nextMalus = (people.malusOptions || []).filter((_, i) => i !== groupIndex);
-    updateField('malusOptions', nextMalus);
+  const removeStatChoice = (choiceIndex: number) => {
+    const nextChoices = (people.statChoices || []).filter((_, i) => i !== choiceIndex);
+    updateField('statChoices', nextChoices.length > 0 ? nextChoices : undefined);
   };
 
   // Equipment Rules helpers
@@ -274,191 +270,156 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
       {/* TAB 1: CARACTÉRISTIQUES & VOIES RACIALES */}
       {activeTab === 'stats' && (
         <div className="space-y-6">
-          {/* Bonus Options (+1) */}
+          {/* Synthèse Globale */}
+          <div className="p-3.5 bg-stone-950 border border-amber-900/50 rounded-xl flex items-center justify-between">
+            <span className="text-xs text-stone-300">
+              Bilan des modificateurs raciaux :{' '}
+              <strong className="text-amber-300 text-sm font-bold">
+                {computeRacialSummary(people)}
+              </strong>
+            </span>
+          </div>
+
+          {/* Modificateurs Fixes (stats) */}
           <div className="bg-stone-900/80 border border-stone-800 rounded-xl p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-800 pb-2">
-              <div>
-                <h4 className="text-sm font-bold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
-                  <span>+1</span> Bonus Racial de Caractéristique (`bonusOptions`)
-                </h4>
-                <p className="text-[11px] text-stone-400 mt-0.5">
-                  Chaque groupe accorde un bonus de <strong>+1</strong>. Si une caractéristique apparaît dans plusieurs groupes (ex: 2 groupes avec FOR pour le Demi-Ogre), elle totalise <strong>+2</strong>.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={addBonusGroup}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded bg-emerald-950/70 border border-emerald-800/80 text-emerald-300 hover:bg-emerald-900/70"
-              >
-                <Plus className="w-3.5 h-3.5" /> Ajouter un choix +1
-              </button>
+            <div className="border-b border-stone-800 pb-2">
+              <h4 className="text-sm font-bold text-amber-300 flex items-center gap-1.5 uppercase tracking-wider">
+                Modificateurs Raciaux Fixes (`stats`)
+              </h4>
+              <p className="text-[11px] text-stone-400 mt-0.5">
+                Valeurs fixes directement appliquées sans répétition (ex: <code>{`{ "FOR": 2, "INT": -2 }`}</code> pour le Minotaure ou <code>{`{ "FOR": -2 }`}</code> pour la Fée). Laissez à 0 si aucun modificateur fixe.
+              </p>
             </div>
 
-            {/* Synthèse Cumulée Globale des Bonus */}
-            <div className="p-3 bg-stone-950 border border-emerald-900/50 rounded-lg flex items-center justify-between">
-              <span className="text-xs text-stone-300">
-                Total des bonus cumulés :{' '}
-                <strong className="text-emerald-300 text-sm font-bold">
-                  {computeRacialSummary(people.bonusOptions, '+')}
-                </strong>
-              </span>
-              <span className="text-[11px] text-stone-400 font-mono">
-                {(people.bonusOptions || []).length} point{(people.bonusOptions || []).length > 1 ? 's' : ''} de bonus au total
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              {(people.bonusOptions || []).length === 0 ? (
-                <div className="text-xs text-stone-500 italic py-2">
-                  Aucun bonus racial défini (ex: peuples neutres).
-                </div>
-              ) : (
-                people.bonusOptions.map((group, gIdx) => {
-                  const isAnyLowest = group.includes('ANY_LOWEST');
-                  const summaryText = isAnyLowest
-                    ? '★ Caractéristique la plus faible'
-                    : group.length === 0
-                    ? 'Aucune sélection'
-                    : group.length === STATS.length
-                    ? '+1 à n\'importe quelle caractéristique (au choix libre)'
-                    : group.length === 1
-                    ? `Fixe : +1 ${group[0]}`
-                    : `Au choix : +1 ${group.join(' ou +1 ')}`;
-
-                  return (
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
+              {STATS.map(stat => {
+                const val = people.stats?.[stat] || 0;
+                return (
+                  <div
+                    key={stat}
+                    className={`p-2.5 rounded-lg border text-center space-y-1.5 ${
+                      val > 0
+                        ? 'bg-emerald-950/40 border-emerald-700/70'
+                        : val < 0
+                        ? 'bg-red-950/40 border-red-700/70'
+                        : 'bg-stone-950 border-stone-800'
+                    }`}
+                  >
+                    <div className="text-xs font-bold font-mono text-stone-200">{stat}</div>
                     <div
-                      key={gIdx}
-                      className="p-3 bg-stone-950/70 border border-emerald-950/80 rounded-lg space-y-2"
+                      className={`text-base font-black font-mono ${
+                        val > 0 ? 'text-emerald-400' : val < 0 ? 'text-red-400' : 'text-stone-500'
+                      }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-emerald-400 font-mono">
-                            Groupe {gIdx + 1} (+1) :
-                          </span>
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800 text-emerald-200">
-                            {summaryText}
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => removeBonusGroup(gIdx)}
-                          className="text-stone-500 hover:text-red-400 p-1"
-                          title="Supprimer ce groupe de bonus"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                        <span className="text-[10px] text-stone-400 mr-1 uppercase font-semibold">
-                          Options éligibles :
-                        </span>
-                        {STATS.map(stat => {
-                          const active = group.includes(stat);
-                          return (
-                            <button
-                              key={stat}
-                              type="button"
-                              onClick={() => updateBonusGroup(gIdx, stat)}
-                              className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
-                                active
-                                  ? 'bg-emerald-600 text-stone-950 shadow-md scale-105 ring-2 ring-emerald-400'
-                                  : 'bg-stone-900 text-stone-400 hover:bg-stone-800 hover:text-stone-200'
-                              }`}
-                            >
-                              {active ? `✓ ${stat}` : stat}
-                            </button>
-                          );
-                        })}
-                        <button
-                          type="button"
-                          onClick={() => updateBonusGroup(gIdx, 'ANY_LOWEST')}
-                          className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
-                            isAnyLowest
-                              ? 'bg-amber-600 text-stone-950 shadow-md ring-2 ring-amber-400'
-                              : 'bg-stone-900 text-amber-400/80 hover:bg-stone-800 hover:text-amber-300'
-                          }`}
-                        >
-                          {isAnyLowest ? '★ Carac la plus basse (ANY_LOWEST)' : '★ Carac la plus basse'}
-                        </button>
-                      </div>
+                      {val > 0 ? `+${val}` : val}
                     </div>
-                  );
-                })
-              )}
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => updateFixedStat(stat, -1)}
+                        className="w-6 h-6 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold"
+                      >
+                        -
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateFixedStat(stat, 1)}
+                        className="w-6 h-6 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Malus Options (-1) */}
+          {/* Choix de Caractéristiques ('OU' -> statChoices) */}
           <div className="bg-stone-900/80 border border-stone-800 rounded-xl p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-800 pb-2">
               <div>
-                <h4 className="text-sm font-bold text-red-400 flex items-center gap-1.5 uppercase tracking-wider">
-                  <span>-1</span> Malus Racial de Caractéristique (`malusOptions`)
+                <h4 className="text-sm font-bold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
+                  Choix Raciaux de type « OU » (`statChoices`)
                 </h4>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  Chaque groupe applique un malus de <strong>-1</strong>. Si une caractéristique est répétée dans plusieurs groupes (ex: 2 groupes avec FOR pour le Farfadet), elle totalise <strong>-2</strong>.
+                  Chaque entrée définit un choix de caractéristique (ex: <code>+1 PER ou CHA</code>, <code>-1 FOR ou CON</code>).
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={addMalusGroup}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded bg-red-950/70 border border-red-800/80 text-red-300 hover:bg-red-900/70"
-              >
-                <Plus className="w-3.5 h-3.5" /> Ajouter un choix -1
-              </button>
-            </div>
-
-            {/* Synthèse Cumulée Globale des Malus */}
-            <div className="p-3 bg-stone-950 border border-red-900/50 rounded-lg flex items-center justify-between">
-              <span className="text-xs text-stone-300">
-                Total des malus cumulés :{' '}
-                <strong className="text-red-300 text-sm font-bold">
-                  {computeRacialSummary(people.malusOptions, '-')}
-                </strong>
-              </span>
-              <span className="text-[11px] text-stone-400 font-mono">
-                {(people.malusOptions || []).length} point{(people.malusOptions || []).length > 1 ? 's' : ''} de malus au total
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => addStatChoice(1)}
+                  className="flex items-center gap-1 px-2.5 py-1 text-xs rounded bg-emerald-950/70 border border-emerald-800/80 text-emerald-300 hover:bg-emerald-900/70"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Ajouter un choix Bonus (+1)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addStatChoice(-1)}
+                  className="flex items-center gap-1 px-2.5 py-1 text-xs rounded bg-red-950/70 border border-red-800/80 text-red-300 hover:bg-red-900/70"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Ajouter un choix Malus (-1)
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3">
-              {(people.malusOptions || []).length === 0 ? (
+              {(people.statChoices || []).length === 0 ? (
                 <div className="text-xs text-stone-500 italic py-2">
-                  Aucun malus racial défini pour ce peuple.
+                  Aucun choix racial défini pour ce peuple (tous ses modificateurs sont fixes).
                 </div>
               ) : (
-                people.malusOptions.map((group, gIdx) => {
-                  const summaryText =
-                    group.length === 0
-                      ? 'Aucune sélection'
-                      : group.length === STATS.length
-                      ? '-1 à n\'importe quelle caractéristique (au choix)'
-                      : group.length === 1
-                      ? `Fixe : -1 ${group[0]}`
-                      : `Au choix : -1 ${group.join(' ou -1 ')}`;
+                (people.statChoices || []).map((choice, cIdx) => {
+                  const isAnyLowest = choice.options.includes('ANY_LOWEST');
+                  const isBonus = choice.value >= 0;
+                  const signStr = choice.value > 0 ? `+${choice.value}` : `${choice.value}`;
 
                   return (
                     <div
-                      key={gIdx}
-                      className="p-3 bg-stone-950/70 border border-red-950/80 rounded-lg space-y-2"
+                      key={cIdx}
+                      className={`p-3 bg-stone-950/70 border rounded-lg space-y-2 ${
+                        isBonus ? 'border-emerald-950/80' : 'border-red-950/80'
+                      }`}
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-red-400 font-mono">
-                            Groupe {gIdx + 1} (-1) :
+                          <span
+                            className={`text-xs font-bold font-mono ${
+                              isBonus ? 'text-emerald-400' : 'text-red-400'
+                            }`}
+                          >
+                            Choix #{cIdx + 1} :
                           </span>
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-950 border border-red-800 text-red-200">
-                            {summaryText}
+                          <select
+                            value={choice.value}
+                            onChange={e => updateStatChoiceValue(cIdx, parseInt(e.target.value, 10))}
+                            className="bg-stone-900 border border-stone-700 rounded px-2 py-0.5 text-xs font-mono font-bold text-stone-100"
+                          >
+                            {[-3, -2, -1, 1, 2, 3].map(v => (
+                              <option key={v} value={v}>
+                                {v > 0 ? `+${v}` : v}
+                              </option>
+                            ))}
+                          </select>
+                          <span
+                            className={`text-xs font-semibold px-2 py-0.5 rounded border ${
+                              isBonus
+                                ? 'bg-emerald-950 border-emerald-800 text-emerald-200'
+                                : 'bg-red-950 border-red-800 text-red-200'
+                            }`}
+                          >
+                            {isAnyLowest
+                              ? `${signStr} Caractéristique la plus faible`
+                              : `${signStr} (${choice.options.join(' ou ')})`}
                           </span>
                         </div>
 
                         <button
                           type="button"
-                          onClick={() => removeMalusGroup(gIdx)}
+                          onClick={() => removeStatChoice(cIdx)}
                           className="text-stone-500 hover:text-red-400 p-1"
-                          title="Supprimer ce groupe de malus"
+                          title="Supprimer ce choix"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -466,18 +427,20 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
 
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         <span className="text-[10px] text-stone-400 mr-1 uppercase font-semibold">
-                          Options éligibles :
+                          Options éligibles (OU) :
                         </span>
                         {STATS.map(stat => {
-                          const active = group.includes(stat);
+                          const active = choice.options.includes(stat);
                           return (
                             <button
                               key={stat}
                               type="button"
-                              onClick={() => updateMalusGroup(gIdx, stat)}
+                              onClick={() => updateStatChoiceOption(cIdx, stat)}
                               className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
                                 active
-                                  ? 'bg-red-600 text-stone-950 shadow-md scale-105 ring-2 ring-red-400'
+                                  ? isBonus
+                                    ? 'bg-emerald-600 text-stone-950 shadow-md scale-105 ring-2 ring-emerald-400'
+                                    : 'bg-red-600 text-stone-950 shadow-md scale-105 ring-2 ring-red-400'
                                   : 'bg-stone-900 text-stone-400 hover:bg-stone-800 hover:text-stone-200'
                               }`}
                             >
@@ -485,6 +448,19 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                             </button>
                           );
                         })}
+                        {isBonus && (
+                          <button
+                            type="button"
+                            onClick={() => updateStatChoiceOption(cIdx, 'ANY_LOWEST')}
+                            className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
+                              isAnyLowest
+                                ? 'bg-amber-600 text-stone-950 shadow-md ring-2 ring-amber-400'
+                                : 'bg-stone-900 text-amber-400/80 hover:bg-stone-800 hover:text-amber-300'
+                            }`}
+                          >
+                            {isAnyLowest ? '★ Carac la plus basse (ANY_LOWEST)' : '★ Carac la plus basse'}
+                          </button>
+                        )}
                       </div>
                     </div>
                   );

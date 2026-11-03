@@ -262,13 +262,18 @@ export interface PeopleEquipmentRules {
   summary?: string;
 }
 
+export interface RacialStatChoice {
+  value: number;
+  options: Array<StatCode | 'ANY_LOWEST'>;
+}
+
 export interface PeopleData {
   id: string;
   name: string;
   source: BookSource;
   description: string;
-  bonusOptions: string[][];
-  malusOptions: string[][];
+  stats?: Partial<Record<StatCode, number>>;
+  statChoices?: RacialStatChoice[];
   reperes: string;
   startingAge: string;
   lifeExpectancy: string;
@@ -388,10 +393,7 @@ export interface CharacterSheet {
 
   // Stats.
   baseStats: Record<StatCode, number>;
-  selectedRacialBonus?: StatCode;
-  selectedRacialMalus?: StatCode;
-  selectedRacialBonuses?: StatCode[];
-  selectedRacialMaluses?: StatCode[];
+  racialStatChoices?: StatCode[];
   manualStatBonuses?: Partial<Record<StatCode, number>>;
 
   // Paths & Abilities.
@@ -457,7 +459,8 @@ export interface ComputedCharacterStats {
   // Active weapon modifiers from paths.
   activeWeaponModifiers?: WeaponModifierRule[];
 
-  // Breakdown of path passive bonuses.
+  // Breakdown of racial & path passive bonuses.
+  racialBonusStats: Record<StatCode, number>;
   pathBonusStats: Record<StatCode, number>;
   pathBonusDefense: number;
   pathBonusInitiative: number;

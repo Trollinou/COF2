@@ -273,82 +273,58 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                   </div>
 
                   {/* Render choice bonus slots */}
-                  {selectedPeople.bonusOptions.map((optGroup, bIdx) => {
-                    const isAny = optGroup[0] === 'ANY_LOWEST';
-                    const isChoice = isAny || optGroup.length > 1;
-                    if (!isChoice) return null;
-
-                    const currentVal = character.selectedRacialBonuses?.[bIdx] || (bIdx === 0 ? character.selectedRacialBonus : undefined) || optGroup[0] || 'FOR';
+                  {(selectedPeople.statChoices || []).map((choice, cIdx) => {
+                    if (choice.value <= 0) return null;
+                    const isAny = choice.options.includes('ANY_LOWEST');
+                    const defaultStat = (!isAny && choice.options[0] ? choice.options[0] : 'FOR') as StatCode;
+                    const currentVal = character.racialStatChoices?.[cIdx] || defaultStat;
+                    const signStr = `+${choice.value}`;
 
                     return (
-                      <div key={`b_choice_${bIdx}`}>
+                      <div key={`b_choice_${cIdx}`}>
                         <label className="block text-xs font-medium text-stone-300 mb-1">
-                          {isAny ? 'Bonus racial au choix (+1) :' : `Choix du bonus (+1) :`}
+                          {isAny ? `Bonus racial au choix (${signStr}) :` : `Choix du bonus (${signStr}) :`}
                         </label>
-                        {isAny ? (
-                          <select
-                            value={currentVal}
-                            onChange={e => {
-                              const newBonuses = [...(character.selectedRacialBonuses || [character.selectedRacialBonus || 'FOR'])];
-                              newBonuses[bIdx] = e.target.value as StatCode;
-                              update({
-                                selectedRacialBonuses: newBonuses,
-                                selectedRacialBonus: newBonuses[0],
-                              });
-                            }}
-                            className="w-full bg-stone-900 border border-stone-700 rounded px-2.5 py-1.5 text-xs text-stone-200"
-                          >
-                            {(['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'] as StatCode[]).map(code => (
-                              <option key={code} value={code}>
-                                +1 en {STAT_NAMES[code]} ({code})
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <select
-                            value={currentVal}
-                            onChange={e => {
-                              const newBonuses = [...(character.selectedRacialBonuses || [character.selectedRacialBonus || optGroup[0] as StatCode])];
-                              newBonuses[bIdx] = e.target.value as StatCode;
-                              update({
-                                selectedRacialBonuses: newBonuses,
-                                selectedRacialBonus: newBonuses[0],
-                              });
-                            }}
-                            className="w-full bg-stone-900 border border-stone-700 rounded px-2.5 py-1.5 text-xs text-stone-200"
-                          >
-                            {optGroup.map(opt => (
-                              <option key={opt} value={opt}>
-                                +1 en {STAT_NAMES[opt as StatCode]} ({opt})
-                              </option>
-                            ))}
-                          </select>
-                        )}
+                        <select
+                          value={currentVal}
+                          onChange={e => {
+                            const nextChoices = (selectedPeople.statChoices || []).map((c, idx) => {
+                              if (idx === cIdx) return e.target.value as StatCode;
+                              return (
+                                character.racialStatChoices?.[idx] ||
+                                ((c.options[0] !== 'ANY_LOWEST' ? c.options[0] : 'FOR') as StatCode)
+                              );
+                            });
+                            update({ racialStatChoices: nextChoices });
+                          }}
+                          className="w-full bg-stone-900 border border-stone-700 rounded px-2.5 py-1.5 text-xs text-stone-200"
+                        >
+                          {(isAny
+                            ? (['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'] as StatCode[])
+                            : (choice.options as StatCode[])
+                          ).map(code => (
+                            <option key={code} value={code}>
+                              {signStr} en {STAT_NAMES[code]} ({code})
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     );
                   })}
 
-                  {/* Render aggregated fixed bonus slots */}
-                  {(() => {
-                    const fixedBonusCounts: Partial<Record<StatCode, number>> = {};
-                    selectedPeople.bonusOptions.forEach(optGroup => {
-                      if (optGroup.length === 1 && optGroup[0] !== 'ANY_LOWEST') {
-                        const code = optGroup[0] as StatCode;
-                        fixedBonusCounts[code] = (fixedBonusCounts[code] || 0) + 1;
-                      }
-                    });
-
-                    return Object.entries(fixedBonusCounts).map(([code, count]) => (
+                  {/* Render fixed bonus slots */}
+                  {Object.entries(selectedPeople.stats || {})
+                    .filter(([, val]) => (val || 0) > 0)
+                    .map(([code, val]) => (
                       <div key={`b_fixed_${code}`}>
                         <label className="block text-xs font-medium text-stone-300 mb-1">
                           Bonus racial (Fixe) :
                         </label>
                         <div className="w-full bg-stone-900/60 border border-stone-800 rounded px-2.5 py-1.5 text-xs text-emerald-300 font-medium">
-                          +{count} en {STAT_NAMES[code as StatCode]} ({code})
+                          +{val} en {STAT_NAMES[code as StatCode]} ({code})
                         </div>
                       </div>
-                    ));
-                  })()}
+                    ))}
                 </div>
 
                 <div className="space-y-3">
@@ -357,32 +333,33 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                   </div>
 
                   {/* Render choice malus slots */}
-                  {selectedPeople.malusOptions.map((optGroup, mIdx) => {
-                    const isChoice = optGroup.length > 1;
-                    if (!isChoice) return null;
-
-                    const currentVal = character.selectedRacialMaluses?.[mIdx] || (mIdx === 0 ? character.selectedRacialMalus : undefined) || optGroup[0] || 'FOR';
+                  {(selectedPeople.statChoices || []).map((choice, cIdx) => {
+                    if (choice.value >= 0) return null;
+                    const defaultStat = (choice.options[0] !== 'ANY_LOWEST' ? choice.options[0] : 'FOR') as StatCode;
+                    const currentVal = character.racialStatChoices?.[cIdx] || defaultStat;
 
                     return (
-                      <div key={`m_choice_${mIdx}`}>
+                      <div key={`m_choice_${cIdx}`}>
                         <label className="block text-xs font-medium text-stone-300 mb-1">
-                          Choix du malus (-1) :
+                          Choix du malus ({choice.value}) :
                         </label>
                         <select
                           value={currentVal}
                           onChange={e => {
-                            const newMaluses = [...(character.selectedRacialMaluses || [character.selectedRacialMalus || optGroup[0] as StatCode])];
-                            newMaluses[mIdx] = e.target.value as StatCode;
-                            update({
-                              selectedRacialMaluses: newMaluses,
-                              selectedRacialMalus: newMaluses[0],
+                            const nextChoices = (selectedPeople.statChoices || []).map((c, idx) => {
+                              if (idx === cIdx) return e.target.value as StatCode;
+                              return (
+                                character.racialStatChoices?.[idx] ||
+                                ((c.options[0] !== 'ANY_LOWEST' ? c.options[0] : 'FOR') as StatCode)
+                              );
                             });
+                            update({ racialStatChoices: nextChoices });
                           }}
                           className="w-full bg-stone-900 border border-stone-700 rounded px-2.5 py-1.5 text-xs text-stone-200"
                         >
-                          {optGroup.map(opt => (
+                          {(choice.options as StatCode[]).map(opt => (
                             <option key={opt} value={opt}>
-                              -1 en {STAT_NAMES[opt as StatCode]} ({opt})
+                              {choice.value} en {STAT_NAMES[opt]} ({opt})
                             </option>
                           ))}
                         </select>
@@ -390,17 +367,14 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                     );
                   })}
 
-                  {/* Render aggregated fixed malus slots */}
+                  {/* Render fixed malus slots */}
                   {(() => {
-                    const fixedMalusCounts: Partial<Record<StatCode, number>> = {};
-                    selectedPeople.malusOptions.forEach(optGroup => {
-                      if (optGroup.length === 1) {
-                        const code = optGroup[0] as StatCode;
-                        fixedMalusCounts[code] = (fixedMalusCounts[code] || 0) + 1;
-                      }
-                    });
+                    const fixedMaluses = Object.entries(selectedPeople.stats || {}).filter(
+                      ([, val]) => (val || 0) < 0
+                    );
+                    const hasChoiceMalus = (selectedPeople.statChoices || []).some(c => c.value < 0);
 
-                    if (Object.keys(fixedMalusCounts).length === 0 && selectedPeople.malusOptions.length === 0) {
+                    if (fixedMaluses.length === 0 && !hasChoiceMalus) {
                       return (
                         <div className="text-xs text-stone-500 italic">
                           Aucun malus racial pour ce peuple.
@@ -408,13 +382,13 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                       );
                     }
 
-                    return Object.entries(fixedMalusCounts).map(([code, count]) => (
+                    return fixedMaluses.map(([code, val]) => (
                       <div key={`m_fixed_${code}`}>
                         <label className="block text-xs font-medium text-stone-300 mb-1">
                           Malus racial (Fixe) :
                         </label>
                         <div className="w-full bg-stone-900/60 border border-stone-800 rounded px-2.5 py-1.5 text-xs text-red-300 font-medium">
-                          -{count} en {STAT_NAMES[code as StatCode]} ({code})
+                          {val} en {STAT_NAMES[code as StatCode]} ({code})
                         </div>
                       </div>
                     ));

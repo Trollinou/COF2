@@ -4,17 +4,21 @@
     "name": "Demi-elfe",
     "source": "base",
     "description": "Le demi‑elfe a hérité des qualités de ses deux parents (humain et elfe). Il est généralement traité avec condescendance parmi les elfes et perçu comme un elfe parmi les humains.",
-    "bonusOptions": [
-      [
-        "PER",
-        "CHA"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR",
-        "CON"
-      ]
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "PER",
+          "CHA"
+        ]
+      },
+      {
+        "value": -1,
+        "options": [
+          "FOR",
+          "CON"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 20+\n\n**Espérance de vie :** 150 ans\n\n**Taille :** 1,50 m à 1,90 m\n\n**Poids :** 40 à 80 kg\n\n**Traits :** grâce naturelle, oreilles légèrement pointues, pilosité faible.",
     "startingAge": "20 ans",
@@ -65,17 +69,21 @@
     "name": "Demi-orc",
     "source": "base",
     "description": "Le demi‑orc est de grande taille. Il possède une force physique hors du commun, et est généralement méprisé par les autres peuples, en particulier par les nains et les elfes.",
-    "bonusOptions": [
-      [
-        "FOR",
-        "CON"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "CHA",
-        "INT"
-      ]
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "FOR",
+          "CON"
+        ]
+      },
+      {
+        "value": -1,
+        "options": [
+          "CHA",
+          "INT"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 1,70 m à 2,10 m\n\n**Poids :** 70 à 150 kg\n\n**Traits :** grand et athlétique. Peau verdâtre qui tend parfois vers un vert plus franc, mâchoire large, front bas, petits yeux.",
     "startingAge": "15 ans",
@@ -132,16 +140,17 @@
     "name": "Elfe haut",
     "source": "base",
     "description": "L'elfe haut est un être féérique qui vit extrêmement longtemps et dont le niveau de civilisation et de culture se révèle généralement supérieur à celui des autres peuples. Proche de la nature, il maîtrise aussi bien les arts de la magie que ceux de la guerre.",
-    "bonusOptions": [
-      [
-        "INT",
-        "CHA"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR"
-      ]
+    "stats": {
+      "FOR": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "INT",
+          "CHA"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 80+\n\n**Espérance de vie :** 450 ans\n\n**Taille :** 1,50 m à 1,80 m\n\n**Poids :** 40 à 70 kg\n\n**Traits :** élancé, svelte et gracieux. Jeunesse éternelle. Oreilles pointues, yeux en amandes (verts, violets), cheveux parfois blancs, argent ou or.",
     "startingAge": "80 ans",
@@ -188,16 +197,17 @@
     "name": "Elfe sylvain",
     "source": "base",
     "description": "L'**elfe sylvain** est issu d'une culture différente de celle des elfes hauts. Légèrement plus petits, ils vivent au plus profond des forêts, s'abritant dans les arbres et vivant simplement de la chasse et de la cueillette. Moins arrogants que leurs cousins hauts elfes, ils sont cependant beaucoup plus méfiants. Ils maîtrisent particulièrement l'art du camouflage et l'utilisation de l'arc.",
-    "bonusOptions": [
-      [
-        "AGI",
-        "PER"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR"
-      ]
+    "stats": {
+      "FOR": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "AGI",
+          "PER"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 50+\n\n**Espérance de vie :** 350 ans\n\n**Taille :** 1,40 m à 1,70 m\n\n**Poids :** 30 à 60 kg\n\n**Traits :** menu, svelte. Oreilles pointues, yeux en amandes (verts, violets), cheveux sombres (bruns, noirs, roux), tatouages, pilosité absente.",
     "startingAge": "50 ans",
@@ -244,16 +254,17 @@
     "name": "Gnome",
     "source": "base",
     "description": "Le gnome est une créature de petite taille pourvue d'un gros nez, d'une bonne nature et d'une curiosité insatiable pour la magie et les sciences. C'est un compagnon souvent agréable, bien qu'un peu original. Les nains et les halfelins l'apprécient, tandis que les « grandes » personnes se montrent plutôt indifférentes à leur égard.",
-    "bonusOptions": [
-      [
-        "INT",
-        "PER"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR"
-      ]
+    "stats": {
+      "FOR": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "INT",
+          "PER"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 40+\n\n**Espérance de vie :** 250 ans\n\n**Taille :** 1 m à 1,20 m\n\n**Poids :** 30 à 50 kg\n\n**Traits :** Petit et rondouillard, gros nez. Moustaches et rouflaquettes pour les gnomes, couettes pour les gnomettes. Oreilles un peu pointues ou grandes et rondes.",
     "startingAge": "40 ans",
@@ -289,16 +300,17 @@
     "name": "Halfelin",
     "source": "base",
     "description": "Les halfelins représentent le plus petit des peuples jouables. Toujours bons vivants, souvent vifs, curieux, et parfois farceurs, les halfelins sont des incompris que les autres peuples considèrent souvent comme turbulents, pénibles, si ce n'est comme des voleurs.",
-    "bonusOptions": [
-      [
-        "AGI",
-        "VOL"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR"
-      ]
+    "stats": {
+      "FOR": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "AGI",
+          "VOL"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 20+\n\n**Espérance de vie :** 150 ans\n\n**Taille:** 80 cm à 1 m\n\n**Poids:** 20 à 30 kg\n\n**Traits:** petit et vif. Pieds poilus, regard espiègle.",
     "startingAge": "20 ans",
@@ -369,12 +381,14 @@
     "name": "Humain",
     "source": "base",
     "description": "L'humain se distingue par sa capacité d'adaptation et son instinct qui le pousse à coloniser tous les territoires qui l'entourent. Le peuple humain est le plus représenté et le plus répandu dans les zones dites civilisées.",
-    "bonusOptions": [
-      [
-        "ANY_LOWEST"
-      ]
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "ANY_LOWEST"
+        ]
+      }
     ],
-    "malusOptions": [],
     "reperes": "**Âge de départ :** 18+\n\n**Espérance de vie :** 100 ans\n\n**Taille :** 1,50 m à 2 m\n\n**Poids :** 40 à 120 kg\n\n**Traits :** toute la diversité possible à l'exception des couleurs trop exotiques (cheveux violets, etc.).",
     "startingAge": "18 ans",
     "lifeExpectancy": "100 ans",
@@ -438,16 +452,17 @@
     "name": "Nain",
     "source": "base",
     "description": "Le nain est petit mais robuste. Célèbre pour sa barbe, il aime les profondeurs de la terre, dont il extrait des métaux et des pierres précieuses. Isolé, il est généralement ouvert et chaleureux, mais la société naine peut paraître sévère, car le travail et l'entraînement militaire y sont des obligations.",
-    "bonusOptions": [
-      [
-        "CON",
-        "VOL"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "AGI"
-      ]
+    "stats": {
+      "AGI": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "CON",
+          "VOL"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 40+\n\n**Espérance de vie :** 250 ans\n\n**Taille :** 1,15 m à 1,35 m\n\n**Poids :** 50 à 100 kg\n\n**Traits:** robuste et trapu. Pilosité très développée, tresses dans les cheveux et la barbe, bijoux et piercing. Non, les naines n'ont pas de barbe, tout juste un fin duvet avec l'âge.",
     "startingAge": "40 ans",
@@ -500,16 +515,17 @@
     "name": "Âme forgée",
     "source": "compagnon",
     "description": "Créatures mécaniques nées de la fusion du métal et d'une magie perdue, les âmes forgées sont animées d'une insatiable curiosité et d'une âme véritable.",
-    "bonusOptions": [
-      [
-        "CON"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "CHA",
-        "INT"
-      ]
+    "stats": {
+      "CON": 1
+    },
+    "statChoices": [
+      {
+        "value": -1,
+        "options": [
+          "CHA",
+          "INT"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 0 à 5 ans\n\n**Espérance de vie :** 150 ans\n\n**Taille :** 1,30 m à 2,10 m\n\n**Poids :** 100 à 300 kg\n\n**Traits :** métal et pierre, angles ou rondeurs, rouages et engrenages, cristaux oculaires",
     "startingAge": "0 à 5 ans",
@@ -576,16 +592,17 @@
     "name": "Cambion",
     "source": "compagnon",
     "description": "Humanoïdes à l'ascendance démoniaque, les cambions possèdent une volonté tenace et une grande résistance, vivant souvent dans le secret ou le défi face aux préjugés.",
-    "bonusOptions": [
-      [
-        "VOL",
-        "CON"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "CHA"
-      ]
+    "stats": {
+      "CHA": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "VOL",
+          "CON"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 15 à 18 ans\n\n**Espérance de vie :** 90 à 180 ans\n\n**Taille :** 1,50 m à 2,00 m\n\n**Poids :** 40 à 120 kg\n\n**Traits :** cornes, queue fourchue, odeur de soufre, yeux jaunes ou rouges",
     "startingAge": "15 à 18 ans",
@@ -632,31 +649,14 @@
     "name": "Demi-ogre",
     "source": "compagnon",
     "description": "Colosses de plus de deux mètres, les demi-ogres luttent en permanence contre leur nature sauvage et brutale, déployant souvent une politesse touchante pour s'intégrer.",
-    "bonusOptions": [
-      [
-        "FOR"
-      ],
-      [
-        "FOR"
-      ],
-      [
-        "CON"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "AGI"
-      ],
-      [
-        "INT"
-      ],
-      [
-        "CHA"
-      ],
-      [
-        "VOL"
-      ]
-    ],
+    "stats": {
+      "FOR": 2,
+      "CON": 1,
+      "AGI": -1,
+      "INT": -1,
+      "CHA": -1,
+      "VOL": -1
+    },
     "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 2,00 m à 2,50 m\n\n**Poids :** 200 à 350 kg\n\n**Traits :** peu de pilosité, corpulence énorme, puissante mâchoire prognathe, grandes mains",
     "startingAge": "15 ans",
     "lifeExpectancy": "60 ans",
@@ -703,22 +703,12 @@
     "name": "Drakonide",
     "source": "compagnon",
     "description": "Humanoïdes écailleux au sang draconique, dotés d'ailes atrophiées et d'une tête de reptile, guidés par un sens inébranlable de l'honneur, de la fierté et de la loyauté.",
-    "bonusOptions": [
-      [
-        "FOR"
-      ],
-      [
-        "VOL"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "AGI"
-      ],
-      [
-        "PER"
-      ]
-    ],
+    "stats": {
+      "FOR": 1,
+      "VOL": 1,
+      "AGI": -1,
+      "PER": -1
+    },
     "reperes": "**Âge de départ :** 30+\n\n**Espérance de vie :** 300 ans\n\n**Taille :** 1,80 m à 2,00 m\n\n**Poids :** 100 à 160 kg\n\n**Traits :** écailles épaisses, tête de dragon, ailes atrophiées, pieds griffus",
     "startingAge": "30 ans",
     "lifeExpectancy": "300 ans",
@@ -759,16 +749,17 @@
     "name": "Elfe pâle",
     "source": "compagnon",
     "description": "Originaires de la Forêt sombre, ces elfes indécis ont refusé la tyrannie de Maëdra sans pour autant rejoindre la surface lumineuse, vénérant les anciennes Puissances de la nature.",
-    "bonusOptions": [
-      [
-        "PER",
-        "VOL"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR"
-      ]
+    "stats": {
+      "FOR": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "PER",
+          "VOL"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 50+\n\n**Espérance de vie :** 400 ans\n\n**Taille :** 1,50 m à 1,70 m\n\n**Poids :** 40 à 70 kg\n\n**Traits :** peau pâle, cheveux argent ou blancs, yeux violets ou verts, oreilles pointues",
     "startingAge": "50 ans",
@@ -807,16 +798,17 @@
     "name": "Elfe des profondeurs",
     "source": "compagnon",
     "description": "Fuyant le monde de la surface depuis des millénaires, les elfes des profondeurs ont bâti une culture souterraine impitoyable. Rares sont ceux qui s'échappent pour gagner la surface.",
-    "bonusOptions": [
-      [
-        "AGI",
-        "VOL"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR"
-      ]
+    "stats": {
+      "FOR": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "AGI",
+          "VOL"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 50+\n\n**Espérance de vie :** 400 ans\n\n**Taille :** 1,50 m à 1,70 m\n\n**Poids :** 40 à 70 kg\n\n**Traits :** peau très pâle et translucide, cheveux blancs, yeux amande mauves ou rouges",
     "startingAge": "50 ans",
@@ -853,17 +845,21 @@
     "name": "Félis",
     "source": "compagnon",
     "description": "Humanoïdes félins agiles et élégants, pourvus d'une longue queue, d'un pelage soyeux et d'yeux verticaux, souvent saltimbanques ou chasseurs solitaires.",
-    "bonusOptions": [
-      [
-        "AGI",
-        "PER"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR",
-        "INT"
-      ]
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "AGI",
+          "PER"
+        ]
+      },
+      {
+        "value": -1,
+        "options": [
+          "FOR",
+          "INT"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 1,50 m à 1,80 m\n\n**Poids :** 40 à 80 kg\n\n**Traits :** pelage doux, queue de félin, griffes rétractables, moustaches, pupilles verticales",
     "startingAge": "15 ans",
@@ -904,22 +900,19 @@
     "name": "Frouïn",
     "source": "compagnon",
     "description": "Petits rats humanoïdes d'un mètre de haut, débrouillards et charognards vivant dans les égouts et bas-fonds des cités, champions méconnus de la survie collective.",
-    "bonusOptions": [
-      [
-        "AGI",
-        "PER"
-      ],
-      [
-        "CON"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR"
-      ],
-      [
-        "CHA"
-      ]
+    "stats": {
+      "CON": 1,
+      "FOR": -1,
+      "CHA": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "AGI",
+          "PER"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 10+\n\n**Espérance de vie :** 30 ans\n\n**Taille :** 1,00 m à 1,10 m\n\n**Poids :** 30 à 40 kg\n\n**Traits :** pelage grisâtre, museau de rat, incisives acérées, queue dénudée",
     "startingAge": "10 ans",
@@ -978,22 +971,12 @@
     "name": "Gobelin",
     "source": "compagnon",
     "description": "Petits humanoïdes à la peau verte vifs, farceurs, bruyants ou furtifs selon les minutes, dotés d'un esprit retors et d'une joie de vivre communicative bien que chaotique.",
-    "bonusOptions": [
-      [
-        "AGI"
-      ],
-      [
-        "PER"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR"
-      ],
-      [
-        "VOL"
-      ]
-    ],
+    "stats": {
+      "AGI": 1,
+      "PER": 1,
+      "FOR": -1,
+      "VOL": -1
+    },
     "reperes": "**Âge de départ :** 8+\n\n**Espérance de vie :** 30 ans\n\n**Taille :** 0,80 m à 1,00 m\n\n**Poids :** 15 à 30 kg\n\n**Traits :** peau verte, traits disproportionnés, yeux rouges/jaunes souvent vairons, corps chétif",
     "startingAge": "8 ans",
     "lifeExpectancy": "30 ans",
@@ -1056,22 +1039,12 @@
     "name": "Kobold",
     "source": "compagnon",
     "description": "Minuscules humanoïdes reptiliens apparentés aux dragons, rusés, craintifs et ingénieux, experts dans la conception de pièges et l'embuscade en sous-sol.",
-    "bonusOptions": [
-      [
-        "AGI"
-      ],
-      [
-        "PER"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "FOR"
-      ],
-      [
-        "CON"
-      ]
-    ],
+    "stats": {
+      "AGI": 1,
+      "PER": 1,
+      "FOR": -1,
+      "CON": -1
+    },
     "reperes": "**Âge de départ :** 10+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 0,70 m à 0,90 m\n\n**Poids :** 18 à 25 kg\n\n**Traits :** écailles colorées, museau entre chien et reptile, queue expressive, griffes acérées",
     "startingAge": "10 ans",
     "lifeExpectancy": "60 ans",
@@ -1131,25 +1104,12 @@
     "name": "Farfadet (Lutin)",
     "source": "compagnon",
     "description": "Représentant masculin du peuple féerique des lutins, né dans un chou, farceur impénitent aux grands pieds et chapeau de champignon.",
-    "bonusOptions": [
-      [
-        "AGI"
-      ],
-      [
-        "PER"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "CON"
-      ],
-      [
-        "FOR"
-      ],
-      [
-        "FOR"
-      ]
-    ],
+    "stats": {
+      "AGI": 1,
+      "PER": 1,
+      "CON": -1,
+      "FOR": -2
+    },
     "reperes": "**Âge de départ :** 3+\n\n**Espérance de vie :** 150 ans\n\n**Taille :** 25 à 35 cm\n\n**Poids :** 1 à 3 kg\n\n**Traits :** minuscule, grand nez, grands pieds, habits végétaux, chapeau de champignon",
     "startingAge": "3 ans",
     "lifeExpectancy": "150 ans",
@@ -1203,25 +1163,12 @@
     "name": "Fée (Lutin)",
     "source": "compagnon",
     "description": "Représentante féminine des lutins née au cœur des fleurs, gracieuse, lumineuse et capricieuse, dotée d'ailes diaphanes et de puissants dons magiques.",
-    "bonusOptions": [
-      [
-        "AGI"
-      ],
-      [
-        "CHA"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "CON"
-      ],
-      [
-        "FOR"
-      ],
-      [
-        "FOR"
-      ]
-    ],
+    "stats": {
+      "AGI": 1,
+      "CHA": 1,
+      "CON": -1,
+      "FOR": -2
+    },
     "reperes": "**Âge de départ :** 3+\n\n**Espérance de vie :** 150 ans\n\n**Taille :** 18 à 25 cm\n\n**Poids :** 1 à 2 kg\n\n**Traits :** minuscule, ailes diaphanes, corps lumineux et féerique, yeux brillants",
     "startingAge": "3 ans",
     "lifeExpectancy": "150 ans",
@@ -1273,31 +1220,12 @@
     "name": "Minotaure",
     "source": "compagnon",
     "description": "Puissants colosses mi-hommes mi-taureaux pourvus d'impressionnantes cornes et de sabots massifs, bâtisseurs de labyrinthes sacrés et combattants redoutables.",
-    "bonusOptions": [
-      [
-        "FOR"
-      ],
-      [
-        "FOR"
-      ],
-      [
-        "VOL"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "INT"
-      ],
-      [
-        "INT"
-      ],
-      [
-        "CHA"
-      ],
-      [
-        "CHA"
-      ]
-    ],
+    "stats": {
+      "FOR": 2,
+      "VOL": 1,
+      "INT": -2,
+      "CHA": -2
+    },
     "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 1,90 m à 2,30 m\n\n**Poids :** 150 à 250 kg\n\n**Traits :** tête de taureau, cornes d'auroch, sabots, corps massif et musclé",
     "startingAge": "15 ans",
     "lifeExpectancy": "60 ans",
@@ -1340,16 +1268,17 @@
     "name": "Nephilim",
     "source": "compagnon",
     "description": "Descendants d'une lignée angélique céleste, caractérisés par une grâce radieuse, un regard semblable à des joyaux et une communion naturelle avec la lumière divine.",
-    "bonusOptions": [
-      [
-        "CHA",
-        "CON"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "PER"
-      ]
+    "stats": {
+      "PER": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "CHA",
+          "CON"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 25 à 30 ans\n\n**Espérance de vie :** 120 à 270 ans\n\n**Taille :** 1,50 m à 2,00 m\n\n**Poids :** 40 à 120 kg\n\n**Traits :** beauté surnaturelle, cheveux dorés ou argent, yeux de joyau, peau pailletée",
     "startingAge": "25 à 30 ans",
@@ -1394,16 +1323,17 @@
     "name": "Ophidien",
     "source": "compagnon",
     "description": "Héritiers du peuple des serpents anciens ayant dominé le monde originel, dissimulant sous une apparence humaine une mémoire génétique millénaire et une soif de pouvoir.",
-    "bonusOptions": [
-      [
-        "INT",
-        "VOL"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "CON"
-      ]
+    "stats": {
+      "CON": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "INT",
+          "VOL"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 30+\n\n**Espérance de vie :** 300 ans\n\n**Taille :** 1,50 m à 1,90 m\n\n**Poids :** 40 à 100 kg\n\n**Traits :** pupille verticale, écailles discrètes, langue bifide, peau fraîche",
     "startingAge": "30 ans",
@@ -1445,17 +1375,21 @@
     "name": "Satyre",
     "source": "compagnon",
     "description": "Les satyres sont des hédonistes qui aiment la liberté, jouer de la musique, danser autour d'un feu, boire et profiter des plaisirs de la chair. Leur culture ne connaît pas l'usage du métal, mais ils savent fabriquer des outils de bois aussi durs que l'acier. Ils n'aiment pas non plus les armures de peau morte ou en métal, leur préférant la cotte d'écorce (DEF +2, pas de malus en natation, mais doit être réparée après chaque combat ou perd 1 en DEF).",
-    "bonusOptions": [
-      [
-        "PER",
-        "CHA"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "VOL",
-        "INT"
-      ]
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "PER",
+          "CHA"
+        ]
+      },
+      {
+        "value": -1,
+        "options": [
+          "VOL",
+          "INT"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 120 ans\n\n**Taille :** 1,60 m à 1,75 m\n\n**Poids :** 50 à 80 kg\n\n**Traits :** jambes de bouc, sabots, barbichette, petites cornes, sourire charmeur",
     "startingAge": "15 ans",
@@ -1501,16 +1435,17 @@
     "name": "Wolfer",
     "source": "compagnon",
     "description": "Chasseurs robustes des forêts et steppes sauvages à la pilosité fournie et aux canines aiguisées, organisés en clans loyaux où la meute fait la force.",
-    "bonusOptions": [
-      [
-        "PER",
-        "VOL"
-      ]
-    ],
-    "malusOptions": [
-      [
-        "INT"
-      ]
+    "stats": {
+      "INT": -1
+    },
+    "statChoices": [
+      {
+        "value": 1,
+        "options": [
+          "PER",
+          "VOL"
+        ]
+      }
     ],
     "reperes": "**Âge de départ :** 15+\n\n**Espérance de vie :** 60 ans\n\n**Taille :** 1,60 m à 1,85 m\n\n**Poids :** 50 à 90 kg\n\n**Traits :** monosourcil, rouflaquettes, canines développées, démarche de prédateur",
     "startingAge": "15 ans",

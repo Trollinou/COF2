@@ -358,6 +358,23 @@ export function runFullAudit(data: FullDataset): AuditIssue[] {
           message: `Armure de prédilection "${eqRules.preferredArmorId}" introuvable dans equipment.armors.`,
         });
       }
+
+      // Check statChoices coherence (single non-ANY_LOWEST option should be in fixed stats)
+      if (people.statChoices) {
+        people.statChoices.forEach((choice, cIdx) => {
+          if (choice.options.length === 1 && choice.options[0] !== 'ANY_LOWEST') {
+            issues.push({
+              id: `people-single-choice-${people.id}-${cIdx}`,
+              category: 'peoples',
+              targetId: people.id,
+              targetName: people.name,
+              severity: 'warning',
+              field: `statChoices[${cIdx}]`,
+              message: `Le choix #${cIdx + 1} ne contient qu'une seule caractéristique (${choice.options[0]}). Utilisez plutôt le bloc fixe "stats".`,
+            });
+          }
+        });
+      }
     }
   }
 

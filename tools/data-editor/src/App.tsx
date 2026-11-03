@@ -231,8 +231,6 @@ export const App: React.FC = () => {
         name: 'Nouveau Peuple',
         source: 'base',
         description: '',
-        bonusOptions: [],
-        malusOptions: [],
         reperes: '',
         startingAge: '18 ans',
         lifeExpectancy: '80 ans',

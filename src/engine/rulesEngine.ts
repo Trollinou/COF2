@@ -771,27 +771,47 @@ export function computeCharacterStats(
   const people = getPeopleById(char.peopleId);
   const stats: Record<StatCode, number> = { ...char.baseStats };
 
-  // Apply racial bonus & malus
-  if (char.selectedRacialBonuses && char.selectedRacialBonuses.length > 0) {
-    char.selectedRacialBonuses.forEach((b) => {
-      if (stats[b] !== undefined) stats[b] += 1;
-    });
-  } else if (
-    char.selectedRacialBonus &&
-    stats[char.selectedRacialBonus] !== undefined
-  ) {
-    stats[char.selectedRacialBonus] += 1;
+  // Apply racial fixed stats & player choices
+  const racialBonusStats: Record<StatCode, number> = {
+    FOR: 0,
+    AGI: 0,
+    CON: 0,
+    PER: 0,
+    INT: 0,
+    VOL: 0,
+    CHA: 0,
+  };
+
+  if (people?.stats) {
+    for (const [key, val] of Object.entries(people.stats)) {
+      if (val && racialBonusStats[key as StatCode] !== undefined) {
+        racialBonusStats[key as StatCode] += val;
+      }
+    }
   }
 
-  if (char.selectedRacialMaluses && char.selectedRacialMaluses.length > 0) {
-    char.selectedRacialMaluses.forEach((m) => {
-      if (stats[m] !== undefined) stats[m] -= 1;
+  if (people?.statChoices) {
+    people.statChoices.forEach((choice, idx) => {
+      const chosen = char.racialStatChoices?.[idx];
+      const isAny = choice.options.includes("ANY_LOWEST");
+      let targetStat: StatCode | undefined;
+      if (chosen && (isAny || choice.options.includes(chosen))) {
+        targetStat = chosen;
+      } else if (!isAny && choice.options.length > 0) {
+        targetStat = choice.options[0] as StatCode;
+      } else if (isAny) {
+        targetStat = "FOR";
+      }
+      if (targetStat && racialBonusStats[targetStat] !== undefined) {
+        racialBonusStats[targetStat] += choice.value;
+      }
     });
-  } else if (
-    char.selectedRacialMalus &&
-    stats[char.selectedRacialMalus] !== undefined
-  ) {
-    stats[char.selectedRacialMalus] -= 1;
+  }
+
+  for (const [key, val] of Object.entries(racialBonusStats)) {
+    if (val && stats[key as StatCode] !== undefined) {
+      stats[key as StatCode] += val;
+    }
   }
 
   // Apply manual adjustments if any
@@ -1339,6 +1359,7 @@ export function computeCharacterStats(
     armorDefense,
     shieldDefense,
     effectiveAgi,
+    racialBonusStats,
     pathBonusStats,
     pathBonusDefense,
     pathBonusInitiative,
@@ -1575,28 +1596,11 @@ export function applyRacialDefaults(
   const p = getPeopleById(peopleId);
   if (!p) return char;
 
-  const racialBonuses: StatCode[] = [];
-  p.bonusOptions.forEach((optGroup) => {
-    const first = optGroup[0];
-    if (first && first !== "ANY_LOWEST") {
-      racialBonuses.push(first as StatCode);
-    }
-  });
-
-  const racialMaluses: StatCode[] = [];
-  p.malusOptions.forEach((optGroup) => {
-    const first = optGroup[0];
-    if (first) {
-      racialMaluses.push(first as StatCode);
-    }
-  });
-
-  const racialBonus =
-    racialBonuses[0] ||
-    (p.bonusOptions[0]?.[0] !== "ANY_LOWEST"
-      ? (p.bonusOptions[0]?.[0] as StatCode)
-      : "FOR");
-  const racialMalus = racialMaluses[0];
+  const racialStatChoices: StatCode[] = (p.statChoices || []).map((c) =>
+    c.options[0] && c.options[0] !== "ANY_LOWEST"
+      ? (c.options[0] as StatCode)
+      : "FOR",
+  );
 
   const racialPathId = getRacialPathId(peopleId, chosenRacialPathId);
 
@@ -1652,10 +1656,7 @@ export function applyRacialDefaults(
     weight: p.weightRange,
     physicalTraits: p.physicalTraits,
     languages: p.defaultLanguages,
-    selectedRacialBonus: racialBonus,
-    selectedRacialMalus: racialMalus,
-    selectedRacialBonuses: racialBonuses,
-    selectedRacialMaluses: racialMaluses,
+    racialStatChoices,
     selectedPathIds: updatedPaths,
     acquiredAbilities: updatedAcquired,
     updatedAt: new Date().toISOString(),
@@ -1705,8 +1706,7 @@ export function createDefaultCharacter(): CharacterSheet {
       VOL: 0,
       CHA: -1,
     },
-    selectedRacialBonus: "FOR",
-    selectedRacialMalus: undefined,
+    racialStatChoices: ["FOR"],
     manualStatBonuses: {},
     selectedPathIds: [
       defaultProfile.paths[0],

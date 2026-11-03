@@ -24,13 +24,7 @@ export const CharacteristicsCard: React.FC<CharacteristicsCardProps> = ({
         {(['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'] as StatCode[]).map(code => {
           const totalMod = stats.finalStats[code];
           const baseVal = character.baseStats[code] ?? 0;
-          const racialBonusCount =
-            (character.selectedRacialBonuses || []).filter(c => c === code).length ||
-            (character.selectedRacialBonus === code ? 1 : 0);
-          const racialMalusCount =
-            (character.selectedRacialMaluses || []).filter(c => c === code).length ||
-            (character.selectedRacialMalus === code ? 1 : 0);
-          const racialMod = racialBonusCount - racialMalusCount;
+          const racialMod = stats.racialBonusStats?.[code] || 0;
 
           return (
             <div

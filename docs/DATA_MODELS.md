@@ -113,8 +113,8 @@ Le fichier [`src/data/peoples.json`](file:///c:/Users/egagnon/Personnel/Dev/COF2
 | `name` | `string` | ✅ | Nom affiché (ex: `"Elfe sylvain"`). |
 | `source` | `"base" \| "compagnon"` | ✅ | Indique si le peuple provient du Livre de Base (`"base"`) ou du Compagnon (`"compagnon"`). Utilisé pour le filtre de l'assistant de création. |
 | `description` | `string` | ✅ | Texte d'ambiance / lore du peuple. |
-| `bonusOptions` | `Array<StatCode[] \| ['ANY_LOWEST']>` | ✅ | Groupes de bonus raciaux (+1 par sous-tableau).<br>• Fixe : `[["CON"]]` (+1 CON fixe)<br>• Choix : `[["INT", "CHA"]]` (+1 INT ou CHA)<br>• Deux bonus : `[["AGI"], ["PER", "CHA"]]` (+1 AGI et +1 PER ou CHA)<br>• Humain/Demi-elfe : `[["ANY_LOWEST"]]` |
-| `malusOptions` | `StatCode[][]` | ✅ | Groupes de malus raciaux (-1 par sous-tableau). Mettre `[]` si le peuple n'a aucun malus (ex: Humain, Demi-elfe). |
+| `stats` | `Partial<Record<StatCode, number>>` | ❌ | Modificateurs raciaux **fixes** de caractéristiques (sans répétition).<br>• Ex (Elfe haut) : `{ "FOR": -1 }`<br>• Ex (Minotaure) : `{ "FOR": 2, "VOL": 1, "INT": -2, "CHA": -2 }`<br>• Ex (Fée) : `{ "AGI": 1, "CHA": 1, "CON": -1, "FOR": -2 }` |
+| `statChoices` | `RacialStatChoice[]` | ❌ | Choix raciaux de caractéristiques de type **« OU »** (`{ value: number, options: (StatCode \| 'ANY_LOWEST')[] }`).<br>• Choix bonus (+1) : `[{ "value": 1, "options": ["INT", "CHA"] }]`<br>• Choix bonus & malus : `[{ "value": 1, "options": ["PER", "CHA"] }, { "value": -1, "options": ["FOR", "CON"] }]`<br>• Humain : `[{ "value": 1, "options": ["ANY_LOWEST"] }]` |
 | `startingAge` | `string` | ✅ | Âge initial indicatif (ex: `"20 ans"`). |
 | `lifeExpectancy` | `string` | ✅ | Espérance de vie indicative (ex: `"80 ans"`). |
 | `heightRange` | `string` | ✅ | Fourchette de taille (ex: `"1,50 m à 2,00 m"`). |
@@ -125,6 +125,33 @@ Le fichier [`src/data/peoples.json`](file:///c:/Users/egagnon/Personnel/Dev/COF2
 | `racialPathId` | `string \| null` | ✅ | Identifiant de la voie de peuple dans `paths.json` (ex: `"voie-du-nain"`), ou `null` pour le Demi-elfe qui utilise `selectableRacialPaths`. |
 | `selectableRacialPaths` | `string[]` | ❌ | Uniquement pour les peuples pouvant choisir leur voie culturelle (ex: Demi-elfe : `["voie-de-l-humain", "voie-de-l-elfe-haut", "voie-de-l-elfe-sylvain", "voie-du-demi-elfe"]`). |
 | `equipmentRules` | `PeopleEquipmentRules` | ❌ | Contraintes et bonus morphologiques liés à la taille du peuple. |
+
+#### Exemples d'encodage des modificateurs raciaux (`stats` & `statChoices`)
+```json
+// 1. Peuple avec modificateurs fixes uniquement (ex: Minotaure)
+"stats": {
+  "FOR": 2,
+  "VOL": 1,
+  "INT": -2,
+  "CHA": -2
+}
+
+// 2. Peuple avec modificateurs fixes ET choix "OU" (ex: Frouïn)
+"stats": {
+  "CON": 1,
+  "FOR": -1,
+  "CHA": -1
+},
+"statChoices": [
+  { "value": 1, "options": ["AGI", "PER"] }
+]
+
+// 3. Peuple avec uniquement des choix "OU" (ex: Demi-elfe)
+"statChoices": [
+  { "value": 1, "options": ["PER", "CHA"] },
+  { "value": -1, "options": ["FOR", "CON"] }
+]
+```
 
 ### 2.2. Sous-objet `equipmentRules` (`PeopleEquipmentRules`)
 
@@ -294,10 +321,9 @@ Chaque règle de `bonuses` cible une statistique dérivée (`target`) et peut co
   { "target": "damageReduction", "flat": 2, "atLevel": { "10": 3 } }
 ]
 
-// 3. Endurant (Voie de la résistance R1) : +3 PV + 1 PV par rang dans la voie
+// 3. Robustesse (Voie de la résistance R1) : +2 PV + 1 PV par rang dans la voie
 "bonuses": [
-  { "target": "hp", "flat": 3 },
-  { "target": "hp", "perRank": 1 }
+  { "target": "hp", "flat": 2, "perRank": 1 }
 ]
 ```
 

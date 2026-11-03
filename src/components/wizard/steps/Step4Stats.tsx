@@ -65,38 +65,18 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
             Modificateurs raciaux ({selectedPeople.name}) :
           </div>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            {(() => {
-              const bonusCounts: Partial<Record<StatCode, number>> = {};
-              (character.selectedRacialBonuses && character.selectedRacialBonuses.length > 0
-                ? character.selectedRacialBonuses
-                : character.selectedRacialBonus ? [character.selectedRacialBonus] : []
-              ).forEach(code => {
-                bonusCounts[code] = (bonusCounts[code] || 0) + 1;
-              });
-
-              const malusCounts: Partial<Record<StatCode, number>> = {};
-              (character.selectedRacialMaluses && character.selectedRacialMaluses.length > 0
-                ? character.selectedRacialMaluses
-                : character.selectedRacialMalus ? [character.selectedRacialMalus] : []
-              ).forEach(code => {
-                malusCounts[code] = (malusCounts[code] || 0) + 1;
-              });
-
-              return (
-                <>
-                  {Object.entries(bonusCounts).map(([code, count]) => (
-                    <span key={`b_${code}`} className="text-emerald-400 font-semibold flex items-center space-x-1">
-                      <span>+{count} en {STAT_NAMES[code as StatCode]} ({code})</span>
-                    </span>
-                  ))}
-                  {Object.entries(malusCounts).map(([code, count]) => (
-                    <span key={`m_${code}`} className="text-red-400 font-semibold flex items-center space-x-1">
-                      <span>-{count} en {STAT_NAMES[code as StatCode]} ({code})</span>
-                    </span>
-                  ))}
-                </>
-              );
-            })()}
+            {Object.entries(computed.racialBonusStats)
+              .filter(([, val]) => val !== 0)
+              .map(([code, val]) => (
+                <span
+                  key={`r_${code}`}
+                  className={`${val > 0 ? 'text-emerald-400' : 'text-red-400'} font-semibold flex items-center space-x-1`}
+                >
+                  <span>
+                    {val > 0 ? `+${val}` : val} en {STAT_NAMES[code as StatCode]} ({code})
+                  </span>
+                </span>
+              ))}
           </div>
           <div className="text-[11px] text-stone-400 leading-tight">
             Appliqués automatiquement en temps réel sur le total final de vos caractéristiques.
@@ -183,9 +163,7 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
             const base = character.baseStats[code] ?? 0;
             const isPrimary = selectedProfile.primaryStats.includes(code);
             const primaryIndex = selectedProfile.primaryStats.indexOf(code);
-            const racialBonusCount = (character.selectedRacialBonuses || []).filter(c => c === code).length || (character.selectedRacialBonus === code ? 1 : 0);
-            const racialMalusCount = (character.selectedRacialMaluses || []).filter(c => c === code).length || (character.selectedRacialMalus === code ? 1 : 0);
-            const racialMod = racialBonusCount - racialMalusCount;
+            const racialMod = computed.racialBonusStats[code] || 0;
 
             // Possible choices in dropdown
             const currentArray = tablesData.characteristicArrays.find(a => a.id === arrayPreset);

@@ -3726,10 +3726,7 @@
           "bonuses": [
             {
               "target": "hp",
-              "flat": 2
-            },
-            {
-              "target": "hp",
+              "flat": 2,
               "perRank": 1
             }
           ],
@@ -8030,14 +8027,16 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
+          "stats": {
+            "CON": 1
+          },
           "choiceOptions": [
             {
               "id": "opt_agi_con",
-              "label": "+1 AGI, +1 CON",
+              "label": "+1 AGI (+1 CON fixe)",
               "modifiers": {
                 "stats": {
-                  "AGI": 1,
-                  "CON": 1
+                  "AGI": 1
                 },
                 "situationalNotes": [
                   "Champion de la survie : +1 AGI, +1 CON"
@@ -8046,11 +8045,10 @@
             },
             {
               "id": "opt_per_con",
-              "label": "+1 PER, +1 CON",
+              "label": "+1 PER (+1 CON fixe)",
               "modifiers": {
                 "stats": {
-                  "PER": 1,
-                  "CON": 1
+                  "PER": 1
                 },
                 "situationalNotes": [
                   "Champion de la survie : +1 PER, +1 CON"
