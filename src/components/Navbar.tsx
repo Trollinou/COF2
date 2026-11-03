@@ -61,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Compagnon
               </span>
               <span className="ml-1 text-[10px] bg-amber-950 text-amber-400/90 border border-amber-800/50 px-1.5 py-0.5 rounded font-mono font-medium">
-                v1.0
+                v{__APP_VERSION__}
               </span>
             </div>
           </div>

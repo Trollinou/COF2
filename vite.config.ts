@@ -1,9 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import packageJson from './package.json';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    // Injection dynamique de la version depuis package.json accessible partout dans l'application
+    __APP_VERSION__: JSON.stringify(packageJson.version),
+  },
   base: './',
   server: {
     port: 5173,

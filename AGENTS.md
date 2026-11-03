@@ -99,6 +99,10 @@ COF2/
 4. **Résilience UI (Error Boundaries)** :
    - Entourer les vues principales d'un `ErrorBoundary` pour qu'une éventuelle anomalie de rendu dans une voie n'affiche pas un écran blanc destructeur pour l'utilisateur.
 
+5. **Version Applicative Dynamique** :
+   - La version de l'application est centralisée dans `package.json` et injectée à la compilation par Vite (`__APP_VERSION__`, déclarée dans `src/vite-env.d.ts`).
+   - Ne jamais coder en dur le numéro de version dans les composants UI (`Navbar`, etc.).
+
 ---
 
 ### C. Sécurité Electron & Gestion des Fichiers (I/O)
