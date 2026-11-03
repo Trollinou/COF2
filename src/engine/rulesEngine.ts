@@ -11,6 +11,11 @@ import {
   StatCode,
   StatSubstitutionRule,
   WeaponFilterCategory,
+  WeaponModifierRule,
+  ScalingBonusRule,
+  RankModifiers,
+  CompanionStatBlock,
+  CompanionFormula,
   PriestDeity,
   ProfileFamily,
 } from "../types/cof2";
@@ -72,6 +77,7 @@ export const PRIEST_DEITIES: PriestDeity[] = (PATHS as PathData[])
     domainTitle: p.domainTitle || "",
     symbolDesc: p.symbolDesc || "",
     sacredWeapon: p.sacredWeapon || "",
+    sacredWeaponIds: p.sacredWeaponIds || [],
     domainPathId: p.id,
   }));
 
@@ -153,56 +159,31 @@ export function isWeaponEligibleForFilter(
   const baseW =
     getWeaponById(weaponRefId) ||
     ("category" in weapon ? (weapon as WeaponItem) : undefined);
-  const notes = baseW?.notes || "";
+  const tags = baseW?.tags || [];
 
   switch (filter) {
     case "bareHands":
-      return weaponRefId === "mains-nues";
+      return tags.includes("mains-nues") || weaponRefId === "mains-nues";
 
     case "lightWeapons":
-      return (
-        ["dague", "epee-courte", "rapiere", "sabre-court"].includes(
-          weaponRefId,
-        ) || notes.toLowerCase().includes("arme légère")
-      );
+      return tags.includes("legere");
 
     case "sabres":
-      return ["sabre-court", "sabre-droit", "vivelame"].includes(weaponRefId);
+      return tags.includes("sabre");
 
     case "duellisteWeapons":
-      return [
-        "dague",
-        "epee-courte",
-        "epee-longue",
-        "rapiere",
-        "vivelame",
-      ].includes(weaponRefId);
+      return tags.includes("duelliste");
 
     case "danseurWeapons":
-      return [
-        "dague",
-        "epee-courte",
-        "epee-longue",
-        "epee-batarde",
-        "epee-deux-mains",
-        "sabre-court",
-        "sabre-droit",
-        "vivelame",
-        "lance",
-      ].includes(weaponRefId);
+      return tags.includes("danseur");
 
     case "projectiles":
       return (
         baseW?.category === "distance" &&
-        !baseW.isPowder &&
-        [
-          "arc-court",
-          "arc-long",
-          "arbalete-legere",
-          "arbalete-lourde",
-          "arbalete-poing",
-          "fronde",
-        ].includes(weaponRefId)
+        !tags.includes("poudre") &&
+        (tags.includes("arc") ||
+          tags.includes("arbalete") ||
+          weaponRefId === "fronde")
       );
 
     case "oneHanded":
@@ -211,6 +192,32 @@ export function isWeaponEligibleForFilter(
     default:
       return false;
   }
+}
+
+export function doesWeaponMatchModifierRule(
+  weapon: WeaponItem | CharacterWeaponInstance,
+  rule: WeaponModifierRule,
+): boolean {
+  const weaponRefId = "weaponRefId" in weapon ? weapon.weaponRefId : weapon.id;
+  const baseW =
+    getWeaponById(weaponRefId) ||
+    ("tags" in weapon ? (weapon as WeaponItem) : undefined);
+
+  if (rule.category && (baseW?.category || weapon.category) !== rule.category) {
+    return false;
+  }
+  const hasWeaponIds = Boolean(rule.weaponIds && rule.weaponIds.length > 0);
+  const hasTags = Boolean(rule.tags && rule.tags.length > 0);
+  if (!hasWeaponIds && !hasTags) {
+    return Boolean(rule.category);
+  }
+  if (hasWeaponIds && rule.weaponIds!.includes(weaponRefId)) {
+    return true;
+  }
+  if (hasTags && baseW?.tags?.some((t) => rule.tags!.includes(t))) {
+    return true;
+  }
+  return false;
 }
 
 export type ShieldPermission = "none" | "small" | "any";
@@ -253,6 +260,7 @@ PROFILES.forEach((p) => {
 export function getAllowedArmors(
   profileId: string,
   secondaryProfileId?: string,
+  peopleId?: string,
 ): ArmorItem[] {
   const p1 = getProfileById(profileId);
   const p2 = secondaryProfileId
@@ -268,7 +276,16 @@ export function getAllowedArmors(
 
   if (maxIdx === -1) return [];
   const allowedIds = ARMOR_HIERARCHY.slice(0, maxIdx + 1);
-  return ARMORS.filter((a) => a.type === "armor" && allowedIds.includes(a.id));
+  return ARMORS.filter((a) => {
+    if (a.type !== "armor") return false;
+    if (a.restrictedToPeopleIds && a.restrictedToPeopleIds.length > 0) {
+      if (!peopleId || !a.restrictedToPeopleIds.includes(peopleId)) {
+        return false;
+      }
+    }
+    const tierId = a.equivalentArmorId || a.id;
+    return allowedIds.includes(tierId);
+  });
 }
 
 export function getAllowedShields(
@@ -299,9 +316,10 @@ export function isArmorAllowed(
   armorId: string | undefined,
   profileId: string,
   secondaryProfileId?: string,
+  peopleId?: string,
 ): boolean {
   if (!armorId) return true;
-  const allowed = getAllowedArmors(profileId, secondaryProfileId);
+  const allowed = getAllowedArmors(profileId, secondaryProfileId, peopleId);
   return allowed.some((a) => a.id === armorId);
 }
 
@@ -323,9 +341,25 @@ export interface WeaponProficiencyCheck {
 
 export function matchesSacredWeapon(
   weaponId: string,
-  sacredWeaponDesc: string,
+  sacredWeaponOrDeity: string | PriestDeity,
 ): boolean {
-  const desc = sacredWeaponDesc.toLowerCase();
+  if (typeof sacredWeaponOrDeity === "object" && sacredWeaponOrDeity !== null) {
+    if (sacredWeaponOrDeity.sacredWeaponIds?.length > 0) {
+      return sacredWeaponOrDeity.sacredWeaponIds.includes(weaponId);
+    }
+    return matchesSacredWeapon(weaponId, sacredWeaponOrDeity.sacredWeapon);
+  }
+
+  const matchedDeity = PRIEST_DEITIES.find(
+    (d) =>
+      d.sacredWeapon.toLowerCase() === sacredWeaponOrDeity.toLowerCase() &&
+      d.sacredWeaponIds.length > 0,
+  );
+  if (matchedDeity) {
+    return matchedDeity.sacredWeaponIds.includes(weaponId);
+  }
+
+  const desc = sacredWeaponOrDeity.toLowerCase();
   const weapon = getWeaponById(weaponId);
   if (!weapon) return false;
   const name = weapon.name.toLowerCase();
@@ -373,16 +407,31 @@ function checkProfileWeaponRule(
       reason: `${profile?.name || "Ce profil"} a l'interdiction de faire couler le sang (${wRules.allowedDamageTypes.join(", ")} uniquement).`,
     };
   }
-  if (wRules.forbidPowder && weapon.isPowder) {
+  if (wRules.forbidPowder && weapon.tags.includes("poudre")) {
     return {
       allowed: false,
       reason: `${profile?.name || "Ce profil"} refuse les armes à poudre.`,
     };
   }
-  if (wRules.forbidCrossbows && weapon.isCrossbow) {
+  if (wRules.forbidCrossbows && weapon.tags.includes("arbalete")) {
     return {
       allowed: false,
       reason: `${profile?.name || "Ce profil"} refuse les arbalètes.`,
+    };
+  }
+  if (
+    wRules.forbiddenTags &&
+    weapon.tags.some((t) => wRules.forbiddenTags!.includes(t))
+  ) {
+    return {
+      allowed: false,
+      reason: `${profile?.name || "Ce profil"} refuse ce type d'arme.`,
+    };
+  }
+  if (wRules.forbidImprovedCrit && weapon.critMin < 20) {
+    return {
+      allowed: false,
+      reason: `${profile?.name || "Ce profil"} ne maîtrise pas les armes à critique étendu (${weapon.critMin}-20).`,
     };
   }
   if (wRules.maxHands && weapon.hands > wRules.maxHands) {
@@ -439,6 +488,7 @@ export function checkWeaponProficiency(
   peopleId: string,
   deityOrDomainPathId?: string,
   secondaryProfileId?: string,
+  acquiredAbilities?: Array<{ pathId: string; rank: number }>,
 ): WeaponProficiencyCheck {
   const weapon = getWeaponById(weaponId);
   if (!weapon) return { allowed: false, reason: "Arme inconnue" };
@@ -454,14 +504,25 @@ export function checkWeaponProficiency(
     const deity =
       getDeityByDomainPathId(deityOrDomainPathId) ||
       getDeityByName(deityOrDomainPathId);
-    if (deity && matchesSacredWeapon(weaponId, deity.sacredWeapon)) {
+    if (deity && matchesSacredWeapon(weaponId, deity)) {
       return { allowed: true, requiresTwoHands: weapon.hands === 2 };
     }
   }
 
-  // Check profile declarative rules (either profileId or secondaryProfileId can grant proficiency)
+  // Check if any acquired path ability explicitly grants proficiency for this weapon (e.g. Nain R2, Artilleur R1)
+  const hasPathWeaponProficiency = Boolean(
+    acquiredAbilities?.some((acq) => {
+      const pth = getPathById(acq.pathId);
+      const rData = pth?.ranks.find((r) => r.rank === acq.rank);
+      return rData?.modifiers?.weaponModifiers?.some(
+        (wm) => wm.grantProficiency && doesWeaponMatchModifierRule(weapon, wm),
+      );
+    }),
+  );
+
+  // Check profile declarative rules (either profileId, secondaryProfileId, or path proficiency can grant proficiency)
   const rule1 = checkProfileWeaponRule(weapon, profileId);
-  let profileAllowed = rule1.allowed;
+  let profileAllowed = rule1.allowed || hasPathWeaponProficiency;
   let profileReason = rule1.reason;
 
   if (!profileAllowed && secondaryProfileId) {
@@ -499,7 +560,7 @@ export function checkWeaponProficiency(
     ) {
       return {
         allowed: false,
-        reason: `Taille ${people?.name || "raciale"} : armes supérieures à 1d10 DM interdites.`,
+        reason: `Taille ${people?.name || "raciale"} : armes supérieures à 1d${pRules.maxDamageDice} DM interdites.`,
       };
     }
     if (
@@ -507,10 +568,16 @@ export function checkWeaponProficiency(
         pRules.twoHandedWeaponIds.includes(weapon.id)) ||
       (pRules.twoHandedMinDamageDice &&
         (weapon.maxDamageDice || 0) >= pRules.twoHandedMinDamageDice &&
-        (weapon.maxDamageDice || 0) <= 10)
+        (weapon.maxDamageDice || 0) <= 10) ||
+      (pRules.maxOneHandedDamageDice &&
+        (weapon.maxDamageDice || 0) > pRules.maxOneHandedDamageDice)
     ) {
       requiresTwoHands = true;
-      if (wRules?.maxHands === 1 && !secondaryProfileId) {
+      if (
+        wRules?.maxHands === 1 &&
+        !secondaryProfileId &&
+        !hasPathWeaponProficiency
+      ) {
         return {
           allowed: false,
           reason: `Un ${people?.name || "personnage de petite taille"} doit manier cette arme à deux mains, or ${profile?.name || "ce profil"} requiert une main libre.`,
@@ -526,6 +593,7 @@ export function getAllowedWeapons(
   profileId: string,
   peopleId: string,
   secondaryProfileId?: string,
+  acquiredAbilities?: Array<{ pathId: string; rank: number }>,
 ): Array<WeaponItem & { requiresTwoHands?: boolean }> {
   const result: Array<WeaponItem & { requiresTwoHands?: boolean }> = [];
   (WEAPONS as WeaponItem[]).forEach((w) => {
@@ -535,6 +603,7 @@ export function getAllowedWeapons(
       peopleId,
       undefined,
       secondaryProfileId,
+      acquiredAbilities,
     );
     if (check.allowed) {
       result.push({
@@ -546,7 +615,7 @@ export function getAllowedWeapons(
   return result;
 }
 
-// 4. Data-driven default equipment resolution from profiles.json
+// 4. Data-driven default equipment resolution from profiles.json & equipment.json
 export function getDefaultEquipmentForProfile(
   profileId: string,
   peopleId: string,
@@ -559,26 +628,31 @@ export function getDefaultEquipmentForProfile(
   const people = getPeopleById(peopleId);
   const def = profile.defaultEquipment;
 
-  const armorId = def?.armorId || undefined;
+  let armorId = def?.armorId || undefined;
   const shieldId = def?.shieldId || undefined;
+
+  const preferredArmorId = people?.equipmentRules?.preferredArmorId;
+  if (
+    preferredArmorId &&
+    armorId &&
+    isArmorAllowed(preferredArmorId, profileId, undefined, peopleId)
+  ) {
+    armorId = preferredArmorId;
+  }
 
   let targetWeaponIds = def?.defaultWeaponIds
     ? [...def.defaultWeaponIds]
     : ["epee-courte"];
 
-  // Smart resolution for small races (e.g. Halfelin, Frouïn, Gobelin, Kobold, Fée, Farfadet)
-  const isSmallRace =
-    people?.equipmentRules?.forbiddenWeaponIds?.includes("rapiere") ||
-    people?.id === "halfelin";
+  // Smart resolution for small races using declarative smallRaceReplacementId on weapons
+  const isSmallRace = Boolean(people?.equipmentRules?.maxDamageDice);
   if (isSmallRace) {
     targetWeaponIds = targetWeaponIds.map((wid) => {
-      if (wid === "rapiere") return "epee-courte";
-      if (wid === "hache-deux-mains") return "hache-armes";
-      if (wid === "epee-deux-mains") return "epee-longue";
-      if (wid === "arc-long") return "arc-court";
-      if (wid === "arbalete-lourde") return "arbalete-legere";
-      if (wid === "mousquet") return "petoire";
       if (wid === "epee-longue" && profile.id === "barde") return "epee-courte";
+      const baseW = getWeaponById(wid);
+      if (baseW?.smallRaceReplacementId) {
+        return baseW.smallRaceReplacementId;
+      }
       return wid;
     });
   }
@@ -608,16 +682,30 @@ export function getDefaultEquipmentForProfile(
 export function sanitizeCharacterEquipment(
   char: CharacterSheet,
 ): CharacterSheet {
-  const allowedArmors = getAllowedArmors(char.profileId);
-  const allowedShields = getAllowedShields(char.profileId);
+  const allowedArmors = getAllowedArmors(
+    char.profileId,
+    char.secondaryProfileId,
+    char.peopleId,
+  );
+  const allowedShields = getAllowedShields(
+    char.profileId,
+    char.secondaryProfileId,
+  );
 
   let equippedArmorId = char.equippedArmorId;
   if (equippedArmorId && !allowedArmors.some((a) => a.id === equippedArmorId)) {
-    // If not allowed, fallback to highest allowed armor or undefined
-    equippedArmorId =
-      allowedArmors.length > 0
-        ? allowedArmors[allowedArmors.length - 1].id
-        : undefined;
+    const defaultArmorId = getDefaultEquipmentForProfile(
+      char.profileId,
+      char.peopleId,
+    ).armorId;
+    if (defaultArmorId && allowedArmors.some((a) => a.id === defaultArmorId)) {
+      equippedArmorId = defaultArmorId;
+    } else {
+      equippedArmorId =
+        allowedArmors.length > 0
+          ? allowedArmors[allowedArmors.length - 1].id
+          : undefined;
+    }
   }
 
   let equippedShieldId = char.equippedShieldId;
@@ -641,6 +729,8 @@ export function sanitizeCharacterEquipment(
       char.profileId,
       char.peopleId,
       deityContext,
+      char.secondaryProfileId,
+      char.acquiredAbilities,
     );
     if (check.allowed) {
       sanitizedWeapons.push({
@@ -681,6 +771,7 @@ export function computeCharacterStats(
   char: CharacterSheet,
 ): ComputedCharacterStats {
   const profile = getProfileById(char.profileId) || PROFILES[0];
+  const people = getPeopleById(char.peopleId);
   const stats: Record<StatCode, number> = { ...char.baseStats };
 
   // Apply racial bonus & malus
@@ -715,7 +806,32 @@ export function computeCharacterStats(
     }
   }
 
-  // Aggregate passive path modifiers from all acquired abilities
+  // Build effective list of active abilities (acquired + borrowed via grantExternalAbility)
+  const effectiveAbilities: Array<{
+    pathId: string;
+    rank: number;
+    isBorrowed?: boolean;
+  }> = [...char.acquiredAbilities];
+
+  if (char.externalAbilityChoices) {
+    char.acquiredAbilities.forEach((acq) => {
+      const pth = getPathById(acq.pathId);
+      const rData = pth?.ranks.find((r) => r.rank === acq.rank);
+      if (rData?.modifiers?.grantExternalAbility) {
+        const key = `${acq.pathId}_${acq.rank}`;
+        const choice = char.externalAbilityChoices?.[key];
+        if (choice && choice.pathId && choice.rank) {
+          effectiveAbilities.push({
+            pathId: choice.pathId,
+            rank: choice.rank,
+            isBorrowed: true,
+          });
+        }
+      }
+    });
+  }
+
+  // Aggregate passive path modifiers from all effective abilities (V2 unified engine)
   const pathBonusStats: Record<StatCode, number> = {
     FOR: 0,
     AGI: 0,
@@ -726,135 +842,112 @@ export function computeCharacterStats(
     CHA: 0,
   };
   let pathBonusDefense = 0;
-  const pendingDefenseStatBonuses: Array<{
-    pathId: string;
-    rank: number;
-    stat: StatCode;
-    condition?: 'noArmor';
-    maxRankCapped?: boolean;
-  }> = [];
   let pathBonusInitiative = 0;
-  let pathInitiativeStatBonus: StatCode | undefined;
   let pathBonusHp = 0;
-  let pathHpStatBonus: StatCode | undefined;
   const pathBonusAttacks = {
     contact: 0,
     distance: 0,
     magique: 0,
   };
+  const pathBonusDamage = {
+    contact: 0,
+    distance: 0,
+    magique: 0,
+  };
+  let pathCritRangeBonus = 0;
   let pathBonusPc = 0;
   let pathBonusDr = 0;
   let pathBonusPm = 0;
+  let hasDirectStatPmBonus = false;
   let pathLuckStatReplacement: StatCode | undefined;
   let pathManaStatReplacement: StatCode | undefined;
-  let pathManaStatBonus: StatCode | undefined;
   const pathSituationalNotes: string[] = [];
-  const allStatSubstitutions: StatSubstitutionRule[] = [];
+  const allStatSubstitutions: Array<
+    StatSubstitutionRule & { _pathId?: string; _rank?: number }
+  > = [];
+  const activeWeaponModifiers: WeaponModifierRule[] = [];
+  const collectedBonuses: Array<{
+    pathId: string;
+    rank: number;
+    bonus: ScalingBonusRule;
+  }> = [];
 
-  char.acquiredAbilities.forEach((acq) => {
-    const pth = getPathById(acq.pathId);
-    if (!pth) return;
-    const rankData = pth.ranks.find((r) => r.rank === acq.rank);
-    if (!rankData || !rankData.modifiers) return;
+  // Apply racial size bonuses & notes (e.g. Farfadet, Fée)
+  if (people?.equipmentRules?.sizeDefenseBonus) {
+    pathBonusDefense += people.equipmentRules.sizeDefenseBonus;
+  }
+  if (people?.equipmentRules?.sizeNotes) {
+    people.equipmentRules.sizeNotes.forEach((n) => {
+      if (!pathSituationalNotes.includes(n)) pathSituationalNotes.push(n);
+    });
+  }
 
-    const mod = rankData.modifiers;
-
-    // Resolve choice option if defined for this rank
+  const collectModifiersFromBlock = (
+    mod: RankModifiers,
+    pathId: string,
+    rank: number,
+  ) => {
+    // 1. Resolve choiceOptions recursively if present
     if (mod.choiceOptions && mod.choiceOptions.length > 0) {
-      const choiceKey = `${acq.pathId}_${acq.rank}`;
+      const choiceKey = `${pathId}_${rank}`;
       const chosenId = char.pathRankChoices?.[choiceKey];
       const selectedOption =
         mod.choiceOptions.find((o) => o.id === chosenId) ||
         mod.choiceOptions[0];
       if (selectedOption && selectedOption.modifiers) {
-        const optMod = selectedOption.modifiers;
-        if (optMod.stats) {
-          for (const [s, val] of Object.entries(optMod.stats)) {
-            if (val) pathBonusStats[s as StatCode] += val;
-          }
-        }
-        if (optMod.defense) pathBonusDefense += optMod.defense;
-        if (optMod.defenseStatBonus) {
-          pendingDefenseStatBonuses.push({
-            pathId: acq.pathId,
-            rank: acq.rank,
-            stat: optMod.defenseStatBonus,
-            condition: optMod.defenseCondition,
-            maxRankCapped: optMod.defenseMaxRankCapped,
-          });
-        }
-        if (optMod.initiative) pathBonusInitiative += optMod.initiative;
-        if (optMod.hpBonus) pathBonusHp += optMod.hpBonus;
-        if (optMod.damageReduction) {
-          pathSituationalNotes.push(`RD ${optMod.damageReduction}`);
-        }
-        if (optMod.statSubstitutions) {
-          allStatSubstitutions.push(...optMod.statSubstitutions);
-        }
-        if (optMod.situationalNotes) {
-          optMod.situationalNotes.forEach((n) => {
-            if (!pathSituationalNotes.includes(n)) pathSituationalNotes.push(n);
-          });
-        }
+        collectModifiersFromBlock(selectedOption.modifiers, pathId, rank);
       }
     }
 
-    // Direct rank modifiers
+    // 2. Direct characteristic bonuses
     if (mod.stats) {
       for (const [s, val] of Object.entries(mod.stats)) {
         if (val) pathBonusStats[s as StatCode] += val;
       }
     }
-    if (mod.statSubstitutions) {
-      allStatSubstitutions.push(...mod.statSubstitutions);
-    }
-    if (mod.defense) pathBonusDefense += mod.defense;
-    if (mod.defenseStatBonus) {
-      pendingDefenseStatBonuses.push({
-        pathId: acq.pathId,
-        rank: acq.rank,
-        stat: mod.defenseStatBonus,
-        condition: mod.defenseCondition,
-        maxRankCapped: mod.defenseMaxRankCapped,
+
+    // 3. Collect scaling & flat bonuses for Pass 2 (after finalStats are known)
+    if (mod.bonuses) {
+      mod.bonuses.forEach((b) => {
+        collectedBonuses.push({ pathId, rank, bonus: b });
       });
     }
-    if (mod.initiative) pathBonusInitiative += mod.initiative;
-    if (mod.initiativeStatBonus)
-      pathInitiativeStatBonus = mod.initiativeStatBonus;
-    if (mod.hpBonus) pathBonusHp += mod.hpBonus;
-    if (mod.hpStatBonus) pathHpStatBonus = mod.hpStatBonus;
-    if (mod.hpPerRankInPath) {
-      const ranksInPath = char.acquiredAbilities.filter(
-        (a) => a.pathId === acq.pathId,
-      ).length;
-      pathBonusHp += ranksInPath;
+
+    // 4. Stat substitutions
+    if (mod.statSubstitutions) {
+      mod.statSubstitutions.forEach((sub) => {
+        allStatSubstitutions.push({ ...sub, _pathId: pathId, _rank: rank });
+      });
     }
-    if (mod.attackBonus) {
-      if (mod.attackBonus.contact)
-        pathBonusAttacks.contact += mod.attackBonus.contact;
-      if (mod.attackBonus.distance)
-        pathBonusAttacks.distance += mod.attackBonus.distance;
-      if (mod.attackBonus.magique)
-        pathBonusAttacks.magique += mod.attackBonus.magique;
-      if (mod.attackBonus.all) {
-        pathBonusAttacks.contact += mod.attackBonus.all;
-        pathBonusAttacks.distance += mod.attackBonus.all;
-        pathBonusAttacks.magique += mod.attackBonus.all;
-      }
+
+    // 5. Weapon modifiers
+    if (mod.weaponModifiers) {
+      activeWeaponModifiers.push(...mod.weaponModifiers);
     }
-    if (mod.bonusPC) pathBonusPc += mod.bonusPC;
-    if (mod.bonusDR) pathBonusDr += mod.bonusDR;
-    if (mod.bonusPm) pathBonusPm += mod.bonusPm;
-    if (mod.luckStatReplacement)
+
+    // 6. Resource stat replacements
+    if (mod.luckStatReplacement) {
       pathLuckStatReplacement = mod.luckStatReplacement;
-    if (mod.manaStatReplacement)
+    }
+    if (mod.manaStatReplacement) {
       pathManaStatReplacement = mod.manaStatReplacement;
-    if (mod.manaStatBonus) pathManaStatBonus = mod.manaStatBonus;
+    }
+
+    // 7. Situational notes
     if (mod.situationalNotes) {
       mod.situationalNotes.forEach((n) => {
         if (!pathSituationalNotes.includes(n)) pathSituationalNotes.push(n);
       });
     }
+  };
+
+  // Pass 1: Collect modifiers and apply characteristic bonuses
+  effectiveAbilities.forEach((acq) => {
+    const pth = getPathById(acq.pathId);
+    if (!pth) return;
+    const rankData = pth.ranks.find((r) => r.rank === acq.rank);
+    if (!rankData || !rankData.modifiers) return;
+    collectModifiersFromBlock(rankData.modifiers, acq.pathId, acq.rank);
   });
 
   // Apply pathBonusStats to final stats
@@ -867,13 +960,134 @@ export function computeCharacterStats(
   const level = Math.max(1, char.level || 1);
   const bab = Math.min(level, 10);
 
-  // Armor & Defense
+  // Armor & Shield lookup
   const armor = char.equippedArmorId
     ? getArmorById(char.equippedArmorId)
     : undefined;
   const shield = char.equippedShieldId
     ? getArmorById(char.equippedShieldId)
     : undefined;
+
+  // Helper to evaluate a ScalingBonusRule now that finalStats, level, armor, and shield are known
+  const evaluateBonusRule = (
+    b: ScalingBonusRule,
+    pathId: string,
+    rank: number,
+  ) => {
+    if (b.condition === "noArmor" && armor && armor.def > 0) return;
+    if (b.condition === "noShield" && shield) return;
+    if (b.condition === "lightArmor" && armor && armor.def > 3) return;
+
+    const pthObj = getPathById(pathId);
+    const isPrestige = pthObj?.type === "prestige";
+    const ranksForPath = effectiveAbilities
+      .filter((a) => a.pathId === pathId)
+      .map((a) => a.rank);
+    const maxRankInPath =
+      ranksForPath.length > 0 ? Math.max(...ranksForPath) : rank;
+    const countInPath = ranksForPath.length || 1;
+    const effectiveRankCount = isPrestige ? countInPath : maxRankInPath;
+
+    let val = b.flat || 0;
+
+    if (b.atRank) {
+      const thresholds = Object.keys(b.atRank)
+        .map(Number)
+        .filter((t) => !isNaN(t) && t <= maxRankInPath)
+        .sort((a, z) => z - a);
+      if (thresholds.length > 0) {
+        val = b.atRank[String(thresholds[0])];
+      }
+    }
+
+    if (b.atLevel) {
+      const thresholds = Object.keys(b.atLevel)
+        .map(Number)
+        .filter((t) => !isNaN(t) && t <= level)
+        .sort((a, z) => z - a);
+      if (thresholds.length > 0) {
+        val = b.atLevel[String(thresholds[0])];
+      }
+    }
+
+    if (b.perRank) {
+      val += b.perRank * effectiveRankCount;
+    }
+
+    if (b.perLevel) {
+      val += b.perLevel * level;
+    }
+
+    if (b.stat) {
+      const statVal = stats[b.stat] ?? 0;
+      val += b.target === "defense" ? Math.max(0, statVal) : statVal;
+    }
+
+    if (b.cap !== undefined) {
+      if (b.cap === "rank") {
+        val = Math.min(val, effectiveRankCount);
+      } else if (typeof b.cap === "number") {
+        val = Math.min(val, b.cap);
+      }
+    }
+
+    switch (b.target) {
+      case "defense":
+        pathBonusDefense += val;
+        break;
+      case "hp":
+        pathBonusHp += val;
+        break;
+      case "initiative":
+        pathBonusInitiative += val;
+        break;
+      case "pc":
+        pathBonusPc += val;
+        break;
+      case "dr":
+        pathBonusDr += val;
+        break;
+      case "pm":
+        pathBonusPm += val;
+        if (b.stat) hasDirectStatPmBonus = true;
+        break;
+      case "damageReduction": {
+        if (val > 0) {
+          const rdNote = `RD ${val}${b.note ? ` (${b.note})` : ""}`;
+          if (!pathSituationalNotes.includes(rdNote)) {
+            pathSituationalNotes.push(rdNote);
+          }
+        }
+        break;
+      }
+      case "atkContact":
+        pathBonusAttacks.contact += val;
+        break;
+      case "atkDistance":
+        pathBonusAttacks.distance += val;
+        break;
+      case "atkMagic":
+        pathBonusAttacks.magique += val;
+        break;
+      case "dmContact":
+        pathBonusDamage.contact += val;
+        break;
+      case "dmDistance":
+        pathBonusDamage.distance += val;
+        break;
+      case "dmMagic":
+        pathBonusDamage.magique += val;
+        break;
+      case "critRange":
+        pathCritRangeBonus += val;
+        break;
+    }
+  };
+
+  // Pass 2: Evaluate all collected bonus rules
+  collectedBonuses.forEach(({ pathId, rank, bonus }) => {
+    evaluateBonusRule(bonus, pathId, rank);
+  });
 
   let defenseStat: StatCode = "AGI";
   let defenseStatSource: string | undefined = undefined;
@@ -904,53 +1118,18 @@ export function computeCharacterStats(
     }
   }
 
-  // Voie du pagne (Peau de pierre R2) fallback rule:
-  // "Autrement (si son AGI est supérieure ou égale à sa CON), il reçoit +1 en DEF et ce bonus passe à +2 au rang 4."
-  const pagneAcq = char.acquiredAbilities.find(
-    (a) => a.pathId === "voie-du-pagne",
-  );
-  if (pagneAcq && pagneAcq.rank >= 2 && defenseStat !== "CON") {
-    const fallbackDefBonus = pagneAcq.rank >= 4 ? 2 : 1;
-    pathBonusDefense += fallbackDefBonus;
-  }
-
-  // Dynamic stat bonuses to defense (e.g. Voie de la séduction R2: Dentelles et rapière)
-  for (const bonusRule of pendingDefenseStatBonuses) {
-    const isConditionMet =
-      bonusRule.condition === "noArmor" ? !armor || armor.def === 0 : true;
-
-    if (isConditionMet) {
-      let statBonus = Math.max(0, stats[bonusRule.stat]);
-      if (bonusRule.maxRankCapped) {
-        const ranksInPath = char.acquiredAbilities
-          .filter((a) => a.pathId === bonusRule.pathId)
-          .map((a) => a.rank);
-        const maxRankInPath =
-          ranksInPath.length > 0 ? Math.max(...ranksInPath) : bonusRule.rank;
-        statBonus = Math.min(statBonus, maxRankInPath);
-      }
-      pathBonusDefense += statBonus;
-    }
-  }
-
-  // Backwards compatibility safeguard for Voie de la séduction (Dentelles et rapière R2)
-  if (
-    pendingDefenseStatBonuses.length === 0 &&
-    (!armor || armor.def === 0)
-  ) {
-    const seductionAbilities = char.acquiredAbilities.filter(
-      (a) =>
-        a.pathId === "voie-de-la-seduction" ||
-        a.pathId === "voie-de-la-s-duction",
-    );
-    if (seductionAbilities.length > 0) {
-      const seductionMaxRank = Math.max(
-        ...seductionAbilities.map((a) => a.rank),
+  // Evaluate declarative fallbackDefenseBonus when the substitution stat was NOT used (e.g. Voie du pagne R2 Peau de pierre)
+  for (const sub of defSubstitutions) {
+    if (sub.fallbackDefenseBonus && defenseStat !== sub.replacementStat) {
+      evaluateBonusRule(
+        {
+          target: "defense",
+          flat: sub.fallbackDefenseBonus.flat,
+          atRank: sub.fallbackDefenseBonus.atRank,
+        },
+        sub._pathId || "",
+        sub._rank || 1,
       );
-      if (seductionMaxRank >= 2) {
-        const chaDefBonus = Math.min(Math.max(0, stats.CHA), seductionMaxRank);
-        pathBonusDefense += chaDefBonus;
-      }
     }
   }
 
@@ -959,6 +1138,13 @@ export function computeCharacterStats(
   const defense =
     10 + effectiveStatMod + armorDefense + shieldDefense + pathBonusDefense;
   const effectiveAgi = effectiveStatMod;
+
+  if (armor?.notes) {
+    const armorNote = `${armor.name} : ${armor.notes}`;
+    if (!pathSituationalNotes.includes(armorNote)) {
+      pathSituationalNotes.push(armorNote);
+    }
+  }
 
   // Attacks base stats & general substitutions
   let contactAttackStat: StatCode = "FOR";
@@ -1026,11 +1212,8 @@ export function computeCharacterStats(
     });
   }
 
-  // Initiative: 10 + PER + pathBonusInitiative + (optional stat bonus like CHA/VOL)
-  let initiative = 10 + stats.PER + pathBonusInitiative;
-  if (pathInitiativeStatBonus && stats[pathInitiativeStatBonus] !== undefined) {
-    initiative += stats[pathInitiativeStatBonus];
-  }
+  // Initiative: 10 + PER + pathBonusInitiative
+  const initiative = 10 + stats.PER + pathBonusInitiative;
 
   // HP: at level 1: 2 * hpPerLevel + CON (or profileA + profileB + CON for hybrid)
   // At level L: baseHpSum + (L * CON) + pathBonusHp
@@ -1052,13 +1235,10 @@ export function computeCharacterStats(
     baseHp = (level + 1) * profile.hpPerLevel;
   }
 
-  let maxHp = Math.max(
+  const maxHp = Math.max(
     1,
     baseHp + level * stats.CON + (char.maxHpBonus || 0) + pathBonusHp,
   );
-  if (pathHpStatBonus && stats[pathHpStatBonus] !== undefined) {
-    maxHp += stats[pathHpStatBonus];
-  }
 
   // Effective profile family (player choice for Psionique, standard profile family otherwise)
   const effectiveFamily =
@@ -1101,7 +1281,7 @@ export function computeCharacterStats(
 
   // Mana / Ego Points (PM / PE): VOL (or mana replacement) + spellsCount (if spellsCount > 0)
   let spellCount = 0;
-  char.acquiredAbilities.forEach((acq) => {
+  effectiveAbilities.forEach((acq) => {
     const pth = getPathById(acq.pathId);
     if (pth) {
       const rankData = pth.ranks.find((r) => r.rank === acq.rank);
@@ -1114,12 +1294,12 @@ export function computeCharacterStats(
   const manaBaseStat = pathManaStatReplacement
     ? stats[pathManaStatReplacement]
     : stats.VOL;
-  let maxPm =
-    spellCount > 0 ? Math.max(0, manaBaseStat + spellCount + pathBonusPm) : 0;
-  if (pathManaStatBonus && stats[pathManaStatBonus] !== undefined) {
-    maxPm += stats[pathManaStatBonus];
-    pathBonusPm += stats[pathManaStatBonus];
-  }
+  const maxPm =
+    spellCount > 0
+      ? Math.max(0, manaBaseStat + spellCount + pathBonusPm)
+      : hasDirectStatPmBonus
+        ? Math.max(0, pathBonusPm)
+        : 0;
 
   const energyType: "PM" | "PE" = char.profileId === "psionique" ? "PE" : "PM";
 
@@ -1147,6 +1327,7 @@ export function computeCharacterStats(
     defenseStat,
     defenseStatSource,
     activeSubstitutions: allStatSubstitutions,
+    activeWeaponModifiers,
     initiative,
     maxHp,
     maxDr,
@@ -1166,6 +1347,8 @@ export function computeCharacterStats(
     pathBonusInitiative,
     pathBonusHp,
     pathBonusAttacks,
+    pathBonusDamage,
+    pathCritRangeBonus,
     pathBonusPc,
     pathBonusDr,
     pathBonusPm,
@@ -1179,6 +1362,8 @@ export interface WeaponAttackInfo {
   sourceName?: string;
   isSubstituted: boolean;
   dmBonus: string;
+  critMin: number;
+  critRange: string;
 }
 
 export function getWeaponAttackInfo(
@@ -1191,28 +1376,57 @@ export function getWeaponAttackInfo(
   const isSubstituted = statUsed !== defaultStat;
   const sourceName = w.attackStatSource;
 
+  const matchingRules = (stats.activeWeaponModifiers || []).filter((rule) =>
+    doesWeaponMatchModifierRule(w, rule),
+  );
+  const weaponAtkBonus = matchingRules.reduce(
+    (acc, r) => acc + (r.attackBonus || 0),
+    0,
+  );
+  const weaponDmBonus = matchingRules.reduce(
+    (acc, r) =>
+      acc +
+      (r.damageBonus || 0) +
+      (r.damageStatBonus ? (stats.finalStats[r.damageStatBonus] ?? 0) : 0),
+    0,
+  );
+  const weaponCritBonus = matchingRules.reduce(
+    (acc, r) => acc + (r.critRangeBonus || 0),
+    0,
+  );
+
   const statMod = stats.finalStats[statUsed] ?? 0;
   const pathBonus = isContact
     ? stats.pathBonusAttacks.contact
     : stats.pathBonusAttacks.distance;
   const customBonus = w.bonusAttack || 0;
-  const atkBonus = stats.bab + statMod + pathBonus + customBonus;
+  const atkBonus =
+    stats.bab + statMod + pathBonus + customBonus + weaponAtkBonus;
 
   // Damage bonus
+  const pathDmBonus = isContact
+    ? stats.pathBonusDamage?.contact || 0
+    : stats.pathBonusDamage?.distance || 0;
+  const extraDm = (w.bonusDamage || 0) + weaponDmBonus + pathDmBonus;
+  const totalDmMod = isContact
+    ? (stats.finalStats.FOR ?? 0) + extraDm
+    : extraDm;
+
   let dmBonus = "";
-  if (isContact) {
-    const forMod = stats.finalStats.FOR ?? 0;
-    const extraDm = w.bonusDamage || 0;
-    const totalDmMod = forMod + extraDm;
-    if (totalDmMod > 0) {
-      dmBonus = `+ ${totalDmMod}`;
-    } else if (totalDmMod < 0) {
-      dmBonus = `- ${Math.abs(totalDmMod)}`;
-    }
-  } else if (w.bonusDamage) {
-    dmBonus =
-      w.bonusDamage > 0 ? `+ ${w.bonusDamage}` : `- ${Math.abs(w.bonusDamage)}`;
+  if (totalDmMod > 0) {
+    dmBonus = `+ ${totalDmMod}`;
+  } else if (totalDmMod < 0) {
+    dmBonus = `- ${Math.abs(totalDmMod)}`;
   }
+
+  // Critical range calculation
+  const baseW = getWeaponById(w.weaponRefId);
+  const baseCritMin = baseW?.critMin ?? 20;
+  const critMin = Math.max(
+    2,
+    baseCritMin - (stats.pathCritRangeBonus || 0) - weaponCritBonus,
+  );
+  const critRange = critMin < 20 ? `${critMin}-20` : "20";
 
   return {
     atkBonus,
@@ -1220,12 +1434,110 @@ export function getWeaponAttackInfo(
     sourceName,
     isSubstituted,
     dmBonus,
+    critMin,
+    critRange,
+  };
+}
+
+export function evaluateCompanionFormula(
+  formula: CompanionFormula | undefined,
+  level: number,
+  maxRankInPath: number,
+  stats: ComputedCharacterStats,
+): number | null {
+  if (!formula) return null;
+  let total = formula.base || 0;
+  if (formula.perRank) total += formula.perRank * maxRankInPath;
+  if (formula.perLevel) total += formula.perLevel * level;
+  if (formula.stat && stats.finalStats[formula.stat] !== undefined) {
+    total += stats.finalStats[formula.stat];
+  }
+  if (formula.heroStatRef) {
+    if (formula.heroStatRef === "initiative") total += stats.initiative;
+    else if (formula.heroStatRef === "magicAttack")
+      total += stats.attacks.magique;
+    else if (formula.heroStatRef === "contactAttack")
+      total += stats.attacks.contact;
+    else if (formula.heroStatRef === "distanceAttack")
+      total += stats.attacks.distance;
+    else if (formula.heroStatRef === "defense") total += stats.defense;
+  }
+  if (formula.offset) total += formula.offset;
+  return total;
+}
+
+export interface ResolvedCompanionStats {
+  defense?: string;
+  hp?: string;
+  initiative?: string;
+  attacks: Array<{
+    name: string;
+    attackBonus?: string;
+    damage: string;
+  }>;
+}
+
+export function resolveCompanionStats(
+  companion: CompanionStatBlock,
+  char: CharacterSheet,
+  stats: ComputedCharacterStats,
+  pathId?: string,
+): ResolvedCompanionStats {
+  const level = Math.max(1, char.level || 1);
+  const ranksInPath = pathId
+    ? char.acquiredAbilities
+        .filter((a) => a.pathId === pathId)
+        .map((a) => a.rank)
+    : [];
+  const maxRankInPath = ranksInPath.length > 0 ? Math.max(...ranksInPath) : 1;
+
+  const defVal = evaluateCompanionFormula(
+    companion.defenseFormula,
+    level,
+    maxRankInPath,
+    stats,
+  );
+  const hpVal = evaluateCompanionFormula(
+    companion.hpFormula,
+    level,
+    maxRankInPath,
+    stats,
+  );
+  const initVal = evaluateCompanionFormula(
+    companion.initiativeFormula,
+    level,
+    maxRankInPath,
+    stats,
+  );
+
+  return {
+    defense: defVal !== null ? String(defVal) : companion.defense,
+    hp: hpVal !== null ? String(hpVal) : companion.hp,
+    initiative: initVal !== null ? String(initVal) : companion.initiative,
+    attacks: (companion.attacks || []).map((atk) => {
+      const atkVal = evaluateCompanionFormula(
+        atk.attackFormula,
+        level,
+        maxRankInPath,
+        stats,
+      );
+      return {
+        name: atk.name,
+        attackBonus:
+          atkVal !== null
+            ? atkVal >= 0
+              ? `+${atkVal}`
+              : String(atkVal)
+            : atk.attackBonus,
+        damage: atk.damage,
+      };
+    }),
   };
 }
 
 /**
  * Returns the exact racial path ID for a given race.
- * For Halfelin, Nain, Elfe, Gnome, Demi-orc, Humain: always their dedicated racial path.
+ * For Halfelin, Nain, Elfe, Gnome, Demi-orc, Humain, etc.: always their dedicated racialPathId.
  * For Demi-elfe: returns the chosen cultural path among the 3 options.
  */
 export function getRacialPathId(
@@ -1236,8 +1548,8 @@ export function getRacialPathId(
   if (!p) return "voie-de-l-humain";
 
   // Dedicated racial path
-  if (p.path?.id) {
-    return p.path.id;
+  if (p.racialPathId) {
+    return p.racialPathId;
   }
 
   // Demi-elfe cultural choice
@@ -1319,9 +1631,25 @@ export function applyRacialDefaults(
     { pathId: racialPathId, rank: 1 },
   ];
 
+  let nextArmorId = char.equippedArmorId;
+  const preferredArmorId = p.equipmentRules?.preferredArmorId;
+  if (
+    preferredArmorId &&
+    nextArmorId &&
+    isArmorAllowed(
+      preferredArmorId,
+      char.profileId,
+      char.secondaryProfileId,
+      peopleId,
+    )
+  ) {
+    nextArmorId = preferredArmorId;
+  }
+
   const updatedChar: CharacterSheet = {
     ...char,
     peopleId,
+    equippedArmorId: nextArmorId,
     age: p.startingAge,
     height: p.heightRange,
     weight: p.weightRange,
@@ -1599,8 +1927,11 @@ export function checkPrestigePathPrerequisites(
     };
   }
 
+  const prereq = path.prerequisites;
+
   // Level requirement check
-  const minLevel = pathId === "voie-du-familier-fantastique" ? 3 : 5;
+  const minLevel =
+    prereq?.minLevel ?? (pathId === "voie-du-familier-fantastique" ? 3 : 5);
   if (targetLevel < minLevel) {
     return {
       eligible: false,
@@ -1615,71 +1946,56 @@ export function checkPrestigePathPrerequisites(
       ? char.profileFamily
       : profile?.family || "Combattants";
 
-  if (pathId === "voie-de-l-entite" && effectiveFamily !== "Mages") {
-    return {
-      eligible: false,
-      reason: "Réservé aux membres de la famille des Mages.",
-    };
-  }
-
-  if (
-    pathId !== "voie-des-mutations" &&
-    path.familyRestriction &&
-    path.familyRestriction !== "All" &&
-    path.familyRestriction !== effectiveFamily
-  ) {
-    return {
-      eligible: false,
-      reason: `Réservé à la famille ${path.familyRestriction} (vous êtes ${effectiveFamily}).`,
-    };
-  }
-
-  // Check owner field if familyRestriction not explicitly set
-  if (
-    pathId !== "voie-des-mutations" &&
-    pathId !== "voie-de-l-entite" &&
-    !path.familyRestriction &&
-    path.owner &&
-    path.owner !== "Générique" &&
-    path.owner !== "Mage / Générique"
-  ) {
-    const normOwner = path.owner === "Mage" ? "Mages" : path.owner;
-    if (normOwner !== effectiveFamily) {
+  if (prereq?.allowedFamilies) {
+    if (
+      Array.isArray(prereq.allowedFamilies) &&
+      prereq.allowedFamilies.length > 0 &&
+      !prereq.allowedFamilies.includes(effectiveFamily)
+    ) {
       return {
         eligible: false,
-        reason: `Réservé à la famille ${normOwner} (vous êtes ${effectiveFamily}).`,
+        reason: `Réservé à la famille ${prereq.allowedFamilies.join(" / ")} (vous êtes ${effectiveFamily}).`,
+      };
+    }
+  } else {
+    if (pathId === "voie-de-l-entite" && effectiveFamily !== "Mages") {
+      return {
+        eligible: false,
+        reason: "Réservé aux membres de la famille des Mages.",
+      };
+    }
+
+    if (
+      pathId !== "voie-des-mutations" &&
+      path.familyRestriction &&
+      path.familyRestriction !== "All" &&
+      path.familyRestriction !== effectiveFamily
+    ) {
+      return {
+        eligible: false,
+        reason: `Réservé à la famille ${path.familyRestriction} (vous êtes ${effectiveFamily}).`,
       };
     }
   }
 
-  // Specific path mechanics prerequisites
-  if (pathId === "voie-de-l-expert") {
-    // Requires rank 2 in at least 3 paths of the same profile
+  // Declarative profile path rank prerequisites (e.g. Voie de l'expert, Voie du spécialiste)
+  if (prereq?.minProfilePathsAtRank) {
+    const { count, rank: minRank } = prereq.minProfilePathsAtRank;
     const profilePathIds = profile ? profile.paths : [];
-    const countPathsWithRank2 = profilePathIds.filter((pid) =>
-      currentAcquired.some((a) => a.pathId === pid && a.rank >= 2),
+    const matchingPathsCount = profilePathIds.filter((pid) =>
+      currentAcquired.some((a) => a.pathId === pid && a.rank >= minRank),
     ).length;
 
-    if (countPathsWithRank2 < 3) {
+    if (matchingPathsCount < count) {
+      if (count === 1) {
+        return {
+          eligible: false,
+          reason: `Prérequis : avoir acquis au moins le rang ${minRank} dans une voie de votre profil principal.`,
+        };
+      }
       return {
         eligible: false,
-        reason: `Prérequis : avoir acquis au moins le rang 2 dans 3 voies de votre profil principal (${countPathsWithRank2}/3 actuellement).`,
-      };
-    }
-  }
-
-  if (pathId === "voie-du-specialiste") {
-    // Requires rank 4 in at least one path of the main profile
-    const profilePathIds = profile ? profile.paths : [];
-    const hasRank4 = currentAcquired.some(
-      (a) => profilePathIds.includes(a.pathId) && a.rank >= 4,
-    );
-
-    if (!hasRank4) {
-      return {
-        eligible: false,
-        reason:
-          "Prérequis : avoir acquis au moins le rang 4 dans une voie de votre profil principal.",
+        reason: `Prérequis : avoir acquis au moins le rang ${minRank} dans ${count} voies de votre profil principal (${matchingPathsCount}/${count} actuellement).`,
       };
     }
   }
@@ -1941,21 +2257,15 @@ export function calculateArmorSpellManaCost(
   const armor = getArmorById(char.equippedArmorId);
   if (!armor || armor.def <= 0) return 0;
 
+  if (pth.type === "domain") return 0;
+
   const owningProfile = PROFILES.find((p) => p.paths.includes(pathId));
-  if (
-    owningProfile?.id === "pretre" ||
-    owningProfile?.id === "pr-tre" ||
-    pth.type === "domain"
-  ) {
-    return 0;
-  }
-
-  if (owningProfile?.id === "barde") {
-    return Math.max(0, armor.def - 3);
-  }
-
-  if (owningProfile?.id === "druide" || owningProfile?.id === "forgesort") {
-    return Math.max(0, armor.def - 2);
+  if (owningProfile?.equipmentRules) {
+    const maxDef = owningProfile.equipmentRules.maxSpellcastingArmorDef;
+    if (maxDef === null) return 0;
+    if (typeof maxDef === "number") {
+      return Math.max(0, armor.def - maxDef);
+    }
   }
 
   return armor.def;

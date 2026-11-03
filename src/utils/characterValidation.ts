@@ -89,7 +89,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
 
   const acquiredAbilities: Array<{ pathId: string; rank: number }> = Array.isArray(raw.acquiredAbilities)
     ? raw.acquiredAbilities
-        .filter((a: any) => a && typeof a.pathId === 'string' && Number.isInteger(a.rank) && a.rank >= 1 && a.rank <= 5)
+        .filter((a: any) => a && typeof a.pathId === 'string' && Number.isInteger(a.rank) && a.rank >= 1 && a.rank <= 8)
         .map((a: any) => ({ pathId: migrateLegacyId(a.pathId), rank: a.rank }))
     : defaultChar.acquiredAbilities;
 
@@ -108,6 +108,17 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
         } else {
           pathRankChoices[key] = val;
         }
+      }
+    }
+  }
+
+  let externalAbilityChoices: Record<string, { pathId: string; rank: number }> | undefined = undefined;
+  if (raw.externalAbilityChoices && typeof raw.externalAbilityChoices === 'object') {
+    externalAbilityChoices = {};
+    for (const [key, val] of Object.entries(raw.externalAbilityChoices)) {
+      const v = val as any;
+      if (v && typeof v.pathId === 'string' && Number.isInteger(v.rank)) {
+        externalAbilityChoices[key] = { pathId: migrateLegacyId(v.pathId), rank: v.rank };
       }
     }
   }
@@ -178,6 +189,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     selectedPathIds,
     acquiredAbilities,
     pathRankChoices,
+    externalAbilityChoices,
     currentHp: typeof raw.currentHp === 'number' ? raw.currentHp : defaultChar.currentHp,
     maxHpBonus: typeof raw.maxHpBonus === 'number' ? raw.maxHpBonus : 0,
     levelUpHpGains: Array.isArray(raw.levelUpHpGains) ? raw.levelUpHpGains.filter((n: any) => typeof n === 'number') : undefined,

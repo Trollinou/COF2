@@ -2,6 +2,7 @@
   {
     "id": "arquebusier",
     "name": "Arquebusier",
+    "source": "base",
     "family": "Aventuriers",
     "tagline": "Spécialiste du maniement des armes à feu et des explosifs",
     "primaryStats": [
@@ -32,7 +33,8 @@
       "summaryWeapons": "Armes de contact à 1 main, toutes armes à distance (armes à feu incluses).",
       "weaponRules": {
         "maxHandsMelee": 1
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": "cuir-renforce",
@@ -47,6 +49,7 @@
   {
     "id": "barde",
     "name": "Barde",
+    "source": "base",
     "family": "Aventuriers",
     "tagline": "Artiste polyvalent maniant le verbe, la rapière et la magie",
     "primaryStats": [
@@ -77,7 +80,8 @@
       "summaryWeapons": "Armes à 1 main uniquement (contact ou distance).",
       "weaponRules": {
         "maxHands": 1
-      }
+      },
+      "maxSpellcastingArmorDef": 3
     },
     "defaultEquipment": {
       "armorId": "cuir-simple",
@@ -91,6 +95,7 @@
   {
     "id": "rodeur",
     "name": "Rôdeur",
+    "source": "base",
     "family": "Aventuriers",
     "tagline": "Chasseur et pisteur en milieu sauvage, archer d'élite",
     "primaryStats": [
@@ -121,7 +126,8 @@
       "summaryWeapons": "Armes de contact à 1 main, toutes armes à distance.",
       "weaponRules": {
         "maxHandsMelee": 1
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": "cuir-renforce",
@@ -136,6 +142,7 @@
   {
     "id": "voleur",
     "name": "Voleur",
+    "source": "base",
     "family": "Aventuriers",
     "tagline": "Expert en discrétion, crocheteur habile et combattant sournois",
     "primaryStats": [
@@ -166,7 +173,8 @@
       "summaryWeapons": "Armes de contact à 1 main, toutes armes à distance.",
       "weaponRules": {
         "maxHandsMelee": 1
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": "cuir-simple",
@@ -180,6 +188,7 @@
   {
     "id": "barbare",
     "name": "Barbare",
+    "source": "base",
     "family": "Combattants",
     "tagline": "Guerrier sauvage colossal capable d'entrer en rage",
     "primaryStats": [
@@ -211,7 +220,8 @@
       "weaponRules": {
         "forbidPowder": true,
         "forbidCrossbows": true
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": "cuir-renforce",
@@ -225,6 +235,7 @@
   {
     "id": "chevalier",
     "name": "Chevalier",
+    "source": "base",
     "family": "Combattants",
     "tagline": "Champion en armure lourde monté sur un destrier d'exception",
     "primaryStats": [
@@ -257,7 +268,8 @@
         "allowedCategories": [
           "contact"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": "plaques",
@@ -272,6 +284,7 @@
   {
     "id": "guerrier",
     "name": "Guerrier",
+    "source": "base",
     "family": "Combattants",
     "tagline": "Maître d'armes incontesté et soldat d'élite du corps-à-corps",
     "primaryStats": [
@@ -300,7 +313,8 @@
       "summaryArmor": "Cotte de mailles maximum",
       "summaryShield": "Tous boucliers autorisés",
       "summaryWeapons": "Toutes armes de contact et toutes armes à distance.",
-      "weaponRules": {}
+      "weaponRules": {},
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": "chemise-mailles",
@@ -314,6 +328,7 @@
   {
     "id": "ensorceleur",
     "name": "Ensorceleur",
+    "source": "base",
     "family": "Mages",
     "tagline": "Lanceur de sorts dont la magie innée découle du charisme",
     "primaryStats": [
@@ -351,7 +366,8 @@
           "mains-nues",
           "arbalete-legere"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": null,
@@ -365,6 +381,7 @@
   {
     "id": "forgesort",
     "name": "Forgesort",
+    "source": "base",
     "family": "Mages",
     "tagline": "Mage-artisan fabriquant élixirs, artefacts runiques et armures",
     "primaryStats": [
@@ -403,7 +420,8 @@
           "masse-armes",
           "arbalete-legere"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": 2
     },
     "defaultEquipment": {
       "armorId": "cuir-simple",
@@ -418,6 +436,7 @@
   {
     "id": "magicien",
     "name": "Magicien",
+    "source": "base",
     "family": "Mages",
     "tagline": "Érudit des arcanes maîtrisant une magie académique puissante",
     "primaryStats": [
@@ -453,7 +472,8 @@
           "baton-ferre",
           "mains-nues"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": null,
@@ -467,6 +487,7 @@
   {
     "id": "sorcier",
     "name": "Sorcier",
+    "source": "base",
     "family": "Mages",
     "tagline": "Adepte des forces occultes, des démons et de la nécromancie",
     "primaryStats": [
@@ -502,7 +523,8 @@
           "baton-ferre",
           "mains-nues"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": null,
@@ -516,6 +538,7 @@
   {
     "id": "druide",
     "name": "Druide",
+    "source": "base",
     "family": "Mystiques",
     "tagline": "Protecteur sacré de la nature, des bêtes et des métamorphoses",
     "primaryStats": [
@@ -554,7 +577,8 @@
           "fronde",
           "mains-nues"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": 2
     },
     "defaultEquipment": {
       "armorId": "cuir-simple",
@@ -569,6 +593,7 @@
   {
     "id": "moine",
     "name": "Moine",
+    "source": "base",
     "family": "Mystiques",
     "tagline": "Ascète voué à la perfection martiale et spirituelle à mains nues",
     "primaryStats": [
@@ -599,7 +624,8 @@
       "summaryWeapons": "Mains nues et armes traditionnelles (sauf armes à poudre).",
       "weaponRules": {
         "forbidPowder": true
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": null,
@@ -613,6 +639,7 @@
   {
     "id": "pretre",
     "name": "Prêtre",
+    "source": "base",
     "family": "Mystiques",
     "tagline": "Guide spirituel et champion divin capable de soigner ou de châtier",
     "primaryStats": [
@@ -644,8 +671,14 @@
       "weaponRules": {
         "allowedDamageTypes": [
           "Contondants"
+        ],
+        "maxHandsMelee": 1,
+        "allowedExceptionWeaponIds": [
+          "baton",
+          "baton-ferre"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": null
     },
     "defaultEquipment": {
       "armorId": "chemise-mailles",
@@ -659,6 +692,7 @@
   {
     "id": "caravanier",
     "name": "Caravanier",
+    "source": "compagnon",
     "family": "Aventuriers",
     "tagline": "Baroudeur des routes, négociant aguerri et explorateur au long cours",
     "primaryStats": [
@@ -694,7 +728,8 @@
           "baton-ferre",
           "lance"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": "cuir-renforce",
@@ -709,6 +744,7 @@
   {
     "id": "chamane",
     "name": "Chamane",
+    "source": "compagnon",
     "family": "Mystiques",
     "tagline": "Lanceur de sorts en communion avec les esprits de la nature et des choses",
     "primaryStats": [
@@ -749,7 +785,8 @@
           "arc-court",
           "mains-nues"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": 2
     },
     "defaultEquipment": {
       "armorId": "cuir-simple",
@@ -763,6 +800,7 @@
   {
     "id": "parangon",
     "name": "Parangon",
+    "source": "compagnon",
     "family": "Combattants",
     "tagline": "Combattant d'élite rapide et précis, voué au sabre et à l'arc",
     "primaryStats": [
@@ -791,7 +829,15 @@
       "summaryArmor": "Chemise de mailles maximum",
       "summaryShield": "Aucun bouclier",
       "summaryWeapons": "Toutes armes de contact nobles (sabres, vivelame, épées) et à distance (arcs). Dédaigne les armes outils.",
-      "weaponRules": {}
+      "weaponRules": {
+        "forbiddenTags": [
+          "outil",
+          "hache",
+          "baton",
+          "marteau"
+        ]
+      },
+      "maxSpellcastingArmorDef": 0
     },
     "defaultEquipment": {
       "armorId": "chemise-mailles",
@@ -806,6 +852,7 @@
   {
     "id": "primaliste",
     "name": "Primaliste",
+    "source": "compagnon",
     "family": "Mages",
     "tagline": "Mage élémentaire populaire, ancré aux éléments pieds nus",
     "primaryStats": [
@@ -844,7 +891,8 @@
           "fronde",
           "mains-nues"
         ]
-      }
+      },
+      "maxSpellcastingArmorDef": 2
     },
     "defaultEquipment": {
       "armorId": "cuir-simple",
@@ -859,6 +907,7 @@
   {
     "id": "psionique",
     "name": "Psionique",
+    "source": "compagnon",
     "family": "Mystiques",
     "isFamilySelectable": true,
     "tagline": "Maître des pouvoirs psychiques, de la télékinésie et de l'ego",
@@ -889,8 +938,10 @@
       "summaryShield": "Aucun bouclier",
       "summaryWeapons": "Armes de contact et à distance n'excédant pas 1d6 DM sans critique amélioré.",
       "weaponRules": {
-        "maxDamageDice": 6
-      }
+        "maxDamageDice": 6,
+        "forbidImprovedCrit": true
+      },
+      "maxSpellcastingArmorDef": null
     },
     "defaultEquipment": {
       "armorId": "cuir-renforce",

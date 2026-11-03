@@ -35,7 +35,14 @@ export const Step6Equipment: React.FC<Step6EquipmentProps> = ({
     summaryShield: 'Boucliers autorisés',
     summaryWeapons: 'Armes courantes',
   };
-  const allowedArmors = getAllowedArmors(character.profileId, character.secondaryProfileId);
+  const allowedArmors = getAllowedArmors(
+    character.profileId,
+    character.secondaryProfileId,
+    character.peopleId,
+  );
+  const equippedArmor = allowedArmors.find(
+    a => a.id === character.equippedArmorId,
+  );
   const allowedShields = getAllowedShields(character.profileId, character.secondaryProfileId);
   const allowedWeapons = getAllowedWeapons(character.profileId, character.peopleId, character.secondaryProfileId);
   const hasTwoHandedWeapon = character.weapons.some(w => w.requiresTwoHands);
@@ -116,6 +123,11 @@ export const Step6Equipment: React.FC<Step6EquipmentProps> = ({
               <div className="text-[11px] text-stone-400">
                 Limite profil : <span className="text-amber-300">{profileRule.summaryArmor}</span>
               </div>
+              {equippedArmor?.notes && (
+                <p className="text-[11px] text-amber-300/90 bg-amber-950/30 border border-amber-800/50 rounded px-2.5 py-1.5 mt-1">
+                  {equippedArmor.notes}
+                </p>
+              )}
             </>
           )}
         </div>

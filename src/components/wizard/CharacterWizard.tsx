@@ -59,11 +59,10 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
   const [profileFamilyFilter, setProfileFamilyFilter] = useState<ProfileFamily | 'all'>('all');
   const [profileSearch, setProfileSearch] = useState<string>('');
 
-  const BASE_PEOPLE_IDS = [
-    'demi-elfe', 'demi-orc', 'elfe-haut', 'elfe-sylvain',
-    'gnome', 'halfelin', 'humain', 'nain',
-  ];
-  const isCompagnonPeople = (id: string) => !BASE_PEOPLE_IDS.includes(id);
+  const isCompagnonPeople = (id: string) => {
+    const p = PEOPLES.find(item => item.id === id);
+    return p?.source === 'compagnon';
+  };
 
   const filteredPeoples = useMemo(() => {
     return PEOPLES.filter(p => {

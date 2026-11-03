@@ -2,8 +2,41 @@ export type StatCode = 'FOR' | 'AGI' | 'CON' | 'PER' | 'INT' | 'VOL' | 'CHA';
 
 export type ProfileFamily = 'Aventuriers' | 'Combattants' | 'Mages' | 'Mystiques';
 
+export type BookSource = 'base' | 'compagnon';
+
+export type WeaponTag =
+  | 'legere'
+  | 'lancer'
+  | 'allonge'
+  | 'deux-mains'
+  | 'polyvalente'
+  | 'epee'
+  | 'sabre'
+  | 'hache'
+  | 'marteau'
+  | 'masse'
+  | 'lance'
+  | 'baton'
+  | 'arc'
+  | 'arbalete'
+  | 'poudre'
+  | 'fronde'
+  | 'mains-nues'
+  | 'escrime'
+  | 'duelliste'
+  | 'danseur'
+  | 'outil';
+
 export type StatSubstitutionTarget = 'attackContact' | 'attackDistance' | 'defense';
-export type WeaponFilterCategory = 'bareHands' | 'lightWeapons' | 'oneHanded' | 'sabres' | 'duellisteWeapons' | 'danseurWeapons' | 'projectiles' | 'any';
+export type WeaponFilterCategory =
+  | 'bareHands'
+  | 'lightWeapons'
+  | 'oneHanded'
+  | 'sabres'
+  | 'duellisteWeapons'
+  | 'danseurWeapons'
+  | 'projectiles'
+  | 'any';
 
 export interface StatSubstitutionRule {
   target: StatSubstitutionTarget;
@@ -12,6 +45,62 @@ export interface StatSubstitutionRule {
   weaponFilter?: WeaponFilterCategory;
   conditionNote?: string;
   sourceName?: string;
+  fallbackDefenseBonus?: {
+    flat: number;
+    atRank?: Record<string, number>;
+  };
+}
+
+export type BonusTarget =
+  | 'defense'
+  | 'hp'
+  | 'initiative'
+  | 'pc'
+  | 'dr'
+  | 'pm'
+  | 'damageReduction'
+  | 'atkContact'
+  | 'atkDistance'
+  | 'atkMagic'
+  | 'dmContact'
+  | 'dmDistance'
+  | 'dmMagic'
+  | 'critRange';
+
+export interface ScalingBonusRule {
+  target: BonusTarget;
+  flat?: number;
+  stat?: StatCode;
+  perRank?: number;
+  perLevel?: number;
+  atRank?: Record<string, number>;
+  atLevel?: Record<string, number>;
+  cap?: 'rank' | number;
+  condition?: 'noArmor' | 'noShield' | 'lightArmor';
+  note?: string;
+}
+
+export interface WeaponModifierRule {
+  tags?: WeaponTag[];
+  weaponIds?: string[];
+  category?: 'contact' | 'distance';
+  grantProficiency?: boolean;
+  attackBonus?: number;
+  damageBonus?: number;
+  damageStatBonus?: StatCode;
+  critRangeBonus?: number;
+  sourceName?: string;
+  note?: string;
+}
+
+export interface ExternalAbilityGrantRule {
+  allowedProfiles: string[] | 'any';
+  maxRank: number;
+  alternativeMaxRankNoArmor?: number;
+  ignoreArmorPenalty?: boolean;
+  maxFreeSpellArmorId?: string;
+  count?: number;
+  label?: string;
 }
 
 export interface RankChoiceOption {
@@ -21,62 +110,45 @@ export interface RankChoiceOption {
 }
 
 export interface RankModifiers {
-  // Stat bonuses.
+  // Permanent characteristic bonuses (+1 FOR, etc.).
   stats?: Partial<Record<StatCode, number>>;
-  
-  // Stat substitutions (e.g. AGI instead of FOR for contact attack, PER instead of AGI for ranged, CON instead of AGI for DEF).
+
+  // Declarative scaling & conditional bonuses (DEF, HP, Init, PC, DR, PM, RD, Attacks, Damage, Crit).
+  bonuses?: ScalingBonusRule[];
+
+  // Stat substitutions (e.g. AGI instead of FOR for contact attack, CON instead of AGI for DEF).
   statSubstitutions?: StatSubstitutionRule[];
-  
-  // Defense & Protections.
-  defense?: number;
-  defenseStatBonus?: StatCode; // Ex: 'CHA' (Voie de la séduction)
-  defenseCondition?: 'noArmor'; // Ex: 'noArmor' (Dentelles et rapière)
-  defenseMaxRankCapped?: boolean; // Plafonné au rang atteint dans la voie
-  damageReduction?: number;
-  
-  // Initiative.
-  initiative?: number;
-  initiativeStatBonus?: StatCode; // Ex: 'CHA' (Voie du baroudeur) or 'VOL' (Contrôle du métabolisme)
-  
-  // Hit Points (PV).
-  hpBonus?: number;
-  hpStatBonus?: StatCode; // Ex: 'VOL' (Voie du contrôle corporel, Talent personnel)
-  hpPerRankInPath?: boolean; // Ex: +1 PV par rang atteint dans cette voie
-  
-  // Attack & Damage bonuses.
-  attackBonus?: {
-    contact?: number;
-    distance?: number;
-    magique?: number;
-    all?: number;
-  };
-  damageBonus?: {
-    contact?: number;
-    distance?: number;
-    magique?: number;
-  };
-  
-  // Resources (PC & DR & PM).
-  bonusPC?: number;
-  bonusDR?: number;
-  bonusPm?: number;
-  luckStatReplacement?: StatCode; // Ex: 'VOL' remplace CHA pour les PC (Voie de l'honneur)
-  manaStatReplacement?: StatCode; // Ex: 'CHA' remplace VOL pour les PM (Voie de la séduction)
-  manaStatBonus?: StatCode; // Ex: 'PER' s'ajoute au total de PM (Perception des esprits)
-  
-  // Combat specifics.
-  critRangeBonus?: number; // Ex: +1 à la plage de critique
-  
-  // Player choice options (e.g. PER +1 ou CON +1).
+
+  // Weapon-specific bonuses & proficiencies (e.g. Nain axes/hammers, Elfe sylvain bows, Gnome crossbows/powder).
+  weaponModifiers?: WeaponModifierRule[];
+
+  // Stat replacements for derived resources (PC & PM).
+  luckStatReplacement?: StatCode;
+  manaStatReplacement?: StatCode;
+
+  // Grants an external ability from another profile (e.g. Touche-à-tout, Talent pour la magie).
+  grantExternalAbility?: ExternalAbilityGrantRule;
+
+  // Player choice options (e.g. +1 INT or +1 CHA).
   choiceOptions?: RankChoiceOption[];
-  
-  // Situational notes / reminders.
+
+  // Situational notes / tactical reminders.
   situationalNotes?: string[];
+}
+
+export interface CompanionFormula {
+  base?: number;
+  perLevel?: number;
+  perRank?: number;
+  stat?: StatCode;
+  heroStatRef?: 'initiative' | 'magicAttack' | 'contactAttack' | 'distanceAttack' | 'defense';
+  offset?: number;
 }
 
 export interface CreatureAttack {
   name: string;
   attackBonus?: string;
+  attackFormula?: CompanionFormula;
   damage: string;
   range?: string;
   special?: string;
@@ -87,8 +159,11 @@ export interface CompanionStatBlock {
   category?: string;
   stats?: Partial<Record<StatCode, string>>;
   defense?: string;
+  defenseFormula?: CompanionFormula;
   hp?: string;
+  hpFormula?: CompanionFormula;
   initiative?: string;
+  initiativeFormula?: CompanionFormula;
   attacks?: CreatureAttack[];
   specialFeatures?: string[];
   notes?: string[];
@@ -114,7 +189,17 @@ export interface PriestDeity {
   domainTitle: string;
   symbolDesc: string;
   sacredWeapon: string;
+  sacredWeaponIds: string[];
   domainPathId: string;
+}
+
+export interface PrestigePrerequisites {
+  minLevel: number;
+  allowedFamilies?: ProfileFamily[] | 'All';
+  minProfilePathsAtRank?: {
+    count: number;
+    rank: number;
+  };
 }
 
 export interface PathData {
@@ -125,10 +210,12 @@ export interface PathData {
   type: 'profile' | 'racial' | 'generic' | 'prestige' | 'domain';
   owner?: string;
   familyRestriction?: ProfileFamily | 'All';
+  prerequisites?: PrestigePrerequisites;
   deity?: string;
   domainTitle?: string;
   symbolDesc?: string;
   sacredWeapon?: string;
+  sacredWeaponIds?: string[];
 }
 
 export type ShieldPermission = 'none' | 'small' | 'any';
@@ -140,6 +227,8 @@ export interface ProfileWeaponRules {
   allowedDamageTypes?: string[];
   forbidPowder?: boolean;
   forbidCrossbows?: boolean;
+  forbidImprovedCrit?: boolean;
+  forbiddenTags?: WeaponTag[];
   explicitAllowedWeaponIds?: string[];
   maxDamageDice?: number;
   allowedExceptionWeaponIds?: string[];
@@ -147,6 +236,7 @@ export interface ProfileWeaponRules {
 
 export interface ProfileEquipmentRule {
   maxArmorId: string | null;
+  maxSpellcastingArmorDef?: number | null;
   shieldPermission: ShieldPermission;
   summaryArmor: string;
   summaryShield: string;
@@ -163,14 +253,19 @@ export interface ProfileDefaultEquipment {
 export interface PeopleEquipmentRules {
   forbiddenWeaponIds?: string[];
   maxDamageDice?: number;
+  maxOneHandedDamageDice?: number;
   twoHandedMinDamageDice?: number;
   twoHandedWeaponIds?: string[];
+  preferredArmorId?: string;
+  sizeDefenseBonus?: number;
+  sizeNotes?: string[];
   summary?: string;
 }
 
 export interface PeopleData {
   id: string;
   name: string;
+  source: BookSource;
   description: string;
   bonusOptions: string[][];
   malusOptions: string[][];
@@ -182,6 +277,7 @@ export interface PeopleData {
   physicalTraits: string;
   defaultLanguages: string;
   interpretationTip?: string;
+  racialPathId: string | null;
   selectableRacialPaths?: string[];
   equipmentRules?: PeopleEquipmentRules | null;
   names: {
@@ -189,12 +285,12 @@ export interface PeopleData {
     feminine: string[];
     namingTip: string;
   };
-  path: PathData | null;
 }
 
 export interface ProfileData {
   id: string;
   name: string;
+  source: BookSource;
   family: ProfileFamily;
   isFamilySelectable?: boolean;
   tagline: string;
@@ -219,6 +315,9 @@ export interface ArmorItem {
   maxAgi: number | null;
   price: string;
   type: 'armor' | 'shield';
+  equivalentArmorId?: string;
+  restrictedToPeopleIds?: string[];
+  notes?: string;
 }
 
 export interface WeaponItem {
@@ -226,13 +325,15 @@ export interface WeaponItem {
   name: string;
   category: 'contact' | 'distance';
   damage: string;
-  maxDamageDice?: number;
+  twoHandedDamage?: string;
+  maxDamageDice: number;
+  critMin: number;
   damageType: string;
   range: string;
+  throwRange?: string;
   hands: number;
-  isPowder?: boolean;
-  isCrossbow?: boolean;
-  isBow?: boolean;
+  tags: WeaponTag[];
+  smallRaceReplacementId?: string;
   notes: string;
 }
 
@@ -261,7 +362,7 @@ export interface CharacterSheet {
   id: string;
   version: string;
   updatedAt: string;
-  
+
   // Identity.
   name: string;
   playerName: string;
@@ -297,6 +398,7 @@ export interface CharacterSheet {
   selectedPathIds: string[];
   acquiredAbilities: Array<{ pathId: string; rank: number }>;
   pathRankChoices?: Record<string, string>; // Maps `${pathId}_${rank}` -> choiceOptionId
+  externalAbilityChoices?: Record<string, { pathId: string; rank: number }>; // Maps `${pathId}_${rank}` -> borrowed ability
 
   // Live state during play.
   currentHp: number;
@@ -342,7 +444,7 @@ export interface ComputedCharacterStats {
   armorDefense: number;
   shieldDefense: number;
   effectiveAgi: number;
-  
+
   // Stat substitutions.
   contactAttackStat?: StatCode;
   contactAttackStatSource?: string;
@@ -351,7 +453,10 @@ export interface ComputedCharacterStats {
   defenseStat?: StatCode;
   defenseStatSource?: string;
   activeSubstitutions?: StatSubstitutionRule[];
-  
+
+  // Active weapon modifiers from paths.
+  activeWeaponModifiers?: WeaponModifierRule[];
+
   // Breakdown of path passive bonuses.
   pathBonusStats: Record<StatCode, number>;
   pathBonusDefense: number;
@@ -362,9 +467,14 @@ export interface ComputedCharacterStats {
     distance: number;
     magique: number;
   };
+  pathBonusDamage: {
+    contact: number;
+    distance: number;
+    magique: number;
+  };
+  pathCritRangeBonus: number;
   pathBonusPc: number;
   pathBonusDr: number;
   pathBonusPm: number;
   pathSituationalNotes: string[];
 }
-

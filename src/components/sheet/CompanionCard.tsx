@@ -1,15 +1,52 @@
 import React from 'react';
-import { CompanionStatBlock, StatCode } from '../../types/cof2';
+import {
+  CharacterSheet,
+  CompanionStatBlock,
+  ComputedCharacterStats,
+  StatCode,
+} from '../../types/cof2';
+import { resolveCompanionStats } from '../../engine/rulesEngine';
 import { PawPrint, Shield, Heart, Zap, Swords, Sparkles } from 'lucide-react';
 
 interface CompanionCardProps {
   companion: CompanionStatBlock;
+  character?: CharacterSheet;
+  stats?: ComputedCharacterStats;
+  pathId?: string;
   compact?: boolean;
 }
 
 const STAT_ORDER: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
 
-export const CompanionCard: React.FC<CompanionCardProps> = ({ companion, compact = false }) => {
+export const CompanionCard: React.FC<CompanionCardProps> = ({
+  companion,
+  character,
+  stats,
+  pathId,
+}) => {
+  const resolved =
+    character && stats
+      ? resolveCompanionStats(companion, character, stats, pathId)
+      : null;
+
+  const displayHp = resolved
+    ? resolved.hp !== companion.hp
+      ? `${resolved.hp} (${companion.hp})`
+      : resolved.hp
+    : companion.hp;
+
+  const displayDef = resolved
+    ? resolved.defense !== companion.defense
+      ? `${resolved.defense} (${companion.defense})`
+      : resolved.defense
+    : companion.defense;
+
+  const displayInit = resolved
+    ? resolved.initiative !== companion.initiative
+      ? `${resolved.initiative} (${companion.initiative})`
+      : resolved.initiative
+    : companion.initiative;
+
   return (
     <div className="bg-stone-950/80 border border-amber-800/40 rounded-xl p-3.5 my-2.5 shadow-lg space-y-2.5 text-xs">
       {/* Header */}
@@ -32,22 +69,22 @@ export const CompanionCard: React.FC<CompanionCardProps> = ({ companion, compact
 
         {/* Vital stats badges: HP / DEF / Init */}
         <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
-          {companion.hp && (
+          {displayHp && (
             <span className="flex items-center space-x-1 px-2 py-0.5 rounded bg-red-950/80 text-red-200 border border-red-800/50 font-bold" title="Points de vie / vigueur">
               <Heart className="w-3 h-3 text-red-400 inline" />
-              <span>{companion.hp}</span>
+              <span>{displayHp}</span>
             </span>
           )}
-          {companion.defense && (
+          {displayDef && (
             <span className="flex items-center space-x-1 px-2 py-0.5 rounded bg-blue-950/80 text-blue-200 border border-blue-800/50 font-bold" title="Défense">
               <Shield className="w-3 h-3 text-blue-400 inline" />
-              <span>DEF {companion.defense}</span>
+              <span>DEF {displayDef}</span>
             </span>
           )}
-          {companion.initiative && (
+          {displayInit && (
             <span className="flex items-center space-x-1 px-2 py-0.5 rounded bg-amber-950/80 text-amber-200 border border-amber-800/50 font-bold" title="Initiative">
               <Zap className="w-3 h-3 text-amber-400 inline" />
-              <span>Init {companion.initiative}</span>
+              <span>Init {displayInit}</span>
             </span>
           )}
         </div>
@@ -78,17 +115,26 @@ export const CompanionCard: React.FC<CompanionCardProps> = ({ companion, compact
             <span>Attaques</span>
           </div>
           <div className="space-y-1">
-            {companion.attacks.map((atk, idx) => (
-              <div key={idx} className="flex flex-wrap items-center justify-between text-[11px] text-stone-300">
-                <span className="font-semibold text-stone-200">{atk.name}</span>
-                <div className="font-mono space-x-2 text-stone-300">
-                  {atk.attackBonus && (
-                    <span className="text-amber-300">[{atk.attackBonus}]</span>
-                  )}
-                  <span className="text-rose-300 font-bold">DM {atk.damage}</span>
+            {companion.attacks.map((atk, idx) => {
+              const resolvedAtk = resolved?.attacks[idx];
+              const atkBonusLabel = resolvedAtk
+                ? resolvedAtk.attackBonus !== atk.attackBonus
+                  ? `${resolvedAtk.attackBonus} (${atk.attackBonus})`
+                  : resolvedAtk.attackBonus
+                : atk.attackBonus;
+
+              return (
+                <div key={idx} className="flex flex-wrap items-center justify-between text-[11px] text-stone-300">
+                  <span className="font-semibold text-stone-200">{atk.name}</span>
+                  <div className="font-mono space-x-2 text-stone-300">
+                    {atkBonusLabel && (
+                      <span className="text-amber-300">[{atkBonusLabel}]</span>
+                    )}
+                    <span className="text-rose-300 font-bold">DM {atk.damage}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

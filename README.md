@@ -6,10 +6,10 @@ Application Desktop et Web de création, de gestion et d'évolution de personnag
 
 ## 🌟 Fonctionnalités Principales
 
-1. **Règles Officielles de COF2 Intégrées** :
-   - **8 Peuples** complets (Demi-elfe, Demi-orc, Elfe haut, Elfe sylvain, Gnome, Halfelin, Humain, Nain) avec leurs modificateurs raciaux et Voies de peuple.
-   - **14 Profils** répartis dans les 4 familles (Aventuriers, Combattants, Mages, Mystiques).
-   - **73 Voies et Capacités** (Rangs 1 à 5) avec textes intégraux, types d'actions (A, L, G, M) et marqueurs de sorts (*).
+1. **Règles Officielles de COF2 Intégrées (Livre de Base & Compagnon)** :
+   - **19 Peuples** complets (Livre de Base + Compagnon) avec leurs modificateurs raciaux, contraintes morphologiques et Voies de peuple.
+   - **19 Profils** répartis dans les 4 familles (Aventuriers, Combattants, Mages, Mystiques).
+   - **209 Voies et Capacités** (Voies de profil, de peuple, de domaine divin, de prestige et génériques) avec textes intégraux, modificateurs déclaratifs V2, compagnons dynamiques, types d'actions (A, L, G, M) et marqueurs de sorts (*).
    - Les **7 Caractéristiques de COF2** (AGI, CON, FOR, PER, INT, VOL, CHA) avec séries de valeurs officielles (*Polyvalent, Expert, Spécialiste*).
    - Calcul automatique selon les règles de COF2 :
      - Points de Vigueur : `PV = (2 x PV famille) + CON` (et gain rétroactif par niveau).
@@ -80,7 +80,8 @@ Pour distribuer l'application à vos joueurs sans qu'ils aient besoin d'installe
 
 ## 📁 Structure du Code
 
-- `src/data/` : Données structurées extraites du Mémento COF2 (`peoples.json`, `profiles.json`, `paths.json`, `equipment.json`, `tables.json`).
+- `docs/DATA_MODELS.md` : Documentation exhaustive des modèles de données JSON (Schéma V2 déclaratif) et guide d'encodage des capacités.
+- `src/data/` : Données structurées COF2 (`peoples.json`, `profiles.json`, `paths.json`, `equipment.json`, `tables.json`).
 - `src/engine/rulesEngine.ts` : Moteur de calcul des formules et statistiques COF2.
 - `src/types/cof2.ts` : Définitions TypeScript complètes.
 - `src/components/wizard/` : Assistant guidé pas-à-pas de création de héros.

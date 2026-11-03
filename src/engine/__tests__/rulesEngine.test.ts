@@ -28,6 +28,9 @@ import {
   calculateLevelUpHpGain,
   getCharacterMasteredProfileIds,
   calculateArmorSpellManaCost,
+  getWeaponAttackInfo,
+  resolveCompanionStats,
+  getDefaultEquipmentForProfile,
 } from '../rulesEngine';
 import { CharacterSheet } from '../../types/cof2';
 
@@ -167,10 +170,15 @@ describe('COF2 Rules Engine', () => {
         ...createDefaultCharacter(),
         profileId: 'voleur', // Aventuriers
         baseStats: { FOR: 0, AGI: 2, CON: 0, PER: 1, INT: 1, VOL: 0, CHA: 2 },
+        acquiredAbilities: [],
       };
       const voleurStats = computeCharacterStats(voleur);
       // PC: 2 + 2 + 1 (bonusPC aventurier) = 5
       expect(voleurStats.maxPc).toBe(5);
+
+      // With Voie de l'humain R1 (Diversité: +1 PC), total becomes 6
+      voleur.acquiredAbilities = [{ pathId: 'voie-de-l-humain', rank: 1 }];
+      expect(computeCharacterStats(voleur).maxPc).toBe(6);
     });
 
     it('retroactively scales HP with level and Constitution', () => {
@@ -751,9 +759,9 @@ describe('COF2 Rules Engine', () => {
       expect(pth?.ranks[0].title).toBe('Charmant');
       expect(pth?.ranks[1].title).toBe('Dentelles et rapière');
       expect(pth?.ranks[1].modifiers).toBeDefined();
-      expect(pth?.ranks[1].modifiers?.defenseStatBonus).toBe('CHA');
-      expect(pth?.ranks[1].modifiers?.defenseCondition).toBe('noArmor');
-      expect(pth?.ranks[1].modifiers?.defenseMaxRankCapped).toBe(true);
+      expect(pth?.ranks[1].modifiers?.bonuses).toEqual([
+        { target: 'defense', stat: 'CHA', condition: 'noArmor', cap: 'rank' },
+      ]);
       expect(pth?.ranks[2].title).toBe('Baratineur de génie');
       expect(pth?.ranks[3].title).toBe('Charisme héroïque');
       expect(pth?.ranks[4].title).toBe('Suggestion');
@@ -915,6 +923,242 @@ describe('COF2 Rules Engine', () => {
       char.acquiredAbilities.push({ pathId: 'voie-de-l-archer', rank: 5 });
       stats = computeCharacterStats(char);
       expect(stats.initiative).toBe(18); // 10 + 3 PER + 5 Voie
+    });
+  });
+
+  describe('V2 Declarative Mechanics (Weapon Modifiers, External Abilities, Tiny Size & Companions)', () => {
+    it('applies weaponModifiers for Nain R2 (axe/hammer proficiency & +1/+1), Elfe sylvain R3 (bow crit 19-20), and Gnome R4 (+AGI DM)', () => {
+      // 1. Nain Magicien with Voie du nain R2: masters axes & hammers and gets +1 ATQ / +1 DM
+      const dwarf = createDefaultCharacter();
+      dwarf.peopleId = 'nain';
+      dwarf.profileId = 'magicien';
+      dwarf.baseStats = { FOR: 2, AGI: 0, CON: 2, PER: 0, INT: 3, VOL: 1, CHA: 0 };
+      dwarf.selectedRacialBonus = 'CON';
+      dwarf.acquiredAbilities = [
+        { pathId: 'voie-du-nain', rank: 1 },
+        { pathId: 'voie-du-nain', rank: 2 },
+      ];
+      dwarf.weapons = [
+        {
+          id: 'w_axe',
+          weaponRefId: 'hache-armes',
+          name: "Hache d'armes",
+          damage: '1d8',
+          range: 'Contact',
+          category: 'contact',
+        },
+      ];
+
+      // Magicien without Nain R2 cannot use hache-armes, but with Nain R2 it is allowed!
+      expect(checkWeaponProficiency('hache-armes', 'magicien', 'nain').allowed).toBe(false);
+      expect(
+        checkWeaponProficiency('hache-armes', 'magicien', 'nain', undefined, undefined, dwarf.acquiredAbilities).allowed
+      ).toBe(true);
+
+      const dwarfStats = computeCharacterStats(dwarf);
+      const axeInfo = getWeaponAttackInfo(dwarf.weapons[0], dwarfStats);
+      // BAB (1) + FOR (2) + Nain R2 (+1) = +4 ATQ; DM = FOR (2) + Nain R2 (+1) = +3
+      expect(axeInfo.atkBonus).toBe(4);
+      expect(axeInfo.dmBonus).toBe('+ 3');
+
+      // 2. Elfe sylvain R3 (Archer sylvain): critRangeBonus +1 on bows (19-20)
+      const elf = createDefaultCharacter();
+      elf.peopleId = 'elfe-sylvain';
+      elf.profileId = 'rodeur';
+      elf.acquiredAbilities = [
+        { pathId: 'voie-de-l-elfe-sylvain', rank: 1 },
+        { pathId: 'voie-de-l-elfe-sylvain', rank: 2 },
+        { pathId: 'voie-de-l-elfe-sylvain', rank: 3 },
+      ];
+      elf.weapons = [
+        {
+          id: 'w_bow',
+          weaponRefId: 'arc-long',
+          name: 'Arc long',
+          damage: '1d8',
+          range: '50 m',
+          category: 'distance',
+        },
+      ];
+      const elfStats = computeCharacterStats(elf);
+      const bowInfo = getWeaponAttackInfo(elf.weapons[0], elfStats);
+      expect(bowInfo.critMin).toBe(19);
+      expect(bowInfo.critRange).toBe('19-20');
+
+      // 3. Gnome R4 (Botte secrète): adds AGI to damage with rapière & arbalète légère
+      const gnome = createDefaultCharacter();
+      gnome.peopleId = 'gnome';
+      gnome.profileId = 'voleur';
+      gnome.baseStats = { FOR: 0, AGI: 3, CON: 1, PER: 1, INT: 2, VOL: 0, CHA: 0 };
+      gnome.selectedRacialBonus = 'INT';
+      gnome.acquiredAbilities = [{ pathId: 'voie-du-gnome', rank: 4 }];
+      gnome.weapons = [
+        {
+          id: 'w_xbow',
+          weaponRefId: 'arbalete-legere',
+          name: 'Arbalète légère',
+          damage: '2d4',
+          range: '30 m',
+          category: 'distance',
+        },
+      ];
+      const gnomeStats = computeCharacterStats(gnome);
+      const xbowInfo = getWeaponAttackInfo(gnome.weapons[0], gnomeStats);
+      expect(xbowInfo.dmBonus).toBe('+ 3'); // +3 AGI on arbalète légère
+    });
+
+    it('applies borrowed abilities via grantExternalAbility and externalAbilityChoices', () => {
+      const orc = createDefaultCharacter();
+      orc.peopleId = 'demi-orc';
+      orc.profileId = 'barbare';
+      orc.baseStats = { FOR: 3, AGI: 1, CON: 2, PER: 0, INT: -1, VOL: 0, CHA: -1 };
+      orc.selectedRacialBonus = 'FOR';
+      orc.acquiredAbilities = [
+        { pathId: 'voie-du-demi-orc', rank: 1 },
+        { pathId: 'voie-du-demi-orc', rank: 2 }, // Instinct guerrier: choose R1 of Barbare or Guerrier
+      ];
+
+      // Without external choice: HP = (2 * 5) + 2 (CON) = 12
+      let stats = computeCharacterStats(orc);
+      expect(stats.maxHp).toBe(12);
+
+      // Choose Guerrier -> Voie de la résistance R1 (Endurant : +3 PV)
+      orc.externalAbilityChoices = {
+        'voie-du-demi-orc_2': { pathId: 'voie-de-la-resistance', rank: 1 },
+      };
+      stats = computeCharacterStats(orc);
+      expect(stats.maxHp).toBe(15);
+    });
+
+    it('applies Tiny size +2 DEF and 1d4 one-handed limit for Farfadet and Fée', () => {
+      const fee = createDefaultCharacter();
+      fee.peopleId = 'fee';
+      fee.profileId = 'ensorceleur';
+      fee.baseStats = { FOR: -2, AGI: 3, CON: 0, PER: 1, INT: 1, VOL: 2, CHA: 2 };
+      fee.selectedRacialBonus = 'AGI'; // AGI = 4
+      fee.selectedRacialMaluses = [];
+      fee.equippedArmorId = undefined;
+      fee.acquiredAbilities = [{ pathId: 'voie-de-la-fee', rank: 1 }];
+
+      const stats = computeCharacterStats(fee);
+      // DEF = 10 + 4 (AGI) + 2 (sizeDefenseBonus) = 16
+      expect(stats.defense).toBe(16);
+      expect(stats.pathSituationalNotes).toContain('RD 1 (sauf fer froid)');
+
+      // Weapon check: dague (1d4) is 1-handed, épée courte (1d6) requires 2 hands for a Fée
+      const dagueCheck = checkWeaponProficiency('dague', 'guerrier', 'fee');
+      expect(dagueCheck.allowed).toBe(true);
+      expect(dagueCheck.requiresTwoHands).toBe(false);
+
+      const epeeCourteCheck = checkWeaponProficiency('epee-courte', 'guerrier', 'fee');
+      expect(epeeCourteCheck.allowed).toBe(true);
+      expect(epeeCourteCheck.requiresTwoHands).toBe(true);
+    });
+
+    it('evaluates live companion formulas via resolveCompanionStats', () => {
+      const char = createDefaultCharacter();
+      char.peopleId = 'gobelin';
+      char.level = 4;
+      char.baseStats = { FOR: 0, AGI: 3, CON: 1, PER: 2, INT: 0, VOL: 2, CHA: 0 };
+      char.selectedRacialBonus = 'AGI';
+      char.acquiredAbilities = [
+        { pathId: 'voie-du-gobelin', rank: 1 }, // +3 Init
+        { pathId: 'voie-du-gobelin', rank: 4 }, // Monture gobeline (Worg)
+      ];
+
+      const stats = computeCharacterStats(char);
+      const path = getPathById('voie-du-gobelin');
+      const worg = path?.ranks[3].companions?.[0];
+      expect(worg).toBeDefined();
+      expect(worg?.name).toBe('Worg');
+
+      const resolved = resolveCompanionStats(worg!, char, stats, 'voie-du-gobelin');
+      // Worg DEF: 17
+      expect(resolved.defense).toBe('17');
+      // Worg HP: level (4) * 5 = 20
+      expect(resolved.hp).toBe('20');
+      // Worg Init: Init. du gobelin = 10 + 2 (PER) + 3 (Gobelin R1) = 15
+      expect(resolved.initiative).toBe('15');
+      // Worg Attack: Attaque magique (BAB 4 + VOL 2 = 6) + 2 = +8
+      expect(resolved.attacks[0].attackBonus).toBe('+8');
+    });
+
+    it('restricts Cotte d’écorce to Satyre, equips it by default, and adds its special note', () => {
+      // 1. Not available to non-Satyres
+      const humanArmors = getAllowedArmors('rodeur', undefined, 'humain');
+      expect(humanArmors.some(a => a.id === 'cotte-ecorce')).toBe(false);
+
+      // 2. Available to Satyre on profiles allowing at least cuir-simple, but not on Magicien
+      const satyreRodeurArmors = getAllowedArmors('rodeur', undefined, 'satyre');
+      expect(satyreRodeurArmors.some(a => a.id === 'cotte-ecorce')).toBe(true);
+      expect(satyreRodeurArmors.some(a => a.id === 'cuir-renforce')).toBe(true);
+
+      const satyreMageArmors = getAllowedArmors('magicien', undefined, 'satyre');
+      expect(satyreMageArmors.some(a => a.id === 'cotte-ecorce')).toBe(false);
+
+      // 3. Default equipment for a Satyre Rôdeur or Guerrier prefers cotte-ecorce
+      const defEq = getDefaultEquipmentForProfile('guerrier', 'satyre');
+      expect(defEq.armorId).toBe('cotte-ecorce');
+
+      // 4. Switching race to Satyre equips cotte-ecorce and adds its note to pathSituationalNotes
+      let char = createDefaultCharacter(); // Humain Arquebusier (cuir-renforce)
+      char = applyRacialDefaults(char, 'satyre');
+      expect(char.equippedArmorId).toBe('cotte-ecorce');
+
+      const stats = computeCharacterStats(char);
+      expect(stats.armorDefense).toBe(2);
+      expect(
+        stats.pathSituationalNotes.some(n =>
+          n.includes("Cotte d'écorce") && n.includes('doit être réparée après chaque combat')
+        )
+      ).toBe(true);
+
+      // 5. Switching back from Satyre to Humain sanitizes cotte-ecorce back to profile default
+      char = applyRacialDefaults(char, 'humain');
+      expect(char.equippedArmorId).toBe('cuir-renforce');
+    });
+
+    it('cleans up false Rank 4 stat bonuses and applies corrected/newly encoded permanent bonuses', () => {
+      // 1. Active Rank 4 spells/abilities no longer have parasite stat modifiers
+      expect(getPathById('voie-de-l-air')?.ranks[3].modifiers?.stats).toBeUndefined();
+      expect(getPathById('voie-du-combat')?.ranks[3].modifiers?.stats).toBeUndefined();
+      expect(getPathById('voie-du-musicien')?.ranks[3].modifiers?.stats).toBeUndefined();
+
+      // 2. Corrected stat modifiers (Voie du soldat R4 = FOR +1, Voie du protecteur R4 = PER +1 & +PER PM)
+      expect(getPathById('voie-du-soldat')?.ranks[3].modifiers?.stats).toEqual({ FOR: 1 });
+      expect(getPathById('voie-du-protecteur')?.ranks[3].modifiers?.stats).toEqual({ PER: 1 });
+      expect(getPathById('voie-du-kobold')?.ranks[4].modifiers?.stats).toEqual({ AGI: 1, PER: 1 });
+      expect(getPathById('voie-du-gobelin')?.ranks[4].modifiers?.stats).toEqual({ AGI: 1, PER: 1 });
+      expect(getPathById('voie-de-la-fee')?.ranks[4].modifiers?.stats).toEqual({ PER: 1, CHA: 1 });
+
+      // 3. Murmures dans le vent (Voie de l'air R1): +1 Init, +1 DEF
+      const sorc = createDefaultCharacter();
+      sorc.profileId = 'ensorceleur';
+      sorc.baseStats = { FOR: 0, AGI: 1, CON: 1, PER: 2, INT: 1, VOL: 2, CHA: 3 };
+      sorc.selectedRacialBonus = 'CHA';
+      sorc.equippedArmorId = undefined;
+      sorc.acquiredAbilities = [{ pathId: 'voie-de-l-air', rank: 1 }];
+      const sorcStats = computeCharacterStats(sorc);
+      expect(sorcStats.defense).toBe(12); // 10 + 1 AGI + 1 Murmures
+      expect(sorcStats.initiative).toBe(13); // 10 + 2 PER + 1 Murmures
+
+      // 4. Vêtements sacrés (Voie de la spiritualité R1): +2 DEF without armor (+3 at R3, +4 at R5)
+      const priest = createDefaultCharacter();
+      priest.profileId = 'pretre';
+      priest.baseStats = { FOR: 1, AGI: 1, CON: 1, PER: 1, INT: 0, VOL: 3, CHA: 2 };
+      priest.selectedRacialBonus = 'VOL';
+      priest.equippedArmorId = undefined;
+      priest.equippedShieldId = undefined;
+      priest.acquiredAbilities = [{ pathId: 'voie-de-la-spiritualite', rank: 1 }];
+      let priestStats = computeCharacterStats(priest);
+      expect(priestStats.defense).toBe(13); // 10 + 1 AGI + 2 Vêtements sacrés
+
+      priest.acquiredAbilities.push(
+        { pathId: 'voie-de-la-spiritualite', rank: 2 },
+        { pathId: 'voie-de-la-spiritualite', rank: 3 },
+      );
+      priestStats = computeCharacterStats(priest);
+      expect(priestStats.defense).toBe(14); // +3 at R3
     });
   });
 });

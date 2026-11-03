@@ -20,6 +20,8 @@ Ce document rassemble les conventions d'architecture, règles de développement,
 ```text
 COF2/
 ├── .vscode/                   # Configuration partagée VS Code (extensions, settings)
+├── docs/                      # Documentation technique
+│   └── DATA_MODELS.md         # Schéma V2 des fichiers JSON (src/data/) & guide d'audit
 ├── electron/                  # Processus principal et preload Electron
 │   ├── main.ts                # Gestion de la fenêtre, IPC, boîtes de dialogue et PDF
 │   └── preload.ts             # Exposition contrôlée d'API via contextBridge
@@ -56,7 +58,7 @@ COF2/
    - Ne jamais importer de hook (`useState`, `useEffect`) ou de JSX dans `src/engine/`.
 
 2. **Indexation et Performance ($O(1)$)** :
-   - Éviter impérativement les scans linéaires répétés (`.find()`) sur les listes volumineuses comme `PATHS` (179 voies, ~900 capacités).
+   - Éviter impérativement les scans linéaires répétés (`.find()`) sur les listes volumineuses comme `PATHS` (209 voies, ~1045 capacités).
    - Utiliser des tables de hachage `Map<string, T>` précalculées (`PATHS_MAP`, `PEOPLES_MAP`, etc.).
 
 3. **Immuabilité & Calcul Rétroactif** :
