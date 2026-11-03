@@ -31,6 +31,38 @@ interface PeopleFormProps {
 
 const STATS: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
 
+function computeRacialSummary(options: string[][] | undefined, sign: '+' | '-'): string {
+  if (!options || options.length === 0) return 'Aucun';
+
+  const fixedCounts: Record<string, number> = {};
+  const choices: string[] = [];
+
+  for (const group of options) {
+    if (group.length === 1) {
+      const stat = group[0];
+      if (stat === 'ANY_LOWEST') {
+        choices.push('Caractéristique la plus faible');
+      } else {
+        fixedCounts[stat] = (fixedCounts[stat] || 0) + 1;
+      }
+    } else if (group.length === STATS.length) {
+      choices.push('Au choix libre (toutes caractéristiques)');
+    } else if (group.length > 1) {
+      choices.push(`${group.map(s => `${sign}1 ${s}`).join(' ou ')}`);
+    }
+  }
+
+  const parts: string[] = [];
+  for (const [stat, count] of Object.entries(fixedCounts)) {
+    parts.push(`${sign}${count} ${stat}`);
+  }
+  for (const choice of choices) {
+    parts.push(`[Au choix : ${choice}]`);
+  }
+
+  return parts.length > 0 ? parts.join(', ') : 'Aucun';
+}
+
 export const PeopleForm: React.FC<PeopleFormProps> = ({
   people,
   allPaths,
@@ -47,12 +79,17 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
   const racialPaths = allPaths.filter(p => p.type === 'racial');
 
   // Bonus Options manipulation
-  const updateBonusGroup = (groupIndex: number, stat: StatCode) => {
+  const updateBonusGroup = (groupIndex: number, stat: string) => {
     const nextBonus = [...(people.bonusOptions || [])];
     const group = nextBonus[groupIndex] || [];
-    const exists = group.includes(stat);
-    const nextGroup = exists ? group.filter(s => s !== stat) : [...group, stat];
-    nextBonus[groupIndex] = nextGroup;
+    if (stat === 'ANY_LOWEST') {
+      nextBonus[groupIndex] = group.includes('ANY_LOWEST') ? ['FOR'] : ['ANY_LOWEST'];
+    } else {
+      const filtered = group.filter(s => s !== 'ANY_LOWEST');
+      const exists = filtered.includes(stat);
+      const nextGroup = exists ? filtered.filter(s => s !== stat) : [...filtered, stat];
+      nextBonus[groupIndex] = nextGroup.length > 0 ? nextGroup : [stat];
+    }
     updateField('bonusOptions', nextBonus);
   };
 
@@ -67,12 +104,12 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
   };
 
   // Malus Options manipulation
-  const updateMalusGroup = (groupIndex: number, stat: StatCode) => {
+  const updateMalusGroup = (groupIndex: number, stat: string) => {
     const nextMalus = [...(people.malusOptions || [])];
     const group = nextMalus[groupIndex] || [];
     const exists = group.includes(stat);
     const nextGroup = exists ? group.filter(s => s !== stat) : [...group, stat];
-    nextMalus[groupIndex] = nextGroup;
+    nextMalus[groupIndex] = nextGroup.length > 0 ? nextGroup : [stat];
     updateField('malusOptions', nextMalus);
   };
 
@@ -245,7 +282,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                   <span>+1</span> Bonus Racial de Caractéristique (`bonusOptions`)
                 </h4>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  Chaque groupe accorde un bonus de <strong>+1</strong>. Si plusieurs caractéristiques sont cochées, le joueur choisira <strong>une seule</strong> caractéristique parmi cette liste (ex: <em>+1 INT ou PER</em> pour le Gnome).
+                  Chaque groupe accorde un bonus de <strong>+1</strong>. Si une caractéristique apparaît dans plusieurs groupes (ex: 2 groupes avec FOR pour le Demi-Ogre), elle totalise <strong>+2</strong>.
                 </p>
               </div>
               <button
@@ -257,6 +294,19 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
               </button>
             </div>
 
+            {/* Synthèse Cumulée Globale des Bonus */}
+            <div className="p-3 bg-stone-950 border border-emerald-900/50 rounded-lg flex items-center justify-between">
+              <span className="text-xs text-stone-300">
+                Total des bonus cumulés :{' '}
+                <strong className="text-emerald-300 text-sm font-bold">
+                  {computeRacialSummary(people.bonusOptions, '+')}
+                </strong>
+              </span>
+              <span className="text-[11px] text-stone-400 font-mono">
+                {(people.bonusOptions || []).length} point{(people.bonusOptions || []).length > 1 ? 's' : ''} de bonus au total
+              </span>
+            </div>
+
             <div className="space-y-3">
               {(people.bonusOptions || []).length === 0 ? (
                 <div className="text-xs text-stone-500 italic py-2">
@@ -264,14 +314,16 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                 </div>
               ) : (
                 people.bonusOptions.map((group, gIdx) => {
-                  const summaryText =
-                    group.length === 0
-                      ? 'Aucune caractéristique sélectionnée'
-                      : group.length === STATS.length
-                      ? '+1 à n\'importe quelle caractéristique (au choix libre)'
-                      : group.length === 1
-                      ? `Fixe : +1 ${group[0]}`
-                      : `Au choix : +1 ${group.join(' ou +1 ')}`;
+                  const isAnyLowest = group.includes('ANY_LOWEST');
+                  const summaryText = isAnyLowest
+                    ? '★ Caractéristique la plus faible'
+                    : group.length === 0
+                    ? 'Aucune sélection'
+                    : group.length === STATS.length
+                    ? '+1 à n\'importe quelle caractéristique (au choix libre)'
+                    : group.length === 1
+                    ? `Fixe : +1 ${group[0]}`
+                    : `Au choix : +1 ${group.join(' ou +1 ')}`;
 
                   return (
                     <div
@@ -281,7 +333,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-emerald-400 font-mono">
-                            Bonus {gIdx + 1} (+1) :
+                            Groupe {gIdx + 1} (+1) :
                           </span>
                           <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800 text-emerald-200">
                             {summaryText}
@@ -300,7 +352,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
 
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         <span className="text-[10px] text-stone-400 mr-1 uppercase font-semibold">
-                          Cocher les options éligibles :
+                          Options éligibles :
                         </span>
                         {STATS.map(stat => {
                           const active = group.includes(stat);
@@ -309,7 +361,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                               key={stat}
                               type="button"
                               onClick={() => updateBonusGroup(gIdx, stat)}
-                              className={`px-3 py-1 rounded text-xs font-bold transition-all ${
+                              className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
                                 active
                                   ? 'bg-emerald-600 text-stone-950 shadow-md scale-105 ring-2 ring-emerald-400'
                                   : 'bg-stone-900 text-stone-400 hover:bg-stone-800 hover:text-stone-200'
@@ -319,6 +371,17 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                             </button>
                           );
                         })}
+                        <button
+                          type="button"
+                          onClick={() => updateBonusGroup(gIdx, 'ANY_LOWEST')}
+                          className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
+                            isAnyLowest
+                              ? 'bg-amber-600 text-stone-950 shadow-md ring-2 ring-amber-400'
+                              : 'bg-stone-900 text-amber-400/80 hover:bg-stone-800 hover:text-amber-300'
+                          }`}
+                        >
+                          {isAnyLowest ? '★ Carac la plus basse (ANY_LOWEST)' : '★ Carac la plus basse'}
+                        </button>
                       </div>
                     </div>
                   );
@@ -335,7 +398,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                   <span>-1</span> Malus Racial de Caractéristique (`malusOptions`)
                 </h4>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  Chaque groupe applique un malus de <strong>-1</strong>. Si plusieurs caractéristiques sont cochées, le joueur choisit celle qui reçoit le malus (ex: <em>-1 INT ou CHA</em> pour le Demi-Orque).
+                  Chaque groupe applique un malus de <strong>-1</strong>. Si une caractéristique est répétée dans plusieurs groupes (ex: 2 groupes avec FOR pour le Farfadet), elle totalise <strong>-2</strong>.
                 </p>
               </div>
               <button
@@ -347,6 +410,19 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
               </button>
             </div>
 
+            {/* Synthèse Cumulée Globale des Malus */}
+            <div className="p-3 bg-stone-950 border border-red-900/50 rounded-lg flex items-center justify-between">
+              <span className="text-xs text-stone-300">
+                Total des malus cumulés :{' '}
+                <strong className="text-red-300 text-sm font-bold">
+                  {computeRacialSummary(people.malusOptions, '-')}
+                </strong>
+              </span>
+              <span className="text-[11px] text-stone-400 font-mono">
+                {(people.malusOptions || []).length} point{(people.malusOptions || []).length > 1 ? 's' : ''} de malus au total
+              </span>
+            </div>
+
             <div className="space-y-3">
               {(people.malusOptions || []).length === 0 ? (
                 <div className="text-xs text-stone-500 italic py-2">
@@ -356,7 +432,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                 people.malusOptions.map((group, gIdx) => {
                   const summaryText =
                     group.length === 0
-                      ? 'Aucune caractéristique sélectionnée'
+                      ? 'Aucune sélection'
                       : group.length === STATS.length
                       ? '-1 à n\'importe quelle caractéristique (au choix)'
                       : group.length === 1
@@ -371,7 +447,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-red-400 font-mono">
-                            Malus {gIdx + 1} (-1) :
+                            Groupe {gIdx + 1} (-1) :
                           </span>
                           <span className="text-xs font-semibold px-2 py-0.5 rounded bg-red-950 border border-red-800 text-red-200">
                             {summaryText}
@@ -390,7 +466,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
 
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         <span className="text-[10px] text-stone-400 mr-1 uppercase font-semibold">
-                          Cocher les options éligibles :
+                          Options éligibles :
                         </span>
                         {STATS.map(stat => {
                           const active = group.includes(stat);
@@ -399,7 +475,7 @@ export const PeopleForm: React.FC<PeopleFormProps> = ({
                               key={stat}
                               type="button"
                               onClick={() => updateMalusGroup(gIdx, stat)}
-                              className={`px-3 py-1 rounded text-xs font-bold transition-all ${
+                              className={`px-2.5 py-1 rounded text-xs font-bold transition-all ${
                                 active
                                   ? 'bg-red-600 text-stone-950 shadow-md scale-105 ring-2 ring-red-400'
                                   : 'bg-stone-900 text-stone-400 hover:bg-stone-800 hover:text-stone-200'
