@@ -3,34 +3,6 @@ import { createDefaultCharacter } from '../engine/rulesEngine';
 
 const VALID_STATS: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
 
-export const LEGACY_ID_MAP: Record<string, string> = {
-  // Profiles
-  'r-deur': 'rodeur',
-  'pr-tre': 'pretre',
-  // Paths
-  'voie-de-la-pr-cision': 'voie-de-la-precision',
-  'voie-de-la-s-duction': 'voie-de-la-seduction',
-  'voie-du-combat-deux-armes': 'voie-du-combat-a-deux-armes',
-  'voie-du-d-placement': 'voie-du-deplacement',
-  'voie-du-ma-tre-d-armes': 'voie-du-maitre-d-armes',
-  'voie-de-la-r-sistance': 'voie-de-la-resistance',
-  'voie-de-l-envo-teur': 'voie-de-l-envouteur',
-  'voie-des-lixirs': 'voie-des-elixirs',
-  'voie-du-m-tal': 'voie-du-metal',
-  'voie-de-la-magie-l-mentaire': 'voie-de-la-magie-elementaire',
-  'voie-du-d-mon': 'voie-du-demon',
-  'voie-des-v-g-taux': 'voie-des-vegetaux',
-  'voie-de-l-nergie-vitale': 'voie-de-l-energie-vitale',
-  'voie-de-la-ma-trise': 'voie-de-la-maitrise',
-  'voie-de-la-m-ditation': 'voie-de-la-meditation',
-  'voie-de-la-pri-re': 'voie-de-la-priere',
-  'voie-de-la-spiritualit-': 'voie-de-la-spiritualite',
-};
-
-export function migrateLegacyId(id: string): string {
-  return LEGACY_ID_MAP[id] || id;
-}
-
 export interface ValidationResult {
   isValid: boolean;
   character: CharacterSheet;
@@ -38,7 +10,7 @@ export interface ValidationResult {
 }
 
 /**
- * Validates, repairs and migrates an untrusted character object (from file or storage).
+ * Validates and repairs an untrusted character object (from file or storage).
  * Guarantees a robust, non-crashing CharacterSheet object conforming to the current schema.
  */
 export function validateAndMigrateCharacter(data: unknown): ValidationResult {
@@ -60,9 +32,9 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
   const version = typeof raw.version === 'string' ? raw.version : '1.0.0';
   const name = typeof raw.name === 'string' && raw.name.trim() ? raw.name : 'Héros sans nom';
   const playerName = typeof raw.playerName === 'string' ? raw.playerName : '';
-  const peopleId = typeof raw.peopleId === 'string' ? migrateLegacyId(raw.peopleId) : defaultChar.peopleId;
-  const profileId = typeof raw.profileId === 'string' ? migrateLegacyId(raw.profileId) : defaultChar.profileId;
-  const secondaryProfileId = typeof raw.secondaryProfileId === 'string' ? migrateLegacyId(raw.secondaryProfileId) : undefined;
+  const peopleId = typeof raw.peopleId === 'string' ? raw.peopleId : defaultChar.peopleId;
+  const profileId = typeof raw.profileId === 'string' ? raw.profileId : defaultChar.profileId;
+  const secondaryProfileId = typeof raw.secondaryProfileId === 'string' ? raw.secondaryProfileId : undefined;
   const level = Number.isInteger(raw.level) && raw.level >= 1 && raw.level <= 20 ? raw.level : 1;
 
   // Validate Base Stats
@@ -80,34 +52,24 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     warnings.push('Bloc de caractéristiques de base absent, initialisé aux valeurs par défaut.');
   }
 
-  // Validate Paths and Abilities (with legacy ID migrations)
+  // Validate Paths and Abilities
   const selectedPathIds: string[] = Array.isArray(raw.selectedPathIds)
-    ? raw.selectedPathIds
-        .filter((p: unknown) => typeof p === 'string')
-        .map((p: string) => migrateLegacyId(p))
+    ? raw.selectedPathIds.filter((p: unknown) => typeof p === 'string')
     : defaultChar.selectedPathIds;
 
   const acquiredAbilities: Array<{ pathId: string; rank: number }> = Array.isArray(raw.acquiredAbilities)
     ? raw.acquiredAbilities
         .filter((a: any) => a && typeof a.pathId === 'string' && Number.isInteger(a.rank) && a.rank >= 1 && a.rank <= 8)
-        .map((a: any) => ({ pathId: migrateLegacyId(a.pathId), rank: a.rank }))
+        .map((a: any) => ({ pathId: a.pathId, rank: a.rank }))
     : defaultChar.acquiredAbilities;
 
-  // Migrate path choices keys if applicable
+  // Validate path choices keys if applicable
   let pathRankChoices: Record<string, string> | undefined = undefined;
   if (raw.pathRankChoices && typeof raw.pathRankChoices === 'object') {
     pathRankChoices = {};
     for (const [key, val] of Object.entries(raw.pathRankChoices)) {
       if (typeof val === 'string') {
-        const lastUnderscore = key.lastIndexOf('_');
-        if (lastUnderscore !== -1) {
-          const rawPid = key.substring(0, lastUnderscore);
-          const rankSuffix = key.substring(lastUnderscore);
-          const migratedPid = migrateLegacyId(rawPid);
-          pathRankChoices[`${migratedPid}${rankSuffix}`] = val;
-        } else {
-          pathRankChoices[key] = val;
-        }
+        pathRankChoices[key] = val;
       }
     }
   }
@@ -118,7 +80,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     for (const [key, val] of Object.entries(raw.externalAbilityChoices)) {
       const v = val as any;
       if (v && typeof v.pathId === 'string' && Number.isInteger(v.rank)) {
-        externalAbilityChoices[key] = { pathId: migrateLegacyId(v.pathId), rank: v.rank };
+        externalAbilityChoices[key] = { pathId: v.pathId, rank: v.rank };
       }
     }
   }

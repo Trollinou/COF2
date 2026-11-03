@@ -495,10 +495,7 @@ export function checkWeaponProficiency(
 
   // Sacred weapon exception for Priests (Règles COF2 / Compagnon):
   if (
-    (profileId === "pretre" ||
-      profileId === "pr-tre" ||
-      secondaryProfileId === "pretre" ||
-      secondaryProfileId === "pr-tre") &&
+    (profileId === "pretre" || secondaryProfileId === "pretre") &&
     deityOrDomainPathId
   ) {
     const deity =

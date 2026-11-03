@@ -44,11 +44,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
     : selectedProfile.paths;
 
   const selectedProfilePaths = character.selectedPathIds.filter(id => allProfilePathIds.includes(id));
-  const isPriest =
-    selectedProfile.id === 'pretre' ||
-    selectedProfile.id === 'pr-tre' ||
-    secondaryProfile?.id === 'pretre' ||
-    secondaryProfile?.id === 'pr-tre';
+  const isPriest = selectedProfile.id === 'pretre' || secondaryProfile?.id === 'pretre';
   const isMage = isMageProfile(selectedProfile.id) || (secondaryProfile ? isMageProfile(secondaryProfile.id) : false);
   const defaultRacialPathId = getRacialPathId(character.peopleId);
   const defaultRacialPath = getPathById(defaultRacialPathId);

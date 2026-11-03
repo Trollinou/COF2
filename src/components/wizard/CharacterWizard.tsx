@@ -152,7 +152,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
 
     const existingThirdPath = character.selectedPathIds.find(id => !allProfilePaths.includes(id));
     if (existingThirdPath && (
-      (isDomainPath(existingThirdPath) && (character.profileId === 'pretre' || character.profileId === 'pr-tre' || character.secondaryProfileId === 'pretre' || character.secondaryProfileId === 'pr-tre')) ||
+      (isDomainPath(existingThirdPath) && (character.profileId === 'pretre' || character.secondaryProfileId === 'pretre')) ||
       (existingThirdPath === 'voie-du-mage' && (isMageProfile(character.profileId) || (character.secondaryProfileId ? isMageProfile(character.secondaryProfileId) : false)))
     )) {
       return;
