@@ -11,6 +11,7 @@ dist/
 dist-electron/
 release/
 out/
+tools/**/dist/
 
 # Environment variables & local secrets
 .env
@@ -35,6 +36,7 @@ coverage/
 *.bak
 *.swp
 *~
+src/data/backups/
 
 # Logs
 logs/

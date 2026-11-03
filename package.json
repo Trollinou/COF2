@@ -9,6 +9,7 @@
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
+    "data:editor": "vite --config tools/data-editor/vite.config.ts",
     "test": "vitest run",
     "build": "tsc && vite build",
     "preview": "vite preview",

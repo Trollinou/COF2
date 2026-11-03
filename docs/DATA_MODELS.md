@@ -477,3 +477,22 @@ Lorsque vous ajoutez ou vérifiez une capacité dans `paths.json`, suivez cet ar
    npm test
    npm run build
    ```
+
+---
+
+## 8. 🛠️ Éditeur de Données Interne (`tools/data-editor/`)
+
+Pour faciliter la maintenance, l'ajout et l'audit sans avoir à manipuler manuellement des centaines de lignes de JSON, un outil autonome de développement est disponible dans `tools/data-editor/`.
+
+### 8.1. Lancement
+```bash
+npm run data:editor
+```
+Le serveur local Vite démarre sur `http://localhost:5180` avec ouverture automatique dans le navigateur.
+
+### 8.2. Fonctionnalités Clés
+- **Master-Detail ergonomique** : Navigation et recherche instantanée par type (`Voies`, `Profils`, `Peuples`, `Armures`, `Armes`, `Tables`).
+- **Édition directe & sécurisée** : Lecture et écriture atomique dans `src/data/*.json`.
+- **Sauvegarde automatique (`.bak`)** : Chaque écriture génère une copie horodatée dans `src/data/backups/` avec possibilité de restauration en 1 clic.
+- **Tableau de Bord d'Audit relationnel** : Détecte immédiatement les erreurs de clés étrangères (voies introuvables, armes orphelines, IDs dupliqués) avec lien direct de correction.
+

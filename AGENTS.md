@@ -155,6 +155,7 @@ COF2/
 | Commande | Action |
 | :--- | :--- |
 | `npm run dev` | Lance le serveur Vite en mode développement web |
+| `npm run data:editor` | Lance l'éditeur de données autonome pour `src/data/*.json` |
 | `npm run electron:dev` | Compile Electron et lance l'application desktop en mode dev |
 | `npm test` | Exécute la suite de tests unitaires Vitest |
 | `npm run build` | Vérifie les types (`tsc`) et génère le bundle de production Vite |
