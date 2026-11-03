@@ -46,9 +46,24 @@ export const CombatTab: React.FC<CombatTabProps> = ({
     summaryShield: 'Boucliers autorisés',
     summaryWeapons: 'Armes courantes',
   };
-  const allowedArmors = getAllowedArmors(character.profileId);
-  const allowedShields = getAllowedShields(character.profileId);
-  const allowedWeapons = getAllowedWeapons(character.profileId, character.peopleId);
+  const allowedArmors = getAllowedArmors(
+    character.profileId,
+    character.secondaryProfileId,
+    character.peopleId,
+  );
+  const equippedArmor = allowedArmors.find(
+    a => a.id === character.equippedArmorId,
+  );
+  const allowedShields = getAllowedShields(
+    character.profileId,
+    character.secondaryProfileId,
+  );
+  const allowedWeapons = getAllowedWeapons(
+    character.profileId,
+    character.peopleId,
+    character.secondaryProfileId,
+    character.acquiredAbilities,
+  );
   const hasTwoHandedWeapon = character.weapons.some(w => w.requiresTwoHands);
   const hasShield = !!character.equippedShieldId;
 
@@ -90,6 +105,11 @@ export const CombatTab: React.FC<CombatTabProps> = ({
                 <span className="text-[10px] text-stone-400 block mt-1">
                   Limite profil : {profileRule.summaryArmor}
                 </span>
+                {equippedArmor?.notes && (
+                  <p className="text-[11px] text-amber-300/90 bg-amber-950/30 border border-amber-800/50 rounded px-2 py-1 mt-1.5">
+                    {equippedArmor.notes}
+                  </p>
+                )}
               </>
             )}
           </div>
@@ -224,6 +244,11 @@ export const CombatTab: React.FC<CombatTabProps> = ({
                         {atkInfo.isSubstituted && atkInfo.sourceName && (
                           <span className="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/70 px-1.5 py-0.5 rounded font-medium">
                             {atkInfo.statUsed} [{atkInfo.sourceName}]
+                          </span>
+                        )}
+                        {atkInfo.critMin < 20 && (
+                          <span className="text-[10px] bg-rose-950/80 text-rose-300 border border-rose-700/70 px-1.5 py-0.5 rounded font-mono font-bold">
+                            Crit {atkInfo.critRange}
                           </span>
                         )}
                       </div>

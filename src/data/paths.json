@@ -26,7 +26,17 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "barbare",
+              "guerrier"
+            ],
+            "maxRank": 1,
+            "label": "Capacité de Barbare ou Guerrier (Rang 1)"
+          }
+        }
       },
       {
         "rank": 3,
@@ -35,7 +45,13 @@
         "isSpell": false,
         "description": "Le demi‑orc augmente de 1 point la zone de critique sur une attaque au contact (19‑20 au d20) et ajoute +1d4° aux DM en cas de critique.",
         "modifiers": {
-          "critRangeBonus": 1
+          "weaponModifiers": [
+            {
+              "category": "contact",
+              "critRangeBonus": 1,
+              "note": "+1d4° DM en cas de critique au contact"
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -124,7 +140,19 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "magicien",
+              "ensorceleur"
+            ],
+            "maxRank": 1,
+            "alternativeMaxRankNoArmor": 2,
+            "ignoreArmorPenalty": true,
+            "label": "Capacité de Magicien ou Ensorceleur (Rang 1, ou Rang 2 sans armure)"
+          }
+        }
       },
       {
         "rank": 4,
@@ -210,7 +238,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "druide",
+              "rodeur"
+            ],
+            "maxRank": 1,
+            "maxFreeSpellArmorId": "cuir-renforce",
+            "label": "Capacité de Druide ou Rôdeur (Rang 1)"
+          }
+        }
       },
       {
         "rank": 3,
@@ -222,7 +261,27 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "weaponModifiers": [
+            {
+              "tags": [
+                "arc"
+              ],
+              "critRangeBonus": 1,
+              "note": "+1d4° DM en cas de critique à l'arc"
+            },
+            {
+              "weaponIds": [
+                "arc-court"
+              ],
+              "grantProficiency": true
+            }
+          ],
+          "situationalNotes": [
+            "Archer émérite : Crit +1 et +1d4° DM sur critique aux arcs, maîtrise de l'arc court"
+          ]
+        }
       },
       {
         "rank": 4,
@@ -276,7 +335,19 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "ensorceleur"
+            ],
+            "maxRank": 1,
+            "label": "Capacité d'Ensorceleur (Rang 1)"
+          },
+          "situationalNotes": [
+            "+3 aux tests scientifiques (INT), vision dans le noir 10 m"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -290,7 +361,12 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "bonusPC": 1,
+          "bonuses": [
+            {
+              "target": "pc",
+              "flat": 1
+            }
+          ],
           "situationalNotes": [
             "+1 PC, +3 tests interaction sociale (sauf intimidation)"
           ]
@@ -323,7 +399,23 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "weaponModifiers": [
+            {
+              "tags": [
+                "arbalete",
+                "poudre"
+              ],
+              "grantProficiency": true,
+              "damageStatBonus": "AGI",
+              "note": "+AGI aux DM des arbalètes et armes à poudre"
+            }
+          ],
+          "situationalNotes": [
+            "Merveille technologique : maîtrise arbalètes/armes à poudre et +AGI aux DM"
+          ]
+        }
       },
       {
         "rank": 5,
@@ -362,7 +454,12 @@
         "isSpell": false,
         "description": "Le halfelin obtient un bonus de +1 en DEF et de +3 à tous les tests de discrétion ainsi qu'à tous les tests effectués pour subtiliser quelque chose (pickpocket, vol à l'étalage, etc.). En revanche, un halfelin ne peut pas utiliser à une main une arme dont les DM dépassent 1d6 (épée courte, masse, etc., mais pas rapière). Il lui faut utiliser les deux mains pour les armes qui infligent 1d8 à 1d10 de DM (épée longue) et il lui est interdit d'utiliser les armes qui infligent plus de 1d10 DM. Il ne peut pas utiliser d'arc long ni d'arbalète lourde.",
         "modifiers": {
-          "defense": 1,
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ],
           "situationalNotes": [
             "+1 en DEF (petite taille), +3 discrétion"
           ]
@@ -404,7 +501,12 @@
         "isSpell": false,
         "description": "Le halfelin gagne 1 PC supplémentaire. De plus, il peut esquiver une attaque de son choix par combat (avant d'avoir pris connaissance des DM, mais pas un critique).",
         "modifiers": {
-          "bonusPC": 1,
+          "bonuses": [
+            {
+              "target": "pc",
+              "flat": 1
+            }
+          ],
           "situationalNotes": [
             "+1 PC, esquive 1 attaque par combat"
           ]
@@ -455,7 +557,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "pc",
+              "flat": 1
+            }
+          ],
+          "situationalNotes": [
+            "Diversité : +1 PC et +3 dans deux domaines d'origine"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -479,7 +592,14 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": "any",
+            "maxRank": 2,
+            "label": "Capacité de n'importe quel profil (Rang 1 ou 2)"
+          }
+        }
       },
       {
         "rank": 4,
@@ -503,7 +623,71 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "stats": {
+            "VOL": 1
+          },
+          "choiceOptions": [
+            {
+              "id": "opt_for",
+              "label": "+1 en FOR (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1
+                }
+              }
+            },
+            {
+              "id": "opt_agi",
+              "label": "+1 en AGI (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1
+                }
+              }
+            },
+            {
+              "id": "opt_con",
+              "label": "+1 en CON (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "CON": 1
+                }
+              }
+            },
+            {
+              "id": "opt_per",
+              "label": "+1 en PER (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "PER": 1
+                }
+              }
+            },
+            {
+              "id": "opt_int",
+              "label": "+1 en INT (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "INT": 1
+                }
+              }
+            },
+            {
+              "id": "opt_cha",
+              "label": "+1 en CHA (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "CHA": 1
+                }
+              }
+            }
+          ],
+          "situationalNotes": [
+            "Polyvalence : +1 VOL et +1 dans la caractéristique la plus faible"
+          ]
+        }
       }
     ],
     "type": "racial",
@@ -535,6 +719,18 @@
         "modifiers": {
           "situationalNotes": [
             "+1 en attaque et aux DM avec hache ou marteau de guerre"
+          ],
+          "weaponModifiers": [
+            {
+              "tags": [
+                "hache",
+                "marteau"
+              ],
+              "grantProficiency": true,
+              "attackBonus": 1,
+              "damageBonus": 1,
+              "note": "+1 ATQ et +1 DM avec haches et marteaux"
+            }
           ]
         },
         "isLimited": false,
@@ -565,7 +761,21 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "damageReduction",
+              "flat": 2,
+              "atLevel": {
+                "10": 3
+              }
+            }
+          ],
+          "situationalNotes": [
+            "Fils du roc : RD 2 (passe à RD 3 au niveau 10)"
+          ]
+        }
       },
       {
         "rank": 5,
@@ -769,7 +979,24 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ],
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "guerrier",
+              "voleur",
+              "rodeur"
+            ],
+            "maxRank": 1,
+            "label": "Capacité de Guerrier, Voleur ou Rôdeur (Rang 1)"
+          }
+        }
       },
       {
         "rank": 4,
@@ -797,6 +1024,14 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Si le combat implique au moins 10 créatures actives (en comptant l'arquebusier et ses alliés), l'arquebusier obtient, au choix, une action d'attaque ou une action de mouvement supplémentaire à son tour. De plus, l'arquebusier gagne +1 en DEF.\n\n**Note:** à titre exceptionnel, si la voie du mercenaire est choisie pour construire un profil hybride, elle ne donne pas accès à la maîtrise des armes à poudre. En revanche, elle n'interdit pas le port du bouclier.",
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ]
+        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -859,8 +1094,7 @@
             "AGI": 1
           },
           "situationalNotes": [
-            "Dé bonus aux tests d'AGI",
-            "Dé bonus aux tests de AGI"
+            "Dé bonus aux tests d'AGI"
           ]
         },
         "isLimited": false,
@@ -924,7 +1158,16 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "weaponModifiers": [
+            {
+              "category": "distance",
+              "critRangeBonus": 1,
+              "note": "Critique 19-20 à distance (18-20 au rang 5)"
+            }
+          ]
+        }
       },
       {
         "rank": 4,
@@ -948,7 +1191,16 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "weaponModifiers": [
+            {
+              "category": "distance",
+              "critRangeBonus": 1,
+              "note": "Tir précis (Rang 5) : critique 18-20 à distance"
+            }
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -1082,14 +1334,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Le barde crée une zone de silence fixe de 5 m de diamètre, jusqu'à une portée de 30 m, pendant un nombre de minutes égal à sa valeur de CHA. Tous les sons émis dans cette sphère sont annulés. Dans cette zone, il faut réussir un test d'INT difficulté 10 pour lancer un sort.",
-        "modifiers": {
-          "stats": {
-            "CHA": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de CHA"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -1136,8 +1380,19 @@
         "isSpell": false,
         "description": "Le barde gagne son CHA en Initiative et +1 en DEF (+2 au rang 4). De plus, le barde ajoute son rang + 2 aux tests de danse, de mime ou de jonglerie.",
         "modifiers": {
-          "initiativeStatBonus": "CHA",
-          "defense": 1
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "4": 2
+              }
+            },
+            {
+              "target": "initiative",
+              "stat": "CHA"
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -1163,12 +1418,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Le barde est immunisé à la peur et à tous les sorts qui asservissent l'esprit (possession, charme), il est immunisé aux états ralenti et immobilisé.",
-        "modifiers": {
-          "defense": 1,
-          "situationalNotes": [
-            "Immunisé à la peur, charme et étourdissement"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -1215,9 +1464,14 @@
         "isSpell": false,
         "description": "Le barde ne met pas d'armure, cela ne sied point en société. Sa seule armure est la dentelle, sa seule défense, la rapière. Lorsqu'il ne porte aucune armure, le barde ajoute son CHA en DEF (en plus de son AGI), toutefois ce bonus ne peut pas dépasser le rang atteint dans la voie.",
         "modifiers": {
-          "defenseStatBonus": "CHA",
-          "defenseCondition": "noArmor",
-          "defenseMaxRankCapped": true,
+          "bonuses": [
+            {
+              "target": "defense",
+              "stat": "CHA",
+              "condition": "noArmor",
+              "cap": "rank"
+            }
+          ],
           "situationalNotes": [
             "Dentelles et rapière : +CHA en DEF sans armure (max rang dans la voie)"
           ]
@@ -1358,9 +1612,20 @@
         "isSpell": false,
         "description": "Le rôdeur ajoute sa PER aux DM qu'il inflige à l'arc et +1 par rang dans la voie en initiative. Le joueur peut souhaiter une variante de cette capacité s'appliquant aux armes de jet (dague, hachette, javelot) plutôt qu'à l'arc (rebaptisez‑la voie du lancer). Dans ce cas, le PJ ajoute sa FOR aux DM qu'il inflige et double la portée de jet (pas de bonus d'Init.). Par ailleurs, toutes les capacités de la voie qui suivent s'appliquent aux armes de jet plutôt qu'à l'arc.",
         "modifiers": {
-          "initiative": 1,
-          "situationalNotes": [
-            "+PER aux DM à l'arc, +1 en Init par rang dans la voie"
+          "bonuses": [
+            {
+              "target": "initiative",
+              "perRank": 1
+            }
+          ],
+          "weaponModifiers": [
+            {
+              "tags": [
+                "arc"
+              ],
+              "damageStatBonus": "PER",
+              "note": "+PER aux DM à l'arc"
+            }
           ]
         },
         "isLimited": false,
@@ -1375,12 +1640,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Le rôdeur peut tirer sur une cible engagée en mêlée sans pénalité (mais pas sur une cible à couvert). Il ne risque jamais de toucher un allié, même en cas d'échec critique.",
-        "modifiers": {
-          "initiative": 1,
-          "situationalNotes": [
-            "Tir en mêlée sans pénalité ni risque pour les alliés"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -1393,12 +1652,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Pour une attaque à distance, le rôdeur peut choisir de s'imposer un *dé malus* en attaque. Si elle est réussie, il ajoute 2d4° aux DM. Cette capacité peut être utilisée avec Tir rapide ou Flèche de mort par exemple. Transformez cette capacité en action limitée (L) pour obtenir +3d4° aux DM au lieu de 2d4°.",
-        "modifiers": {
-          "initiative": 1,
-          "situationalNotes": [
-            "Option : dé malus pour +2d4° DM à distance (+3d4° en action limitée)"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -1411,12 +1664,6 @@
         "actionType": "Limitée",
         "isSpell": false,
         "description": "Le rôdeur peut faire deux attaques à distance pendant son tour avec un malus de -2.",
-        "modifiers": {
-          "initiative": 1,
-          "situationalNotes": [
-            "Action limitée : 2 attaques à distance à -2"
-          ]
-        },
         "isLimited": true,
         "isAttack": true,
         "isMovement": false,
@@ -1429,12 +1676,6 @@
         "actionType": "Limitée",
         "isSpell": false,
         "description": "Vous obtenez un dé bonus en attaque à distance et vous ajoutez 1d4° aux DM. Au lieu du dé bonus et de +1d4° aux DM, vous pouvez infliger un état préjudiciable de votre choix parmi aveuglé, affaibli, ralenti ou immobilisé pendant 1 round à une cible d'un NC inférieur au vôtre. Vous ne pouvez infliger chaque état préjudiciable qu'une seule fois par combat.",
-        "modifiers": {
-          "initiative": 1,
-          "situationalNotes": [
-            "Action limitée : dé bonus à distance et +1d4° DM (ou état préjudiciable 1 rd)"
-          ]
-        },
         "isLimited": true,
         "isAttack": true,
         "isMovement": false,
@@ -1481,12 +1722,28 @@
               {
                 "name": "Morsure",
                 "attackBonus": "Attaque magique du rôdeur",
-                "damage": "1d4+2"
+                "damage": "1d4+2",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
             ],
             "specialFeatures": [
               "Le loup obtient un dé bonus sur ses tests d'AGI, de CON et de PER."
-            ]
+            ],
+            "defenseFormula": {
+              "base": 12,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 4
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -1521,7 +1778,6 @@
         "isSpell": false,
         "description": "Le loup du rôdeur devient un spécimen particulièrement puissant.",
         "modifiers": {
-          "hpBonus": 5,
           "situationalNotes": [
             "+5 PV max pour le rôdeur"
           ]
@@ -1551,9 +1807,24 @@
               {
                 "name": "Morsure féroce",
                 "attackBonus": "Attaque magique du rôdeur",
-                "damage": "1d4°+5"
+                "damage": "1d4°+5",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
-            ]
+            ],
+            "defenseFormula": {
+              "base": 18
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -1670,7 +1941,32 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "choiceOptions": [
+            {
+              "id": "opt_pc",
+              "label": "Conserver +1 PC (Aventurier)",
+              "modifiers": {}
+            },
+            {
+              "id": "opt_dr",
+              "label": "Remplacer +1 PC par +1 DR",
+              "modifiers": {
+                "bonuses": [
+                  {
+                    "target": "pc",
+                    "flat": -1
+                  },
+                  {
+                    "target": "dr",
+                    "flat": 1
+                  }
+                ]
+              }
+            }
+          ]
+        }
       },
       {
         "rank": 2,
@@ -1780,11 +2076,31 @@
         "isSpell": false,
         "description": "Le rôdeur augmente sa valeur d'AGI de +1 et obtient un dé bonus aux tests d'AGI (lancer deux d20 et conserver le plus haut résultat). Plutôt qu'augmenter son AGI, le personnage peut choisir d'augmenter sa valeur de FOR de +1 (pas de dé bonus aux tests) et peut désormais attaquer avec la même arme dans la main secondaire sans subir de dé malus (par exemple deux épées longues).",
         "modifiers": {
-          "stats": {
-            "AGI": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de AGI"
+          "choiceOptions": [
+            {
+              "id": "opt_agi",
+              "label": "+1 en AGI (et dé bonus aux tests d'AGI)",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1
+                },
+                "situationalNotes": [
+                  "Dé bonus aux tests d'AGI"
+                ]
+              }
+            },
+            {
+              "id": "opt_for",
+              "label": "+1 en FOR (arme identique en main secondaire sans dé malus)",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1
+                },
+                "situationalNotes": [
+                  "Arme identique en main secondaire sans dé malus"
+                ]
+              }
+            }
           ]
         },
         "isLimited": false,
@@ -1856,14 +2172,6 @@
         "actionType": "Mouvement",
         "isSpell": false,
         "description": "Une fois par combat, le voleur peut disparaître dans un flash lumineux et un nuage de fumée. Aucun adversaire ne peut l'attaquer pendant qu'il a disparu, mais il peut subir des DM de zone. Il ne réapparaît qu'au début de son prochain tour à une distance maximale de 20 m de sa position initiale. À ce moment, si le voleur a l'initiative, il peut réaliser une attaque sournoise.",
-        "modifiers": {
-          "stats": {
-            "AGI": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests d'AGI"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": true,
@@ -1909,12 +2217,6 @@
         "actionType": "Limitée",
         "isSpell": false,
         "description": "Le voleur maîtrise l'art de se rendre désagréable, voire insupportable. S'il emporte un test opposé de CHA contre INT d'un adversaire humanoïde à moins de 10 m, il force la cible à l'attaquer à son prochain tour. À ce moment-là, si le voleur est au contact, il peut riposter par une attaque de contact gratuite pour laquelle il bénéficie au choix d'une attaque sournoise ou d'un bonus de 1d4° aux DM.",
-        "modifiers": {
-          "bonusPC": 1,
-          "situationalNotes": [
-            "+1 PC"
-          ]
-        },
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
@@ -1933,10 +2235,21 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 2,
-          "initiative": 2,
-          "situationalNotes": [
-            "+2 en DEF et en Initiative (+3 au rang 5)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "atRank": {
+                "5": 3
+              }
+            },
+            {
+              "target": "initiative",
+              "flat": 2,
+              "atRank": {
+                "5": 3
+              }
+            }
           ]
         }
       },
@@ -1948,12 +2261,9 @@
         "description": "Le voleur augmente sa valeur de CHA de +1. Désormais, il obtient un dé bonus aux tests de CHA.",
         "modifiers": {
           "stats": {
-            "INT": 1,
             "CHA": 1
           },
-          "bonusPC": 1,
           "situationalNotes": [
-            "+1 PC supplémentaire, dé bonus aux tests d'INT",
             "Dé bonus aux tests de CHA"
           ]
         },
@@ -1973,11 +2283,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1,
-          "initiative": 1
-        }
+        "isPassive": false
       }
     ],
     "type": "profile",
@@ -2000,10 +2306,23 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 1,
-          "initiative": 1,
-          "situationalNotes": [
-            "+1 en DEF et en Initiative (+2 au R3, +3 au R5)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "3": 2,
+                "5": 3
+              }
+            },
+            {
+              "target": "initiative",
+              "flat": 1,
+              "atRank": {
+                "3": 2,
+                "5": 3
+              }
+            }
           ]
         }
       },
@@ -2029,11 +2348,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": true,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1,
-          "initiative": 1
-        }
+        "isPassive": false
       },
       {
         "rank": 4,
@@ -2046,7 +2361,7 @@
             "AGI": 1
           },
           "situationalNotes": [
-            "Dé bonus aux tests de AGI"
+            "Dé bonus aux tests d'AGI"
           ]
         },
         "isLimited": false,
@@ -2065,11 +2380,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": true,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1,
-          "initiative": 1
-        }
+        "isPassive": false
       }
     ],
     "type": "profile",
@@ -2090,7 +2401,19 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "weaponModifiers": [
+            {
+              "weaponIds": [
+                "dague",
+                "dague-de-lancer"
+              ],
+              "damageBonus": 1,
+              "note": "+1 DM à distance avec dagues/couteaux (+2 au R3, +3 au R5)"
+            }
+          ]
+        }
       },
       {
         "rank": 2,
@@ -2122,14 +2445,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Le voleur obtient un *dé bonus* sur tous les tests de recherche d'indice (Trouver une preuve [PER], Faire une déduction [INT] et Obtenir un aveu [CHA]) ainsi que pour tous les tests réalisés pour brouiller des pistes, réaliser de faux indices ou de faux documents. De plus, lorsqu'il est dans un lieu, s'il dépense 1 PC, le MJ devra lui donner un indice qui lui a échappé jusque-là. S'il n'y a pas d'indice, le PC n'est pas dépensé.",
-        "modifiers": {
-          "stats": {
-            "CHA": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de CHA"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -2173,6 +2488,12 @@
               "sourceName": "Attaque en finesse",
               "conditionNote": "Arme légère à 1 main"
             }
+          ],
+          "bonuses": [
+            {
+              "target": "initiative",
+              "stat": "AGI"
+            }
           ]
         },
         "isLimited": false,
@@ -2203,7 +2524,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "weaponModifiers": [
+            {
+              "tags": [
+                "legere"
+              ],
+              "critRangeBonus": 2,
+              "note": "Frappe chirurgicale : critique +2 avec arme légère (18-20)"
+            }
+          ]
+        }
       },
       {
         "rank": 4,
@@ -2222,7 +2554,7 @@
         "title": "Botte secrète",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Lorsque le voleur obtient un critique sur le dé d'une attaque au contact de sa main principale avec une arme légère (mais pas sur une ouverture mortelle), il inflige à sa cible un état préjudiciable au choix parmi affaibli, aveuglé, étourdi, immobilisé ou ralenti pendant 1 round. Vous ne pouvez infliger chaque état préjudiciable qu'une seule fois par combat. Alternativement, le voleur peut choisir que l'attaque devienne une attaque sournoise dont les DM s'ajoutent au critique (au lieu d'infliger un état préjudiciable).\n\n## CHAPITRE 5 : FAMILLE DES COMBATTANTS\n\nVous trouverez dans ce chapitre la description des trois profils de la famille des combattants: barbare, chevalier et guerrier. En cas de conflit, ces profils privilégient la force brute et le combat au contact.\n\nCes profils partagent les éléments suivants.\n\n- **Points de vigueur / niveau :** 5\n- **Dé de récupération :** d10",
+        "description": "Lorsque le voleur obtient un critique sur le dé d'une attaque au contact de sa main principale avec une arme légère (mais pas sur une ouverture mortelle), il inflige à sa cible un état préjudiciable au choix parmi affaibli, aveuglé, étourdi, immobilisé ou ralenti pendant 1 round. Vous ne pouvez infliger chaque état préjudiciable qu'une seule fois par combat. Alternativement, le voleur peut choisir que l'attaque devienne une attaque sournoise dont les DM s'ajoutent au critique (au lieu d'infliger un état préjudiciable).",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -2304,7 +2636,16 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "weaponModifiers": [
+            {
+              "category": "contact",
+              "critRangeBonus": 1,
+              "note": "Briseur d'os : critique +1 au contact (19-20)"
+            }
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -2325,7 +2666,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "hp",
+              "perRank": 1
+            }
+          ]
+        }
       },
       {
         "rank": 2,
@@ -2340,7 +2689,13 @@
               "replacementStat": "CON",
               "baseStat": "AGI",
               "sourceName": "Peau de pierre",
-              "conditionNote": "Si CON > AGI (limite armure)"
+              "conditionNote": "Si CON > AGI (limite armure)",
+              "fallbackDefenseBonus": {
+                "flat": 1,
+                "atRank": {
+                  "4": 2
+                }
+              }
             }
           ],
           "situationalNotes": [
@@ -2418,10 +2773,18 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 1,
-          "initiative": 3,
-          "situationalNotes": [
-            "+3 en Initiative, +1 en DEF (+2 au rang 5)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "5": 2
+              }
+            },
+            {
+              "target": "initiative",
+              "flat": 3
+            }
           ]
         }
       },
@@ -2455,14 +2818,6 @@
         "actionType": "Limitée",
         "isSpell": false,
         "description": "Le barbare parcourt 10 m en ligne droite en dépassant autant d'ennemis qu'il le souhaite. Il porte une attaque avec un malus de -2 à chaque adversaire sur son passage. Il doit traverser l'espace occupé par ceux-ci pour porter un coup, mais il ne peut terminer son déplacement à un endroit occupé par un ennemi.",
-        "modifiers": {
-          "stats": {
-            "FOR": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de FOR"
-          ]
-        },
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
@@ -2479,10 +2834,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": false
       }
     ],
     "type": "profile",
@@ -2503,7 +2855,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "hp",
+              "flat": 1
+            }
+          ]
+        }
       },
       {
         "rank": 2,
@@ -2515,7 +2875,22 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "atRank": {
+                "4": 3
+              },
+              "condition": "noArmor"
+            }
+          ],
+          "situationalNotes": [
+            "Armure de vent : +2 DEF sans armure (+3 au rang 4)"
+          ]
+        }
       },
       {
         "rank": 3,
@@ -2535,14 +2910,6 @@
         "actionType": "Gratuite",
         "isSpell": false,
         "description": "Le barbare devient capable de résister à la magie. Lorsqu'il est la cible d'un sort, une fois par round, il peut faire un test d'attaque magique\\* opposé à celui du sort (si le sort n'en demande pas, faites-en tout de même un à cette occasion). En cas de réussite, il n'en subit pas les effets.",
-        "modifiers": {
-          "stats": {
-            "CON": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de CON"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -2617,14 +2984,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Une fois par combat, le barbare peut ignorer les DM d'un coup critique (il ne subit aucun DM) et il peut alors immédiatement entrer en *Rage* par une action gratuite.",
-        "modifiers": {
-          "stats": {
-            "CON": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de CON"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -2704,14 +3063,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Le chevalier obtient une monture magique, qui peut apparaître et disparaître depuis un autre plan à volonté. Il peut l'invoquer à tout moment (c'est une action limitée) et elle apparaît alors pour se mettre à son service. Lorsqu'il la laisse au moins une heure dans son plan d'origine, elle guérit l'ensemble de ses PV.",
-        "modifiers": {
-          "stats": {
-            "FOR": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de FOR"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -2731,30 +3082,41 @@
         "isPassive": true,
         "companions": [
           {
-            "name": "Fidèle monture",
-            "category": "Monture fantastique (cheval lourd, ours, félin géant)",
+            "name": "Monture fantastique",
+            "category": "Monture puissante",
             "stats": {
               "FOR": "+5",
-              "AGI": "+0",
-              "CON": "+4*",
-              "PER": "+0",
+              "AGI": "+2",
+              "CON": "+4",
+              "PER": "+2",
               "INT": "-2",
               "VOL": "+2",
               "CHA": "+0"
             },
-            "defense": "20 (ou 12 + rang)",
-            "hp": "10 + Niveau × 6",
-            "initiative": "Init. du chevalier",
+            "defense": "20",
+            "hp": "[10 + niveau × 6]",
+            "initiative": "[Init. du chevalier]",
+            "defenseFormula": {
+              "base": 20
+            },
+            "hpFormula": {
+              "base": 10,
+              "perHeroLevel": 6
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
             "attacks": [
               {
                 "name": "Ruade ou morsure",
-                "attackBonus": "Attaque magique du chevalier",
-                "damage": "2d4°+5"
+                "attackBonus": "[attaque magique]",
+                "damage": "2d4°+5",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
-            ],
-            "specialFeatures": [
-              "En selle, le chevalier peut faire attaquer sa monture une fois par round en action gratuite.",
-              "Dès le niveau 9 : monture volante possible (PV : 10 + Niv. × 5, vol 20 m/mouvement)."
             ]
           }
         ]
@@ -2891,7 +3253,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "stats": {
+            "CHA": 1
+          },
+          "situationalNotes": [
+            "Dé bonus aux tests de CHA"
+          ]
+        }
       },
       {
         "rank": 5,
@@ -2956,14 +3326,6 @@
         "actionType": "Gratuite",
         "isSpell": false,
         "description": "Une fois par combat, lorsque le chevalier déclare l'utilisation de cette capacité, tous ses alliés en vue et lui obtiennent 10 m de déplacement supplémentaire au début de leur tour puis un dé bonus et +1d4° DM à toutes leurs attaques. Ne se cumule ni avec exemplaire ni avec ordre de bataille.",
-        "modifiers": {
-          "stats": {
-            "CHA": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de CHA"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -3013,7 +3375,57 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "weaponModifiers": [
+            {
+              "category": "contact",
+              "critRangeBonus": 1,
+              "note": "Écuyer : critique +1 au contact (19-20)"
+            }
+          ]
+        },
+        "companions": [
+          {
+            "name": "Écuyer",
+            "category": "Serviteur loyal",
+            "stats": {
+              "FOR": "+0",
+              "AGI": "+0",
+              "CON": "+0",
+              "PER": "+0",
+              "INT": "+0",
+              "VOL": "+0",
+              "CHA": "+0"
+            },
+            "defense": "[10 + rang]",
+            "hp": "[niveau × 4]",
+            "initiative": "[Init. du chevalier]",
+            "defenseFormula": {
+              "base": 10,
+              "perRankInPath": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perHeroLevel": 4
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "attacks": [
+              {
+                "name": "Arme",
+                "attackBonus": "[attaque magique]",
+                "damage": "1d4°+1",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ]
+          }
+        ]
       },
       {
         "rank": 3,
@@ -3101,9 +3513,14 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 1,
-          "situationalNotes": [
-            "Défense au bouclier : +1 DEF avec bouclier (+2 au rang 5)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "5": 2
+              }
+            }
           ]
         }
       },
@@ -3134,10 +3551,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": true,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": false
       }
     ],
     "type": "profile",
@@ -3158,7 +3572,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "initiative",
+              "flat": 3
+            }
+          ],
+          "situationalNotes": [
+            "Vivacité : +3 en Initiative"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -3190,14 +3615,6 @@
         "actionType": "Limitée",
         "isSpell": false,
         "description": "Le guerrier fait deux attaques au contact durant son tour avec un malus de -2.",
-        "modifiers": {
-          "stats": {
-            "FOR": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de FOR"
-          ]
-        },
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
@@ -3306,8 +3723,16 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "hpBonus": 2,
-          "hpPerRankInPath": true,
+          "bonuses": [
+            {
+              "target": "hp",
+              "flat": 2
+            },
+            {
+              "target": "hp",
+              "perRank": 1
+            }
+          ],
           "situationalNotes": [
             "Robustesse : + (rang + 2) PV max"
           ]
@@ -3335,7 +3760,32 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "choiceOptions": [
+            {
+              "id": "opt_def",
+              "label": "+1 en DEF",
+              "modifiers": {
+                "bonuses": [
+                  {
+                    "target": "defense",
+                    "flat": 1
+                  }
+                ]
+              }
+            },
+            {
+              "id": "opt_plaque",
+              "label": "Maîtrise de l'armure de plaques (DEF +6)",
+              "modifiers": {
+                "situationalNotes": [
+                  "Armure lourde : autorise l'armure de plaques (DEF +6)"
+                ]
+              }
+            }
+          ]
+        }
       },
       {
         "rank": 4,
@@ -3347,7 +3797,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "stats": {
+            "CON": 1
+          },
+          "situationalNotes": [
+            "Dé bonus aux tests de CON"
+          ]
+        }
       },
       {
         "rank": 5,
@@ -3359,7 +3817,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ],
+          "situationalNotes": [
+            "Dur à cuire : +1 DEF, agit 1 round à 0 PV (1/combat)"
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -3414,10 +3883,10 @@
         "description": "Le guerrier augmente sa FOR de +1. Désormais, il obtient un dé bonus aux tests de FOR.",
         "modifiers": {
           "stats": {
-            "CON": 1
+            "FOR": 1
           },
           "situationalNotes": [
-            "Dé bonus aux tests de CON"
+            "Dé bonus aux tests de FOR"
           ]
         },
         "isLimited": false,
@@ -3436,7 +3905,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -3483,8 +3960,16 @@
         "isSpell": true,
         "description": "Le mage peut réaliser un tour de magie (portée 10 m) par round en action gratuite sans dépenser aucun PM. Par exemple, fermer une porte à distance, éteindre ou allumer une bougie en claquant des doigts. Il ne peut réaliser aucune action qui nécessite une valeur de caractéristique supérieure à 0 (par exemple, s'il faut au moins +1 ou un test de FOR pour pousser une porte lourde, ce sort ne permet pas de la fermer). Cette capacité ne peut produire aucun DM direct. De plus, le mage gagne +1 en DEF et +2 PM (en plus de celui gagné avec cette capacité ; au total, en apprenant ce sort, le mage acquiert donc 3 PM d'un coup).",
         "modifiers": {
-          "defense": 1,
-          "bonusPm": 2
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            },
+            {
+              "target": "pm",
+              "flat": 2
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -3546,6 +4031,18 @@
         "actionType": "Gratuite",
         "isSpell": true,
         "description": "L'ensorceleur chuchote un message d'une dizaine de mots qui voyage jusqu'à son destinataire. Il peut entendre sa réponse immédiatement. La portée est de CHA × 100 m et le personnage doit connaître la cible ou la voir. En plus de ce sort, l'ensorceleur gagne un bonus permanent de +1 en Init. et en DEF, car parfois une bourrasque venue de nulle part vient gêner son attaquant, dévier un projectile ou lui permettre d'entendre un adversaire.",
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "initiative",
+              "flat": 1
+            },
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ]
+        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -3582,14 +4079,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "L'ensorceleur produit un éclair sur une ligne de 10 m. Toutes les créatures sur la trajectoire subissent [4d4°+CHA] DM ou seulement la moitié pour celles qui réussissent un test d'AGI difficulté [10 + CHA].",
-        "modifiers": {
-          "stats": {
-            "AGI": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests d'AGI"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -3623,18 +4112,31 @@
         "actionType": "Limitée",
         "isSpell": true,
         "description": "S'il emporte un test opposé d'attaque magique contre une créature de NC inférieur à son niveau (portée 10 m), l'ensorceleur devine son nom d'usage, son métier et quelques autres renseignements, tous de notoriété publique (si la cible agit sous couverture, ce sont les informations qui concernent la couverture que l'ensorceleur apprend). Si la cible du sort est volontaire et qu'il lit les lignes de sa main, il n'y a pas besoin de test et l'ensorceleur peut utiliser ce sort sur une créature de NC supérieur ou égal à son niveau. En plus de ce sort, l'ensorceleur gagne +1 en Init. et en DEF. Ce bonus augmente de +1 au rang 3 de la voie et de +1 chaque fois que le personnage atteint le rang 5 dans une voie d'ensorceleur.",
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "3": 2,
+                "5": 3
+              }
+            },
+            {
+              "target": "initiative",
+              "flat": 1,
+              "atRank": {
+                "3": 2,
+                "5": 3
+              }
+            }
+          ]
+        },
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1,
-          "initiative": 1,
-          "situationalNotes": [
-            "+1 en Init et DEF (+2 au R3, +3 au R5)"
-          ]
-        }
+        "isPassive": false
       },
       {
         "rank": 2,
@@ -3658,11 +4160,7 @@
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1,
-          "initiative": 1
-        }
+        "isPassive": false
       },
       {
         "rank": 4,
@@ -3674,6 +4172,12 @@
           "stats": {
             "PER": 1
           },
+          "bonuses": [
+            {
+              "target": "pm",
+              "stat": "PER"
+            }
+          ],
           "situationalNotes": [
             "Dé bonus aux tests de PER"
           ]
@@ -3694,11 +4198,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true,
-        "modifiers": {
-          "defense": 1,
-          "initiative": 1
-        }
+        "isPassive": true
       }
     ],
     "type": "profile",
@@ -3820,14 +4320,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Pendant CHA minutes, l'ensorceleur peut prendre l'apparence d'une créature de taille proche de la sienne (+ ou – 50 cm) qu'il voit au moment de l'incantation. Une créature qui touche l'ensorceleur se rend compte que quelque chose ne va pas et a le droit à un test d'INT difficulté [10 + CHA de l'ensorceleur] pour voir à travers l'illusion.",
-        "modifiers": {
-          "stats": {
-            "CHA": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de CHA"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -3897,14 +4389,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "L'ensorceleur se téléporte lui-même et jusqu'à un allié par point de CHA à une distance maximale de 60 m. Le lieu d'arrivée doit être en vue.",
-        "modifiers": {
-          "stats": {
-            "VOL": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de VOL"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -3974,14 +4458,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Le forgesort frappe le sol de son bâton et provoque une onde dévastatrice dans un rayon de 10 m autour de lui. Toutes les créatures dans la zone subissent automatiquement [3d4°+INT] DM et doivent réussir un test de FOR difficulté [10 + INT] pour ne pas être *renversées*.",
-        "modifiers": {
-          "stats": {
-            "INT": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests d'INT"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -4136,7 +4612,22 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "stats": {
+            "CON": 1
+          },
+          "bonuses": [
+            {
+              "target": "pm",
+              "stat": "CON"
+            }
+          ],
+          "situationalNotes": [
+            "Dé bonus aux tests de CON",
+            "DM de feu subis divisés par 2"
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -4190,9 +4681,25 @@
               {
                 "name": "Coup de poing",
                 "attackBonus": "Attaque magique du forgesort",
-                "damage": "1d4°+1"
+                "damage": "1d4°+1",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
-            ]
+            ],
+            "defenseFormula": {
+              "base": 10,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -4253,9 +4760,15 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 2,
-          "situationalNotes": [
-            "Runes de défense : +2 DEF (+3 au R3, +4 au R5)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "atRank": {
+                "3": 3,
+                "5": 4
+              }
+            }
           ]
         }
       },
@@ -4281,10 +4794,7 @@
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": false
       },
       {
         "rank": 4,
@@ -4292,14 +4802,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Le forgesort enchante un bijou pour une durée de 24 h. Une fois par combat, celui‑ci permet d'obtenir un *d20 bonus* sur un test de son choix déterminé au moment où l'effet est utilisé : test d'attaque ou de caractéristique.",
-        "modifiers": {
-          "stats": {
-            "INT": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests d'INT"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -4316,10 +4818,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": true
       }
     ],
     "type": "profile",
@@ -4372,14 +4871,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Le magicien voit son métabolisme s'accélérer pendant [1d4°+INT] rounds. Il reçoit immédiatement une action de mouvement supplémentaire, puis une action de mouvement supplémentaire à chaque round. À son tour, il peut choisir de sacrifier cette action de mouvement pour obtenir au choix +3 en DEF pendant un round ou -1 PM sur le lancement d'un sort à ce round. Il est possible de cumuler cette réduction de -1 PM avec une Concentration (L) (voir le chapitre « La magie »). Par exemple, une Désintégration lancée de cette façon coûtera 5 – 2 – 1 = 2 PM.",
-        "modifiers": {
-          "stats": {
-            "INT": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests d'INT"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -4449,14 +4940,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Le magicien choisit un point situé à moins de 30 m. Toutes les créatures (y compris le magicien et ses compagnons) se trouvant dans un rayon de 5 m autour de ce point subissent [4d4°+INT] DM et peuvent effectuer un test d'AGI difficulté [10 + INT] pour ne subir que la moitié des DM.",
-        "modifiers": {
-          "stats": {
-            "INT": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests d'INT"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -4594,15 +5077,7 @@
         "title": "Cercle de protection",
         "actionType": "Attaque",
         "isSpell": true,
-        "description": "Le magicien peut tracer un cercle sur le sol (environ 2 m de diamètre) afin de se protéger et d'inclure à sa protection un nombre de personnes égal à son INT. Une fois par round, lorsqu'un sort prend pour cible un personnage protégé, le magicien fait un test d'attaque magique opposé avec l'auteur du sort. Si le test est réussi, le sort adverse est annulé et n'a aucun effet. De plus, toutes les créatures invoquées (élémentaires, démons) et les morts‑vivants qui veulent attaquer une créature dans le cercle subissent un *dé malus* en attaque. Si le magicien sort du cercle, le sort est dissipé.\n\n#",
-        "modifiers": {
-          "stats": {
-            "VOL": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de VOL"
-          ]
-        },
+        "description": "Le magicien peut tracer un cercle sur le sol (environ 2 m de diamètre) afin de se protéger et d'inclure à sa protection un nombre de personnes égal à son INT. Une fois par round, lorsqu'un sort prend pour cible un personnage protégé, le magicien fait un test d'attaque magique opposé avec l'auteur du sort. Si le test est réussi, le sort adverse est annulé et n'a aucun effet. De plus, toutes les créatures invoquées (élémentaires, démons) et les morts‑vivants qui veulent attaquer une créature dans le cercle subissent un *dé malus* en attaque. Si le magicien sort du cercle, le sort est dissipé.",
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -4672,7 +5147,19 @@
             "specialFeatures": [
               "Partage sensoriel (voir et entendre par le familier).",
               "Communication télépathique à distance illimitée."
-            ]
+            ],
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -4694,14 +5181,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Le magicien peut voler pendant [2d4°+INT] minutes. Sa vitesse de déplacement est la même qu'au sol. Il peut rester en vol stationnaire s'il le désire et cela est une action gratuite.",
-        "modifiers": {
-          "stats": {
-            "INT": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests d'INT"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -4763,7 +5242,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": true,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "dr",
+              "stat": "VOL"
+            }
+          ]
+        }
       },
       {
         "rank": 4,
@@ -4808,9 +5295,24 @@
               {
                 "name": "Griffes",
                 "attackBonus": "Attaque magique de l'ensorceleur",
-                "damage": "1d4°+4"
+                "damage": "1d4°+4",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
-            ]
+            ],
+            "defenseFormula": {
+              "base": 20
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       }
@@ -4865,14 +5367,6 @@
         "actionType": "Limitée",
         "isSpell": true,
         "description": "Le sorcier effectue un test opposé d'attaque magique contre une cible (portée 20 m). S'il l'emporte, la victime fuit aussi loin du sorcier que possible pendant INT rounds (il lui faut généralement autant de temps pour revenir!). Les créatures dont le NC est supérieur ou égal au niveau du sorcier ne fuient qu'un seul round. Le sorcier peut choisir de lancer ce sort en action limitée et toutes les créatures à son contact sont affectées (faire un test d'attaque magique par adversaire).",
-        "modifiers": {
-          "stats": {
-            "VOL": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de VOL"
-          ]
-        },
         "isLimited": true,
         "isAttack": true,
         "isMovement": false,
@@ -4922,7 +5416,19 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 3,
+              "condition": "noArmor"
+            }
+          ],
+          "situationalNotes": [
+            "Armure d'os : +3 DEF sans armure (+1 par rang 4 de sorcier)"
+          ]
+        }
       },
       {
         "rank": 3,
@@ -4955,9 +5461,24 @@
               {
                 "name": "Coup",
                 "attackBonus": "Attaque magique du sorcier",
-                "damage": "1d4+2"
+                "damage": "1d4+2",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
-            ]
+            ],
+            "defenseFormula": {
+              "base": 12
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 4
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": -5
+            }
           }
         ]
       },
@@ -4967,14 +5488,6 @@
         "actionType": "Limitée",
         "isSpell": true,
         "description": "Une fois par combat, si le sorcier réussit un test opposé d'attaque magique (portée 20 m), des mains squelettiques surgissent sous les pieds d'une cible de taille moyenne ou inférieure et l'enterrent vivante. Tant qu'elle est ensevelie, elle subit 2d4° DM par round, ne peut agir ni être la cible d'attaques extérieures. À son tour, elle peut tenter de sortir de terre en réussissant un test de FOR ou d'AGI (au choix de la cible) difficulté 15 au prix d'une action limitée. Si elle tombe à 0 PV, elle reste enterrée et décède au tour suivant. Chaque personne qui creuse pour l'aider lui octroie un bonus de +2 sur son test (maximum +10).",
-        "modifiers": {
-          "stats": {
-            "VOL": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de VOL"
-          ]
-        },
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
@@ -5038,9 +5551,14 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 2,
-          "situationalNotes": [
-            "Exsangue : +2 en DEF (+3 au rang 5, -1 si armure autre qu'os)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "atRank": {
+                "5": 3
+              }
+            }
           ]
         }
       },
@@ -5050,14 +5568,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Le sorcier s'ouvre les veines et sacrifie 1d4° PV pour cibler une créature vivante (portée 20 m), la victime saigne à la moindre blessure. Tous les DM infligés à la cible par des armes tranchantes ou perçantes (griffes et crocs inclus) augmentent de +1d4° pendant INT rounds.",
-        "modifiers": {
-          "stats": {
-            "CON": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de CON"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -5074,10 +5584,7 @@
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": false
       }
     ],
     "type": "profile",
@@ -5130,14 +5637,6 @@
         "actionType": "Limitée",
         "isSpell": true,
         "description": "Le sorcier s'enveloppe d'ombre pendant INT minutes. Il gagne un dé bonus à tous les tests de discrétion et il impose un dé malus à tous les tests d'attaque à distance qui le prennent pour cible. S'il tombe à 0 PV pendant la durée du sort, il peut choisir de disparaître dans son ombre et de réapparaître à 1d6 km dans la direction de son choix avec 1d4° PV, 1d6 min plus tard (une dissipation de la magie (Maîtrise de la magie, voie du mage) lancée sur la zone où le sorcier a disparu dans son ombre avant sa réapparition au loin fait apparaître son corps et annule l'effet). Ceci met fin au sort et interdit de le lancer de nouveau avant le prochain crépuscule.",
-        "modifiers": {
-          "stats": {
-            "VOL": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de VOL"
-          ]
-        },
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
@@ -5149,12 +5648,20 @@
         "title": "Pacte ténébreux",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le sorcier augmente sa CON de +1. Désormais, il obtient un *dé bonus* aux tests de CON et voit dans le noir comme s'il s'agissait de pénombre. De plus, lorsqu'il lance un sort, il peut sacrifier 1d4° PV pour ajouter +2d4° aux DM de ce sort. S'il s'agit d'un sort dont les DM durent de round en round (comme strangulation), il peut sacrifier 1d4° PV chaque round.\n\n## CHAPITRE 7 : FAMILLE DES MYSTIQUES\n\nVous trouverez dans ce chapitre la description des trois profils de la famille des mystiques: druide, moine et prêtre. Ce sont des profils basés sur la spiritualité et les pouvoirs divins, qu'il s'agisse de sorts ou de capacités surnaturelles. Ce sont des profils orientés vers la vie et parfois capables de prodiguer des soins.\n\nCes profils partagent les éléments suivants.\n\n- **Points de vigueur / niveau :** 4\n- **Dé de récupération :** d8\n- **+1** dé de récupération",
+        "description": "Le sorcier augmente sa CON de +1. Désormais, il obtient un *dé bonus* aux tests de CON et voit dans le noir comme s'il s'agissait de pénombre. De plus, lorsqu'il lance un sort, il peut sacrifier 1d4° PV pour ajouter +2d4° aux DM de ce sort. S'il s'agit d'un sort dont les DM durent de round en round (comme strangulation), il peut sacrifier 1d4° PV chaque round.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "stats": {
+            "CON": 1
+          },
+          "situationalNotes": [
+            "Dé bonus aux tests de CON"
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -5206,7 +5713,19 @@
             "initiative": "Init. du druide",
             "specialFeatures": [
               "Partage sensoriel et communication télépathique à distance illimitée."
-            ]
+            ],
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -5228,14 +5747,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Pendant PER minutes, le druide prend les traits d'un fauve ou d'un loup. Il gagne +2 en Initiative, en DEF, en attaque et aux DM au contact et peut voir dans la nuit (comme un elfe).",
-        "modifiers": {
-          "stats": {
-            "PER": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de PER"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -5270,10 +5781,19 @@
         "isSpell": false,
         "description": "Le druide ajoute son rang + 2 aux tests de course, d'escalade ou de saut. De plus, il gagne +3 en Initiative et +1 en DEF. Le bonus de DEF passe à +2 au rang 3 et +3 au rang 5.",
         "modifiers": {
-          "defense": 1,
-          "initiative": 3,
-          "situationalNotes": [
-            "+3 en Initiative, +1 en DEF (+2 au R3, +3 au R5)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "3": 2,
+                "5": 3
+              }
+            },
+            {
+              "target": "initiative",
+              "flat": 3
+            }
           ]
         },
         "isLimited": false,
@@ -5313,9 +5833,25 @@
               {
                 "name": "Griffes & crocs",
                 "attackBonus": "Attaque magique du druide",
-                "damage": "1d4+2"
+                "damage": "1d4+2",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
-            ]
+            ],
+            "defenseFormula": {
+              "base": 13,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 4
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -5329,10 +5865,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": false
       },
       {
         "rank": 4,
@@ -5340,14 +5873,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "La panthère devient un animal fabuleux ou est remplacée par un félin plus grand (tigre, lion). Le grand félin peut servir de monture au druide et il se déplace de 20 m par action de mouvement. Le druide peut communiquer avec son félin par télépathie et le guérir à distance en dépensant ses propres PV (-1 PV au druide par PV octroyé au félin).",
-        "modifiers": {
-          "stats": {
-            "FOR": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de FOR"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -5373,13 +5898,29 @@
               {
                 "name": "Morsure & griffes",
                 "attackBonus": "Attaque magique du druide",
-                "damage": "1d4°+5"
+                "damage": "1d4°+5",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
             ],
             "specialFeatures": [
               "Monture (20 m par action de mouvement).",
               "Communication télépathique et guérison à distance en dépensant ses propres PV."
-            ]
+            ],
+            "defenseFormula": {
+              "base": 15,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -5393,10 +5934,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": true
       }
     ],
     "type": "profile",
@@ -5528,10 +6066,16 @@
         "description": "Le druide augmente sa PER de +1. Désormais, il obtient un *dé bonus* aux tests de PER. De plus, il ajoute désormais sa PER pour calculer ses PM (en plus de sa VOL).",
         "modifiers": {
           "stats": {
-            "VOL": 1
+            "PER": 1
           },
+          "bonuses": [
+            {
+              "target": "pm",
+              "stat": "PER"
+            }
+          ],
           "situationalNotes": [
-            "Dé bonus aux tests de VOL"
+            "Dé bonus aux tests de PER"
           ]
         },
         "isLimited": false,
@@ -5628,9 +6172,24 @@
               {
                 "name": "Balayage de branches",
                 "attackBonus": "Attaque magique du druide",
-                "damage": "2d6+8"
+                "damage": "2d6+8",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
-            ]
+            ],
+            "defenseFormula": {
+              "base": 14
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 6
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": -5
+            }
           }
         ]
       },
@@ -5713,7 +6272,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "stats": {
+            "CON": 1
+          },
+          "situationalNotes": [
+            "Dé bonus aux tests de CON"
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -5736,9 +6303,14 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 2,
-          "situationalNotes": [
-            "+2 en DEF (+3 au rang 4)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "atRank": {
+                "4": 3
+              }
+            }
           ]
         }
       },
@@ -5766,9 +6338,16 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "critRangeBonus": 1,
           "situationalNotes": [
             "+1 à la plage de critique à mains nues"
+          ],
+          "weaponModifiers": [
+            {
+              "tags": [
+                "mains-nues"
+              ],
+              "critRangeBonus": 1
+            }
           ]
         }
       },
@@ -5782,10 +6361,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": false
       },
       {
         "rank": 5,
@@ -5797,7 +6373,74 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "choiceOptions": [
+            {
+              "id": "opt_for",
+              "label": "+1 en FOR (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1
+                }
+              }
+            },
+            {
+              "id": "opt_agi",
+              "label": "+1 en AGI (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1
+                }
+              }
+            },
+            {
+              "id": "opt_con",
+              "label": "+1 en CON (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "CON": 1
+                }
+              }
+            },
+            {
+              "id": "opt_per",
+              "label": "+1 en PER (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "PER": 1
+                }
+              }
+            },
+            {
+              "id": "opt_int",
+              "label": "+1 en INT (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "INT": 1
+                }
+              }
+            },
+            {
+              "id": "opt_vol",
+              "label": "+1 en VOL (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "VOL": 1
+                }
+              }
+            },
+            {
+              "id": "opt_cha",
+              "label": "+1 en CHA (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "CHA": 1
+                }
+              }
+            }
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -5844,11 +6487,22 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 2,
-          "initiativeStatBonus": "VOL",
-          "hpStatBonus": "VOL",
-          "situationalNotes": [
-            "Maîtrise du ki : +VOL à l'Initiative et aux PV, +2 DEF (+3 au R5)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "atRank": {
+                "5": 3
+              }
+            },
+            {
+              "target": "initiative",
+              "stat": "VOL"
+            },
+            {
+              "target": "hp",
+              "stat": "VOL"
+            }
           ]
         }
       },
@@ -5884,7 +6538,71 @@
         "isFreeAction": false,
         "isPassive": false,
         "modifiers": {
-          "defense": 1
+          "choiceOptions": [
+            {
+              "id": "opt_for",
+              "label": "+1 en FOR (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1
+                }
+              }
+            },
+            {
+              "id": "opt_agi",
+              "label": "+1 en AGI (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1
+                }
+              }
+            },
+            {
+              "id": "opt_con",
+              "label": "+1 en CON (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "CON": 1
+                }
+              }
+            },
+            {
+              "id": "opt_per",
+              "label": "+1 en PER (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "PER": 1
+                }
+              }
+            },
+            {
+              "id": "opt_int",
+              "label": "+1 en INT (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "INT": 1
+                }
+              }
+            },
+            {
+              "id": "opt_vol",
+              "label": "+1 en VOL (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "VOL": 1
+                }
+              }
+            },
+            {
+              "id": "opt_cha",
+              "label": "+1 en CHA (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "CHA": 1
+                }
+              }
+            }
+          ]
         }
       }
     ],
@@ -5932,9 +6650,14 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 2,
-          "situationalNotes": [
-            "+2 en DEF (+3 au rang 5), divise par 2 les DM temporaires"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "atRank": {
+                "5": 3
+              }
+            }
           ]
         }
       },
@@ -5972,13 +6695,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true,
-        "modifiers": {
-          "defense": 1,
-          "situationalNotes": [
-            "Puissance du ki : dé malus pour +2d4° DM"
-          ]
-        }
+        "isPassive": true
       }
     ],
     "type": "profile",
@@ -5996,9 +6713,11 @@
         "isSpell": false,
         "description": "Le moine peut se déplacer avant et après avoir attaqué (mais il couvre toujours une distance normale, il divise son mouvement en deux). De plus, il gagne +3 en Initiative et son rang + 2 à tous les tests de saut, de course ou d'escalade.",
         "modifiers": {
-          "initiative": 2,
-          "situationalNotes": [
-            "+2 en Init"
+          "bonuses": [
+            {
+              "target": "initiative",
+              "flat": 3
+            }
           ]
         },
         "isLimited": false,
@@ -6017,7 +6736,21 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "5": 2
+              }
+            }
+          ],
+          "situationalNotes": [
+            "Course du vent : +1 DEF (+2 au rang 5), déplacement 15 m"
+          ]
+        }
       },
       {
         "rank": 3,
@@ -6038,11 +6771,12 @@
         "isSpell": false,
         "description": "Le moine augmente son AGI de +1. Désormais, il obtient un dé bonus aux tests d'AGI.",
         "modifiers": {
-          "defense": 1,
-          "initiative": 2,
           "stats": {
             "AGI": 1
-          }
+          },
+          "situationalNotes": [
+            "Dé bonus aux tests d'AGI"
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -6060,7 +6794,74 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "choiceOptions": [
+            {
+              "id": "opt_for",
+              "label": "+1 en FOR (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1
+                }
+              }
+            },
+            {
+              "id": "opt_agi",
+              "label": "+1 en AGI (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1
+                }
+              }
+            },
+            {
+              "id": "opt_con",
+              "label": "+1 en CON (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "CON": 1
+                }
+              }
+            },
+            {
+              "id": "opt_per",
+              "label": "+1 en PER (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "PER": 1
+                }
+              }
+            },
+            {
+              "id": "opt_int",
+              "label": "+1 en INT (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "INT": 1
+                }
+              }
+            },
+            {
+              "id": "opt_vol",
+              "label": "+1 en VOL (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "VOL": 1
+                }
+              }
+            },
+            {
+              "id": "opt_cha",
+              "label": "+1 en CHA (plus faible caract.)",
+              "modifiers": {
+                "stats": {
+                  "CHA": 1
+                }
+              }
+            }
+          ]
+        }
       }
     ],
     "type": "profile",
@@ -6113,14 +6914,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Des ailes divines poussent dans le dos du prêtre, qui peut voler à une vitesse équivalente à son déplacement normal pendant CHA minutes. Rester en vol stationnaire avec les ailes célestes est une action de mouvement.",
-        "modifiers": {
-          "stats": {
-            "VOL": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de VOL"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -6172,9 +6965,14 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 1,
-          "situationalNotes": [
-            "Bouclier de la foi : +1 DEF avec bouclier (+2 au rang 5)"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "5": 2
+              }
+            }
           ]
         }
       },
@@ -6196,14 +6994,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Le prêtre effectue un test d'attaque magique contre la DEF se sa cible (portée de 30 m). Un projectile d'énergie de la forme de l'arme du prêtre va percuter la cible, lui infligeant [2d4°+CHA] DM en cas de réussite. Si l'arme du prêtre est magique,\n\n il peut ajouter son bonus au test d'attaque et aux DM. Les DM du marteau de la foi augmentent de +1 chaque fois que le personnage atteint le rang 4 dans une autre voie de prêtre.",
-        "modifiers": {
-          "stats": {
-            "FOR": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de FOR"
-          ]
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -6220,10 +7010,7 @@
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": false
       }
     ],
     "type": "profile",
@@ -6280,7 +7067,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "stats": {
+            "VOL": 1
+          },
+          "situationalNotes": [
+            "Dé bonus aux tests de VOL"
+          ]
+        }
       },
       {
         "rank": 5,
@@ -6345,14 +7140,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Une fois par jour, lorsque le personnage tombe à 0 PV, il se relève, nimbé d'une aura de lumière. Il produit alors une onde d'énergie positive qui restitue [2d4°+CHA du prêtre] PV à tous ses alliés dans un rayon de 20 m, et il récupère lui-même le double de PV.",
-        "modifiers": {
-          "stats": {
-            "VOL": 1
-          },
-          "situationalNotes": [
-            "Dé bonus aux tests de VOL"
-          ]
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -6390,7 +7177,23 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "atRank": {
+                "3": 3,
+                "5": 4
+              },
+              "condition": "noArmor"
+            }
+          ],
+          "situationalNotes": [
+            "Vêtements sacrés : +2 DEF sans armure (+3 au R3, +4 au R5), dé bonus contre contrôle mental"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -6426,7 +7229,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "stats": {
+            "CHA": 1
+          },
+          "situationalNotes": [
+            "Dé bonus aux tests de CHA"
+          ]
+        }
       },
       {
         "rank": 5,
@@ -6534,7 +7345,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ],
+          "situationalNotes": [
+            "Métallique : +1 DEF, DM létaux à mains nues, RD 5 feu/froid/drain, immunisé aux saignements"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -6780,7 +7602,12 @@
         "isSpell": false,
         "description": "Le drakonide bénéficie de +1 en DEF et d'une RD égale au rang atteint dans la voie contre l'élément correspondant à son souffle.",
         "modifiers": {
-          "defense": 1
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -6873,7 +7700,38 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "choiceOptions": [
+            {
+              "id": "opt_per",
+              "label": "+PER aux Points de Chance",
+              "modifiers": {
+                "bonuses": [
+                  {
+                    "target": "pc",
+                    "stat": "PER"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "opt_vol",
+              "label": "+VOL aux Points de Chance",
+              "modifiers": {
+                "bonuses": [
+                  {
+                    "target": "pc",
+                    "stat": "VOL"
+                  }
+                ]
+              }
+            }
+          ],
+          "situationalNotes": [
+            "Provoquer la chance : ajoute PER ou VOL au total de PC"
+          ]
+        }
       },
       {
         "rank": 5,
@@ -6924,7 +7782,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "sorcier",
+              "guerrier"
+            ],
+            "maxRank": 1,
+            "ignoreArmorPenalty": true,
+            "label": "Capacité de Sorcier ou Guerrier (Rang 1)"
+          }
+        }
       },
       {
         "rank": 3,
@@ -6948,7 +7817,23 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "weaponModifiers": [
+            {
+              "weaponIds": [
+                "arbalete-poing",
+                "arbalete-legere"
+              ],
+              "grantProficiency": true,
+              "critRangeBonus": 1,
+              "note": "Critique 19-20 aux arbalètes de poing et légères"
+            }
+          ],
+          "situationalNotes": [
+            "Maîtrise des arbalètes (poing/légère) et critique 19-20"
+          ]
+        }
       },
       {
         "rank": 5,
@@ -7011,7 +7896,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "initiative",
+              "flat": 3
+            }
+          ],
+          "situationalNotes": [
+            "Vif et discret : +3 Init, +3 discrétion"
+          ]
+        }
       },
       {
         "rank": 4,
@@ -7076,9 +7972,14 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "defense": 1,
-          "situationalNotes": [
-            "Minus : +1 DEF (+2 au rang 4), +3 discrétion"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "4": 2
+              }
+            }
           ]
         }
       },
@@ -7094,7 +7995,12 @@
         "isFreeAction": false,
         "isPassive": true,
         "modifiers": {
-          "initiative": 3,
+          "bonuses": [
+            {
+              "target": "initiative",
+              "flat": 3
+            }
+          ],
           "situationalNotes": [
             "+3 Init, tests surprise, demi-DM sournois"
           ]
@@ -7110,10 +8016,7 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true,
-        "modifiers": {
-          "defense": 1
-        }
+        "isPassive": true
       },
       {
         "rank": 5,
@@ -7173,7 +8076,15 @@
         "isSpell": false,
         "description": "Le gobelin bénéficie de +3 en Init. et à tous ses tests de discrétion. De plus, dans le noir total, il voit comme dans la pénombre jusqu'à 30 m.",
         "modifiers": {
-          "defense": 1
+          "bonuses": [
+            {
+              "target": "initiative",
+              "flat": 3
+            }
+          ],
+          "situationalNotes": [
+            "Vivacité gobeline : +3 Init, +3 discrétion, vision dans le noir 30 m"
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -7215,7 +8126,41 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Worg",
+            "category": "Monture carnivore",
+            "defense": "17",
+            "defenseFormula": {
+              "base": 17
+            },
+            "hp": "Niv. du gobelin × 5",
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiative": "Init. du gobelin",
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "attacks": [
+              {
+                "name": "Morsure (G)",
+                "attackBonus": "Attaque magique + 2",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 2
+                },
+                "damage": "1d4°+5"
+              }
+            ],
+            "specialFeatures": [
+              "En selle, le gobelin peut ordonner 1 attaque de morsure gratuite par round."
+            ]
+          }
+        ]
       },
       {
         "rank": 5,
@@ -7226,9 +8171,11 @@
         "modifiers": {
           "stats": {
             "AGI": 1,
-            "CON": 1,
             "PER": 1
-          }
+          },
+          "situationalNotes": [
+            "Vif et alerte : +1 AGI, +1 PER"
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -7252,7 +8199,9 @@
         "isSpell": false,
         "description": "Le kobold bénéficie de +3 à ses tests pour concevoir, fabriquer ou détecter les pièges. Dans le noir, voit comme dans la pénombre jusqu'à 30 m. Morsure au corps à corps [1d4 + FOR] DM létaux.",
         "modifiers": {
-          "defense": 1
+          "situationalNotes": [
+            "Ruse kobold : +3 pièges, vision dans le noir 30 m, morsure [1d4 + FOR]"
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -7270,7 +8219,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ],
+          "situationalNotes": [
+            "Chétif : +1 en DEF et +3 aux tests de discrétion"
+          ]
+        }
       },
       {
         "rank": 3,
@@ -7305,8 +8265,11 @@
         "modifiers": {
           "stats": {
             "AGI": 1,
-            "INT": 1
-          }
+            "PER": 1
+          },
+          "situationalNotes": [
+            "Ruse instinctive : +1 AGI, +1 PER"
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -7333,7 +8296,19 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "damageReduction",
+              "perRank": 1,
+              "note": "sauf fer froid"
+            }
+          ],
+          "situationalNotes": [
+            "Téléportation 10 m (M), RD 1/rang (sauf fer froid), vision dans le noir 20 m"
+          ]
+        }
       },
       {
         "rank": 2,
@@ -7345,7 +8320,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "druide",
+              "rodeur"
+            ],
+            "maxRank": 1,
+            "ignoreArmorPenalty": true,
+            "label": "Langage des animaux (ou capacité Druide/Rôdeur Rang 1)"
+          }
+        }
       },
       {
         "rank": 3,
@@ -7369,7 +8355,41 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Monture féerique",
+            "category": "Animal apprivoisé (terrestre ou volant)",
+            "defense": "16",
+            "defenseFormula": {
+              "base": 16
+            },
+            "hp": "Niv. du farfadet × 4",
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 4
+            },
+            "initiative": "Init. du farfadet",
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "attacks": [
+              {
+                "name": "Attaque naturelle",
+                "attackBonus": "Attaque magique du farfadet",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                },
+                "damage": "1d4°+2"
+              }
+            ],
+            "specialFeatures": [
+              "Lien télépathique à 50 m."
+            ]
+          }
+        ]
       },
       {
         "rank": 5,
@@ -7405,7 +8425,16 @@
         "isSpell": false,
         "description": "Vol à une vitesse de 10 m par action de mouvement. Dans le noir, voit comme dans la pénombre jusqu'à 20 m. RD aux armes non fer froid égale à 1 par rang dans la voie.",
         "modifiers": {
-          "defense": 1
+          "bonuses": [
+            {
+              "target": "damageReduction",
+              "perRank": 1,
+              "note": "sauf fer froid"
+            }
+          ],
+          "situationalNotes": [
+            "Vol 10 m (M), RD 1/rang (sauf fer froid), vision dans le noir 20 m"
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -7435,7 +8464,19 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "magicien",
+              "ensorceleur"
+            ],
+            "maxRank": 1,
+            "alternativeMaxRankNoArmor": 2,
+            "ignoreArmorPenalty": true,
+            "label": "Capacité de Magicien ou Ensorceleur (Rang 1, ou Rang 2 sans armure)"
+          }
+        }
       },
       {
         "rank": 4,
@@ -7457,10 +8498,12 @@
         "description": "Le personnage devient plus sage et charismatique. Il augmente ses valeurs de PER et de CHA de +1.",
         "modifiers": {
           "stats": {
-            "AGI": 1,
-            "CHA": 1,
-            "PER": 1
-          }
+            "PER": 1,
+            "CHA": 1
+          },
+          "situationalNotes": [
+            "Lady fée : +1 PER, +1 CHA"
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -7649,7 +8692,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "pm",
+              "perRank": 1
+            }
+          ],
+          "situationalNotes": [
+            "Regard hypnotique : +1 PE/PM par rang dans la voie"
+          ]
+        }
       },
       {
         "rank": 3,
@@ -7742,7 +8796,19 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "barde",
+              "druide",
+              "ensorceleur"
+            ],
+            "maxRank": 3,
+            "ignoreArmorPenalty": true,
+            "label": "Sort de Barde, Druide ou Ensorceleur (Rang 1 à 3)"
+          }
+        }
       },
       {
         "rank": 5,
@@ -7805,7 +8871,13 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "luckStatReplacement": "PER",
+          "situationalNotes": [
+            "Loi de la meute : PC calculés avec PER (2 + PER), +1 ATQ et DEF à plusieurs sur une cible"
+          ]
+        }
       },
       {
         "rank": 4,
@@ -7853,7 +8925,12 @@
         "isSpell": false,
         "description": "Le caravanier ajoute son rang + 2 aux tests de survie et pour résister aux conditions extrêmes (fatigue, chaleur, froid, soif, etc.) rencontrées en voyage. De plus, il gagne 1 PV par rang atteint dans cette voie.",
         "modifiers": {
-          "hpPerRankInPath": true,
+          "bonuses": [
+            {
+              "target": "hp",
+              "perRank": 1
+            }
+          ],
           "situationalNotes": [
             "Infatigable : +1 PV par rang dans cette voie"
           ]
@@ -7871,7 +8948,12 @@
         "isSpell": false,
         "description": "Le caravanier ajoute son rang + 2 aux tests de vigilance et pour détecter une embuscade. De plus, il ajoute son CHA en Init (en plus de sa PER).",
         "modifiers": {
-          "initiativeStatBonus": "CHA",
+          "bonuses": [
+            {
+              "target": "initiative",
+              "stat": "CHA"
+            }
+          ],
           "situationalNotes": [
             "Ajoute son CHA à l'Initiative (en plus de PER)"
           ]
@@ -7901,8 +8983,16 @@
         "isSpell": false,
         "description": "Le caravanier reçoit 1 PC et 1 DR supplémentaires. Désormais, une seule fois par combat, il est possible de dépenser 1 PC pour obtenir +10 en DEF contre une attaque (la décision peut être prise après avoir pris de connaissance du résultat du test d'attaque).",
         "modifiers": {
-          "bonusPC": 1,
-          "bonusDR": 1,
+          "bonuses": [
+            {
+              "target": "pc",
+              "flat": 1
+            },
+            {
+              "target": "dr",
+              "flat": 1
+            }
+          ],
           "situationalNotes": [
             "+1 PC, +1 DR"
           ]
@@ -7920,7 +9010,12 @@
         "isSpell": false,
         "description": "Choisissez une capacité de rang 4 (ou moins) de n'importe quel profil de combattant ou d'aventurier, ou choisissez une capacité de rang 3 (ou moins) d'un profil de mage ou de mystique. Si le choix se porte sur une capacité de rang 1 ou 2, le caravanier augmente aussi ses PV maximaux de sa valeur de CHA. Si la capacité retenue est un sort, elle est soumise aux limitations d'armure et nécessite l'utilisation de PM (le sort en fait gagner un suivant les règles habituelles).",
         "modifiers": {
-          "hpStatBonus": "CHA",
+          "bonuses": [
+            {
+              "target": "hp",
+              "stat": "CHA"
+            }
+          ],
           "situationalNotes": [
             "Augmente PV max du CHA si capacité rang 1-2"
           ]
@@ -8158,9 +9253,25 @@
               {
                 "name": "Épée longue",
                 "attackBonus": "Attaque contact du caravanier",
-                "damage": "1d8+3"
+                "damage": "1d8+3",
+                "attackFormula": {
+                  "heroStatRef": "contactAttack",
+                  "offset": 0
+                }
               }
-            ]
+            ],
+            "defenseFormula": {
+              "base": 15,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -8310,9 +9421,24 @@
               {
                 "name": "Écrasement",
                 "attackBonus": "Attaque magique du caravanier",
-                "damage": "2d6+7"
+                "damage": "2d6+7",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
-            ]
+            ],
+            "defenseFormula": {
+              "base": 18
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 6
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       }
@@ -8344,7 +9470,12 @@
         "isSpell": false,
         "description": "Le chamane apprend à côtoyer l'esprit du serpent. Il peut communiquer avec les reptiles et obtient un *dé bonus* à tous ses tests pour résister à la faim ou à la soif. Il gagne aussi un DR supplémentaire.",
         "modifiers": {
-          "bonusDR": 1,
+          "bonuses": [
+            {
+              "target": "dr",
+              "flat": 1
+            }
+          ],
           "situationalNotes": [
             "+1 DR (Esprit du serpent)"
           ]
@@ -8362,9 +9493,12 @@
         "isSpell": false,
         "description": "Le chamane apprend à côtoyer l'esprit de l'ours. Il peut communiquer avec les ours et obtient un *dé bonus* à tous ses tests de FOR. Il bénéficie de +1 DM sur ses attaques au contact. Ce bonus passe à +2 lorsqu'il atteint le rang 5.",
         "modifiers": {
-          "damageBonus": {
-            "contact": 1
-          },
+          "bonuses": [
+            {
+              "target": "dmContact",
+              "flat": 1
+            }
+          ],
           "situationalNotes": [
             "+1 DM au contact (+2 au rang 5)"
           ]
@@ -8382,10 +9516,16 @@
         "isSpell": false,
         "description": "Le chamane apprend à côtoyer l'esprit de l'aigle. Il peut communiquer avec les oiseaux et peut voir par les yeux de n'importe lequel dans un rayon de [PER] × 100 m autour de lui. Il bénéficie d'un DR supplémentaire et de +1 DM sur ses attaques à distance.",
         "modifiers": {
-          "bonusDR": 1,
-          "damageBonus": {
-            "distance": 1
-          },
+          "bonuses": [
+            {
+              "target": "dmDistance",
+              "flat": 1
+            },
+            {
+              "target": "dr",
+              "flat": 1
+            }
+          ],
           "situationalNotes": [
             "+1 DR, +1 DM à distance"
           ]
@@ -8403,9 +9543,12 @@
         "isSpell": false,
         "description": "Le chamane apprend à côtoyer l'esprit du poisson. Il peut communiquer avec les poissons et peut retenir sa respiration pendant PER heures (prendre une récupération rapide avant de pouvoir recommencer). Il bénéficie de +1 DM sur ses attaques magiques.",
         "modifiers": {
-          "damageBonus": {
-            "magique": 1
-          },
+          "bonuses": [
+            {
+              "target": "dmMagic",
+              "flat": 1
+            }
+          ],
           "situationalNotes": [
             "+1 DM attaques magiques"
           ]
@@ -8594,7 +9737,12 @@
         "isSpell": true,
         "description": "Le chamane invoque un esprit protecteur qui veille sur lui, le prévient des attaques et détourne parfois les coups qui le visent. Jusqu'à sa prochaine récupération (rapide ou complète), le chamane bénéficie d'un *dé bonus* à tous les tests pour éviter d'être surpris et de +1 en DEF. Le bonus de DEF augmente de +1 chaque fois que le chamane atteint le rang 5 dans une voie de chamane.",
         "modifiers": {
-          "defense": 1,
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
+          ],
           "situationalNotes": [
             "+1 en DEF (Esprit protecteur)"
           ]
@@ -8692,7 +9840,12 @@
           "stats": {
             "PER": 1
           },
-          "manaStatBonus": "PER",
+          "bonuses": [
+            {
+              "target": "pm",
+              "stat": "PER"
+            }
+          ],
           "situationalNotes": [
             "Ajoute la PER au total de PM",
             "Dé bonus aux tests de PER"
@@ -8771,9 +9924,16 @@
               "conditionNote": "Arme à projectiles"
             }
           ],
-          "critRangeBonus": 1,
           "situationalNotes": [
             "+1 à la plage de critique aux arcs"
+          ],
+          "weaponModifiers": [
+            {
+              "tags": [
+                "arc"
+              ],
+              "critRangeBonus": 1
+            }
           ]
         },
         "isLimited": false,
@@ -8923,7 +10083,12 @@
         "isSpell": false,
         "description": "Le parangon bénéficie de +2 en Init. Ce bonus augmente de +1 chaque fois qu'il atteint le rang 3 dans une voie de parangon.",
         "modifiers": {
-          "initiative": 2,
+          "bonuses": [
+            {
+              "target": "initiative",
+              "flat": 2
+            }
+          ],
           "situationalNotes": [
             "+2 en Init (+1 par rang 3 dans d'autres voies)"
           ]
@@ -8977,9 +10142,16 @@
         "isSpell": false,
         "description": "Le parangon augmente sa plage de critique avec les sabres\\* de 1 point et bénéficie de +1d4° DM lorsqu'il obtient un critique. Il augmente sa plage de critique de 1 point supplémentaire chaque fois qu'il atteint le rang 4 dans une autre voie de parangon. S'il ne peut plus augmenter sa plage de critique parce qu'il a déjà atteint la limite inférieure de 16 (voir *Livre des règles*, p. 213), il augmente à la place les DM de ses coups critiques de +1d4° (cumulable).\n\n> Exemple: un parangon possède une vivelame avec la propriété affûtée (critique sur 18-20) et 4 voies de parangon au rang 4 ou plus. La valeur inférieure de sa plage de critique devrait être de 18 – 4 = 14. Au lieu de cela, la plage de critique est fixée à 16-20, et chaque fois qu'il obtient un critique, il bénéficie de +2d4° DM (pour un total de 3d4° avec le bonus de base de la capacité).\n\n\\* Dans le cas d'un profil hybride, on pourrait imaginer que le PJ choisisse une autre catégorie d'armes comme les épées, les lances ou les haches.",
         "modifiers": {
-          "critRangeBonus": 1,
           "situationalNotes": [
             "+1 à la plage de critique aux sabres"
+          ],
+          "weaponModifiers": [
+            {
+              "tags": [
+                "sabre"
+              ],
+              "critRangeBonus": 1
+            }
           ]
         },
         "isLimited": false,
@@ -9068,8 +10240,7 @@
             "AGI": 1
           },
           "situationalNotes": [
-            "Dé bonus aux tests d'AGI",
-            "Dé bonus aux tests de AGI"
+            "Dé bonus aux tests d'AGI"
           ]
         },
         "isLimited": false,
@@ -9154,7 +10325,6 @@
         "isSpell": false,
         "description": "Le parangon effectue une sorte de retour aux sources et apprend une capacité issue de la tradition familiale. Il peut choisir une capacité de rang 1 à 3 de n'importe quelle voie sauf celles de la famille des combattants. Il doit respecter les limitations d'armure lorsqu'il veut utiliser cette capacité en plein combat (mais pas autrement). Il bénéficie aussi de +3 PV pour une capacité de rang 1 ou de +2 PV pour une capacité de rang 2 (pas de PV supplémentaires pour une capacité de rang 3). Si c'est un sort, il doit en payer le coût en points de mana (il gagne le PM associé à l'acquisition de ce sort, selon la règle habituelle).",
         "modifiers": {
-          "hpBonus": 2,
           "situationalNotes": [
             "+2 PV (ou +3 PV pour capa rang 1)"
           ]
@@ -9363,8 +10533,16 @@
         "isSpell": false,
         "description": "Le primaliste bénéficie de +2 en DEF et en Init. Désormais, le personnage ne subit plus de pénalité lorsqu'il combat dans l'eau et peut retenir sa respiration pendant [VOL] minutes. De plus, l'affinité du PJ pour l'eau lui permet de parler et de lancer des sorts normalement sous l'eau (sa voix porte comme en surface).",
         "modifiers": {
-          "defense": 2,
-          "initiative": 2,
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2
+            },
+            {
+              "target": "initiative",
+              "flat": 2
+            }
+          ],
           "situationalNotes": [
             "Fluide : +2 en DEF, +2 en Init, pas de malus sous l'eau"
           ]
@@ -9623,7 +10801,12 @@
         "isSpell": false,
         "description": "Le psionique est capable de ressentir les processus biologiques qui parcourent son corps et de modifier les stimulus sensoriels qu'ils produisent. Il ajoute son rang + 2 à tous les tests d'endurance (courir ou marcher longtemps). De plus, il augmente sa valeur de PV maximale de sa valeur de VOI.",
         "modifiers": {
-          "hpStatBonus": "VOL",
+          "bonuses": [
+            {
+              "target": "hp",
+              "stat": "VOL"
+            }
+          ],
           "situationalNotes": [
             "Augmente les PV max de sa valeur de VOL"
           ]
@@ -9653,7 +10836,12 @@
         "isSpell": false,
         "description": "Le psionique est capable d'accélérer ou de ralentir son métabolisme. Il ajoute sa VOL à son Init. (en plus de la PER) et à tous les tests de CON. Il a besoin de deux fois moins de nourriture, d'eau, d'air et de sommeil que la normale. Enfin, lorsque le personnage dépense un DR pour récupérer des PE, il récupère aussi les PV habituels associés à ce DR.",
         "modifiers": {
-          "initiativeStatBonus": "VOL",
+          "bonuses": [
+            {
+              "target": "initiative",
+              "stat": "VOL"
+            }
+          ],
           "situationalNotes": [
             "Ajoute sa VOL à l'Initiative (en plus de PER)"
           ]
@@ -9724,9 +10912,11 @@
         "isSpell": false,
         "description": "En combat, le psionique est capable d'anticiper les mouvements de ses adversaires. Au choix, il gagne +1 en DEF ou peut choisir de remplacer son bonus d'AGI à la DEF par son bonus de PER. Dans ce dernier cas, ce bonus ne doit pas dépasser la limite d'AGI fixée par l'armure portée (voir *Livre des règles*, p. 188).",
         "modifiers": {
-          "defense": 1,
-          "situationalNotes": [
-            "+1 en DEF ou remplace bonus AGI par PER"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
           ],
           "statSubstitutions": [
             {
@@ -9736,6 +10926,9 @@
               "sourceName": "Défense intuitive",
               "conditionNote": "Limite armure"
             }
+          ],
+          "situationalNotes": [
+            "+1 en DEF ou remplace bonus AGI par PER"
           ]
         },
         "isLimited": false,
@@ -10015,7 +11208,12 @@
         "isSpell": false,
         "description": "Quand un allié se trouve au contact de l'entité, il bénéficie de +2 en DEF. Si l'allié est l'invocateur, ce bonus passe à +4. De plus, une fois par tour, l'entité peut subir une attaque à la place d'un allié à son contact.",
         "modifiers": {
-          "defense": 2
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -10037,7 +11235,13 @@
       }
     ],
     "type": "prestige",
-    "owner": "Mage"
+    "owner": "Mage",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-des-mutations",
@@ -10068,7 +11272,12 @@
               "id": "opt_cuirasse",
               "label": "Cuirasse (+3 DEF)",
               "modifiers": {
-                "defense": 3
+                "bonuses": [
+                  {
+                    "target": "defense",
+                    "flat": 3
+                  }
+                ]
               }
             },
             {
@@ -10142,14 +11351,24 @@
                 "stats": {
                   "AGI": 3
                 },
-                "defense": 3
+                "bonuses": [
+                  {
+                    "target": "defense",
+                    "flat": 3
+                  }
+                ]
               }
             },
             {
               "id": "opt_massive",
               "label": "Silhouette massive (+5 CON, RD 3)",
               "modifiers": {
-                "damageReduction": 3,
+                "bonuses": [
+                  {
+                    "target": "damageReduction",
+                    "flat": 3
+                  }
+                ],
                 "situationalNotes": [
                   "+5 aux tests de CON, RD 3"
                 ]
@@ -10177,7 +11396,11 @@
       }
     ],
     "type": "prestige",
-    "owner": "Mage / Générique"
+    "owner": "Mage / Générique",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": "All"
+    }
   },
   {
     "id": "voie-de-l-expert",
@@ -10247,7 +11470,15 @@
     ],
     "type": "prestige",
     "owner": "Générique",
-    "familyRestriction": "All"
+    "familyRestriction": "All",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": "All",
+      "minProfilePathsAtRank": {
+        "count": 3,
+        "rank": 2
+      }
+    }
   },
   {
     "id": "voie-du-specialiste",
@@ -10266,9 +11497,20 @@
               "id": "opt_atk",
               "label": "+1 en Attaque",
               "modifiers": {
-                "attackBonus": {
-                  "all": 1
-                }
+                "bonuses": [
+                  {
+                    "target": "atkContact",
+                    "flat": 1
+                  },
+                  {
+                    "target": "atkDistance",
+                    "flat": 1
+                  },
+                  {
+                    "target": "atkMagic",
+                    "flat": 1
+                  }
+                ]
               }
             },
             {
@@ -10310,8 +11552,70 @@
         "isSpell": false,
         "description": "Le joueur augmente d'un point la valeur de la plus haute caractéristique de son personnage. De plus, lorsqu'il obtient un résultat de 1 sur un test sur cette caractéristique, il peut relancer le dé une fois (il garde le nouveau résultat).",
         "modifiers": {
-          "situationalNotes": [
-            "Augmente d'un point sa plus haute caractéristique"
+          "choiceOptions": [
+            {
+              "id": "opt_for",
+              "label": "+1 en FOR (plus haute caract.)",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1
+                }
+              }
+            },
+            {
+              "id": "opt_agi",
+              "label": "+1 en AGI (plus haute caract.)",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1
+                }
+              }
+            },
+            {
+              "id": "opt_con",
+              "label": "+1 en CON (plus haute caract.)",
+              "modifiers": {
+                "stats": {
+                  "CON": 1
+                }
+              }
+            },
+            {
+              "id": "opt_per",
+              "label": "+1 en PER (plus haute caract.)",
+              "modifiers": {
+                "stats": {
+                  "PER": 1
+                }
+              }
+            },
+            {
+              "id": "opt_int",
+              "label": "+1 en INT (plus haute caract.)",
+              "modifiers": {
+                "stats": {
+                  "INT": 1
+                }
+              }
+            },
+            {
+              "id": "opt_vol",
+              "label": "+1 en VOL (plus haute caract.)",
+              "modifiers": {
+                "stats": {
+                  "VOL": 1
+                }
+              }
+            },
+            {
+              "id": "opt_cha",
+              "label": "+1 en CHA (plus haute caract.)",
+              "modifiers": {
+                "stats": {
+                  "CHA": 1
+                }
+              }
+            }
           ]
         },
         "isLimited": false,
@@ -10326,13 +11630,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Le joueur choisit une capacité que connaît son personnage. Lorsqu'il utilise cette capacité, il ajoute +1d4° aux DM produits une fois par round (sur une seule attaque si la capacité permet plusieurs attaques).",
-        "modifiers": {
-          "damageBonus": {
-            "contact": 1,
-            "distance": 1,
-            "magique": 1
-          }
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -10354,7 +11651,15 @@
     ],
     "type": "prestige",
     "owner": "Générique",
-    "familyRestriction": "All"
+    "familyRestriction": "All",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": "All",
+      "minProfilePathsAtRank": {
+        "count": 1,
+        "rank": 4
+      }
+    }
   },
   {
     "id": "voie-du-lycanthrope",
@@ -10368,13 +11673,11 @@
         "isSpell": false,
         "description": "Au prix d'une action limitée, le personnage peut se transformer en forme hybride, mi‑homme, mi‑loup pendant 1 min. Il doit terminer une récupération rapide avant de pouvoir à nouveau utiliser cette capacité. Sous cette forme, il ne peut pas lancer de sort ou utiliser d'arme pour attaquer à distance, en revanche il obtient une attaque de morsure (Attaque au contact) qui inflige [1d4°+FOR] DM en action gratuite une fois par round. Il reprend immédiatement sa forme normale s'il tombe à 0 PV.",
         "modifiers": {
-          "defense": 1,
-          "stats": {
-            "FOR": 1,
-            "CON": 1
-          },
-          "situationalNotes": [
-            "Forme hybride : +1 FOR, +1 CON, +1 DEF"
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1
+            }
           ]
         },
         "isLimited": true,
@@ -10414,9 +11717,20 @@
               {
                 "name": "Morsure",
                 "attackBonus": "Attaque contact du lycanthrope",
-                "damage": "1d6+3"
+                "damage": "1d6+3",
+                "attackFormula": {
+                  "heroStatRef": "contactAttack",
+                  "offset": 0
+                }
               }
-            ]
+            ],
+            "defenseFormula": {
+              "base": 17
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -10459,7 +11773,11 @@
     ],
     "type": "prestige",
     "owner": "Générique",
-    "familyRestriction": "All"
+    "familyRestriction": "All",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": "All"
+    }
   },
   {
     "id": "voie-du-sang-dragon",
@@ -10473,7 +11791,6 @@
         "isSpell": false,
         "description": "Choisissez une couleur de dragon pour l'ascendance de votre personnage. Il obtient une réduction des DM de 5 (qui passe à 10 au rang 8 de la voie), correspondant au type d'énergie utilisé par le souffle du dragon. De plus, le personnage devient capable de voir dans le noir total comme si c'était de la pénombre jusqu'à 20 m.",
         "modifiers": {
-          "defense": 1,
           "situationalNotes": [
             "+1 en DEF"
           ]
@@ -10526,10 +11843,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Le corps du personnage se renforce et se couvre d'écailles lorsqu'il reçoit des blessures graves. Lorsque le personnage passe sous la moitié de ses PV, il gagne une réduction des DM de 5 face à tous les types de dommages.",
-        "modifiers": {
-          "defense": 2,
-          "damageReduction": 2
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -10539,7 +11852,11 @@
     ],
     "type": "prestige",
     "owner": "Générique",
-    "familyRestriction": "All"
+    "familyRestriction": "All",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": "All"
+    }
   },
   {
     "id": "voie-du-familier-fantastique",
@@ -10576,7 +11893,19 @@
             "specialFeatures": [
               "Récupère tous ses PV après une récupération rapide.",
               "Partage sensoriel et communication télépathique à distance illimitée."
-            ]
+            ],
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
           }
         ]
       },
@@ -10599,7 +11928,22 @@
         "isSpell": false,
         "description": "Le familier obtient une RD de 1 par rang face à tous les types de DM. De plus, le personnage apprend un sort de rang 1 ou 2 de son choix d'un profil indiqué dans la description du familier. Il peut utiliser ce sort deux fois par jour dans le cas d'un rang 1 et une seule fois dans le cas d'un rang 2.",
         "modifiers": {
-          "defense": 1
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "ensorceleur",
+              "forgesort",
+              "magicien",
+              "sorcier",
+              "primaliste",
+              "druide",
+              "moine",
+              "pretre",
+              "chamane",
+              "psionique"
+            ],
+            "maxRank": 2,
+            "label": "Sort transmis par le familier (Rang 1 ou 2)"
+          }
         },
         "isLimited": false,
         "isAttack": false,
@@ -10648,7 +11992,11 @@
               {
                 "name": "Drain vital",
                 "attackBonus": "Attaque magique",
-                "damage": "1d4° (+1 PV récupéré)"
+                "damage": "1d4° (+1 PV récupéré)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
             ],
             "specialFeatures": [
@@ -10678,7 +12026,11 @@
               {
                 "name": "Dard empoisonné",
                 "attackBonus": "Attaque magique",
-                "damage": "Poison (test CON 10 ou sommeil 2d6 min)"
+                "damage": "Poison (test CON 10 ou sommeil 2d6 min)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
             ],
             "specialFeatures": [
@@ -10705,7 +12057,11 @@
               {
                 "name": "Succion sanguine",
                 "attackBonus": "Attaque magique",
-                "damage": "1d4° par round (s'agrippe)"
+                "damage": "1d4° par round (s'agrippe)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
               }
             ],
             "specialFeatures": [
@@ -10720,7 +12076,11 @@
     ],
     "type": "prestige",
     "owner": "Générique",
-    "familyRestriction": "All"
+    "familyRestriction": "All",
+    "prerequisites": {
+      "minLevel": 3,
+      "allowedFamilies": "All"
+    }
   },
   {
     "id": "voie-de-l-archer-arcanique",
@@ -10790,7 +12150,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-de-l-espion",
@@ -10860,7 +12226,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-du-casse-cou",
@@ -10889,7 +12261,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "7": 2
+              }
+            }
+          ]
+        }
       },
       {
         "rank": 6,
@@ -10930,7 +12313,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-des-ombres",
@@ -11000,7 +12389,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-du-chasseur-de-prime",
@@ -11070,7 +12465,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-du-duelliste",
@@ -11084,7 +12485,6 @@
         "isSpell": false,
         "description": "Lorsqu'il utilise une dague, une épée courte, longue ou une rapière sur les attaques de sa main principale (ou encore sur une vivelame tenue à deux mains), le personnage peut ajouter son AGI en attaque au contact ou aux DM (au choix, mais pas les deux en même temps, sauf s'il dispose d'une autre capacité qui lui permet, par exemple attaque en finesse) au lieu de sa FOR.",
         "modifiers": {
-          "initiative": 2,
           "statSubstitutions": [
             {
               "target": "attackContact",
@@ -11153,7 +12553,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-du-flibustier",
@@ -11166,9 +12572,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Le personnage gagne un bonus de +5 sur tous les tests d'AGI réalisés sur un bateau ou sur d'autres supports mobiles (ce qui comprend les chariots, les cordages, les ponts de corde). Il ajoute son rang à tous les tests relatifs à la natation et à la navigation.",
-        "modifiers": {
-          "defense": 1
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -11185,7 +12588,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": true,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "8": 2
+              }
+            }
+          ]
+        }
       },
       {
         "rank": 6,
@@ -11226,7 +12640,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-du-heros",
@@ -11240,10 +12660,16 @@
         "isSpell": false,
         "description": "Le personnage gagne 1 PC. Il gagne un PC supplémentaire au rang 6 et un dernier au rang 8. De plus, une fois par combat, vous pouvez donner un bonus de +1d4° à un compagnon en vue sur un test de votre choix.",
         "modifiers": {
-          "bonusPC": 1,
-          "stats": {
-            "CHA": 1
-          }
+          "bonuses": [
+            {
+              "target": "pc",
+              "flat": 1,
+              "atRank": {
+                "6": 2,
+                "8": 3
+              }
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -11281,9 +12707,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Lorsque vous ratez un test d'attaque contre une créature, vous bénéficiez d'un *dé bonus* à votre prochain essai si vous utilisez la même action (même capacité). Ce bonus persiste tant que vous ratez, mais disparaît dès que l'attaque est réussie.",
-        "modifiers": {
-          "hpBonus": 10
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -11305,7 +12728,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-du-maitre-des-poisons",
@@ -11380,7 +12809,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-du-pacte-feerique",
@@ -11450,7 +12885,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-du-touche-a-tout",
@@ -11467,7 +12908,20 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "arquebusier",
+              "barde",
+              "rodeur",
+              "voleur",
+              "caravanier"
+            ],
+            "maxRank": 2,
+            "label": "Capacité d'Aventurier (Rang 1 ou 2)"
+          }
+        }
       },
       {
         "rank": 5,
@@ -11479,7 +12933,19 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "barbare",
+              "chevalier",
+              "guerrier",
+              "parangon"
+            ],
+            "maxRank": 2,
+            "label": "Capacité de Combattant (Rang 1 ou 2)"
+          }
+        }
       },
       {
         "rank": 6,
@@ -11491,7 +12957,21 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "druide",
+              "moine",
+              "pretre",
+              "chamane",
+              "psionique"
+            ],
+            "maxRank": 2,
+            "ignoreArmorPenalty": true,
+            "label": "Capacité de Mystique (Rang 1 ou 2)"
+          }
+        }
       },
       {
         "rank": 7,
@@ -11503,7 +12983,21 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "ensorceleur",
+              "forgesort",
+              "magicien",
+              "sorcier",
+              "primaliste"
+            ],
+            "maxRank": 2,
+            "ignoreArmorPenalty": true,
+            "label": "Capacité de Mage (Rang 1 ou 2)"
+          }
+        }
       },
       {
         "rank": 8,
@@ -11515,12 +13009,46 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "choiceOptions": [
+            { "id": "for_agi", "label": "+1 FOR & +1 AGI", "modifiers": { "stats": { "FOR": 1, "AGI": 1 } } },
+            { "id": "for_con", "label": "+1 FOR & +1 CON", "modifiers": { "stats": { "FOR": 1, "CON": 1 } } },
+            { "id": "for_per", "label": "+1 FOR & +1 PER", "modifiers": { "stats": { "FOR": 1, "PER": 1 } } },
+            { "id": "for_int", "label": "+1 FOR & +1 INT", "modifiers": { "stats": { "FOR": 1, "INT": 1 } } },
+            { "id": "for_vol", "label": "+1 FOR & +1 VOL", "modifiers": { "stats": { "FOR": 1, "VOL": 1 } } },
+            { "id": "for_cha", "label": "+1 FOR & +1 CHA", "modifiers": { "stats": { "FOR": 1, "CHA": 1 } } },
+            { "id": "agi_con", "label": "+1 AGI & +1 CON", "modifiers": { "stats": { "AGI": 1, "CON": 1 } } },
+            { "id": "agi_per", "label": "+1 AGI & +1 PER", "modifiers": { "stats": { "AGI": 1, "PER": 1 } } },
+            { "id": "agi_int", "label": "+1 AGI & +1 INT", "modifiers": { "stats": { "AGI": 1, "INT": 1 } } },
+            { "id": "agi_vol", "label": "+1 AGI & +1 VOL", "modifiers": { "stats": { "AGI": 1, "VOL": 1 } } },
+            { "id": "agi_cha", "label": "+1 AGI & +1 CHA", "modifiers": { "stats": { "AGI": 1, "CHA": 1 } } },
+            { "id": "con_per", "label": "+1 CON & +1 PER", "modifiers": { "stats": { "CON": 1, "PER": 1 } } },
+            { "id": "con_int", "label": "+1 CON & +1 INT", "modifiers": { "stats": { "CON": 1, "INT": 1 } } },
+            { "id": "con_vol", "label": "+1 CON & +1 VOL", "modifiers": { "stats": { "CON": 1, "VOL": 1 } } },
+            { "id": "con_cha", "label": "+1 CON & +1 CHA", "modifiers": { "stats": { "CON": 1, "CHA": 1 } } },
+            { "id": "per_int", "label": "+1 PER & +1 INT", "modifiers": { "stats": { "PER": 1, "INT": 1 } } },
+            { "id": "per_vol", "label": "+1 PER & +1 VOL", "modifiers": { "stats": { "PER": 1, "VOL": 1 } } },
+            { "id": "per_cha", "label": "+1 PER & +1 CHA", "modifiers": { "stats": { "PER": 1, "CHA": 1 } } },
+            { "id": "int_vol", "label": "+1 INT & +1 VOL", "modifiers": { "stats": { "INT": 1, "VOL": 1 } } },
+            { "id": "int_cha", "label": "+1 INT & +1 CHA", "modifiers": { "stats": { "INT": 1, "CHA": 1 } } },
+            { "id": "vol_cha", "label": "+1 VOL & +1 CHA", "modifiers": { "stats": { "VOL": 1, "CHA": 1 } } }
+          ],
+          "situationalNotes": [
+            "+1 aux deux plus faibles caractéristiques"
+          ]
+        }
       }
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-du-tueur-a-gages",
@@ -11590,7 +13118,13 @@
     ],
     "type": "prestige",
     "owner": "Aventuriers",
-    "familyRestriction": "Aventuriers"
+    "familyRestriction": "Aventuriers",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Aventuriers"
+      ]
+    }
   },
   {
     "id": "voie-des-armes-a-deux-mains",
@@ -11660,7 +13194,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-de-l-arme-liee",
@@ -11730,7 +13270,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-du-chevalier-dragon",
@@ -11805,7 +13351,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-du-combattant-des-tunnels",
@@ -11875,7 +13427,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-du-combat-du-mal",
@@ -11945,7 +13503,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-du-colosse",
@@ -11958,13 +13522,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Le colosse est considéré comme faisant une taille de plus que sa taille réelle (grande au lieu de moyenne, par exemple) pour déterminer s'il peut être affecté par les capacités spéciales des créatures et des adversaires (fauchage, agripper, etc.). De plus il inflige 1d6 DM à mains nues.",
-        "modifiers": {
-          "stats": {
-            "FOR": 1,
-            "CON": 1
-          },
-          "hpBonus": 5
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -11981,7 +13538,16 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "hp",
+              "flat": 5,
+              "stat": "CON"
+            }
+          ]
+        }
       },
       {
         "rank": 6,
@@ -12030,7 +13596,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-du-danseur-de-guerre",
@@ -12044,8 +13616,6 @@
         "isSpell": false,
         "description": "Le personnage peut utiliser son AGI au choix en attaque au contact ou aux DM (mais pas les deux, sauf capacité l'y autorisant) au lieu de sa FOR lorsqu'il utilise une dague, une épée (courte, longue, sabre ou vivelame) ou une lance. Dans le cas d'une arme à une main, il ne peut bénéficier de ce bonus que sur sa main principale.",
         "modifiers": {
-          "defense": 1,
-          "initiative": 2,
           "statSubstitutions": [
             {
               "target": "attackContact",
@@ -12073,7 +13643,18 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "8": 2
+              }
+            }
+          ]
+        }
       },
       {
         "rank": 6,
@@ -12114,7 +13695,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-de-l-ecorcheur",
@@ -12184,7 +13771,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-du-guerrier-mage",
@@ -12254,7 +13847,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-de-l-ours",
@@ -12267,12 +13866,6 @@
         "actionType": "Action",
         "isSpell": false,
         "description": "Le personnage gagne un bonus de +5 à tous les tests d'intimidation. Une fois par combat, il peut pousser un terrible grondement en action gratuite. Tous les adversaires à son contact de NC inférieur à son niveau doivent réussir un test de VOL difficulté [6 + rang] ou s'enfuir en courant pendant 1d4 rounds.",
-        "modifiers": {
-          "stats": {
-            "CON": 1
-          },
-          "hpBonus": 5
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -12330,7 +13923,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-du-porteur-de-bouclier",
@@ -12343,9 +13942,6 @@
         "actionType": "Gratuite",
         "isSpell": false,
         "description": "Une fois par combat, le personnage peut parer une attaque au contact ou à distance qui le touche avec son bouclier (action gratuite). Il ne subit aucun DM sauf s'il s'agit d'un critique (il ne peut pas le parer).",
-        "modifiers": {
-          "defense": 1
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -12382,9 +13978,6 @@
         "actionType": "Gratuite",
         "isSpell": false,
         "description": "Une fois par round, en action gratuite, le personnage retranche la valeur de DEF de son bouclier (bonus de magie inclus) aux DM subis d'une attaque au contact ou à distance, sauf s'il est *surpris*.",
-        "modifiers": {
-          "defense": 1
-        },
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -12406,7 +13999,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-du-tueur-de-geants",
@@ -12476,7 +14075,13 @@
     ],
     "type": "prestige",
     "owner": "Combattants",
-    "familyRestriction": "Combattants"
+    "familyRestriction": "Combattants",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Combattants"
+      ]
+    }
   },
   {
     "id": "voie-de-l-archimage",
@@ -12490,7 +14095,16 @@
         "isSpell": false,
         "description": "Le bâton du mage est un outil de défense complet, il lui sert aussi bien à parer efficacement en mêlée qu'à se protéger des sorts adverses. Lorsqu'il tient son bâton en main, le personnage gagne un bonus de +1 en DEF et à tous les tests opposés de magie effectués pour résister à des sorts. Ce bonus passe à +2 au rang 6 et +3 au rang 8.",
         "modifiers": {
-          "defense": 2
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "6": 2,
+                "8": 3
+              }
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -12508,7 +14122,20 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": [
+              "ensorceleur",
+              "forgesort",
+              "magicien",
+              "sorcier",
+              "primaliste"
+            ],
+            "maxRank": 1,
+            "label": "Sort de Mage lié au bâton (Rang 1)"
+          }
+        }
       },
       {
         "rank": 6,
@@ -12549,7 +14176,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-du-chaos",
@@ -12619,7 +14252,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-des-cristaux",
@@ -12689,7 +14328,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-de-l-elementaliste",
@@ -12759,7 +14404,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-de-l-enchanteur",
@@ -12829,7 +14480,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-du-gel",
@@ -12904,7 +14561,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-de-l-invocation-majeure",
@@ -12974,7 +14637,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-du-mage-de-guerre",
@@ -13044,7 +14713,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-de-la-magie-de-l-esprit",
@@ -13114,7 +14789,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-de-la-magie-des-mots",
@@ -13184,7 +14865,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-de-la-magie-du-temps",
@@ -13254,7 +14941,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-du-maitre-des-sorts",
@@ -13324,7 +15017,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-de-la-vision",
@@ -13394,7 +15093,13 @@
     ],
     "type": "prestige",
     "owner": "Mages",
-    "familyRestriction": "Mages"
+    "familyRestriction": "Mages",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mages"
+      ]
+    }
   },
   {
     "id": "voie-de-l-armure-sacree",
@@ -13408,7 +15113,12 @@
         "isSpell": false,
         "description": "Le personnage acquiert son armure de bronze. Celle‑ci se présente sous la forme d'un cube de métal d'environ 50 cm d'arête pour 10 kg, portant son symbole. Sur un simple mot de commande (action de mouvement), l'armure se déploie et recouvre son corps. L'armure confère une RD égale à 3 et n'inflige aucune pénalité d'encombrement.",
         "modifiers": {
-          "defense": 2
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -13435,7 +15145,12 @@
         "isSpell": false,
         "description": "L'armure acquiert la couleur de l'argent. Elle octroie une RD 5.",
         "modifiers": {
-          "defense": 2
+          "bonuses": [
+            {
+              "target": "damageReduction",
+              "flat": 5
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -13462,7 +15177,12 @@
         "isSpell": false,
         "description": "L'armure acquiert la couleur de l'or et elle octroie une RD 7.",
         "modifiers": {
-          "defense": 2
+          "bonuses": [
+            {
+              "target": "damageReduction",
+              "flat": 7
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -13473,7 +15193,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-elementaire-du-feu",
@@ -13543,7 +15269,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-elementaire-de-la-terre",
@@ -13613,7 +15345,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-elementaire-de-l-air",
@@ -13683,7 +15421,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-elementaire-de-l-eau",
@@ -13753,7 +15497,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-du-changeforme",
@@ -13823,7 +15573,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-du-combat-mystique",
@@ -13836,9 +15592,6 @@
         "actionType": "Limitée",
         "isSpell": false,
         "description": "Le personnage réalise une attaque à mains nues ou avec une arme contondante. En plus des DM habituels, si le NC de la victime est inférieur au rang atteint dans la voie, elle doit réussir un test de CON difficulté [10 + VOL] ou être étourdie pour un round.",
-        "modifiers": {
-          "initiative": 2
-        },
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
@@ -13896,7 +15649,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-du-guerisseur",
@@ -13966,7 +15725,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-du-maitre-de-la-nature",
@@ -14036,7 +15801,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-des-saisons",
@@ -14053,7 +15824,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "dr",
+              "flat": 2
+            }
+          ]
+        }
       },
       {
         "rank": 5,
@@ -14106,7 +15885,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-du-templier",
@@ -14120,7 +15905,15 @@
         "isSpell": true,
         "description": "Le personnage touche une cible volontaire (ce peut être lui‑même). Celle‑ci devient immunisée à toutes les capacités de drain, de charme, de domination, de paralysie ou d'affaiblissement (etc.) des morts‑vivants pendant CHA minutes. En plus de ce sort, le personnage gagne +1 en DEF.",
         "modifiers": {
-          "defense": 1
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 1,
+              "atRank": {
+                "6": 2
+              }
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -14146,9 +15939,6 @@
         "actionType": "Attaque",
         "isSpell": true,
         "description": "Cette version permet au personnage visé de résister à la fois aux pouvoirs des morts‑vivants et à ceux des démons. Le bonus de DEF permanent passe à +2.",
-        "modifiers": {
-          "defense": 1
-        },
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
@@ -14182,7 +15972,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-des-vermines",
@@ -14242,7 +16038,7 @@
         "title": "Vermine supérieure",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le compagnon vermine du personnage gagne une des capacités suivantes, qui dépend de sa nature. De plus, la vermine peut désormais servir de monture à son maître.\n\nÉtreinte du scorpion : le scorpion peut désormais tenter d'attraper entre ses pinces une créature de taille grande ou inférieure. Lorsqu'il obtient un résultat de 15 à 20 sur son dé d'attaque, le scorpion *immobilise* son adversaire en plus des DM habituels.\n\nToile d'araignée (L): l'araignée gagne la capacité de lancer (portée 10 m) une toile gluante et collante. Si elle réussit son attaque, la cible est immobilisée pour 1d6 rounds. Au début de son tour, la créature engluée peut faire un test de FOR difficulté 15, en cas de succès, elle réussit à se libérer, sinon elle reste immobilisée.\n\n## CHAPITRE 9 : PROFILS HYBRIDES",
+        "description": "Le compagnon vermine du personnage gagne une des capacités suivantes, qui dépend de sa nature. De plus, la vermine peut désormais servir de monture à son maître.\n\nÉtreinte du scorpion : le scorpion peut désormais tenter d'attraper entre ses pinces une créature de taille grande ou inférieure. Lorsqu'il obtient un résultat de 15 à 20 sur son dé d'attaque, le scorpion *immobilise* son adversaire en plus des DM habituels.\n\nToile d'araignée (L): l'araignée gagne la capacité de lancer (portée 10 m) une toile gluante et collante. Si elle réussit son attaque, la cible est immobilisée pour 1d6 rounds. Au début de son tour, la créature engluée peut faire un test de FOR difficulté 15, en cas de succès, elle réussit à se libérer, sinon elle reste immobilisée.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -14252,7 +16048,13 @@
     ],
     "type": "prestige",
     "owner": "Mystiques",
-    "familyRestriction": "Mystiques"
+    "familyRestriction": "Mystiques",
+    "prerequisites": {
+      "minLevel": 5,
+      "allowedFamilies": [
+        "Mystiques"
+      ]
+    }
   },
   {
     "id": "voie-du-domaine-arcanna",
@@ -14290,7 +16092,12 @@
         "isSpell": true,
         "description": "Le prêtre peut réaliser un tour de magie (portée 10 m) par round en action gratuite sans dépenser aucun PM. Par exemple, fermer une porte à distance, ou éteindre ou allumer une bougie en claquant des doigts. Il ne peut réaliser aucune action qui nécessite une valeur de caractéristique supérieure à 0 (par exemple, s'il faut au moins +1 ou un test de FOR pour pousser une porte lourde, ce sort ne permet pas de la fermer). Cette capacité ne peut produire aucun DM direct. De plus, le prêtre gagne +2 PM (en plus de celui gagné avec cette capacité ; au total, en apprenant ce sort, le personnage acquiert donc 3 PM d'un coup).",
         "modifiers": {
-          "bonusPm": 2
+          "bonuses": [
+            {
+              "target": "pm",
+              "flat": 2
+            }
+          ]
         },
         "isLimited": false,
         "isAttack": false,
@@ -14308,7 +16115,15 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "pm",
+              "flat": 4
+            }
+          ]
+        }
       },
       {
         "rank": 5,
@@ -14328,7 +16143,11 @@
     "deity": "Arcanna",
     "domainTitle": "Déesse de la magie blanche",
     "symbolDesc": "une étoile",
-    "sacredWeapon": "bâton"
+    "sacredWeapon": "bâton",
+    "sacredWeaponIds": [
+      "baton",
+      "baton-ferre"
+    ]
   },
   {
     "id": "voie-du-domaine-arshran",
@@ -14401,7 +16220,10 @@
     "deity": "Arshran",
     "domainTitle": "Dieu du feu et des forgerons",
     "symbolDesc": "une enclume",
-    "sacredWeapon": "marteau"
+    "sacredWeapon": "marteau",
+    "sacredWeaponIds": [
+      "marteau-guerre"
+    ]
   },
   {
     "id": "voie-du-domaine-arwendee",
@@ -14474,7 +16296,11 @@
     "deity": "Arwendée",
     "domainTitle": "Déesse de la chasse et des archers",
     "symbolDesc": "une flèche",
-    "sacredWeapon": "arcs courts et longs"
+    "sacredWeapon": "arcs courts et longs",
+    "sacredWeaponIds": [
+      "arc-court",
+      "arc-long"
+    ]
   },
   {
     "id": "voie-du-domaine-aurilla",
@@ -14547,7 +16373,10 @@
     "deity": "Aurilla",
     "domainTitle": "Déesse de la chance et des aventuriers",
     "symbolDesc": "un dé",
-    "sacredWeapon": "épée courte"
+    "sacredWeapon": "épée courte",
+    "sacredWeaponIds": [
+      "epee-courte"
+    ]
   },
   {
     "id": "voie-du-domaine-axender",
@@ -14620,7 +16449,10 @@
     "deity": "Axënder",
     "domainTitle": "Dieu du devoir et de l'honneur",
     "symbolDesc": "un heaume",
-    "sacredWeapon": "épée longue"
+    "sacredWeapon": "épée longue",
+    "sacredWeaponIds": [
+      "epee-longue"
+    ]
   },
   {
     "id": "voie-du-domaine-basile-le-gourmand",
@@ -14693,7 +16525,10 @@
     "deity": "Basile le Gourmand",
     "domainTitle": "Dieu de la gourmandise et de la cuisine",
     "symbolDesc": "un chou",
-    "sacredWeapon": "gourdin (en réalité un rouleau à pâtisserie)"
+    "sacredWeapon": "gourdin (en réalité un rouleau à pâtisserie)",
+    "sacredWeaponIds": [
+      "masse-armes"
+    ]
   },
   {
     "id": "voie-du-domaine-ceres",
@@ -14774,7 +16609,10 @@
     "deity": "Céres",
     "domainTitle": "Dieu de l'agriculture et du travail",
     "symbolDesc": "un épi de blé",
-    "sacredWeapon": "faux et fléau"
+    "sacredWeapon": "faux et fléau",
+    "sacredWeaponIds": [
+      "masse-armes"
+    ]
   },
   {
     "id": "voie-du-domaine-denora",
@@ -14855,7 +16693,11 @@
     "deity": "Dénora",
     "domainTitle": "Déesse de la compassion et de la guérison",
     "symbolDesc": "une main qui soigne",
-    "sacredWeapon": "bâton"
+    "sacredWeapon": "bâton",
+    "sacredWeaponIds": [
+      "baton",
+      "baton-ferre"
+    ]
   },
   {
     "id": "voie-du-domaine-ellona",
@@ -14936,7 +16778,10 @@
     "deity": "Ellona",
     "domainTitle": "Déesse de la perception et de la vérité",
     "symbolDesc": "un œil",
-    "sacredWeapon": "arc court"
+    "sacredWeapon": "arc court",
+    "sacredWeaponIds": [
+      "arc-court"
+    ]
   },
   {
     "id": "voie-du-domaine-forthur",
@@ -15017,7 +16862,10 @@
     "deity": "Forthur",
     "domainTitle": "Dieu du courage et des exploits",
     "symbolDesc": "un poing",
-    "sacredWeapon": "épée à deux mains"
+    "sacredWeapon": "épée à deux mains",
+    "sacredWeaponIds": [
+      "epee-deux-mains"
+    ]
   },
   {
     "id": "voie-du-domaine-gaelm",
@@ -15090,7 +16938,10 @@
     "deity": "Gaëlm",
     "domainTitle": "Dieu des arts et des artistes",
     "symbolDesc": "une lyre",
-    "sacredWeapon": "rapière"
+    "sacredWeapon": "rapière",
+    "sacredWeaponIds": [
+      "rapiere"
+    ]
   },
   {
     "id": "voie-du-domaine-gorom",
@@ -15171,7 +17022,10 @@
     "deity": "Gorom",
     "domainTitle": "Dieu de la pierre et des architectes",
     "symbolDesc": "un marteau",
-    "sacredWeapon": "marteau"
+    "sacredWeapon": "marteau",
+    "sacredWeaponIds": [
+      "marteau-guerre"
+    ]
   },
   {
     "id": "voie-du-domaine-guardal",
@@ -15252,7 +17106,10 @@
     "deity": "Guardal",
     "domainTitle": "Dieu de la loyauté et des gardiens",
     "symbolDesc": "un écu",
-    "sacredWeapon": "masse"
+    "sacredWeapon": "masse",
+    "sacredWeaponIds": [
+      "masse-armes"
+    ]
   },
   {
     "id": "voie-du-domaine-hellion",
@@ -15333,7 +17190,10 @@
     "deity": "Hellion",
     "domainTitle": "Dieu des voleurs et du pillage",
     "symbolDesc": "une cape",
-    "sacredWeapon": "épée courte"
+    "sacredWeapon": "épée courte",
+    "sacredWeaponIds": [
+      "epee-courte"
+    ]
   },
   {
     "id": "voie-du-domaine-irrion",
@@ -15406,7 +17266,10 @@
     "deity": "Irrion",
     "domainTitle": "Dieu de l'ordre et de la noblesse",
     "symbolDesc": "une épée",
-    "sacredWeapon": "épée longue"
+    "sacredWeapon": "épée longue",
+    "sacredWeaponIds": [
+      "epee-longue"
+    ]
   },
   {
     "id": "voie-du-domaine-jeweln",
@@ -15479,7 +17342,10 @@
     "deity": "Jeweln",
     "domainTitle": "Dieu des souterrains et des mineurs",
     "symbolDesc": "une pioche",
-    "sacredWeapon": "pioche de guerre (voir p. 66)"
+    "sacredWeapon": "pioche de guerre (voir p. 66)",
+    "sacredWeaponIds": [
+      "marteau-guerre"
+    ]
   },
   {
     "id": "voie-du-domaine-linnarre",
@@ -15552,7 +17418,10 @@
     "deity": "Linnarré",
     "domainTitle": "Déesse de la mer et des marins",
     "symbolDesc": "un coquillage",
-    "sacredWeapon": "trident"
+    "sacredWeapon": "trident",
+    "sacredWeaponIds": [
+      "lance"
+    ]
   },
   {
     "id": "voie-du-domaine-melenna",
@@ -15633,7 +17502,11 @@
     "deity": "Mélenna",
     "domainTitle": "Déesse de la forêt et des animaux",
     "symbolDesc": "un arbre",
-    "sacredWeapon": "arc court ou long"
+    "sacredWeapon": "arc court ou long",
+    "sacredWeaponIds": [
+      "arc-court",
+      "arc-long"
+    ]
   },
   {
     "id": "voie-du-domaine-mephistere",
@@ -15714,7 +17587,10 @@
     "deity": "Méphistère",
     "domainTitle": "Dieu de l'ombre et des secrets",
     "symbolDesc": "un masque",
-    "sacredWeapon": "dague"
+    "sacredWeapon": "dague",
+    "sacredWeaponIds": [
+      "dague"
+    ]
   },
   {
     "id": "voie-du-domaine-mirandia",
@@ -15787,7 +17663,11 @@
     "deity": "Mirandia",
     "domainTitle": "Déesse du sommeil et des rêves",
     "symbolDesc": "une demi-lune",
-    "sacredWeapon": "bâton"
+    "sacredWeapon": "bâton",
+    "sacredWeaponIds": [
+      "baton",
+      "baton-ferre"
+    ]
   },
   {
     "id": "voie-du-domaine-mondovael",
@@ -15868,7 +17748,11 @@
     "deity": "Möndovaël",
     "domainTitle": "Dieu des nomades et du voyage",
     "symbolDesc": "une botte",
-    "sacredWeapon": "bâton"
+    "sacredWeapon": "bâton",
+    "sacredWeaponIds": [
+      "baton",
+      "baton-ferre"
+    ]
   },
   {
     "id": "voie-du-domaine-morn",
@@ -15941,7 +17825,10 @@
     "deity": "Morn",
     "domainTitle": "Dieu de la mort et du passage dans l'au-delà",
     "symbolDesc": "une faux",
-    "sacredWeapon": "faux"
+    "sacredWeapon": "faux",
+    "sacredWeaponIds": [
+      "lance"
+    ]
   },
   {
     "id": "voie-du-domaine-orbis",
@@ -16014,7 +17901,10 @@
     "deity": "Orbis",
     "domainTitle": "Dieu du commerce et des marchands",
     "symbolDesc": "une pièce d'or",
-    "sacredWeapon": "arbalète légère"
+    "sacredWeapon": "arbalète légère",
+    "sacredWeaponIds": [
+      "arbalete-legere"
+    ]
   },
   {
     "id": "voie-du-domaine-oumaros",
@@ -16087,7 +17977,11 @@
     "deity": "Oumaros",
     "domainTitle": "Dieu de l'air et des cieux",
     "symbolDesc": "un nuage",
-    "sacredWeapon": "arc court ou long"
+    "sacredWeapon": "arc court ou long",
+    "sacredWeaponIds": [
+      "arc-court",
+      "arc-long"
+    ]
   },
   {
     "id": "voie-du-domaine-perinde",
@@ -16160,7 +18054,11 @@
     "deity": "Perindé",
     "domainTitle": "Déesse de la fertilité et des mères",
     "symbolDesc": "une femme enceinte",
-    "sacredWeapon": "bâton"
+    "sacredWeapon": "bâton",
+    "sacredWeaponIds": [
+      "baton",
+      "baton-ferre"
+    ]
   },
   {
     "id": "voie-du-domaine-selenne",
@@ -16233,7 +18131,10 @@
     "deity": "Sélenne",
     "domainTitle": "Déesse de la paix et de la liberté",
     "symbolDesc": "un oiseau blanc",
-    "sacredWeapon": "mains nues"
+    "sacredWeapon": "mains nues",
+    "sacredWeaponIds": [
+      "mains-nues"
+    ]
   },
   {
     "id": "voie-du-domaine-solar",
@@ -16314,7 +18215,10 @@
     "deity": "Solar",
     "domainTitle": "Dieu de la lumière et du savoir",
     "symbolDesc": "le soleil",
-    "sacredWeapon": "masse"
+    "sacredWeapon": "masse",
+    "sacredWeaponIds": [
+      "masse-armes"
+    ]
   },
   {
     "id": "voie-du-domaine-suelle",
@@ -16387,7 +18291,11 @@
     "deity": "Suëlle",
     "domainTitle": "Déesse de la beauté et de l'amour",
     "symbolDesc": "un cœur",
-    "sacredWeapon": "bâton"
+    "sacredWeapon": "bâton",
+    "sacredWeaponIds": [
+      "baton",
+      "baton-ferre"
+    ]
   },
   {
     "id": "voie-du-domaine-trenner",
@@ -16460,7 +18368,11 @@
     "deity": "Trenner",
     "domainTitle": "Dieu du temps et des ancêtres",
     "symbolDesc": "un sablier",
-    "sacredWeapon": "bâton"
+    "sacredWeapon": "bâton",
+    "sacredWeaponIds": [
+      "baton",
+      "baton-ferre"
+    ]
   },
   {
     "id": "voie-du-domaine-tulsadum",
@@ -16541,7 +18453,10 @@
     "deity": "Tulsadüm",
     "domainTitle": "Dieu de la jungle et des reptiles",
     "symbolDesc": "un serpent qui se mord la queue",
-    "sacredWeapon": "arc court"
+    "sacredWeapon": "arc court",
+    "sacredWeaponIds": [
+      "arc-court"
+    ]
   },
   {
     "id": "voie-du-domaine-tyriolith",
@@ -16622,7 +18537,10 @@
     "deity": "Tyriolith",
     "domainTitle": "Dieu du combat contre le chaos et du feu purificateur",
     "symbolDesc": "une flamme",
-    "sacredWeapon": "masse"
+    "sacredWeapon": "masse",
+    "sacredWeaponIds": [
+      "masse-armes"
+    ]
   },
   {
     "id": "voie-du-domaine-vorona",
@@ -16695,6 +18613,9 @@
     "deity": "Vorona",
     "domainTitle": "Déesse de la justice et de la loi",
     "symbolDesc": "une balance",
-    "sacredWeapon": "épée longue"
+    "sacredWeapon": "épée longue",
+    "sacredWeaponIds": [
+      "epee-longue"
+    ]
   }
 ]

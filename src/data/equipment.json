@@ -26,6 +26,17 @@
       "type": "armor"
     },
     {
+      "id": "cotte-ecorce",
+      "name": "Cotte d'écorce",
+      "def": 2,
+      "maxAgi": 6,
+      "price": "4 pa",
+      "type": "armor",
+      "equivalentArmorId": "cuir-simple",
+      "restrictedToPeopleIds": ["satyre"],
+      "notes": "Pas de malus en natation, mais doit être réparée après chaque combat ou perd 1 en DEF."
+    },
+    {
       "id": "cuir-renforce",
       "name": "Cuir renforcé, broigne",
       "def": 3,
@@ -89,12 +100,11 @@
       "category": "contact",
       "damage": "1d3",
       "maxDamageDice": 3,
+      "critMin": 20,
       "damageType": "Contondants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["mains-nues", "legere"],
       "notes": "DM temporaires"
     },
     {
@@ -103,12 +113,11 @@
       "category": "contact",
       "damage": "1d4",
       "maxDamageDice": 4,
+      "critMin": 20,
       "damageType": "Contondants",
       "range": "Contact",
       "hands": 2,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["baton", "deux-mains", "outil"],
       "notes": "Arme à deux mains"
     },
     {
@@ -117,12 +126,11 @@
       "category": "contact",
       "damage": "1d6",
       "maxDamageDice": 6,
+      "critMin": 20,
       "damageType": "Contondants",
       "range": "Contact",
       "hands": 2,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["baton", "deux-mains", "outil"],
       "notes": "Arme à deux mains"
     },
     {
@@ -131,12 +139,12 @@
       "category": "contact",
       "damage": "1d4",
       "maxDamageDice": 4,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "Contact (ou lancer 10 m)",
+      "throwRange": "10 m",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["legere", "lancer", "escrime", "duelliste", "danseur"],
       "notes": "Arme légère, peut être lancée"
     },
     {
@@ -145,12 +153,11 @@
       "category": "contact",
       "damage": "1d6",
       "maxDamageDice": 6,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["legere", "epee", "escrime", "duelliste", "danseur"],
       "notes": "Arme légère"
     },
     {
@@ -159,12 +166,11 @@
       "category": "contact",
       "damage": "1d8",
       "maxDamageDice": 8,
+      "critMin": 20,
       "damageType": "Tranchants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["epee", "duelliste", "danseur"],
       "notes": "Arme standard"
     },
     {
@@ -172,13 +178,13 @@
       "name": "Épée bâtarde",
       "category": "contact",
       "damage": "1d8 / 1d12",
-      "maxDamageDice": 12,
+      "twoHandedDamage": "1d12",
+      "maxDamageDice": 8,
+      "critMin": 20,
       "damageType": "Tranchants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["epee", "polyvalente", "danseur"],
       "notes": "1d8 à 1 main, 1d12 à 2 mains"
     },
     {
@@ -187,12 +193,12 @@
       "category": "contact",
       "damage": "2d6",
       "maxDamageDice": 12,
+      "critMin": 20,
       "damageType": "Tranchants",
       "range": "Contact",
       "hands": 2,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["epee", "deux-mains", "danseur"],
+      "smallRaceReplacementId": "epee-longue",
       "notes": "Arme à deux mains"
     },
     {
@@ -201,12 +207,12 @@
       "category": "contact",
       "damage": "1d6",
       "maxDamageDice": 6,
+      "critMin": 20,
       "damageType": "Tranchants",
       "range": "Contact (ou lancer 10 m)",
+      "throwRange": "10 m",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["legere", "lancer", "hache", "outil"],
       "notes": "Arme légère"
     },
     {
@@ -215,12 +221,11 @@
       "category": "contact",
       "damage": "1d8",
       "maxDamageDice": 8,
+      "critMin": 20,
       "damageType": "Tranchants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["hache"],
       "notes": ""
     },
     {
@@ -229,12 +234,12 @@
       "category": "contact",
       "damage": "2d6",
       "maxDamageDice": 12,
+      "critMin": 20,
       "damageType": "Tranchants",
       "range": "Contact",
       "hands": 2,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["hache", "deux-mains"],
+      "smallRaceReplacementId": "hache-armes",
       "notes": "Arme à deux mains"
     },
     {
@@ -243,12 +248,11 @@
       "category": "contact",
       "damage": "1d6",
       "maxDamageDice": 6,
+      "critMin": 20,
       "damageType": "Contondants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["masse"],
       "notes": ""
     },
     {
@@ -257,12 +261,11 @@
       "category": "contact",
       "damage": "1d8",
       "maxDamageDice": 8,
+      "critMin": 20,
       "damageType": "Contondants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["marteau", "outil"],
       "notes": ""
     },
     {
@@ -271,13 +274,13 @@
       "category": "contact",
       "damage": "1d6",
       "maxDamageDice": 6,
+      "critMin": 19,
       "damageType": "Perforants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
-      "notes": "Arme légère"
+      "tags": ["legere", "epee", "escrime", "duelliste"],
+      "smallRaceReplacementId": "epee-courte",
+      "notes": "Arme légère, critique 19-20"
     },
     {
       "id": "lance",
@@ -285,12 +288,11 @@
       "category": "contact",
       "damage": "1d8",
       "maxDamageDice": 8,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "Contact / Allonge",
       "hands": 2,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["lance", "allonge", "deux-mains", "danseur"],
       "notes": "Allonge"
     },
     {
@@ -299,12 +301,11 @@
       "category": "distance",
       "damage": "1d6",
       "maxDamageDice": 6,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "30 m",
       "hands": 2,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": true,
+      "tags": ["arc", "deux-mains"],
       "notes": "Arme à deux mains"
     },
     {
@@ -313,12 +314,12 @@
       "category": "distance",
       "damage": "1d8",
       "maxDamageDice": 8,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "50 m",
       "hands": 2,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": true,
+      "tags": ["arc", "deux-mains"],
+      "smallRaceReplacementId": "arc-court",
       "notes": "Arme à deux mains"
     },
     {
@@ -327,12 +328,11 @@
       "category": "distance",
       "damage": "1d8",
       "maxDamageDice": 8,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "40 m",
       "hands": 2,
-      "isPowder": false,
-      "isCrossbow": true,
-      "isBow": false,
+      "tags": ["arbalete", "deux-mains"],
       "notes": "Rechargement 1 action de mouvement"
     },
     {
@@ -341,12 +341,12 @@
       "category": "distance",
       "damage": "2d6",
       "maxDamageDice": 12,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "60 m",
       "hands": 2,
-      "isPowder": false,
-      "isCrossbow": true,
-      "isBow": false,
+      "tags": ["arbalete", "deux-mains"],
+      "smallRaceReplacementId": "arbalete-legere",
       "notes": "Rechargement 1 action limitée"
     },
     {
@@ -355,12 +355,11 @@
       "category": "distance",
       "damage": "1d4",
       "maxDamageDice": 4,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "15 m",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": true,
-      "isBow": false,
+      "tags": ["arbalete", "legere"],
       "notes": "Arme légère"
     },
     {
@@ -369,12 +368,11 @@
       "category": "distance",
       "damage": "1d4",
       "maxDamageDice": 4,
+      "critMin": 20,
       "damageType": "Contondants",
       "range": "20 m",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["fronde", "legere"],
       "notes": "Munitions faciles à trouver"
     },
     {
@@ -383,12 +381,11 @@
       "category": "distance",
       "damage": "1d10",
       "maxDamageDice": 10,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "20 m",
       "hands": 1,
-      "isPowder": true,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["poudre"],
       "notes": "Arme à poudre, bruit et fumée"
     },
     {
@@ -397,12 +394,12 @@
       "category": "distance",
       "damage": "2d8",
       "maxDamageDice": 16,
+      "critMin": 20,
       "damageType": "Perforants",
       "range": "40 m",
       "hands": 2,
-      "isPowder": true,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["poudre", "deux-mains"],
+      "smallRaceReplacementId": "petoire",
       "notes": "Arme à poudre, arme à deux mains"
     },
     {
@@ -411,12 +408,11 @@
       "category": "contact",
       "damage": "1d4",
       "maxDamageDice": 4,
+      "critMin": 19,
       "damageType": "Tranchants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["legere", "sabre", "escrime", "danseur"],
       "notes": "Arme légère, critique 19-20"
     },
     {
@@ -424,13 +420,13 @@
       "name": "Sabre droit",
       "category": "contact",
       "damage": "1d6 / 1d8",
-      "maxDamageDice": 8,
+      "twoHandedDamage": "1d8",
+      "maxDamageDice": 6,
+      "critMin": 19,
       "damageType": "Tranchants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["sabre", "polyvalente", "danseur"],
       "notes": "1d6 à 1 main, 1d8 à 2 mains, critique 19-20"
     },
     {
@@ -439,12 +435,11 @@
       "category": "contact",
       "damage": "1d8",
       "maxDamageDice": 8,
+      "critMin": 19,
       "damageType": "Tranchants",
       "range": "Contact",
       "hands": 1,
-      "isPowder": false,
-      "isCrossbow": false,
-      "isBow": false,
+      "tags": ["sabre", "duelliste", "danseur"],
       "notes": "Arme de maître parangon, critique 19-20"
     }
   ],

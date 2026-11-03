@@ -2,6 +2,7 @@ import React from 'react';
 import {
   CharacterSheet,
   ComputedCharacterStats,
+  RankModifiers,
 } from '../../../types/cof2';
 import {
   getPathById,
@@ -9,17 +10,100 @@ import {
   getReplacedRacialPath,
   getProfileById,
   calculateArmorSpellManaCost,
+  PROFILES,
 } from '../../../engine/rulesEngine';
 import {
   TrendingUp,
   ChevronDown,
   ChevronRight,
-  Zap,
   Sparkles,
   Shield,
+  BookOpen,
 } from 'lucide-react';
 import { ActionBadges } from '../ActionBadges';
 import { CompanionCard } from '../CompanionCard';
+
+const TARGET_LABELS: Record<string, string> = {
+  defense: 'DEF',
+  hp: 'PV',
+  initiative: 'Init',
+  pc: 'PC',
+  dr: 'DR',
+  pm: 'PM',
+  damageReduction: 'RD',
+  atkContact: 'ATQ Contact',
+  atkDistance: 'ATQ Distance',
+  atkMagic: 'ATQ Magique',
+  dmContact: 'DM Contact',
+  dmDistance: 'DM Distance',
+  dmMagic: 'DM Magique',
+  critRange: 'Crit',
+};
+
+function renderModifierBadges(modifiers?: RankModifiers) {
+  if (!modifiers) return null;
+  const hasStats = modifiers.stats && Object.keys(modifiers.stats).length > 0;
+  const hasBonuses = modifiers.bonuses && modifiers.bonuses.length > 0;
+  const hasWeapons =
+    modifiers.weaponModifiers && modifiers.weaponModifiers.length > 0;
+
+  if (!hasStats && !hasBonuses && !hasWeapons) return null;
+
+  return (
+    <div className="mt-2 ml-7 flex flex-wrap items-center gap-1.5 text-[10px]">
+      {modifiers.stats &&
+        Object.entries(modifiers.stats).map(([st, v]) => (
+          <span
+            key={st}
+            className="px-1.5 py-0.5 rounded bg-purple-950/80 text-purple-200 border border-purple-800/60 font-mono font-bold"
+          >
+            +{v} {st}
+          </span>
+        ))}
+      {modifiers.bonuses?.map((b, idx) => {
+        const label = TARGET_LABELS[b.target] || b.target;
+        const parts: string[] = [];
+        if (b.flat) parts.push(`+${b.flat}`);
+        if (b.perRank) parts.push(`+${b.perRank}/rang`);
+        if (b.perLevel) parts.push(`+${b.perLevel}/niv`);
+        if (b.stat) parts.push(`+${b.stat}`);
+        if (b.atRank) {
+          const vals = Object.values(b.atRank);
+          parts.push(`+${vals.join('/')}`);
+        }
+        const valText = parts.join(' ') || '+1';
+        const condText =
+          b.condition === 'noArmor' ? ' (sans armure)' : '';
+        const colorClass =
+          b.target === 'defense' || b.target === 'dr'
+            ? 'bg-blue-950/80 text-blue-200 border-blue-800/60'
+            : b.target === 'hp'
+              ? 'bg-red-950/80 text-red-200 border-red-800/60'
+              : b.target === 'critRange'
+                ? 'bg-rose-950/80 text-rose-200 border-rose-800/60'
+                : 'bg-amber-950/80 text-amber-200 border-amber-800/60';
+
+        return (
+          <span
+            key={`b_${idx}`}
+            className={`px-1.5 py-0.5 rounded border font-mono font-bold ${colorClass}`}
+          >
+            {valText} {label}
+            {condText}
+          </span>
+        );
+      })}
+      {modifiers.weaponModifiers?.map((wm, idx) => (
+        <span
+          key={`wm_${idx}`}
+          className="px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-200 border border-emerald-800/60 font-mono font-bold"
+        >
+          {wm.note || wm.sourceName || 'Bonus d’arme'}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 interface AbilitiesTabProps {
   character: CharacterSheet;
@@ -218,66 +302,134 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                       {rank.companions && rank.companions.length > 0 && (
                         <div className="pl-7 space-y-2">
                           {rank.companions.map((comp, idx) => (
-                            <CompanionCard key={idx} companion={comp} />
+                            <CompanionCard
+                              key={idx}
+                              companion={comp}
+                              character={character}
+                              stats={stats}
+                              pathId={pathId}
+                            />
                           ))}
                         </div>
                       )}
 
                       {/* Passive bonus indicator pill */}
-                      {rank.modifiers && (
-                        <div className="mt-2 ml-7 flex flex-wrap items-center gap-1.5 text-[10px]">
-                          {rank.modifiers.stats && Object.entries(rank.modifiers.stats).map(([st, v]) => (
-                            <span key={st} className="px-1.5 py-0.5 rounded bg-purple-950/80 text-purple-200 border border-purple-800/60 font-mono font-bold">
-                              +{v} {st}
-                            </span>
-                          ))}
-                          {rank.modifiers.defense && (
-                            <span className="px-1.5 py-0.5 rounded bg-blue-950/80 text-blue-200 border border-blue-800/60 font-mono font-bold">
-                              +{rank.modifiers.defense} DEF
-                            </span>
-                          )}
-                          {rank.modifiers.defenseStatBonus && (
-                            <span className="px-1.5 py-0.5 rounded bg-blue-950/80 text-blue-200 border border-blue-800/60 font-mono font-bold">
-                              +{rank.modifiers.defenseStatBonus} DEF {rank.modifiers.defenseCondition === 'noArmor' ? '(sans armure)' : ''}
-                            </span>
-                          )}
-                          {rank.modifiers.initiative && (
-                            <span className="px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-200 border border-amber-800/60 font-mono font-bold">
-                              +{rank.modifiers.initiative} Init
-                            </span>
-                          )}
-                          {rank.modifiers.initiativeStatBonus && (
-                            <span className="px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-200 border border-amber-800/60 font-mono font-bold">
-                              Init + {rank.modifiers.initiativeStatBonus}
-                            </span>
-                          )}
-                          {rank.modifiers.hpBonus && (
-                            <span className="px-1.5 py-0.5 rounded bg-red-950/80 text-red-200 border border-red-800/60 font-mono font-bold">
-                              +{rank.modifiers.hpBonus} PV
-                            </span>
-                          )}
-                          {rank.modifiers.hpStatBonus && (
-                            <span className="px-1.5 py-0.5 rounded bg-red-950/80 text-red-200 border border-red-800/60 font-mono font-bold">
-                              PV + {rank.modifiers.hpStatBonus}
-                            </span>
-                          )}
-                          {rank.modifiers.bonusDR && (
-                            <span className="px-1.5 py-0.5 rounded bg-blue-950/80 text-blue-200 border border-blue-800/60 font-mono font-bold">
-                              +{rank.modifiers.bonusDR} DR
-                            </span>
-                          )}
-                          {rank.modifiers.bonusPC && (
-                            <span className="px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-200 border border-amber-800/60 font-mono font-bold">
-                              +{rank.modifiers.bonusPC} PC
-                            </span>
-                          )}
-                          {rank.modifiers.critRangeBonus && (
-                            <span className="px-1.5 py-0.5 rounded bg-rose-950/80 text-rose-200 border border-rose-800/60 font-mono font-bold">
-                              Crit +{rank.modifiers.critRangeBonus}
-                            </span>
-                          )}
-                        </div>
-                      )}
+                      {renderModifierBadges(rank.modifiers)}
+
+                      {/* Interactive External Ability Selector (e.g. Demi-orc R3, Elfe sylvain R2, Haut elfe R2, Humain R2, Touche-à-tout) */}
+                      {isAcquired && rank.modifiers?.grantExternalAbility && (() => {
+                        const grantRule = rank.modifiers.grantExternalAbility;
+                        const choiceKey = `${pathId}_${rank.rank}`;
+                        const currentChoice = character.externalAbilityChoices?.[choiceKey];
+
+                        const eligibleProfiles = PROFILES.filter(p =>
+                          grantRule.allowedProfiles === 'any'
+                            ? true
+                            : grantRule.allowedProfiles.includes(p.id)
+                        );
+                        const eligiblePathIds = Array.from(
+                          new Set(eligibleProfiles.flatMap(p => p.paths))
+                        );
+                        const eligiblePaths = eligiblePathIds
+                          .map(pid => getPathById(pid))
+                          .filter((p): p is NonNullable<typeof p> => Boolean(p));
+
+                        const chosenPath = currentChoice?.pathId
+                          ? getPathById(currentChoice.pathId)
+                          : undefined;
+                        const chosenRankData = chosenPath?.ranks.find(
+                          r => r.rank === (currentChoice?.rank || 1)
+                        );
+
+                        return (
+                          <div className="mt-2.5 ml-7 p-3 bg-stone-900 border border-indigo-700/60 rounded-xl space-y-2 shadow">
+                            <div className="flex items-center justify-between">
+                              <div className="text-[11px] font-semibold text-indigo-300 flex items-center space-x-1.5">
+                                <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+                                <span>{grantRule.label || 'Capacité externe choisie :'}</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-2 items-center">
+                              <select
+                                value={currentChoice?.pathId || ''}
+                                onChange={e => {
+                                  const newPathId = e.target.value;
+                                  if (!newPathId) {
+                                    const next = { ...character.externalAbilityChoices };
+                                    delete next[choiceKey];
+                                    updateCharacter({ externalAbilityChoices: next });
+                                    return;
+                                  }
+                                  updateCharacter({
+                                    externalAbilityChoices: {
+                                      ...character.externalAbilityChoices,
+                                      [choiceKey]: {
+                                        pathId: newPathId,
+                                        rank: currentChoice?.rank && currentChoice.rank <= grantRule.maxRank
+                                          ? currentChoice.rank
+                                          : 1,
+                                      },
+                                    },
+                                  });
+                                }}
+                                className="bg-stone-950 border border-stone-700 rounded px-2 py-1 text-xs text-stone-200 focus:border-indigo-500 outline-none"
+                              >
+                                <option value="">— Choisir une voie —</option>
+                                {eligiblePaths.map(ep => (
+                                  <option key={ep.id} value={ep.id}>
+                                    {ep.name} ({ep.owner})
+                                  </option>
+                                ))}
+                              </select>
+
+                              {grantRule.maxRank > 1 && currentChoice?.pathId && (
+                                <select
+                                  value={currentChoice.rank || 1}
+                                  onChange={e => {
+                                    updateCharacter({
+                                      externalAbilityChoices: {
+                                        ...character.externalAbilityChoices,
+                                        [choiceKey]: {
+                                          pathId: currentChoice.pathId,
+                                          rank: Number(e.target.value) || 1,
+                                        },
+                                      },
+                                    });
+                                  }}
+                                  className="bg-stone-950 border border-stone-700 rounded px-2 py-1 text-xs text-stone-200 focus:border-indigo-500 outline-none"
+                                >
+                                  {Array.from({ length: grantRule.maxRank }, (_, i) => i + 1).map(rk => (
+                                    <option key={rk} value={rk}>
+                                      Rang {rk}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                            </div>
+
+                            {chosenPath && chosenRankData && (
+                              <div className="p-2.5 rounded-lg bg-indigo-950/30 border border-indigo-800/50 space-y-1">
+                                <div className="flex items-center space-x-2">
+                                  <span className="px-1.5 py-0.5 rounded bg-indigo-600 text-stone-950 text-[10px] font-mono font-bold">
+                                    R{chosenRankData.rank}
+                                  </span>
+                                  <span className="font-semibold text-indigo-200 text-xs">
+                                    {chosenRankData.title}
+                                  </span>
+                                  <span className="text-[10px] text-stone-400">
+                                    ({chosenPath.name})
+                                  </span>
+                                  <ActionBadges rank={chosenRankData} />
+                                </div>
+                                <p className="text-xs text-stone-300 leading-relaxed">
+                                  {chosenRankData.description}
+                                </p>
+                                {renderModifierBadges(chosenRankData.modifiers)}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {/* Interactive Choice Selector if acquired */}
                       {isAcquired && rank.modifiers?.choiceOptions && rank.modifiers.choiceOptions.length > 0 && (
@@ -346,41 +498,19 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                           {replacedRacial.rank1.companions && replacedRacial.rank1.companions.length > 0 && (
                             <div className="pl-7 space-y-2">
                               {replacedRacial.rank1.companions.map((comp, idx) => (
-                                <CompanionCard key={idx} companion={comp} />
+                                <CompanionCard
+                                  key={idx}
+                                  companion={comp}
+                                  character={character}
+                                  stats={stats}
+                                  pathId={replacedRacial.path.id}
+                                />
                               ))}
                             </div>
                           )}
 
                           {/* Passive modifiers for racial rank 1 */}
-                          {replacedRacial.rank1.modifiers && (
-                            <div className="ml-7 flex flex-wrap items-center gap-1.5 text-[10px]">
-                              {replacedRacial.rank1.modifiers.stats && Object.entries(replacedRacial.rank1.modifiers.stats).map(([st, v]) => (
-                                <span key={st} className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-200 border border-emerald-700/60 font-mono font-bold">
-                                  +{Number(v)} {st}
-                                </span>
-                              ))}
-                              {replacedRacial.rank1.modifiers.defense && (
-                                <span className="px-1.5 py-0.5 rounded bg-blue-950 text-blue-200 border border-blue-800/60 font-mono font-bold">
-                                  +{replacedRacial.rank1.modifiers.defense} DEF
-                                </span>
-                              )}
-                              {replacedRacial.rank1.modifiers.defenseStatBonus && (
-                                <span className="px-1.5 py-0.5 rounded bg-blue-950 text-blue-200 border border-blue-800/60 font-mono font-bold">
-                                  +{replacedRacial.rank1.modifiers.defenseStatBonus} DEF {replacedRacial.rank1.modifiers.defenseCondition === 'noArmor' ? '(sans armure)' : ''}
-                                </span>
-                              )}
-                              {replacedRacial.rank1.modifiers.initiative && (
-                                <span className="px-1.5 py-0.5 rounded bg-amber-950 text-amber-200 border border-amber-800/60 font-mono font-bold">
-                                  +{replacedRacial.rank1.modifiers.initiative} Init
-                                </span>
-                              )}
-                              {replacedRacial.rank1.modifiers.hpBonus && (
-                                <span className="px-1.5 py-0.5 rounded bg-red-950 text-red-200 border border-red-800/60 font-mono font-bold">
-                                  +{replacedRacial.rank1.modifiers.hpBonus} PV
-                                </span>
-                              )}
-                            </div>
-                          )}
+                          {renderModifierBadges(replacedRacial.rank1.modifiers)}
 
                           {/* Interactive choice selector for racial rank 1 if any */}
                           {replacedRacial.rank1.modifiers?.choiceOptions && replacedRacial.rank1.modifiers.choiceOptions.length > 0 && (
