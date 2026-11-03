@@ -13,6 +13,7 @@ interface Step4StatsProps {
   setArrayPreset: (preset: string) => void;
   handleAutoAssignStats: (presetId?: string) => void;
   handleSetStatValue: (stat: StatCode, val: number) => void;
+  handleSelectArrayPreset?: (preset: string) => void;
 }
 
 export const Step4Stats: React.FC<Step4StatsProps> = ({
@@ -24,6 +25,7 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
   setArrayPreset,
   handleAutoAssignStats,
   handleSetStatValue,
+  handleSelectArrayPreset,
 }) => {
   return (
     <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 shadow space-y-6">
@@ -105,8 +107,14 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
             <button
               key={arr.id}
               onClick={() => {
-                setArrayPreset(arr.id);
-                handleAutoAssignStats(arr.id);
+                if (arrayPreset !== arr.id) {
+                  if (handleSelectArrayPreset) {
+                    handleSelectArrayPreset(arr.id);
+                  } else {
+                    setArrayPreset(arr.id);
+                    handleAutoAssignStats(arr.id);
+                  }
+                }
               }}
               className={`p-3 rounded-lg border text-left transition ${
                 arrayPreset === arr.id
@@ -124,7 +132,13 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
 
           {/* Freeform option */}
           <button
-            onClick={() => setArrayPreset('libre')}
+            onClick={() => {
+              if (handleSelectArrayPreset) {
+                handleSelectArrayPreset('libre');
+              } else {
+                setArrayPreset('libre');
+              }
+            }}
             className={`p-3 rounded-lg border text-left transition ${
               arrayPreset === 'libre'
                 ? 'bg-amber-950/40 border-amber-500 shadow-md ring-1 ring-amber-500'
@@ -167,9 +181,13 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
 
             // Possible choices in dropdown
             const currentArray = tablesData.characteristicArrays.find(a => a.id === arrayPreset);
-            const options = arrayPreset === 'libre' || !currentArray
+            const baseChoices = arrayPreset === 'libre' || !currentArray
               ? [-3, -2, -1, 0, 1, 2, 3, 4, 5]
-              : Array.from(new Set(currentArray.values)).sort((a, b) => b - a);
+              : Array.from(new Set(currentArray.values));
+            if (!baseChoices.includes(base)) {
+              baseChoices.push(base);
+            }
+            const options = baseChoices.sort((a, b) => b - a);
 
             return (
               <div

@@ -19,6 +19,7 @@ import {
   checkWeaponProficiency,
   getDefaultEquipmentForProfile,
   sanitizeCharacterEquipment,
+  detectCharacteristicArrayPreset,
 } from '../../engine/rulesEngine';
 import tablesData from '../../data/tables.json';
 import { ChevronRight, ChevronLeft, CheckCircle2 } from 'lucide-react';
@@ -46,7 +47,19 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
   const totalSteps = 7;
 
   // Selected array mode in Step 4 ('polyvalent' | 'expert' | 'specialiste' | 'libre')
-  const [arrayPreset, setArrayPreset] = useState<string>('polyvalent');
+  const initialPreset = useMemo(() => {
+    if (character.statArrayPreset) {
+      return character.statArrayPreset;
+    }
+    return detectCharacteristicArrayPreset(character.baseStats);
+  }, [character.statArrayPreset, character.baseStats]);
+
+  const [arrayPreset, setArrayPreset] = useState<string>(initialPreset);
+
+  React.useEffect(() => {
+    const currentPreset = character.statArrayPreset || detectCharacteristicArrayPreset(character.baseStats);
+    setArrayPreset(currentPreset);
+  }, [character.statArrayPreset, character.baseStats]);
 
   // Track expanded path previews in Step 5
   const [expandedPaths, setExpandedPaths] = useState<Record<string, boolean>>({});
@@ -279,7 +292,17 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       newBase[stat] = sortedValues[primary.length + idx];
     });
 
-    update({ baseStats: newBase });
+    setArrayPreset(presetId);
+    update({ baseStats: newBase, statArrayPreset: presetId });
+  };
+
+  const handleSelectArrayPreset = (presetId: string) => {
+    setArrayPreset(presetId);
+    if (presetId === 'libre') {
+      update({ statArrayPreset: 'libre' });
+    } else {
+      handleAutoAssignStats(presetId);
+    }
   };
 
   // Swap / set stat value strictly respecting the chosen pool
@@ -290,12 +313,14 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
           ...character.baseStats,
           [targetStat]: newValue,
         },
+        statArrayPreset: 'libre',
       });
       return;
     }
 
     const currentStats = { ...character.baseStats };
     const oldValue = currentStats[targetStat];
+    if (oldValue === newValue) return;
 
     // Find another stat that currently holds newValue, and swap with it
     const allStats: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
@@ -306,7 +331,10 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     }
     currentStats[targetStat] = newValue;
 
-    update({ baseStats: currentStats });
+    update({
+      baseStats: currentStats,
+      statArrayPreset: arrayPreset,
+    });
   };
 
   // Toggle selection of a profile path in Step 5
@@ -450,6 +478,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
           setArrayPreset={setArrayPreset}
           handleAutoAssignStats={handleAutoAssignStats}
           handleSetStatValue={handleSetStatValue}
+          handleSelectArrayPreset={handleSelectArrayPreset}
         />
       )}
 

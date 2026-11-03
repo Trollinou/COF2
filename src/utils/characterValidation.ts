@@ -52,6 +52,8 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     warnings.push('Bloc de caractéristiques de base absent, initialisé aux valeurs par défaut.');
   }
 
+  const statArrayPreset = typeof raw.statArrayPreset === 'string' ? raw.statArrayPreset : undefined;
+
   // Validate Paths and Abilities
   const selectedPathIds: string[] = Array.isArray(raw.selectedPathIds)
     ? raw.selectedPathIds.filter((p: unknown) => typeof p === 'string')
@@ -143,6 +145,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     secondaryProfileId,
     level,
     baseStats,
+    statArrayPreset,
     racialStatChoices: Array.isArray(raw.racialStatChoices) ? raw.racialStatChoices : defaultChar.racialStatChoices,
     manualStatBonuses: raw.manualStatBonuses && typeof raw.manualStatBonuses === 'object' ? raw.manualStatBonuses : {},
     selectedPathIds,

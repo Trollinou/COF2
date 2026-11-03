@@ -103,5 +103,13 @@ describe('Character Validation & Migration', () => {
       rank: 1,
     });
   });
+
+  it('preserves statArrayPreset through validation and migration', () => {
+    const res = validateAndMigrateCharacter({
+      name: 'Gimli',
+      statArrayPreset: 'specialiste',
+    });
+    expect(res.character.statArrayPreset).toBe('specialiste');
+  });
 });
 

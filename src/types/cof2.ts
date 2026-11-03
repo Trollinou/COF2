@@ -393,6 +393,7 @@ export interface CharacterSheet {
 
   // Stats.
   baseStats: Record<StatCode, number>;
+  statArrayPreset?: string;
   racialStatChoices?: StatCode[];
   manualStatBonuses?: Partial<Record<StatCode, number>>;
 

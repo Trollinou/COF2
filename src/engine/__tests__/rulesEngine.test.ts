@@ -31,6 +31,7 @@ import {
   getWeaponAttackInfo,
   resolveCompanionStats,
   getDefaultEquipmentForProfile,
+  detectCharacteristicArrayPreset,
 } from '../rulesEngine';
 import { CharacterSheet } from '../../types/cof2';
 
@@ -1198,6 +1199,32 @@ describe('COF2 Rules Engine', () => {
       frouinStats = computeCharacterStats(frouin);
       expect(frouinStats.racialBonusStats.AGI).toBe(0);
       expect(frouinStats.racialBonusStats.PER).toBe(1);
+    });
+  });
+
+  describe('Characteristic Array Preset Detection', () => {
+    it('detects polyvalent preset correctly regardless of stat assignment', () => {
+      const stats = { FOR: 2, AGI: 2, CON: 2, PER: 1, INT: 1, VOL: 0, CHA: -1 };
+      expect(detectCharacteristicArrayPreset(stats)).toBe('polyvalent');
+
+      // Permutation of the same values
+      const permuted = { FOR: -1, AGI: 1, CON: 2, PER: 0, INT: 2, VOL: 1, CHA: 2 };
+      expect(detectCharacteristicArrayPreset(permuted)).toBe('polyvalent');
+    });
+
+    it('detects expert preset correctly', () => {
+      const stats = { FOR: 3, AGI: 2, CON: 1, PER: 1, INT: 0, VOL: 0, CHA: -1 };
+      expect(detectCharacteristicArrayPreset(stats)).toBe('expert');
+    });
+
+    it('detects specialiste preset correctly', () => {
+      const stats = { FOR: 4, AGI: 2, CON: 1, PER: 0, INT: 0, VOL: -1, CHA: -1 };
+      expect(detectCharacteristicArrayPreset(stats)).toBe('specialiste');
+    });
+
+    it('falls back to libre for custom non-preset values', () => {
+      const customStats = { FOR: 5, AGI: 3, CON: 2, PER: 1, INT: 0, VOL: -2, CHA: -3 };
+      expect(detectCharacteristicArrayPreset(customStats)).toBe('libre');
     });
   });
 });

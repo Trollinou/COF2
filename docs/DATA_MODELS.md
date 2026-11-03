@@ -451,7 +451,8 @@ Chaque compagnon peut inclure des formules déclaratives (`defenseFormula`, `hpF
 Le fichier [`src/data/tables.json`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/data/tables.json) regroupe les tables d'aide à la création :
 - `randomStatsTable` : Table de tirage aléatoire des répartitions de caractéristiques (`2d6`).
 - `pointBuyCosts` : Coût d'achat par points pour chaque valeur de caractéristique de `-2` à `+4`.
-- `arrayPresets` : Les 3 répartitions standards officielles (*Polyvalent*, *Expert*, *Spécialiste*).
+- `characteristicArrays` : Les 3 séries de valeurs standards officielles (*Polyvalent*, *Expert*, *Spécialiste*) avec `id`, `name`, `values` et `description`.
+  > **Note d'intégration :** Le choix de série est persisté dans `CharacterSheet.statArrayPreset` (`'polyvalent' | 'expert' | 'specialiste' | 'libre'`) et détecté automatiquement via `detectCharacteristicArrayPreset(baseStats)` si absent.
 - `ideals` : Liste des 20 idéaux héroïques avec `id`, `name`, `description` et `example`.
 - `flaws` : Liste des 20 travers avec `id`, `name` et `description`.
 - `startingEquipmentNote` : Texte de rappel sur l'équipement gratuit au niveau 1.

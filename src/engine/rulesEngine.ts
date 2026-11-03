@@ -24,6 +24,7 @@ import peoplesData from "../data/peoples.json";
 import profilesData from "../data/profiles.json";
 import pathsData from "../data/paths.json";
 import equipmentData from "../data/equipment.json";
+import tablesData from "../data/tables.json";
 
 export const PEOPLES = peoplesData as PeopleData[];
 export const PROFILES = profilesData as ProfileData[];
@@ -1706,6 +1707,7 @@ export function createDefaultCharacter(): CharacterSheet {
       VOL: 0,
       CHA: -1,
     },
+    statArrayPreset: "polyvalent",
     racialStatChoices: ["FOR"],
     manualStatBonuses: {},
     selectedPathIds: [
@@ -1762,6 +1764,30 @@ export function createDefaultCharacter(): CharacterSheet {
   initialChar.currentPm = computed.maxPm;
 
   return initialChar;
+}
+
+/**
+ * Detects which characteristic array preset matches the given base stats,
+ * or returns 'libre' if no exact match is found.
+ */
+export function detectCharacteristicArrayPreset(
+  baseStats: Record<StatCode, number>,
+): string {
+  if (!baseStats) return "polyvalent";
+  const currentValues = (["FOR", "AGI", "CON", "PER", "INT", "VOL", "CHA"] as StatCode[])
+    .map((s) => (typeof baseStats[s] === "number" ? baseStats[s] : 0))
+    .sort((a, b) => b - a);
+
+  for (const arr of tablesData.characteristicArrays) {
+    const presetValues = [...arr.values].sort((a, b) => b - a);
+    if (
+      currentValues.length === presetValues.length &&
+      currentValues.every((val, idx) => val === presetValues[idx])
+    ) {
+      return arr.id;
+    }
+  }
+  return "libre";
 }
 
 /**
