@@ -111,5 +111,52 @@ describe('Character Validation & Migration', () => {
     });
     expect(res.character.statArrayPreset).toBe('specialiste');
   });
+
+  it('sanitizes malicious payload against prototype pollution and non-finite numbers', () => {
+    const maliciousPayload = {
+      name: 'Hacker',
+      manualStatBonuses: {
+        __proto__: { polluted: true },
+        constructor: { evil: true },
+        FOR: 2,
+        INVALID_STAT: 99,
+        AGI: 'not-a-number',
+      },
+      pathRankChoices: {
+        __proto__: 'exploit',
+        'safe_path_1': 'choice_a',
+      },
+      externalAbilityChoices: {
+        __proto__: { pathId: 'hack', rank: 1 },
+        safe_ext: { pathId: 'voie-du-combat', rank: 2 },
+      },
+      racialStatChoices: ['FOR', 'MALICIOUS_KEY', 123, null],
+      currentHp: NaN,
+      maxHpBonus: Infinity,
+      coins: { pa: NaN, pc: 5, po: -Infinity },
+    };
+
+    const res = validateAndMigrateCharacter(maliciousPayload);
+
+    // Verifies prototype pollution keys are ignored
+    expect((res.character.manualStatBonuses as any)?.__proto__?.polluted).toBeUndefined();
+    expect((res.character.manualStatBonuses as any)?.INVALID_STAT).toBeUndefined();
+    expect(res.character.manualStatBonuses?.FOR).toBe(2);
+    expect(res.character.manualStatBonuses?.AGI).toBeUndefined();
+
+    // Verifies path choices sanitization
+    expect(res.character.pathRankChoices?.safe_path_1).toBe('choice_a');
+    expect((res.character.pathRankChoices as any)?.__proto__).not.toBe('exploit');
+
+    // Verifies racial stat choices filtering
+    expect(res.character.racialStatChoices).toEqual(['FOR']);
+
+    // Verifies finite numbers fallback
+    expect(Number.isFinite(res.character.currentHp)).toBe(true);
+    expect(res.character.maxHpBonus).toBe(0);
+    expect(res.character.coins.pa).toBe(0);
+    expect(res.character.coins.pc).toBe(5);
+    expect(res.character.coins.po).toBe(0);
+  });
 });
 

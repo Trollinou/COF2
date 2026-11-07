@@ -19,6 +19,22 @@ function dataApiPlugin(): Plugin {
 
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
+        // Protection anti-CSRF et vérification de l'origine
+        const origin = req.headers['origin'];
+        const secFetchSite = req.headers['sec-fetch-site'];
+        const host = req.headers['host'];
+
+        if (secFetchSite && secFetchSite === 'cross-site') {
+          res.statusCode = 403;
+          res.end(JSON.stringify({ error: 'Accès cross-site refusé (protection CSRF)' }));
+          return;
+        }
+        if (origin && !origin.includes(host || 'localhost:5180')) {
+          res.statusCode = 403;
+          res.end(JSON.stringify({ error: 'Origine non autorisée' }));
+          return;
+        }
+
         try {
           // 1. GET /api/data -> renvoie tous les fichiers
           if (req.method === 'GET' && req.url === '/api/data') {
@@ -67,9 +83,18 @@ function dataApiPlugin(): Plugin {
               return;
             }
 
+            const MAX_BODY_BYTES = 10 * 1024 * 1024; // 10 Mo max
             const chunks: Buffer[] = [];
+            let totalBytes = 0;
             for await (const chunk of req) {
-              chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+              const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+              totalBytes += buf.length;
+              if (totalBytes > MAX_BODY_BYTES) {
+                res.statusCode = 413;
+                res.end(JSON.stringify({ error: 'Payload trop volumineux (limite 10 Mo)' }));
+                return;
+              }
+              chunks.push(buf);
             }
             const bodyStr = Buffer.concat(chunks).toString('utf-8');
             const parsedData = JSON.parse(bodyStr);
@@ -154,10 +179,11 @@ function dataApiPlugin(): Plugin {
           }
 
           next();
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error('[COF2 Data Editor Error]', err);
           res.statusCode = 500;
-          res.end(JSON.stringify({ error: err?.message || 'Erreur interne du serveur de données' }));
+          const message = err instanceof Error ? err.message : 'Erreur interne du serveur de données';
+          res.end(JSON.stringify({ error: message }));
         }
       });
     },

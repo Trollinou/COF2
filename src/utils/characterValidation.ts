@@ -70,7 +70,8 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
   if (raw.pathRankChoices && typeof raw.pathRankChoices === 'object') {
     pathRankChoices = {};
     for (const [key, val] of Object.entries(raw.pathRankChoices)) {
-      if (typeof val === 'string') {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
+      if (typeof val === 'string' && /^[a-zA-Z0-9_\-]+$/.test(key)) {
         pathRankChoices[key] = val;
       }
     }
@@ -80,8 +81,9 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
   if (raw.externalAbilityChoices && typeof raw.externalAbilityChoices === 'object') {
     externalAbilityChoices = {};
     for (const [key, val] of Object.entries(raw.externalAbilityChoices)) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
       const v = val as any;
-      if (v && typeof v.pathId === 'string' && Number.isInteger(v.rank)) {
+      if (v && typeof v.pathId === 'string' && Number.isInteger(v.rank) && v.rank >= 1 && v.rank <= 8) {
         externalAbilityChoices[key] = { pathId: v.pathId, rank: v.rank };
       }
     }
@@ -96,11 +98,11 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
         damage: typeof w.damage === 'string' ? w.damage : '1d4',
         range: typeof w.range === 'string' ? w.range : 'Contact',
         category: w.category === 'distance' ? ('distance' as const) : ('contact' as const),
-        bonusAttack: typeof w.bonusAttack === 'number' ? w.bonusAttack : 0,
-        bonusDamage: typeof w.bonusDamage === 'number' ? w.bonusDamage : 0,
+        bonusAttack: typeof w.bonusAttack === 'number' && Number.isFinite(w.bonusAttack) ? w.bonusAttack : 0,
+        bonusDamage: typeof w.bonusDamage === 'number' && Number.isFinite(w.bonusDamage) ? w.bonusDamage : 0,
         requiresTwoHands: Boolean(w.requiresTwoHands),
-        attackStatUsed: w.attackStatUsed,
-        attackStatSource: w.attackStatSource,
+        attackStatUsed: typeof w.attackStatUsed === 'string' && VALID_STATS.includes(w.attackStatUsed as StatCode) ? (w.attackStatUsed as StatCode) : undefined,
+        attackStatSource: typeof w.attackStatSource === 'string' ? w.attackStatSource : undefined,
       }))
     : defaultChar.weapons;
 
@@ -109,16 +111,16 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     ? raw.inventory.map((item: any, idx: number) => ({
         id: typeof item.id === 'string' ? item.id : `inv_${idx}`,
         name: typeof item.name === 'string' ? item.name : 'Objet',
-        quantity: typeof item.quantity === 'number' && item.quantity >= 0 ? item.quantity : 1,
+        quantity: typeof item.quantity === 'number' && Number.isFinite(item.quantity) && item.quantity >= 0 ? item.quantity : 1,
         notes: typeof item.notes === 'string' ? item.notes : undefined,
       }))
     : defaultChar.inventory;
 
   // Validate Coins
   const coins = {
-    pa: typeof raw.coins?.pa === 'number' ? raw.coins.pa : 0,
-    pc: typeof raw.coins?.pc === 'number' ? raw.coins.pc : 0,
-    po: typeof raw.coins?.po === 'number' ? raw.coins.po : 0,
+    pa: typeof raw.coins?.pa === 'number' && Number.isFinite(raw.coins.pa) ? raw.coins.pa : 0,
+    pc: typeof raw.coins?.pc === 'number' && Number.isFinite(raw.coins.pc) ? raw.coins.pc : 0,
+    po: typeof raw.coins?.po === 'number' && Number.isFinite(raw.coins.po) ? raw.coins.po : 0,
   };
 
   const migratedChar: CharacterSheet = {
@@ -146,19 +148,34 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     level,
     baseStats,
     statArrayPreset,
-    racialStatChoices: Array.isArray(raw.racialStatChoices) ? raw.racialStatChoices : defaultChar.racialStatChoices,
-    manualStatBonuses: raw.manualStatBonuses && typeof raw.manualStatBonuses === 'object' ? raw.manualStatBonuses : {},
+    racialStatChoices: Array.isArray(raw.racialStatChoices)
+      ? raw.racialStatChoices.filter((s: unknown): s is StatCode => typeof s === 'string' && VALID_STATS.includes(s as StatCode))
+      : defaultChar.racialStatChoices,
+    manualStatBonuses: (() => {
+      const safe: Partial<Record<StatCode, number>> = {};
+      if (raw.manualStatBonuses && typeof raw.manualStatBonuses === 'object') {
+        for (const stat of VALID_STATS) {
+          const val = Number(raw.manualStatBonuses[stat]);
+          if (Number.isFinite(val) && val !== 0) {
+            safe[stat] = val;
+          }
+        }
+      }
+      return safe;
+    })(),
     selectedPathIds,
     acquiredAbilities,
     pathRankChoices,
     externalAbilityChoices,
-    currentHp: typeof raw.currentHp === 'number' ? raw.currentHp : defaultChar.currentHp,
-    maxHpBonus: typeof raw.maxHpBonus === 'number' ? raw.maxHpBonus : 0,
-    levelUpHpGains: Array.isArray(raw.levelUpHpGains) ? raw.levelUpHpGains.filter((n: any) => typeof n === 'number') : undefined,
+    currentHp: typeof raw.currentHp === 'number' && Number.isFinite(raw.currentHp) ? raw.currentHp : defaultChar.currentHp,
+    maxHpBonus: typeof raw.maxHpBonus === 'number' && Number.isFinite(raw.maxHpBonus) ? raw.maxHpBonus : 0,
+    levelUpHpGains: Array.isArray(raw.levelUpHpGains)
+      ? raw.levelUpHpGains.filter((n: any) => typeof n === 'number' && Number.isInteger(n))
+      : undefined,
     halfHpPending: typeof raw.halfHpPending === 'boolean' ? raw.halfHpPending : undefined,
-    currentDr: typeof raw.currentDr === 'number' ? raw.currentDr : defaultChar.currentDr,
-    currentPc: typeof raw.currentPc === 'number' ? raw.currentPc : defaultChar.currentPc,
-    currentPm: typeof raw.currentPm === 'number' ? raw.currentPm : defaultChar.currentPm,
+    currentDr: typeof raw.currentDr === 'number' && Number.isFinite(raw.currentDr) ? raw.currentDr : defaultChar.currentDr,
+    currentPc: typeof raw.currentPc === 'number' && Number.isFinite(raw.currentPc) ? raw.currentPc : defaultChar.currentPc,
+    currentPm: typeof raw.currentPm === 'number' && Number.isFinite(raw.currentPm) ? raw.currentPm : defaultChar.currentPm,
     equippedArmorId: typeof raw.equippedArmorId === 'string' ? raw.equippedArmorId : undefined,
     equippedShieldId: typeof raw.equippedShieldId === 'string' ? raw.equippedShieldId : undefined,
     weapons,

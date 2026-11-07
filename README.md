@@ -81,6 +81,7 @@ Pour distribuer l'application à vos joueurs sans qu'ils aient besoin d'installe
 ## 📁 Structure du Code
 
 - `docs/DATA_MODELS.md` : Documentation exhaustive des modèles de données JSON (Schéma V2 déclaratif) et guide d'encodage des capacités.
+- `docs/SECURITY.md` : Politique et architecture de sécurité DevSecOps (CSP, Electron sandbox, CSRF, validation).
 - `src/data/` : Données structurées COF2 (`peoples.json`, `profiles.json`, `paths.json`, `equipment.json`, `tables.json`).
 - `src/engine/rulesEngine.ts` : Moteur de calcul des formules et statistiques COF2.
 - `src/types/cof2.ts` : Définitions TypeScript complètes.

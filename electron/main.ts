@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItemConstructorOptions } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItemConstructorOptions, shell } from 'electron';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 
@@ -6,6 +6,7 @@ let mainWindow: BrowserWindow | null = null;
 
 function createApplicationMenu() {
   const isMac = process.platform === 'darwin';
+  const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
   const template: MenuItemConstructorOptions[] = [
     ...(isMac
@@ -71,7 +72,7 @@ function createApplicationMenu() {
       submenu: [
         { role: 'reload' },
         { role: 'forceReload' },
-        { role: 'toggleDevTools' },
+        ...(isDev ? [{ role: 'toggleDevTools' as const }] : []),
         { type: 'separator' },
         { role: 'resetZoom' },
         { role: 'zoomIn' },
@@ -113,7 +114,29 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
     },
+  });
+
+  // Interdit toute navigation non prévue hors du renderer
+  mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
+    try {
+      const parsed = new URL(navigationUrl);
+      if (parsed.protocol !== 'file:' && !navigationUrl.startsWith('http://localhost:5173')) {
+        event.preventDefault();
+        shell.openExternal(navigationUrl);
+      }
+    } catch {
+      event.preventDefault();
+    }
+  });
+
+  // Empêche l'ouverture arbitraire de nouvelles fenêtres
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https:') || url.startsWith('http:')) {
+      shell.openExternal(url);
+    }
+    return { action: 'deny' };
   });
 
   const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
@@ -153,9 +176,10 @@ app.on('window-all-closed', () => {
 ipcMain.handle('save-character-file', async (_event, { charData, defaultFilename }) => {
   if (!mainWindow) return { success: false, error: 'No active window' };
 
+  const safeFilename = path.basename(defaultFilename || 'mon_personnage.cof2');
   const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
     title: 'Sauvegarder le personnage COF2',
-    defaultPath: defaultFilename || 'mon_personnage.cof2',
+    defaultPath: safeFilename,
     filters: [
       { name: 'Personnage COF2 (*.cof2, *.json)', extensions: ['cof2', 'json'] },
     ],
@@ -212,9 +236,10 @@ ipcMain.handle('load-character-file', async () => {
 ipcMain.handle('export-character-pdf', async (_event, { defaultFilename }) => {
   if (!mainWindow) return { success: false, error: 'No active window' };
 
+  const safeFilename = path.basename(defaultFilename || 'Fiche_COF2.pdf');
   const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
     title: 'Exporter la fiche en PDF',
-    defaultPath: defaultFilename || 'Fiche_COF2.pdf',
+    defaultPath: safeFilename,
     filters: [{ name: 'Document PDF (*.pdf)', extensions: ['pdf'] }],
   });
 

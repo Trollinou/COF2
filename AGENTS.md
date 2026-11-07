@@ -21,7 +21,8 @@ Ce document rassemble les conventions d'architecture, règles de développement,
 COF2/
 ├── .vscode/                   # Configuration partagée VS Code (extensions, settings)
 ├── docs/                      # Documentation technique
-│   └── DATA_MODELS.md         # Schéma V2 des fichiers JSON (src/data/) & guide d'audit
+│   ├── DATA_MODELS.md         # Schéma V2 des fichiers JSON (src/data/) & guide d'audit
+│   └── SECURITY.md            # Politique & Architecture de Sécurité (DevSecOps)
 ├── electron/                  # Processus principal et preload Electron
 │   ├── main.ts                # Gestion de la fenêtre, IPC, boîtes de dialogue et PDF
 │   └── preload.ts             # Exposition contrôlée d'API via contextBridge
@@ -107,19 +108,22 @@ COF2/
 
 ### C. Sécurité Electron & Gestion des Fichiers (I/O)
 
-1. **Sécurité du Contexte d'Exécution** :
-   - Toujours maintenir `contextIsolation: true` et `nodeIntegration: false` dans `webPreferences`.
+1. **Sécurité du Contexte d'Exécution & Bac à Sable** :
+   - Toujours maintenir `contextIsolation: true`, `nodeIntegration: false` et `sandbox: true` dans `webPreferences`.
    - Ne jamais exposer directement le module `fs` ou `child_process` au renderer. Passer exclusivement par `ipcRenderer.invoke` et `contextBridge`.
+   - Verrouiller la navigation via `webContents.on('will-navigate')` et `setWindowOpenHandler` ({ action: 'deny' }).
 
 2. **Opérations I/O Non-bloquantes & Asynchrones** :
    - **Bannir** `fs.writeFileSync` et `fs.readFileSync` dans les handlers IPC. Utiliser `fs.promises.writeFile` et `fs.promises.readFile`.
 
-3. **Sauvegardes Atomiques (Zero Corruption)** :
+3. **Sauvegardes Atomiques (Zero Corruption) & Assainissement** :
    - Lors de la sauvegarde d'un fichier `.cof2`, écrire d'abord dans un fichier temporaire (`${filePath}.tmp`) puis effectuer un `fs.promises.rename`. Cela garantit que le fichier de personnage d'origine reste intact si le processus s'interrompt pendant l'écriture.
+   - Toujours assainir les noms de fichiers proposés via `path.basename()` dans le processus principal pour prévenir les traversées de chemin.
 
-4. **Validation des Fichiers Entrants** :
+4. **Validation des Fichiers Entrants & Protection Anti-Pollution** :
    - Ne jamais injecter aveuglément le résultat de `JSON.parse` dans l'état React sans assainissement (`validateAndMigrateCharacter`).
    - Remplir automatiquement les champs absents avec des valeurs par défaut pour assurer la rétrocompatibilité des anciens fichiers de sauvegarde.
+   - Bloquer activement les clés prototypes (`__proto__`, `constructor`, `prototype`) et valider l'intégrité numérique (`Number.isFinite`). Voir le guide complet dans `docs/SECURITY.md`.
 
 ---
 
