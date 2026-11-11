@@ -363,6 +363,16 @@ export interface CharacterWeaponInstance {
   attackStatSource?: string;
 }
 
+export interface LevelProgressionStep {
+  level: number;
+  hpGain: number;
+  abilitiesLearned?: Array<{ pathId: string; rank: number }>;
+  selectedPathIds?: string[];
+  pathRankChoices?: Record<string, string>;
+  manualStatBonuses?: Partial<Record<StatCode, number>>;
+  timestamp?: string;
+}
+
 export interface CharacterSheet {
   id: string;
   version: string;
@@ -402,6 +412,9 @@ export interface CharacterSheet {
   acquiredAbilities: Array<{ pathId: string; rank: number }>;
   pathRankChoices?: Record<string, string>; // Maps `${pathId}_${rank}` -> choiceOptionId
   externalAbilityChoices?: Record<string, { pathId: string; rank: number }>; // Maps `${pathId}_${rank}` -> borrowed ability
+
+  // Historique des montées de niveau
+  progressionHistory?: LevelProgressionStep[];
 
   // Live state during play.
   currentHp: number;

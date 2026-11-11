@@ -172,6 +172,9 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     levelUpHpGains: Array.isArray(raw.levelUpHpGains)
       ? raw.levelUpHpGains.filter((n: any) => typeof n === 'number' && Number.isInteger(n))
       : undefined,
+    progressionHistory: Array.isArray(raw.progressionHistory)
+      ? raw.progressionHistory.filter((s: any) => s && typeof s.level === 'number' && Number.isInteger(s.level))
+      : undefined,
     halfHpPending: typeof raw.halfHpPending === 'boolean' ? raw.halfHpPending : undefined,
     currentDr: typeof raw.currentDr === 'number' && Number.isFinite(raw.currentDr) ? raw.currentDr : defaultChar.currentDr,
     currentPc: typeof raw.currentPc === 'number' && Number.isFinite(raw.currentPc) ? raw.currentPc : defaultChar.currentPc,

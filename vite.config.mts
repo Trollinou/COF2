@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import packageJson from './package.json' with { type: 'json' };
 
+const host = process.env.TAURI_DEV_HOST;
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -10,10 +12,19 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(packageJson.version),
   },
   base: './',
+  clearScreen: false,
   server: {
-    port: 5173,
+    port: 1420,
+    strictPort: true,
+    host: host || false,
+    hmr: host ? { protocol: 'ws', host, port: 1421 } : undefined,
+    watch: {
+      ignored: ['**/src-tauri/**', '**/crates/**', '**/target/**'],
+    },
   },
   build: {
+    target: process.env.TAURI_ENV_PLATFORM === 'windows' ? 'chrome105' : 'safari15',
+    sourcemap: !!process.env.TAURI_ENV_DEBUG,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {

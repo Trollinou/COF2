@@ -1,6 +1,6 @@
 # 🎲 COF2 Compagnon & Fiche de Héros
 
-Application Desktop et Web de création, de gestion et d'évolution de personnages pour le jeu de rôle **Chroniques Oubliées Fantasy 2 (COF2)**.
+Application Desktop (**Rust + Tauri v2**) et Web (**Vite / React 19**) de création, de gestion et d'évolution de personnages pour le jeu de rôle **Chroniques Oubliées Fantasy 2 (COF2)**.
 
 ---
 
@@ -11,14 +11,14 @@ Application Desktop et Web de création, de gestion et d'évolution de personnag
    - **19 Profils** répartis dans les 4 familles (Aventuriers, Combattants, Mages, Mystiques).
    - **209 Voies et Capacités** (Voies de profil, de peuple, de domaine divin, de prestige et génériques) avec textes intégraux, modificateurs déclaratifs V2, compagnons dynamiques, types d'actions (A, L, G, M) et marqueurs de sorts (*).
    - Les **7 Caractéristiques de COF2** (AGI, CON, FOR, PER, INT, VOL, CHA) avec séries de valeurs officielles (*Polyvalent, Expert, Spécialiste*).
-   - Calcul automatique selon les règles de COF2 :
-     - Points de Vigueur : `PV = (2 x PV famille) + CON` (et gain rétroactif par niveau).
+   - Moteur de règles déterministe en Rust (`crates/cof2-core`) calculant fidèlement :
+     - Points de Vie : `PV = (2 x PV famille) + CON` (et gain rétroactif par niveau).
      - Dés de Récupération (DR) : type de dé selon la famille et `[2 + CON]` (+1 pour les Mystiques).
      - Points de Chance (PC) : `[2 + CHA]` (+1 pour les Aventuriers).
-     - Points de Mana (PM) : `VOL + sorts appris`.
+     - Points de Mana (PM / PE) : `VOL + sorts appris`.
      - Initiative : `10 + PER`.
-     - Défense : `10 + AGI effective + Armure + Bouclier` (avec gestion de l'AGI max).
-     - Attaques : Contact (`Niv + FOR`), Distance (`Niv + AGI`), Magique (`Niv + VOL`).
+     - Défense : `10 + AGI effective + Armure + Bouclier` (avec plafond d'AGI max).
+     - Attaques : Contact (`BAB + FOR`), Distance (`BAB + AGI`), Magique (`BAB + VOL`).
 
 2. **Assistant de Création Guidé (Niveau 1)** :
    - Parcours pas-à-pas en 7 étapes : Identité, Peuple, Profil, Caractéristiques, Voies de départ, Équipement & Bourse (2d6 pa), Bilan.
@@ -28,15 +28,16 @@ Application Desktop et Web de création, de gestion et d'évolution de personnag
    - Gestion des armes équipées, de l'armure, de l'inventaire et des pièces de monnaie (pa, po, pc).
    - Arbre des voies interactif permettant de débloquer ou consulter les capacités.
 
-4. **Progression & Montée de Niveau** :
-   - Modal dédié « **Niveau +** » calculant automatiquement le gain de PV et gérant l'allocation des **2 points de capacité** par niveau (coût de 1 pt pour les rangs 1-2, 2 pts pour les rangs 3-5).
+4. **Progression, Historique & Montée de Niveau Réversible** :
+   - Modal dédié « **Niveau +** » calculant automatiquement le gain de PV et gérant l'allocation des **2 points de capacité** par niveau.
+   - Mémorisation de l'historique complet des apprentissages par niveau (`LevelProgressionStep`) et possibilité de rétrogradation propre à un niveau antérieur sans corruption d'état.
 
 5. **Génération & Export PDF Imprimable (Format A4)** :
-   - Mise en page propre au style fantasy/jdr.
-   - Prête pour l'impression papier ou l'enregistrement en PDF haute fidélité via Electron ou votre navigateur.
+   - Mise en page exacte en 2 pages A4 sur fond blanc, prête pour l'impression papier ou l'enregistrement en PDF haute fidélité via la boîte d'impression native du système (`window.print()`).
 
-6. **Sauvegarde & Partage Faciles** :
-   - Format de fichier individuel `.cof2` (compatible JSON) : vous pouvez exporter votre héros, l'envoyer par Discord ou par e-mail à votre MJ ou à vos amis, et le réimporter en un clic.
+6. **Persistance Atomique & Sécurité Sans Faille** :
+   - Sauvegardes atomiques (`.tmp` $\to$ `rename`) garantissant zéro corruption en cas de coupure de courant.
+   - 100% hors-ligne (Air-Gapped, `connect-src 'none'`), aucune ressource externe requise.
 
 ---
 
@@ -44,68 +45,62 @@ Application Desktop et Web de création, de gestion et d'évolution de personnag
 
 ### Prérequis
 - [Node.js](https://nodejs.org/) (version 18 ou supérieure)
+- [Rust](https://rustup.rs/) (version 1.75 ou supérieure)
 
-### 1. Lancer l'application en mode Desktop (Electron)
+### 1. Lancer l'application en mode Desktop (Tauri v2)
 ```bash
-npm run electron:dev
+npm run tauri:dev
 ```
-Une fenêtre d'application autonome s'ouvrira directement sur votre écran.
+Une fenêtre d'application native ultra-légère s'ouvrira directement sur votre écran.
 
-### 2. Lancer l'application dans votre navigateur (Vite)
-Si vous préférez l'utiliser dans un simple onglet de navigateur :
+### 2. Lancer l'application dans votre navigateur (Vite autonome)
 ```bash
 npm run dev
 ```
-Ouvrez ensuite l'URL indiquée (par défaut `http://localhost:5173`).
+Ouvrez ensuite l'URL indiquée (par défaut `http://localhost:1420`).
 
 ---
 
-## 📦 Génération des Exécutables Autonomes (Windows & Mac)
+## 📦 Génération des Exécutables Autonomes (Windows & macOS)
 
-Pour distribuer l'application à vos joueurs sans qu'ils aient besoin d'installer Node.js :
+Pour distribuer l'application sous forme d'installateurs natifs :
 
-- **Pour macOS (`.dmg`)** :
-  ```bash
-  npm run build:mac
-  ```
-  Le fichier `.dmg` d'installation sera généré dans le dossier `release/`.
-
-- **Pour Windows (`.exe`)** :
-  ```bash
-  npm run build:win
-  ```
-  L'installeur Windows `.exe` sera généré dans le dossier `release/`.
+```bash
+npm run tauri:build
+```
+Les installateurs natifs seront générés automatiquement :
+- **macOS** : fichier `.dmg` dans `target/release/bundle/dmg/`.
+- **Windows** : fichier installateur `.exe` (NSIS) ou `.msi` (WiX) dans `target/release/bundle/nsis/`.
 
 ---
 
-## 📁 Structure du Code
+## 📁 Architecture du Code (Cargo Workspace)
 
-- `docs/DATA_MODELS.md` : Documentation exhaustive des modèles de données JSON (Schéma V2 déclaratif) et guide d'encodage des capacités.
-- `docs/SECURITY.md` : Politique et architecture de sécurité DevSecOps (CSP, Electron sandbox, CSRF, validation).
-- `src/data/` : Données structurées COF2 (`peoples.json`, `profiles.json`, `paths.json`, `equipment.json`, `tables.json`).
-- `src/engine/rulesEngine.ts` : Moteur de calcul des formules et statistiques COF2.
-- `src/types/cof2.ts` : Définitions TypeScript complètes.
-- `src/components/wizard/` : Assistant guidé pas-à-pas de création de héros.
-- `src/components/sheet/` : Fiche de personnage interactive.
-- `src/components/pdf/` : Gabarit A4 imprimable et exportable en PDF.
-- `src/components/modals/` : Module de montée de niveau.
-- `src/utils/fileBridge.ts` : Passerelle de sauvegarde/chargement `.cof2` et export PDF (Electron & Web).
-- `electron/` : Processus principal natif et preload d'Electron.
+- `Cargo.toml` : Workspace racine Cargo liant les crates Rust avec profils dev allégés (`debug = 0` pour les dépendances).
+- `crates/cof2-core/` : Moteur de règles pur en Rust (sans dépendance UI/OS/Tauri), embarquant statiquement le compendium JSON via `include_str!`.
+- `crates/cof2-storage/` : Bibliothèque de persistance locale atomique (fichiers `.cof2` / `.json`).
+- `src-tauri/` : Shell desktop Tauri v2 avec commandes IPC, bindings typés (`tauri-specta`), gestion d'impression native et localisation système (français).
+- `src/` : Interface utilisateur déclarative en React 19, TypeScript et Tailwind CSS.
+  - `src/bindings.ts` : Contrats et fonctions IPC typées générées par `tauri-specta`.
+  - `src/data/` : Compendium officiel (`peoples.json`, `profiles.json`, `paths.json`, `equipment.json`, `tables.json`).
+  - `src/components/wizard/` : Assistant guidé pas-à-pas.
+  - `src/components/sheet/` : Fiche de personnage interactive.
+  - `src/components/pdf/` : Gabarit A4 imprimable et exportable en PDF.
+  - `src/components/modals/` : Module de progression et montée de niveau réversible.
+- `docs/DATA_MODELS.md` : Documentation exhaustive des modèles de données JSON.
+- `docs/SECURITY.md` : Politique et architecture de sécurité DevSecOps.
 
 ---
 
-## 🛠️ Environnement de Développement
+## 🛠️ Assurance Qualité & Tests
 
-- **Éditeur recommandé** : [Visual Studio Code](https://code.visualstudio.com/) avec les extensions préconisées dans `.vscode/extensions.json` :
-  - *Prettier - Code formatter* (`esbenp.prettier-vscode`) pour le formatage automatique à l'enregistrement.
-  - *Tailwind CSS IntelliSense* (`bradlc.vscode-tailwindcss`) pour la complétion des classes d'utilitaires.
-  - *Vitest Explorer* (`vitest.explorer`) pour exécuter et déboguer les tests graphiquement.
-- **Tests unitaires** :
-  ```bash
-  npm test
-  ```
-- **Portabilité multiplateforme (macOS / Windows)** :
-  - Normalisation des fins de ligne configurée via `.gitattributes` (`* text=auto eol=lf`) et `.vscode/settings.json`.
-  - `.gitignore` configuré pour ignorer les artefacts de build Electron, caches d'OS (`.DS_Store`, `Thumbs.db`) et fichiers temporaires.
+```bash
+# Exécution des tests unitaires et d'intégration Rust
+cargo test --workspace
 
+# Exécution des tests unitaires frontend Vitest
+npm test
 
+# Vérification du typage TypeScript et bundle de production
+npm run build
+```

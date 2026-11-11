@@ -101,17 +101,25 @@ export function App() {
     }, 150);
   };
 
-  // Register native Electron menu shortcuts (Cmd/Ctrl + S, O, P)
+  // Register keyboard shortcuts (Cmd/Ctrl + S, O, P)
   useEffect(() => {
-    if (!window.electronAPI) return;
-    const unsubSave = window.electronAPI.onMenuSave?.(() => handleSave());
-    const unsubLoad = window.electronAPI.onMenuLoad?.(() => handleLoad());
-    const unsubPdf = window.electronAPI.onMenuPdf?.(() => handleExportPdf());
-    return () => {
-      unsubSave?.();
-      unsubLoad?.();
-      unsubPdf?.();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey) {
+        if (e.key === 's' || e.key === 'S') {
+          e.preventDefault();
+          handleSave();
+        } else if (e.key === 'o' || e.key === 'O') {
+          e.preventDefault();
+          handleLoad();
+        } else if (e.key === 'p' || e.key === 'P') {
+          e.preventDefault();
+          handleExportPdf();
+        }
+      }
     };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [character]);
 
   return (

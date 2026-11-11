@@ -232,6 +232,14 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       return pth && pth.type === 'profile' && !profile.paths.includes(a.pathId);
     });
 
+    const step = {
+      level: newLevel,
+      hpGain: levelUpHpResult.hpGain,
+      abilitiesLearned: newlyAcquired,
+      selectedPathIds: nextSelectedPathIds,
+      timestamp: new Date().toISOString(),
+    };
+
     const updated: CharacterSheet = {
       ...character,
       level: newLevel,
@@ -244,6 +252,40 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       halfHpPending: levelUpHpResult.newHalfHpPending,
       selectedPathIds: nextSelectedPathIds,
       acquiredAbilities: acquired,
+      progressionHistory: [...(character.progressionHistory || []), step],
+      updatedAt: new Date().toISOString(),
+    };
+
+    onApply(updated);
+    onClose();
+  };
+
+  const handleRollback = () => {
+    if (character.level <= 1) return;
+    const targetLevel = character.level - 1;
+    if (!window.confirm(`Voulez-vous vraiment revenir en arrière et rétrograder ce personnage au niveau ${targetLevel} ? Les capacités et gains du niveau ${character.level} seront révoqués.`)) {
+      return;
+    }
+
+    const history = character.progressionHistory || [];
+    const stepToRevert = history.find(s => s.level === character.level);
+
+    let updatedAcquired = [...character.acquiredAbilities];
+    if (stepToRevert?.abilitiesLearned) {
+      updatedAcquired = updatedAcquired.filter(
+        a => !stepToRevert.abilitiesLearned?.some(rem => rem.pathId === a.pathId && rem.rank === a.rank)
+      );
+    }
+
+    const updatedHpGains = (character.levelUpHpGains || []).slice(0, targetLevel);
+    const updatedHistory = history.filter(s => s.level <= targetLevel);
+
+    const updated: CharacterSheet = {
+      ...character,
+      level: targetLevel,
+      levelUpHpGains: updatedHpGains,
+      acquiredAbilities: updatedAcquired,
+      progressionHistory: updatedHistory,
       updatedAt: new Date().toISOString(),
     };
 
@@ -497,7 +539,17 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
             )}
           </div>
 
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
+            {character.level > 1 && (
+              <button
+                type="button"
+                onClick={handleRollback}
+                className="px-3 py-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 text-rose-300 text-xs font-semibold transition mr-2"
+                title="Annule les apprentissages du niveau actuel et rétrograde le héros au niveau précédent"
+              >
+                Rétrograder au Niv. {character.level - 1}
+              </button>
+            )}
             <button
               onClick={onClose}
               className="px-4 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold"

@@ -1,21 +1,9 @@
 import { CharacterSheet } from '../types/cof2';
 import { validateAndMigrateCharacter } from './characterValidation';
+import { commands, CharacterRecord } from '../bindings';
+import { save, open } from '@tauri-apps/plugin-dialog';
 
-declare global {
-  interface Window {
-    electronAPI?: {
-      saveCharacter: (charData: CharacterSheet, defaultFilename?: string) => Promise<{ success: boolean; filePath?: string; canceled?: boolean; error?: string }>;
-      loadCharacter: () => Promise<{ success: boolean; data?: CharacterSheet; filePath?: string; canceled?: boolean; error?: string }>;
-      exportPdf: (defaultFilename?: string) => Promise<{ success: boolean; filePath?: string; canceled?: boolean; error?: string }>;
-      onMenuSave?: (callback: () => void) => () => void;
-      onMenuLoad?: (callback: () => void) => () => void;
-      onMenuPdf?: (callback: () => void) => () => void;
-      isElectron?: boolean;
-    };
-  }
-}
-
-export const isElectron = typeof window !== 'undefined' && !!window.electronAPI?.isElectron;
+export const isTauri = typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window);
 
 /**
  * Supprime les accents d'une chaîne sans remplacer les lettres accentuées par des caractères spéciaux.
@@ -36,11 +24,8 @@ export function sanitizeFilename(name?: string, fallback = 'personnage'): string
 
   const cleaned = name
     .trim()
-    // Supprime ou remplace les caractères interdits dans les noms de fichiers : \ / : * ? " < > | ainsi que les caractères de contrôle 0x00-0x1F
     .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
-    // Évite les underscores répétés consécutifs issus d'un remplacement
     .replace(/_+/g, '_')
-    // Supprime les espaces ou points en fin de nom (problématiques sur Windows)
     .replace(/[. ]+$/, '');
 
   return cleaned || fallback;
@@ -50,11 +35,26 @@ export async function saveCharacterFile(char: CharacterSheet): Promise<{ success
   const cleanName = sanitizeFilename(char.name, 'personnage');
   const filename = `${cleanName}_niv${char.level || 1}.cof2`;
 
-  if (isElectron && window.electronAPI) {
-    const res = await window.electronAPI.saveCharacter(char, filename);
-    if (res.canceled) return { success: false, message: 'Annulé' };
-    if (!res.success) return { success: false, message: res.error || 'Erreur lors de la sauvegarde' };
-    return { success: true, message: `Sauvegardé avec succès dans ${res.filePath}` };
+  if (isTauri) {
+    try {
+      const selectedPath = await save({
+        title: 'Sauvegarder le personnage COF2',
+        defaultPath: filename,
+        filters: [{ name: 'Personnage COF2 (*.cof2, *.json)', extensions: ['cof2', 'json'] }],
+      });
+
+      if (!selectedPath) {
+        return { success: false, message: 'Annulé' };
+      }
+
+      const res = await commands.saveCharacterFile(char as unknown as CharacterRecord, selectedPath);
+      if (res.status === 'error') {
+        return { success: false, message: res.error || 'Erreur lors de la sauvegarde' };
+      }
+      return { success: true, message: `Sauvegardé avec succès dans ${selectedPath}` };
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Erreur de dialogue Tauri' };
+    }
   }
 
   // Web Browser fallback
@@ -70,17 +70,34 @@ export async function saveCharacterFile(char: CharacterSheet): Promise<{ success
     URL.revokeObjectURL(url);
     return { success: true, message: `Fichier ${filename} téléchargé` };
   } catch (err: any) {
-    return { success: false, message: err.message || 'Erreur de téléchargement' };
+    return { success: false, message: err?.message || 'Erreur de téléchargement' };
   }
 }
 
 export async function loadCharacterFile(): Promise<{ success: boolean; character?: CharacterSheet; message?: string }> {
-  if (isElectron && window.electronAPI) {
-    const res = await window.electronAPI.loadCharacter();
-    if (res.canceled) return { success: false, message: 'Annulé' };
-    if (!res.success || !res.data) return { success: false, message: res.error || 'Erreur lors du chargement' };
-    const validated = validateAndMigrateCharacter(res.data);
-    return { success: true, character: validated.character };
+  if (isTauri) {
+    try {
+      const selectedPath = await open({
+        title: 'Ouvrir un personnage COF2',
+        filters: [{ name: 'Personnage COF2 (*.cof2, *.json)', extensions: ['cof2', 'json'] }],
+        multiple: false,
+        directory: false,
+      });
+
+      if (!selectedPath) {
+        return { success: false, message: 'Annulé' };
+      }
+
+      const filePath = Array.isArray(selectedPath) ? selectedPath[0] : selectedPath;
+      const res = await commands.loadCharacterFile(filePath);
+      if (res.status === 'error') {
+        return { success: false, message: res.error || 'Erreur lors du chargement' };
+      }
+      const validated = validateAndMigrateCharacter(res.data.record);
+      return { success: true, character: validated.character };
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Erreur lors du chargement' };
+    }
   }
 
   // Web Browser fallback
@@ -99,7 +116,7 @@ export async function loadCharacterFile(): Promise<{ success: boolean; character
         const raw = JSON.parse(text);
         const validated = validateAndMigrateCharacter(raw);
         resolve({ success: true, character: validated.character });
-      } catch (err: any) {
+      } catch {
         resolve({ success: false, message: 'Fichier invalide ou corrompu' });
       }
     };
@@ -107,19 +124,23 @@ export async function loadCharacterFile(): Promise<{ success: boolean; character
   });
 }
 
-export async function triggerPrintOrExportPdf(char: CharacterSheet): Promise<{ success: boolean; message?: string }> {
-  const cleanName = sanitizeFilename(char.name, 'personnage');
-  const filename = `Fiche_${cleanName}_Niv${char.level || 1}.pdf`;
-
-  if (isElectron && window.electronAPI) {
-    const res = await window.electronAPI.exportPdf(filename);
-    if (res.canceled) return { success: false, message: 'Export annulé' };
-    if (!res.success) return { success: false, message: res.error || 'Erreur lors de l\'export PDF' };
-    return { success: true, message: `PDF exporté avec succès dans ${res.filePath}` };
+export async function triggerPrintOrExportPdf(_char: CharacterSheet): Promise<{ success: boolean; message?: string }> {
+  if (isTauri) {
+    try {
+      const res = await commands.printCharacterSheet();
+      if (res.status === 'error') {
+        console.error('Erreur printCharacterSheet Tauri :', res.error);
+        window.print();
+      }
+      return { success: true, message: 'Boîte de dialogue d\'impression ouverte' };
+    } catch (err) {
+      console.warn('Fallback vers window.print() :', err);
+      window.print();
+      return { success: true, message: 'Impression lancée' };
+    }
   }
 
-  // Browser standard print
+  // Navigateur standard
   window.print();
   return { success: true, message: 'Impression lancée' };
 }
-

@@ -1,0 +1,24 @@
+[package]
+name = "cof2-desktop"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+name = "cof2_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+cof2-core = { path = "../crates/cof2-core" }
+cof2-storage = { path = "../crates/cof2-storage" }
+serde.workspace = true
+serde_json.workspace = true
+specta.workspace = true
+tauri-specta.workspace = true
+specta-typescript.workspace = true
+tauri = { version = "2.0", features = [] }
+tauri-plugin-dialog = "2"
+
+[build-dependencies]
+tauri-build = { version = "2.0", features = [] }

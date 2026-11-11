@@ -11,6 +11,8 @@ dist/
 dist-electron/
 release/
 out/
+target/
+src-tauri/target/
 tools/**/dist/
 
 # Environment variables & local secrets
