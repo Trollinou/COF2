@@ -414,6 +414,24 @@ Permet à l'utilisateur de choisir entre plusieurs options sur sa fiche (ex: +1 
 
 ---
 
+#### Capacité externe & remplacement (`grantExternalAbility`)
+
+Un rang peut accorder une capacité d'une autre voie. Deux modes :
+
+- **Choix libre** (`allowedProfiles`, `maxRank`) : le joueur choisit toujours la capacité (ex: Demi-orc R2).
+- **Remplacement si déjà possédée** : ajouter `defaultAbility: { pathId, rank }` (capacité accordée d'office). Si le personnage la possède déjà (acquise ou empruntée par un autre rang), le joueur doit choisir une capacité de remplacement : soit parmi `replacementAbilities` (liste explicite), soit parmi les rangs <= `maxRank` des voies de `allowedProfiles`, hors capacités déjà possédées. Résolu par `resolveExternalGrants()`; le choix est stocké dans `externalAbilityChoices["{pathId}_{rank}"]`.
+
+```json
+"grantExternalAbility": {
+  "allowedProfiles": "any", "maxRank": 3,
+  "defaultAbility": { "pathId": "voie-de-la-magie-universelle", "rank": 3 },
+  "replacementAbilities": [
+    { "pathId": "voie-de-l-air", "rank": 3 },
+    { "pathId": "voie-de-l-envouteur", "rank": 3 }
+  ]
+}
+```
+
 ### 4.4. Compagnons, Familiers & Invocations (`companions: CompanionStatBlock[]`)
 
 Chaque compagnon peut inclure des formules déclaratives (`defenseFormula`, `hpFormula`, `initiativeFormula`, `attacks[].attackFormula`) évaluées dynamiquement par `resolveCompanionStats()` dans [`CompanionCard.tsx`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/components/sheet/CompanionCard.tsx) :

@@ -8327,7 +8327,11 @@
             ],
             "maxRank": 1,
             "ignoreArmorPenalty": true,
-            "label": "Langage des animaux (ou capacité Druide/Rôdeur Rang 1)"
+            "defaultAbility": {
+              "pathId": "voie-des-animaux",
+              "rank": 1
+            },
+            "label": "Langage des animaux (ou capacité Druide/Rôdeur Rang 1 si déjà possédé)"
           }
         }
       },
@@ -8341,7 +8345,29 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "modifiers": {
+          "grantExternalAbility": {
+            "allowedProfiles": "any",
+            "maxRank": 3,
+            "ignoreArmorPenalty": true,
+            "defaultAbility": {
+              "pathId": "voie-de-la-magie-universelle",
+              "rank": 3
+            },
+            "replacementAbilities": [
+              {
+                "pathId": "voie-de-l-air",
+                "rank": 3
+              },
+              {
+                "pathId": "voie-de-l-envouteur",
+                "rank": 3
+              }
+            ],
+            "label": "Invisibilité (ou Télékinésie / Confusion si déjà possédée)"
+          }
+        }
       },
       {
         "rank": 4,

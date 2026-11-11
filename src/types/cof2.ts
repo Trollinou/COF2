@@ -93,6 +93,11 @@ export interface WeaponModifierRule {
   note?: string;
 }
 
+export interface AbilityRef {
+  pathId: string;
+  rank: number;
+}
+
 export interface ExternalAbilityGrantRule {
   allowedProfiles: string[] | 'any';
   maxRank: number;
@@ -101,6 +106,12 @@ export interface ExternalAbilityGrantRule {
   maxFreeSpellArmorId?: string;
   count?: number;
   label?: string;
+  // Replacement mode: ability automatically granted by this rank. When the character
+  // already owns it (acquired or borrowed elsewhere), the player must pick a replacement instead.
+  defaultAbility?: AbilityRef;
+  // Replacement mode: explicit list of replacement abilities (takes precedence over
+  // allowedProfiles / maxRank when set).
+  replacementAbilities?: AbilityRef[];
 }
 
 export interface RankChoiceOption {

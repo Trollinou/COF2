@@ -10,7 +10,6 @@ import {
   getReplacedRacialPath,
   getProfileById,
   calculateArmorSpellManaCost,
-  PROFILES,
 } from '../../../engine/rulesEngine';
 import {
   TrendingUp,
@@ -18,10 +17,10 @@ import {
   ChevronRight,
   Sparkles,
   Shield,
-  BookOpen,
 } from 'lucide-react';
 import { ActionBadges } from '../ActionBadges';
 import { CompanionCard } from '../CompanionCard';
+import { ExternalAbilitySelector } from '../ExternalAbilitySelector';
 
 const TARGET_LABELS: Record<string, string> = {
   defense: 'DEF',
@@ -316,120 +315,15 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                       {/* Passive bonus indicator pill */}
                       {renderModifierBadges(rank.modifiers)}
 
-                      {/* Interactive External Ability Selector (e.g. Demi-orc R3, Elfe sylvain R2, Haut elfe R2, Humain R2, Touche-à-tout) */}
-                      {isAcquired && rank.modifiers?.grantExternalAbility && (() => {
-                        const grantRule = rank.modifiers.grantExternalAbility;
-                        const choiceKey = `${pathId}_${rank.rank}`;
-                        const currentChoice = character.externalAbilityChoices?.[choiceKey];
-
-                        const eligibleProfiles = PROFILES.filter(p =>
-                          grantRule.allowedProfiles === 'any'
-                            ? true
-                            : grantRule.allowedProfiles.includes(p.id)
-                        );
-                        const eligiblePathIds = Array.from(
-                          new Set(eligibleProfiles.flatMap(p => p.paths))
-                        );
-                        const eligiblePaths = eligiblePathIds
-                          .map(pid => getPathById(pid))
-                          .filter((p): p is NonNullable<typeof p> => Boolean(p));
-
-                        const chosenPath = currentChoice?.pathId
-                          ? getPathById(currentChoice.pathId)
-                          : undefined;
-                        const chosenRankData = chosenPath?.ranks.find(
-                          r => r.rank === (currentChoice?.rank || 1)
-                        );
-
-                        return (
-                          <div className="mt-2.5 ml-7 p-3 bg-stone-900 border border-indigo-700/60 rounded-xl space-y-2 shadow">
-                            <div className="flex items-center justify-between">
-                              <div className="text-[11px] font-semibold text-indigo-300 flex items-center space-x-1.5">
-                                <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
-                                <span>{grantRule.label || 'Capacité externe choisie :'}</span>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-2 items-center">
-                              <select
-                                value={currentChoice?.pathId || ''}
-                                onChange={e => {
-                                  const newPathId = e.target.value;
-                                  if (!newPathId) {
-                                    const next = { ...character.externalAbilityChoices };
-                                    delete next[choiceKey];
-                                    updateCharacter({ externalAbilityChoices: next });
-                                    return;
-                                  }
-                                  updateCharacter({
-                                    externalAbilityChoices: {
-                                      ...character.externalAbilityChoices,
-                                      [choiceKey]: {
-                                        pathId: newPathId,
-                                        rank: currentChoice?.rank && currentChoice.rank <= grantRule.maxRank
-                                          ? currentChoice.rank
-                                          : 1,
-                                      },
-                                    },
-                                  });
-                                }}
-                                className="bg-stone-950 border border-stone-700 rounded px-2 py-1 text-xs text-stone-200 focus:border-indigo-500 outline-none"
-                              >
-                                <option value="">— Choisir une voie —</option>
-                                {eligiblePaths.map(ep => (
-                                  <option key={ep.id} value={ep.id}>
-                                    {ep.name} ({ep.owner})
-                                  </option>
-                                ))}
-                              </select>
-
-                              {grantRule.maxRank > 1 && currentChoice?.pathId && (
-                                <select
-                                  value={currentChoice.rank || 1}
-                                  onChange={e => {
-                                    updateCharacter({
-                                      externalAbilityChoices: {
-                                        ...character.externalAbilityChoices,
-                                        [choiceKey]: {
-                                          pathId: currentChoice.pathId,
-                                          rank: Number(e.target.value) || 1,
-                                        },
-                                      },
-                                    });
-                                  }}
-                                  className="bg-stone-950 border border-stone-700 rounded px-2 py-1 text-xs text-stone-200 focus:border-indigo-500 outline-none"
-                                >
-                                  {Array.from({ length: grantRule.maxRank }, (_, i) => i + 1).map(rk => (
-                                    <option key={rk} value={rk}>
-                                      Rang {rk}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
-                            </div>
-
-                            {chosenPath && chosenRankData && (
-                              <div className="p-2.5 rounded-lg bg-indigo-950/30 border border-indigo-800/50 space-y-1">
-                                <div className="flex items-center space-x-2">
-                                  <span className="px-1.5 py-0.5 rounded bg-indigo-600 text-stone-950 text-[10px] font-mono font-bold">
-                                    R{chosenRankData.rank}
-                                  </span>
-                                  <span className="font-semibold text-indigo-200 text-xs">
-                                    {chosenRankData.title}
-                                  </span>
-                                  <span className="text-[10px] text-stone-400">
-                                    ({chosenPath.name})
-                                  </span>
-                                  <ActionBadges rank={chosenRankData} />
-                                </div>
-                                <p className="text-xs text-stone-300 leading-relaxed">
-                                  {chosenRankData.description}
-                                </p>
-                                {renderModifierBadges(chosenRankData.modifiers)}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })()}
+                      {/* External ability selector (free choice or replacement if already owned) */}
+                      {isAcquired && rank.modifiers?.grantExternalAbility && (
+                        <ExternalAbilitySelector
+                          character={character}
+                          pathId={pathId}
+                          rank={rank}
+                          updateCharacter={updateCharacter}
+                        />
+                      )}
 
                       {/* Interactive Choice Selector if acquired */}
                       {isAcquired && rank.modifiers?.choiceOptions && rank.modifiers.choiceOptions.length > 0 && (

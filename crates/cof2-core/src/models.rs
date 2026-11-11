@@ -174,7 +174,7 @@ pub struct CharacterRecord {
 }
 
 fn default_version() -> String {
-    "1.0.4".to_string()
+    "1.0.5".to_string()
 }
 
 fn default_coins() -> Coins {

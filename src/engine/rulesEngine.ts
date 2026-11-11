@@ -18,6 +18,8 @@ import {
   CompanionFormula,
   PriestDeity,
   ProfileFamily,
+  AbilityRef,
+  ExternalAbilityGrantRule,
 } from "../types/cof2";
 
 import peoplesData from "../data/peoples.json";
@@ -58,6 +60,121 @@ export function getProfileById(id: string): ProfileData | undefined {
 
 export function getPathById(id: string): PathData | undefined {
   return PATHS_MAP.get(id);
+}
+
+export interface ResolvedExternalGrant {
+  // Key `${pathId}_${rank}` of the rank granting the external ability.
+  sourceKey: string;
+  rule: ExternalAbilityGrantRule;
+  // "free": player always picks the ability. "default": rank grants its default ability.
+  // "replacement": default ability already owned, the player must pick a replacement.
+  mode: "free" | "default" | "replacement";
+  // Ability effectively granted (undefined while a required choice is pending).
+  ability?: AbilityRef;
+  // Candidate replacements (replacement mode only).
+  options: AbilityRef[];
+  // True when the player still has to make a (valid) choice.
+  needsChoice: boolean;
+}
+
+const abilityKey = (a: AbilityRef): string => `${a.pathId}_${a.rank}`;
+
+/**
+ * Lists every ability that can be chosen as replacement for a grant rule
+ * (explicit list, or rank <= maxRank of the allowed profiles' paths), minus owned ones.
+ */
+function listReplacementOptions(
+  rule: ExternalAbilityGrantRule,
+  owned: Set<string>,
+): AbilityRef[] {
+  let candidates: AbilityRef[] = [];
+  if (rule.replacementAbilities) {
+    candidates = rule.replacementAbilities;
+  } else {
+    const profiles =
+      rule.allowedProfiles === "any"
+        ? PROFILES
+        : PROFILES.filter((p) =>
+            (rule.allowedProfiles as string[]).includes(p.id),
+          );
+    const pathIds = Array.from(new Set(profiles.flatMap((p) => p.paths)));
+    for (const pid of pathIds) {
+      const path = PATHS_MAP.get(pid);
+      path?.ranks.forEach((r) => {
+        if (r.rank <= rule.maxRank) candidates.push({ pathId: pid, rank: r.rank });
+      });
+    }
+  }
+  return candidates.filter(
+    (c) => PATHS_MAP.has(c.pathId) && !owned.has(abilityKey(c)),
+  );
+}
+
+/**
+ * Resolves the abilities borrowed through `grantExternalAbility` ranks.
+ * Handles "if you already own it" replacement rules (e.g. Farfadet R2 / R3).
+ */
+export function resolveExternalGrants(
+  char: Pick<CharacterSheet, "acquiredAbilities" | "externalAbilityChoices">,
+): ResolvedExternalGrant[] {
+  const owned = new Set<string>(char.acquiredAbilities.map(abilityKey));
+  const results: ResolvedExternalGrant[] = [];
+
+  for (const acq of char.acquiredAbilities) {
+    const rule = PATHS_MAP.get(acq.pathId)?.ranks.find(
+      (r) => r.rank === acq.rank,
+    )?.modifiers?.grantExternalAbility;
+    if (!rule) continue;
+
+    const sourceKey = abilityKey(acq);
+    const choice = char.externalAbilityChoices?.[sourceKey];
+
+    if (!rule.defaultAbility) {
+      const ability =
+        choice && choice.pathId && choice.rank
+          ? { pathId: choice.pathId, rank: choice.rank }
+          : undefined;
+      if (ability) owned.add(abilityKey(ability));
+      results.push({
+        sourceKey,
+        rule,
+        mode: "free",
+        ability,
+        options: [],
+        needsChoice: !ability,
+      });
+      continue;
+    }
+
+    const defKey = abilityKey(rule.defaultAbility);
+    if (!owned.has(defKey)) {
+      owned.add(defKey);
+      results.push({
+        sourceKey,
+        rule,
+        mode: "default",
+        ability: rule.defaultAbility,
+        options: [],
+        needsChoice: false,
+      });
+      continue;
+    }
+
+    const options = listReplacementOptions(rule, owned);
+    const valid =
+      choice && options.some((o) => abilityKey(o) === abilityKey(choice));
+    const ability = valid ? { pathId: choice.pathId, rank: choice.rank } : undefined;
+    if (ability) owned.add(abilityKey(ability));
+    results.push({
+      sourceKey,
+      rule,
+      mode: "replacement",
+      ability,
+      options,
+      needsChoice: !ability,
+    });
+  }
+  return results;
 }
 
 export function getArmorById(id: string): ArmorItem | undefined {
@@ -831,23 +948,11 @@ export function computeCharacterStats(
     isBorrowed?: boolean;
   }> = [...char.acquiredAbilities];
 
-  if (char.externalAbilityChoices) {
-    char.acquiredAbilities.forEach((acq) => {
-      const pth = getPathById(acq.pathId);
-      const rData = pth?.ranks.find((r) => r.rank === acq.rank);
-      if (rData?.modifiers?.grantExternalAbility) {
-        const key = `${acq.pathId}_${acq.rank}`;
-        const choice = char.externalAbilityChoices?.[key];
-        if (choice && choice.pathId && choice.rank) {
-          effectiveAbilities.push({
-            pathId: choice.pathId,
-            rank: choice.rank,
-            isBorrowed: true,
-          });
-        }
-      }
-    });
-  }
+  resolveExternalGrants(char).forEach((grant) => {
+    if (grant.ability) {
+      effectiveAbilities.push({ ...grant.ability, isBorrowed: true });
+    }
+  });
 
   // Aggregate passive path modifiers from all effective abilities (V2 unified engine)
   const pathBonusStats: Record<StatCode, number> = {
