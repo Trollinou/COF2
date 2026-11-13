@@ -2,6 +2,7 @@
   "name": "cof2-character-creator",
   "version": "0.8.5",
   "description": "Application de création et gestion de personnages pour Chroniques Oubliées Fantasy 2",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "author": {
     "name": "Faerian",
     "email": "faerian@gmail.com"
