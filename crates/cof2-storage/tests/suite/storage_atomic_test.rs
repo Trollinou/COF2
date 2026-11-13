@@ -43,6 +43,7 @@ fn test_atomic_save_and_load() {
         base_stats,
         stat_array_preset: None,
         racial_stat_choices: vec![],
+        racial_stat_modifiers: HashMap::new(),
         manual_stat_bonuses: HashMap::new(),
         selected_path_ids: vec![],
         acquired_abilities: vec![],
