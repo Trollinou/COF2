@@ -240,11 +240,10 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       timestamp: new Date().toISOString(),
     };
 
-    const updated: CharacterSheet = {
+    const draftUpdated: CharacterSheet = {
       ...character,
       level: newLevel,
       isHybrid: character.isHybrid || hasHybridAbility,
-      currentHp: (character.currentHp || oldStats.maxHp) + levelUpHpResult.hpGain,
       levelUpHpGains: [
         ...(character.levelUpHpGains || [oldStats.maxHp - ((character.level || 1) * oldStats.finalStats.CON)]),
         levelUpHpResult.baseHp,
@@ -254,6 +253,20 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       acquiredAbilities: acquired,
       progressionHistory: [...(character.progressionHistory || []), step],
       updatedAt: new Date().toISOString(),
+    };
+
+    const newStats = computeCharacterStats(draftUpdated);
+    const hpDelta = Math.max(0, newStats.maxHp - oldStats.maxHp);
+    const drDelta = Math.max(0, newStats.maxDr - oldStats.maxDr);
+    const pcDelta = Math.max(0, newStats.maxPc - oldStats.maxPc);
+    const pmDelta = Math.max(0, newStats.maxPm - oldStats.maxPm);
+
+    const updated: CharacterSheet = {
+      ...draftUpdated,
+      currentHp: Math.min(newStats.maxHp, (character.currentHp ?? oldStats.maxHp) + hpDelta),
+      currentDr: Math.min(newStats.maxDr, (character.currentDr ?? oldStats.maxDr) + drDelta),
+      currentPc: Math.min(newStats.maxPc, (character.currentPc ?? oldStats.maxPc) + pcDelta),
+      currentPm: Math.min(newStats.maxPm, (character.currentPm ?? oldStats.maxPm) + pmDelta),
     };
 
     onApply(updated);

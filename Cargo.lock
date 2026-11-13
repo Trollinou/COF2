@@ -345,7 +345,7 @@ dependencies = [
 
 [[package]]
 name = "cof2-core"
-version = "1.0.5"
+version = "0.8.5"
 dependencies = [
  "serde",
  "serde_json",
@@ -355,7 +355,7 @@ dependencies = [
 
 [[package]]
 name = "cof2-desktop"
-version = "1.0.5"
+version = "0.8.5"
 dependencies = [
  "cof2-core",
  "cof2-storage",
@@ -371,7 +371,7 @@ dependencies = [
 
 [[package]]
 name = "cof2-storage"
-version = "1.0.5"
+version = "0.8.5"
 dependencies = [
  "cof2-core",
  "serde",

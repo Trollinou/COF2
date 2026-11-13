@@ -19,7 +19,7 @@ fn test_atomic_save_and_load() {
 
     let original = CharacterRecord {
         id: "hero-persiste-1".into(),
-        version: "1.0.5".into(),
+        version: "0.8.5".into(),
         updated_at: "2026-11-11T12:00:00Z".into(),
         name: "Lidda".into(),
         player_name: "Joueur 2".into(),

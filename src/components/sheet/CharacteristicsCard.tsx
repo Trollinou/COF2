@@ -35,19 +35,19 @@ export const CharacteristicsCard: React.FC<CharacteristicsCardProps> = ({
           return (
             <div
               key={code}
-              className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-stone-950/60 border border-stone-800/80 hover:border-amber-600/50 transition"
+              className="flex items-center justify-between gap-1.5 p-2 rounded-lg bg-stone-950/60 border border-stone-800/80 hover:border-amber-600/50 transition"
             >
               {/* Left: Stat Code & Name */}
-              <div className="min-w-[68px]">
+              <div className="w-[84px] shrink-0">
                 <div className="font-mono text-[10px] font-bold text-amber-300/80 leading-none">{code}</div>
-                <div className="font-medium text-stone-200 text-xs sm:text-sm truncate">{STAT_NAMES[code]}</div>
+                <div className="font-medium text-stone-200 text-xs truncate">{STAT_NAMES[code]}</div>
               </div>
 
               {/* Center: Main Total box + 3 smaller detail boxes (Init., Peuple, Autres) */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 {/* Main Total box */}
-                <div className="w-12 h-11 rounded-lg bg-stone-900 border-2 border-amber-500/70 flex flex-col items-center justify-center font-mono shrink-0 shadow-sm">
-                  <span className="text-[7.5px] uppercase text-amber-300/80 font-bold leading-none">TOTAL</span>
+                <div className="w-11 h-11 rounded-lg bg-stone-900 border-2 border-amber-500/70 flex flex-col items-center justify-center font-mono shrink-0 shadow-sm">
+                  <span className="text-[7px] uppercase text-amber-300/80 font-bold leading-none">TOTAL</span>
                   <span className={`text-base font-black leading-tight ${totalMod >= 0 ? 'text-amber-400' : 'text-red-400'}`}>
                     {totalMod >= 0 ? `+${totalMod}` : totalMod}
                   </span>
@@ -56,9 +56,9 @@ export const CharacteristicsCard: React.FC<CharacteristicsCardProps> = ({
                 {/* Small box: Initial chosen value */}
                 <div
                   title="Valeur initiale choisie"
-                  className="w-9 h-8 rounded bg-stone-900/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0"
+                  className="w-[38px] h-8 rounded bg-stone-900/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0"
                 >
-                  <span className="text-[7px] text-stone-400 uppercase leading-none">Init.</span>
+                  <span className="text-[6.5px] text-stone-400 uppercase leading-none">Init.</span>
                   <span className="text-[11px] font-bold text-stone-200 leading-tight">
                     {baseVal >= 0 ? `+${baseVal}` : baseVal}
                   </span>
@@ -67,9 +67,9 @@ export const CharacteristicsCard: React.FC<CharacteristicsCardProps> = ({
                 {/* Small box: Racial modifier */}
                 <div
                   title="Modificateur de peuple"
-                  className="w-9 h-8 rounded bg-stone-900/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0"
+                  className="w-[38px] h-8 rounded bg-stone-900/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0"
                 >
-                  <span className="text-[7px] text-stone-400 uppercase leading-none">Peuple</span>
+                  <span className="text-[6.5px] text-stone-400 uppercase leading-none">Peuple</span>
                   <span
                     className={`text-[11px] font-bold leading-tight ${
                       racialMod > 0 ? 'text-emerald-400' : racialMod < 0 ? 'text-red-400' : 'text-stone-500'
@@ -82,9 +82,9 @@ export const CharacteristicsCard: React.FC<CharacteristicsCardProps> = ({
                 {/* Small box: Other modifiers (paths + manual) */}
                 <div
                   title={otherTitle}
-                  className="w-9 h-8 rounded bg-stone-900/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0"
+                  className="w-[38px] h-8 rounded bg-stone-900/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0"
                 >
-                  <span className="text-[7px] text-stone-400 uppercase leading-none">Autres</span>
+                  <span className="text-[6.5px] text-stone-400 uppercase leading-none">Autres</span>
                   <span
                     className={`text-[11px] font-bold leading-tight ${
                       otherMod > 0 ? 'text-amber-300' : otherMod < 0 ? 'text-red-400' : 'text-stone-500'
@@ -95,23 +95,8 @@ export const CharacteristicsCard: React.FC<CharacteristicsCardProps> = ({
                 </div>
               </div>
 
-              {/* Manual adjustment button */}
-              <div className="flex items-center space-x-1 shrink-0">
-                <button
-                  title="Ajustement manuel (-1)"
-                  onClick={() => {
-                    const curr = character.manualStatBonuses?.[code] || 0;
-                    updateCharacter({
-                      manualStatBonuses: {
-                        ...character.manualStatBonuses,
-                        [code]: curr - 1,
-                      },
-                    });
-                  }}
-                  className="w-6 h-6 rounded bg-stone-800 hover:bg-stone-700 text-stone-400 text-xs font-bold"
-                >
-                  -
-                </button>
+              {/* Manual adjustment buttons (stacked vertically to save horizontal space) */}
+              <div className="flex flex-col gap-1 shrink-0">
                 <button
                   title="Ajustement manuel (+1)"
                   onClick={() => {
@@ -123,9 +108,24 @@ export const CharacteristicsCard: React.FC<CharacteristicsCardProps> = ({
                       },
                     });
                   }}
-                  className="w-6 h-6 rounded bg-stone-800 hover:bg-stone-700 text-stone-400 text-xs font-bold"
+                  className="w-6 h-5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold leading-none flex items-center justify-center"
                 >
                   +
+                </button>
+                <button
+                  title="Ajustement manuel (-1)"
+                  onClick={() => {
+                    const curr = character.manualStatBonuses?.[code] || 0;
+                    updateCharacter({
+                      manualStatBonuses: {
+                        ...character.manualStatBonuses,
+                        [code]: curr - 1,
+                      },
+                    });
+                  }}
+                  className="w-6 h-5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold leading-none flex items-center justify-center"
+                >
+                  -
                 </button>
               </div>
             </div>

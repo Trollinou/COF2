@@ -220,13 +220,13 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
                         {total >= 0 ? `+${total}` : total}
                       </span>
                     </div>
-                    <div className="w-9 h-8 rounded bg-stone-950/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0">
+                    <div className="w-10 h-8 rounded bg-stone-950/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0">
                       <span className="text-[7px] text-stone-400 uppercase leading-none">Init.</span>
                       <span className="text-[11px] font-bold text-stone-200 leading-tight">
                         {base >= 0 ? `+${base}` : base}
                       </span>
                     </div>
-                    <div className="w-9 h-8 rounded bg-stone-950/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0">
+                    <div className="w-10 h-8 rounded bg-stone-950/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0">
                       <span className="text-[7px] text-stone-400 uppercase leading-none">Peuple</span>
                       <span
                         className={`text-[11px] font-bold leading-tight ${
@@ -236,7 +236,7 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
                         {racialMod > 0 ? `+${racialMod}` : racialMod}
                       </span>
                     </div>
-                    <div className="w-9 h-8 rounded bg-stone-950/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0">
+                    <div className="w-10 h-8 rounded bg-stone-950/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0">
                       <span className="text-[7px] text-stone-400 uppercase leading-none">Autres</span>
                       <span
                         className={`text-[11px] font-bold leading-tight ${
