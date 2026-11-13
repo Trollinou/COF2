@@ -470,7 +470,7 @@ Le fichier [`src/data/tables.json`](file:///c:/Users/egagnon/Personnel/Dev/COF2/
 - `randomStatsTable` : Table de tirage aléatoire des répartitions de caractéristiques (`2d6`).
 - `pointBuyCosts` : Coût d'achat par points pour chaque valeur de caractéristique de `-2` à `+4`.
 - `characteristicArrays` : Les 3 séries de valeurs standards officielles (*Polyvalent*, *Expert*, *Spécialiste*) avec `id`, `name`, `values` et `description`.
-  > **Note d'intégration :** Le choix de série est persisté dans `CharacterSheet.statArrayPreset` (`'polyvalent' | 'expert' | 'specialiste' | 'libre'`) et détecté automatiquement via `detectCharacteristicArrayPreset(baseStats)` si absent.
+  > **Note d'intégration :** Le choix de série est persisté dans `CharacterSheet.statArrayPreset` (`'polyvalent' | 'expert' | 'specialiste' | 'achat'`, avec rétrocompatibilité pour `'libre'`) et détecté automatiquement via `detectCharacteristicArrayPreset(baseStats)` si absent. En mode `'achat'` (méthode par achat de l'Atlas : budget de 7 points, barème `+1`: 1, `+2`: 2, `+3`: 4, `+4`: 6, et jusqu'à 2 faiblesses à `-1` offrant chacune `+1` point supplémentaire), la validité est évaluée par `evaluatePointBuyStats(baseStats)`.
 - `ideals` : Liste des 20 idéaux héroïques avec `id`, `name`, `description` et `example`.
 - `flaws` : Liste des 20 travers avec `id`, `name` et `description`.
 - `startingEquipmentNote` : Texte de rappel sur l'équipement gratuit au niveau 1.

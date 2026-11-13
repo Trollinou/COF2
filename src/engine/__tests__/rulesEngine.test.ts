@@ -32,6 +32,7 @@ import {
   resolveCompanionStats,
   getDefaultEquipmentForProfile,
   detectCharacteristicArrayPreset,
+  evaluatePointBuyStats,
 } from '../rulesEngine';
 import { CharacterSheet } from '../../types/cof2';
 
@@ -1222,9 +1223,57 @@ describe('COF2 Rules Engine', () => {
       expect(detectCharacteristicArrayPreset(stats)).toBe('specialiste');
     });
 
-    it('falls back to libre for custom non-preset values', () => {
-      const customStats = { FOR: 5, AGI: 3, CON: 2, PER: 1, INT: 0, VOL: -2, CHA: -3 };
-      expect(detectCharacteristicArrayPreset(customStats)).toBe('libre');
+    it('falls back to achat for custom non-preset values', () => {
+      const customStats = { FOR: 3, AGI: 2, CON: 1, PER: 0, INT: 0, VOL: 0, CHA: 0 };
+      expect(detectCharacteristicArrayPreset(customStats)).toBe('achat');
+    });
+  });
+
+  describe('Atlas Point-Buy Method (Méthode par achat)', () => {
+    it('starts with 7 points available when all stats are 0', () => {
+      const res = evaluatePointBuyStats({ FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 });
+      expect(res.totalBudget).toBe(7);
+      expect(res.spent).toBe(0);
+      expect(res.remaining).toBe(7);
+      expect(res.weakCount).toBe(0);
+      expect(res.isValid).toBe(true);
+      expect(res.isComplete).toBe(false);
+    });
+
+    it('validates Helga Martellame example (1 weak stat -> 8 points)', () => {
+      const helga = { FOR: 2, AGI: 0, CON: 2, PER: 0, INT: 2, VOL: 2, CHA: -1 };
+      const res = evaluatePointBuyStats(helga);
+      expect(res.weakCount).toBe(1);
+      expect(res.totalBudget).toBe(8);
+      expect(res.spent).toBe(8);
+      expect(res.remaining).toBe(0);
+      expect(res.isValid).toBe(true);
+      expect(res.isComplete).toBe(true);
+    });
+
+    it('validates Kamshaka example (2 weak stats -> 9 points)', () => {
+      const kamshaka = { FOR: 2, AGI: 3, CON: 1, PER: 2, INT: -1, VOL: 0, CHA: -1 };
+      const res = evaluatePointBuyStats(kamshaka);
+      expect(res.weakCount).toBe(2);
+      expect(res.totalBudget).toBe(9);
+      expect(res.spent).toBe(9);
+      expect(res.remaining).toBe(0);
+      expect(res.isValid).toBe(true);
+      expect(res.isComplete).toBe(true);
+    });
+
+    it('flags over-budget, >2 weak stats, and out-of-range values as invalid', () => {
+      const overBudget = evaluatePointBuyStats({ FOR: 4, AGI: 2, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 });
+      expect(overBudget.remaining).toBe(-1);
+      expect(overBudget.isValid).toBe(false);
+
+      const threeWeak = evaluatePointBuyStats({ FOR: 4, AGI: 2, CON: 1, PER: 0, INT: -1, VOL: -1, CHA: -1 });
+      expect(threeWeak.tooManyWeakStats).toBe(true);
+      expect(threeWeak.isValid).toBe(false);
+
+      const outOfRange = evaluatePointBuyStats({ FOR: 5, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 });
+      expect(outOfRange.hasOutOfRangeValues).toBe(true);
+      expect(outOfRange.isValid).toBe(false);
     });
   });
 

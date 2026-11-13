@@ -1,8 +1,13 @@
 import React from 'react';
 import { CharacterSheet, StatCode, ProfileData, PeopleData, ComputedCharacterStats } from '../../../types/cof2';
-import { STAT_NAMES } from '../../../engine/rulesEngine';
+import {
+  STAT_NAMES,
+  POINT_BUY_COSTS,
+  POINT_BUY_MAX_WEAK_STATS,
+  evaluatePointBuyStats,
+} from '../../../engine/rulesEngine';
 import tablesData from '../../../data/tables.json';
-import { Target, Wand } from 'lucide-react';
+import { Target, Wand, RotateCcw } from 'lucide-react';
 
 interface Step4StatsProps {
   character: CharacterSheet;
@@ -14,6 +19,7 @@ interface Step4StatsProps {
   handleAutoAssignStats: (presetId?: string) => void;
   handleSetStatValue: (stat: StatCode, val: number) => void;
   handleSelectArrayPreset?: (preset: string) => void;
+  handleResetPointBuy?: () => void;
 }
 
 export const Step4Stats: React.FC<Step4StatsProps> = ({
@@ -26,7 +32,22 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
   handleAutoAssignStats,
   handleSetStatValue,
   handleSelectArrayPreset,
+  handleResetPointBuy,
 }) => {
+  const isPointBuy = arrayPreset === 'achat' || arrayPreset === 'libre';
+  const pointBuy = isPointBuy
+    ? evaluatePointBuyStats(computed.baseStats ?? character.baseStats)
+    : null;
+
+  const formatPointBuyOptionLabel = (v: number): string => {
+    const valStr = v >= 0 ? `+${v}` : `${v}`;
+    if (v === -1) return `${valStr} (+1 pt)`;
+    if (v === 0) return `${valStr} (0 pt)`;
+    const cost = POINT_BUY_COSTS[v];
+    if (cost === undefined) return valStr;
+    return `${valStr} (${cost} ${cost > 1 ? 'pts' : 'pt'})`;
+  };
+
   return (
     <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 shadow space-y-6">
       <div className="border-b border-stone-800 pb-4">
@@ -34,7 +55,7 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
           Étape 4 : Caractéristiques
         </h3>
         <p className="text-xs text-stone-400">
-          Choisissez votre série de valeurs officielle, puis attribuez les valeurs du pool sans doublons. Vos modificateurs de peuple s'ajoutent ensuite automatiquement.
+          Choisissez une série de valeurs officielle ou la méthode par achat de l'Atlas. Vos modificateurs de peuple s'ajoutent ensuite automatiquement.
         </p>
       </div>
 
@@ -130,46 +151,101 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
             </button>
           ))}
 
-          {/* Freeform option */}
+          {/* Point-buy option (Atlas advanced rules) */}
           <button
             onClick={() => {
-              if (handleSelectArrayPreset) {
-                handleSelectArrayPreset('libre');
-              } else {
-                setArrayPreset('libre');
+              if (!isPointBuy) {
+                if (handleSelectArrayPreset) {
+                  handleSelectArrayPreset('achat');
+                } else {
+                  setArrayPreset('achat');
+                }
               }
             }}
             className={`p-3 rounded-lg border text-left transition ${
-              arrayPreset === 'libre'
+              isPointBuy
                 ? 'bg-amber-950/40 border-amber-500 shadow-md ring-1 ring-amber-500'
                 : 'bg-stone-950 border-stone-800 hover:border-stone-700'
             }`}
           >
-            <div className="font-semibold text-sm text-stone-200">Saisie libre</div>
-            <div className="font-mono text-xs text-stone-400 my-1">Personnalisé</div>
-            <div className="text-[11px] text-stone-400">Tirages aux dés ou attribution libre selon accord MJ.</div>
+            <div className="font-semibold text-sm text-stone-200">Méthode par achat</div>
+            <div className="font-mono text-xs text-amber-300 my-1 font-bold">
+              7 pts (+1 par -1, max 2)
+            </div>
+            <div className="text-[11px] text-stone-400">
+              Règle avancée de l'Atlas : achetez vos valeurs de -1 à +4.
+            </div>
           </button>
         </div>
       </div>
 
-      {/* Characteristics Inputs with Permutation / Swapping */}
+      {/* Characteristics Inputs with Permutation / Swapping or Point-Buy */}
       <div className="bg-stone-950 p-4 rounded-xl border border-stone-800 space-y-3">
-        <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-800 pb-2">
           <h4 className="font-serif font-bold text-sm text-amber-300">
             Attribution des 7 Caractéristiques
           </h4>
           <div className="text-xs text-stone-400">
-            {arrayPreset !== 'libre' ? (
+            {!isPointBuy ? (
               <span>
                 Série active : <strong className="text-amber-300 font-mono">
                   {tablesData.characteristicArrays.find(a => a.id === arrayPreset)?.values.map(v => (v >= 0 ? `+${v}` : v)).join(', ')}
                 </strong> (échange automatique lors de la sélection)
               </span>
             ) : (
-              <span>Mode libre (toutes valeurs permises)</span>
+              <span>Méthode par achat (valeurs de -1 à +4)</span>
             )}
           </div>
         </div>
+
+        {isPointBuy && pointBuy && (
+          <div className="bg-stone-900/90 border border-stone-800 rounded-lg p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center space-x-1.5">
+                <span className="text-stone-400">Points restants :</span>
+                <span
+                  className={`font-mono font-bold px-2 py-0.5 rounded border ${
+                    pointBuy.remaining === 0 && pointBuy.isValid
+                      ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700'
+                      : pointBuy.remaining > 0 && pointBuy.isValid
+                      ? 'bg-amber-950/60 text-amber-300 border-amber-700'
+                      : 'bg-red-950/60 text-red-300 border-red-700'
+                  }`}
+                >
+                  {pointBuy.remaining} / {pointBuy.totalBudget}
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-1.5">
+                <span className="text-stone-400">Faiblesses (-1) :</span>
+                <span
+                  className={`font-mono font-bold px-2 py-0.5 rounded border ${
+                    pointBuy.tooManyWeakStats
+                      ? 'bg-red-950/60 text-red-300 border-red-700'
+                      : 'bg-stone-950 text-stone-200 border-stone-700'
+                  }`}
+                >
+                  {pointBuy.weakCount} / {POINT_BUY_MAX_WEAK_STATS} max
+                </span>
+              </div>
+
+              <span className="text-[11px] text-stone-400 font-mono">
+                Barème : -1 (+1 pt) · 0 (0) · +1 (1) · +2 (2) · +3 (4) · +4 (6)
+              </span>
+            </div>
+
+            {handleResetPointBuy && (
+              <button
+                type="button"
+                onClick={handleResetPointBuy}
+                className="flex items-center space-x-1 px-2.5 py-1 rounded bg-stone-950 hover:bg-stone-800 border border-stone-700 text-stone-300 text-xs transition"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Réinitialiser à 0</span>
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {(['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'] as StatCode[]).map(code => {
@@ -184,13 +260,29 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
 
             // Possible choices in dropdown
             const currentArray = tablesData.characteristicArrays.find(a => a.id === arrayPreset);
-            const baseChoices = arrayPreset === 'libre' || !currentArray
-              ? [-3, -2, -1, 0, 1, 2, 3, 4, 5]
+            const baseChoices = isPointBuy || !currentArray
+              ? [-1, 0, 1, 2, 3, 4]
               : Array.from(new Set(currentArray.values));
             if (!baseChoices.includes(base)) {
               baseChoices.push(base);
             }
             const options = baseChoices.sort((a, b) => b - a);
+
+            const isOptionDisabled = (v: number): boolean => {
+              if (!isPointBuy || !pointBuy || v === base) return false;
+              if (v === 0) return false; // Always allow resetting a stat to 0
+              if (v === -1) {
+                return pointBuy.weakCount >= POINT_BUY_MAX_WEAK_STATS;
+              }
+              if (v > 0) {
+                const currentCost = base > 0 ? (POINT_BUY_COSTS[base] ?? 0) : 0;
+                const newCost = POINT_BUY_COSTS[v];
+                if (newCost === undefined) return true;
+                const effectiveRemaining = pointBuy.remaining - (base === -1 ? 1 : 0);
+                return newCost - currentCost > effectiveRemaining;
+              }
+              return true;
+            };
 
             return (
               <div
@@ -257,8 +349,8 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
                     className="bg-stone-950 border border-stone-700 rounded px-2.5 py-1.5 text-xs font-mono font-bold text-amber-300 focus:border-amber-500 focus:outline-none"
                   >
                     {options.map(v => (
-                      <option key={v} value={v}>
-                        {v >= 0 ? `+${v}` : v}
+                      <option key={v} value={v} disabled={isOptionDisabled(v)}>
+                        {isPointBuy ? formatPointBuyOptionLabel(v) : v >= 0 ? `+${v}` : v}
                       </option>
                     ))}
                   </select>

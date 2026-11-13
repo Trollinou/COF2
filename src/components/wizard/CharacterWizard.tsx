@@ -46,10 +46,10 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
   const [currentStep, setCurrentStep] = useState<number>(1);
   const totalSteps = 7;
 
-  // Selected array mode in Step 4 ('polyvalent' | 'expert' | 'specialiste' | 'libre')
+  // Selected array mode in Step 4 ('polyvalent' | 'expert' | 'specialiste' | 'achat')
   const initialPreset = useMemo(() => {
     if (character.statArrayPreset) {
-      return character.statArrayPreset;
+      return character.statArrayPreset === 'libre' ? 'achat' : character.statArrayPreset;
     }
     return detectCharacteristicArrayPreset(character.baseStats);
   }, [character.statArrayPreset, character.baseStats]);
@@ -57,7 +57,8 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
   const [arrayPreset, setArrayPreset] = useState<string>(initialPreset);
 
   React.useEffect(() => {
-    const currentPreset = character.statArrayPreset || detectCharacteristicArrayPreset(character.baseStats);
+    const rawPreset = character.statArrayPreset === 'libre' ? 'achat' : character.statArrayPreset;
+    const currentPreset = rawPreset || detectCharacteristicArrayPreset(character.baseStats);
     setArrayPreset(currentPreset);
   }, [character.statArrayPreset, character.baseStats]);
 
@@ -272,14 +273,39 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     onChange(updated);
   };
 
+  const createZeroStats = (): Record<StatCode, number> => ({
+    FOR: 0,
+    AGI: 0,
+    CON: 0,
+    PER: 0,
+    INT: 0,
+    VOL: 0,
+    CHA: 0,
+  });
+
   // Auto assign characteristics based on array preset & profile's primary stats
   const handleAutoAssignStats = (presetId: string = arrayPreset) => {
+    const primary = selectedProfile.primaryStats || ['FOR', 'AGI', 'CON'];
+    const allStats: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
+
+    if (presetId === 'achat') {
+      // Distribute 7 points optimally across primary stats: +3 (4 pts), +2 (2 pts), +1 (1 pt), rest 0
+      const newBase = createZeroStats();
+      const pointBuySpread = [3, 2, 1];
+      primary.forEach((stat, idx) => {
+        if (idx < pointBuySpread.length) {
+          newBase[stat] = pointBuySpread[idx];
+        }
+      });
+      setArrayPreset('achat');
+      update({ baseStats: newBase, statArrayPreset: 'achat' });
+      return;
+    }
+
     const arr = tablesData.characteristicArrays.find(a => a.id === presetId);
     if (!arr) return;
 
     const sortedValues = [...arr.values].sort((a, b) => b - a);
-    const primary = selectedProfile.primaryStats || ['FOR', 'AGI', 'CON'];
-    const allStats: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
     const secondary = allStats.filter(s => !primary.includes(s));
 
     const newBase: Record<StatCode, number> = { ...character.baseStats };
@@ -298,22 +324,27 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
 
   const handleSelectArrayPreset = (presetId: string) => {
     setArrayPreset(presetId);
-    if (presetId === 'libre') {
-      update({ statArrayPreset: 'libre' });
+    if (presetId === 'achat') {
+      update({ baseStats: createZeroStats(), statArrayPreset: 'achat' });
     } else {
       handleAutoAssignStats(presetId);
     }
   };
 
+  const handleResetPointBuy = () => {
+    setArrayPreset('achat');
+    update({ baseStats: createZeroStats(), statArrayPreset: 'achat' });
+  };
+
   // Swap / set stat value strictly respecting the chosen pool
   const handleSetStatValue = (targetStat: StatCode, newValue: number) => {
-    if (arrayPreset === 'libre') {
+    if (arrayPreset === 'achat' || arrayPreset === 'libre') {
       update({
         baseStats: {
           ...character.baseStats,
           [targetStat]: newValue,
         },
-        statArrayPreset: 'libre',
+        statArrayPreset: 'achat',
       });
       return;
     }
@@ -479,6 +510,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
           handleAutoAssignStats={handleAutoAssignStats}
           handleSetStatValue={handleSetStatValue}
           handleSelectArrayPreset={handleSelectArrayPreset}
+          handleResetPointBuy={handleResetPointBuy}
         />
       )}
 

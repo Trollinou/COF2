@@ -1921,9 +1921,82 @@ export function createDefaultCharacter(): CharacterSheet {
   return initialChar;
 }
 
+export const POINT_BUY_BASE_BUDGET = 7;
+export const POINT_BUY_MAX_WEAK_STATS = 2;
+export const POINT_BUY_MIN_VALUE = -1;
+export const POINT_BUY_MAX_VALUE = 4;
+
+export const POINT_BUY_COSTS: Record<number, number> = {
+  [-1]: 0,
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 4,
+  4: 6,
+};
+
+export interface PointBuyEvaluation {
+  baseBudget: number;
+  weakCount: number;
+  bonusBudget: number;
+  totalBudget: number;
+  spent: number;
+  remaining: number;
+  tooManyWeakStats: boolean;
+  hasOutOfRangeValues: boolean;
+  isValid: boolean;
+  isComplete: boolean;
+}
+
+/**
+ * Evaluates a set of base stats against the Atlas "Méthode par achat" rules:
+ * - Start at 0, base budget = 7 points
+ * - Costs: +1 -> 1, +2 -> 2, +3 -> 4, +4 -> 6
+ * - Up to 2 weak stats at -1, each granting +1 point to the budget
+ */
+export function evaluatePointBuyStats(
+  baseStats: Record<StatCode, number>,
+): PointBuyEvaluation {
+  const codes: StatCode[] = ["FOR", "AGI", "CON", "PER", "INT", "VOL", "CHA"];
+  let weakCount = 0;
+  let spent = 0;
+  let hasOutOfRangeValues = false;
+
+  for (const code of codes) {
+    const val = typeof baseStats?.[code] === "number" ? baseStats[code] : 0;
+    if (val < POINT_BUY_MIN_VALUE || val > POINT_BUY_MAX_VALUE || !Number.isInteger(val)) {
+      hasOutOfRangeValues = true;
+    } else if (val === -1) {
+      weakCount += 1;
+    } else {
+      spent += POINT_BUY_COSTS[val] ?? 0;
+    }
+  }
+
+  const tooManyWeakStats = weakCount > POINT_BUY_MAX_WEAK_STATS;
+  const bonusBudget = Math.min(weakCount, POINT_BUY_MAX_WEAK_STATS);
+  const totalBudget = POINT_BUY_BASE_BUDGET + bonusBudget;
+  const remaining = totalBudget - spent;
+  const isValid = !hasOutOfRangeValues && !tooManyWeakStats && remaining >= 0;
+  const isComplete = isValid && remaining === 0;
+
+  return {
+    baseBudget: POINT_BUY_BASE_BUDGET,
+    weakCount,
+    bonusBudget,
+    totalBudget,
+    spent,
+    remaining,
+    tooManyWeakStats,
+    hasOutOfRangeValues,
+    isValid,
+    isComplete,
+  };
+}
+
 /**
  * Detects which characteristic array preset matches the given base stats,
- * or returns 'libre' if no exact match is found.
+ * or returns 'achat' if no exact match is found.
  */
 export function detectCharacteristicArrayPreset(
   baseStats: Record<StatCode, number>,
@@ -1942,7 +2015,7 @@ export function detectCharacteristicArrayPreset(
       return arr.id;
     }
   }
-  return "libre";
+  return "achat";
 }
 
 /**

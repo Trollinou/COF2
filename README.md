@@ -10,7 +10,7 @@ Application Desktop (**Rust + Tauri v2**) et Web (**Vite / React 19**) de créat
    - **25 Peuples** complets (8 du Livre de Base + 17 du Compagnon) avec leurs modificateurs raciaux déclaratifs (`stats` fixes et `statChoices` au choix), contraintes morphologiques et Voies de peuple.
    - **19 Profils** répartis dans les 4 familles (Aventuriers, Combattants, Mages, Mystiques).
    - **209 Voies et Capacités** (Voies de profil, de peuple, de domaine divin, de prestige et génériques) avec textes intégraux, modificateurs déclaratifs V2, compagnons dynamiques, types d'actions (A, L, G, M) et marqueurs de sorts (*).
-   - Les **7 Caractéristiques de COF2** (AGI, CON, FOR, PER, INT, VOL, CHA) avec séries de valeurs officielles (*Polyvalent, Expert, Spécialiste*).
+   - Les **7 Caractéristiques de COF2** (AGI, CON, FOR, PER, INT, VOL, CHA) avec séries de valeurs officielles (*Polyvalent, Expert, Spécialiste*) et la **Méthode par achat** (règle avancée de l'Atlas : 7 points, jusqu'à 2 faiblesses à `-1`).
    - Moteur de règles déterministe en Rust (`crates/cof2-core`) calculant fidèlement :
      - Points de Vie : `PV = (2 x PV famille) + CON` (et gain rétroactif par niveau).
      - Dés de Récupération (DR) : type de dé selon la famille et `[2 + CON]` (+1 pour les Mystiques).
