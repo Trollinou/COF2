@@ -23,41 +23,75 @@ export const CharacteristicsCard: React.FC<CharacteristicsCardProps> = ({
       <div className="grid grid-cols-1 gap-2">
         {(['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'] as StatCode[]).map(code => {
           const totalMod = stats.finalStats[code];
-          const baseVal = character.baseStats[code] ?? 0;
-          const racialMod = stats.racialBonusStats?.[code] || 0;
+          const baseVal = stats.baseStats?.[code] ?? character.baseStats[code] ?? 0;
+          const racialMod = stats.racialBonusStats?.[code] ?? 0;
+          const pathMod = stats.pathBonusStats?.[code] ?? 0;
+          const manualMod = stats.manualBonusStats?.[code] ?? character.manualStatBonuses?.[code] ?? 0;
+          const otherMod = stats.otherBonusStats?.[code] ?? (pathMod + manualMod);
+
+          const formatSigned = (v: number) => (v > 0 ? `+${v}` : `${v}`);
+          const otherTitle = `Voies: ${formatSigned(pathMod)} | Manuel: ${formatSigned(manualMod)}`;
 
           return (
             <div
               key={code}
-              className="flex items-center justify-between p-2.5 rounded-lg bg-stone-950/60 border border-stone-800/80 hover:border-amber-600/50 transition"
+              className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-stone-950/60 border border-stone-800/80 hover:border-amber-600/50 transition"
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-11 h-11 rounded-lg bg-stone-900 border border-stone-700 flex flex-col items-center justify-center font-mono shrink-0">
-                  <span className="text-[10px] text-stone-400 leading-none">{code}</span>
-                  <span className={`text-lg font-black ${totalMod >= 0 ? 'text-amber-400' : 'text-red-400'}`}>
+              {/* Left: Stat Code & Name */}
+              <div className="min-w-[68px]">
+                <div className="font-mono text-[10px] font-bold text-amber-300/80 leading-none">{code}</div>
+                <div className="font-medium text-stone-200 text-xs sm:text-sm truncate">{STAT_NAMES[code]}</div>
+              </div>
+
+              {/* Center: Main Total box + 3 smaller detail boxes (Init., Peuple, Autres) */}
+              <div className="flex items-center gap-1.5">
+                {/* Main Total box */}
+                <div className="w-12 h-11 rounded-lg bg-stone-900 border-2 border-amber-500/70 flex flex-col items-center justify-center font-mono shrink-0 shadow-sm">
+                  <span className="text-[7.5px] uppercase text-amber-300/80 font-bold leading-none">TOTAL</span>
+                  <span className={`text-base font-black leading-tight ${totalMod >= 0 ? 'text-amber-400' : 'text-red-400'}`}>
                     {totalMod >= 0 ? `+${totalMod}` : totalMod}
                   </span>
                 </div>
-                <div>
-                  <div className="font-medium text-stone-200 text-sm">{STAT_NAMES[code]}</div>
-                  <div className="text-[11px] text-stone-400 flex items-center space-x-1.5 flex-wrap">
-                    <span>Base: {baseVal >= 0 ? `+${baseVal}` : baseVal}</span>
-                    {racialMod > 0 && <span className="text-emerald-400 font-semibold">+{racialMod} peuple</span>}
-                    {racialMod < 0 && <span className="text-red-400 font-semibold">{racialMod} peuple</span>}
-                    {(stats.pathBonusStats?.[code] || 0) > 0 && (
-                      <span className="text-purple-300 font-semibold bg-purple-950/80 px-1 rounded border border-purple-800/60">
-                        +{stats.pathBonusStats[code]} voie
-                      </span>
-                    )}
-                    {(character.manualStatBonuses?.[code] || 0) !== 0 && (
-                      <span className="text-amber-300 font-semibold">
-                        {(character.manualStatBonuses?.[code] || 0) > 0
-                          ? `+${character.manualStatBonuses?.[code]}`
-                          : character.manualStatBonuses?.[code]}{' '}
-                        man.
-                      </span>
-                    )}
-                  </div>
+
+                {/* Small box: Initial chosen value */}
+                <div
+                  title="Valeur initiale choisie"
+                  className="w-9 h-8 rounded bg-stone-900/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0"
+                >
+                  <span className="text-[7px] text-stone-400 uppercase leading-none">Init.</span>
+                  <span className="text-[11px] font-bold text-stone-200 leading-tight">
+                    {baseVal >= 0 ? `+${baseVal}` : baseVal}
+                  </span>
+                </div>
+
+                {/* Small box: Racial modifier */}
+                <div
+                  title="Modificateur de peuple"
+                  className="w-9 h-8 rounded bg-stone-900/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0"
+                >
+                  <span className="text-[7px] text-stone-400 uppercase leading-none">Peuple</span>
+                  <span
+                    className={`text-[11px] font-bold leading-tight ${
+                      racialMod > 0 ? 'text-emerald-400' : racialMod < 0 ? 'text-red-400' : 'text-stone-500'
+                    }`}
+                  >
+                    {racialMod > 0 ? `+${racialMod}` : racialMod}
+                  </span>
+                </div>
+
+                {/* Small box: Other modifiers (paths + manual) */}
+                <div
+                  title={otherTitle}
+                  className="w-9 h-8 rounded bg-stone-900/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0"
+                >
+                  <span className="text-[7px] text-stone-400 uppercase leading-none">Autres</span>
+                  <span
+                    className={`text-[11px] font-bold leading-tight ${
+                      otherMod > 0 ? 'text-amber-300' : otherMod < 0 ? 'text-red-400' : 'text-stone-500'
+                    }`}
+                  >
+                    {otherMod > 0 ? `+${otherMod}` : otherMod}
+                  </span>
                 </div>
               </div>
 

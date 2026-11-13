@@ -2,7 +2,51 @@ use crate::models::{
     AttackBonuses, CharacterRecord, ComputedCharacterSheet, LevelProgressionStep, ProfileFamily,
     StatCode,
 };
-use crate::rules::{RuleError, RulesDatabase};
+use crate::rules::{RankModifiersStatic, RuleError, RulesDatabase};
+use std::collections::HashMap;
+
+const ALL_STAT_CODES: [StatCode; 7] = [
+    StatCode::FOR,
+    StatCode::AGI,
+    StatCode::CON,
+    StatCode::PER,
+    StatCode::INT,
+    StatCode::VOL,
+    StatCode::CHA,
+];
+
+fn empty_stat_map() -> HashMap<StatCode, i32> {
+    ALL_STAT_CODES.iter().map(|&s| (s, 0)).collect()
+}
+
+fn collect_path_stat_bonuses(
+    modifiers: &RankModifiersStatic,
+    path_id: &str,
+    rank: u8,
+    path_rank_choices: &HashMap<String, String>,
+    acc: &mut HashMap<StatCode, i32>,
+) {
+    if let Some(ref choice_options) = modifiers.choice_options {
+        if !choice_options.is_empty() {
+            let choice_key = format!("{path_id}_{rank}");
+            let selected = path_rank_choices
+                .get(&choice_key)
+                .and_then(|chosen_id| choice_options.iter().find(|o| &o.id == chosen_id))
+                .or_else(|| choice_options.first());
+            if let Some(opt) = selected {
+                if let Some(ref opt_mods) = opt.modifiers {
+                    collect_path_stat_bonuses(opt_mods, path_id, rank, path_rank_choices, acc);
+                }
+            }
+        }
+    }
+
+    if let Some(ref stats) = modifiers.stats {
+        for (stat, val) in stats {
+            *acc.entry(*stat).or_insert(0) += val;
+        }
+    }
+}
 
 pub struct RulesEngine;
 
@@ -20,32 +64,77 @@ impl RulesEngine {
             .get(&record.people_id)
             .ok_or_else(|| RuleError::PeopleNotFound(record.people_id.clone()))?;
 
-        // 1. Calcul des caractéristiques finales
-        let mut final_stats = record.base_stats.clone();
-
-        // Modificateurs raciaux fixes
-        if let Some(ref racial_mods) = people.stats {
-            for (stat, modif) in racial_mods {
-                *final_stats.entry(*stat).or_insert(0) += modif;
-            }
+        // 1. Décomposition unitaire des caractéristiques :
+        //    - base_stats (valeur initiale choisie)
+        //    - racial_bonus_stats (modificateurs raciaux fixes + choix)
+        //    - path_bonus_stats (bonus issus des capacités de voies)
+        //    - manual_bonus_stats (bonus/malus manuels éventuels)
+        //    - other_bonus_stats = path_bonus_stats + manual_bonus_stats
+        //    - final_stats = base_stats + racial_bonus_stats + other_bonus_stats
+        let mut base_stats = empty_stat_map();
+        for (stat, val) in &record.base_stats {
+            base_stats.insert(*stat, *val);
         }
 
-        // Choix raciaux dynamiques
+        let mut racial_bonus_stats = empty_stat_map();
+        if let Some(ref racial_mods) = people.stats {
+            for (stat, modif) in racial_mods {
+                *racial_bonus_stats.entry(*stat).or_insert(0) += modif;
+            }
+        }
         if let Some(ref choices) = people.stat_choices {
             for (idx, choice) in choices.iter().enumerate() {
                 if let Some(chosen_stat) = record.racial_stat_choices.get(idx) {
-                    *final_stats.entry(*chosen_stat).or_insert(0) += choice.value;
+                    *racial_bonus_stats.entry(*chosen_stat).or_insert(0) += choice.value;
                 } else if let Some(first_opt) = choice.options.first() {
                     if let Ok(st) = parse_stat(first_opt) {
-                        *final_stats.entry(st).or_insert(0) += choice.value;
+                        *racial_bonus_stats.entry(st).or_insert(0) += choice.value;
+                    }
+                }
+            }
+        }
+        if racial_bonus_stats.values().all(|&v| v == 0)
+            && !record.racial_stat_modifiers.is_empty()
+            && people.stats.is_none()
+            && people.stat_choices.is_none()
+        {
+            for (stat, modif) in &record.racial_stat_modifiers {
+                racial_bonus_stats.insert(*stat, *modif);
+            }
+        }
+
+        let mut path_bonus_stats = empty_stat_map();
+        for acq in &record.acquired_abilities {
+            if let Some(path) = rules.paths.get(&acq.path_id) {
+                if let Some(rank_data) = path.ranks.iter().find(|r| r.rank == acq.rank) {
+                    if let Some(ref mods) = rank_data.modifiers {
+                        collect_path_stat_bonuses(
+                            mods,
+                            &acq.path_id,
+                            acq.rank,
+                            &record.path_rank_choices,
+                            &mut path_bonus_stats,
+                        );
                     }
                 }
             }
         }
 
-        // Bonus manuels
+        let mut manual_bonus_stats = empty_stat_map();
         for (stat, bonus) in &record.manual_stat_bonuses {
-            *final_stats.entry(*stat).or_insert(0) += bonus;
+            *manual_bonus_stats.entry(*stat).or_insert(0) += bonus;
+        }
+
+        let mut other_bonus_stats = empty_stat_map();
+        let mut final_stats = empty_stat_map();
+        for stat in ALL_STAT_CODES {
+            let base = *base_stats.get(&stat).unwrap_or(&0);
+            let racial = *racial_bonus_stats.get(&stat).unwrap_or(&0);
+            let path = *path_bonus_stats.get(&stat).unwrap_or(&0);
+            let manual = *manual_bonus_stats.get(&stat).unwrap_or(&0);
+            let other = path + manual;
+            other_bonus_stats.insert(stat, other);
+            final_stats.insert(stat, base + racial + other);
         }
 
         let level = record.level.clamp(1, 20) as i32;
@@ -172,6 +261,11 @@ impl RulesEngine {
 
         Ok(ComputedCharacterSheet {
             record: record.clone(),
+            base_stats,
+            racial_bonus_stats,
+            path_bonus_stats,
+            manual_bonus_stats,
+            other_bonus_stats,
             final_stats,
             bab,
             defense,

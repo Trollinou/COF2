@@ -134,6 +134,8 @@ pub struct CharacterRecord {
     #[serde(default)]
     pub racial_stat_choices: Vec<StatCode>,
     #[serde(default)]
+    pub racial_stat_modifiers: HashMap<StatCode, i32>,
+    #[serde(default)]
     pub manual_stat_bonuses: HashMap<StatCode, i32>,
 
     #[serde(default)]
@@ -194,6 +196,11 @@ pub struct AttackBonuses {
 #[serde(rename_all = "camelCase")]
 pub struct ComputedCharacterSheet {
     pub record: CharacterRecord,
+    pub base_stats: HashMap<StatCode, i32>,
+    pub racial_bonus_stats: HashMap<StatCode, i32>,
+    pub path_bonus_stats: HashMap<StatCode, i32>,
+    pub manual_bonus_stats: HashMap<StatCode, i32>,
+    pub other_bonus_stats: HashMap<StatCode, i32>,
     pub final_stats: HashMap<StatCode, i32>,
     pub bab: i32,
     pub defense: i32,

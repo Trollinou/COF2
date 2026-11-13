@@ -174,10 +174,13 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {(['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'] as StatCode[]).map(code => {
             const total = computed.finalStats[code];
-            const base = character.baseStats[code] ?? 0;
+            const base = computed.baseStats?.[code] ?? character.baseStats[code] ?? 0;
             const isPrimary = selectedProfile.primaryStats.includes(code);
             const primaryIndex = selectedProfile.primaryStats.indexOf(code);
             const racialMod = computed.racialBonusStats[code] || 0;
+            const otherMod =
+              computed.otherBonusStats?.[code] ??
+              (computed.pathBonusStats?.[code] ?? 0) + (computed.manualBonusStats?.[code] ?? 0);
 
             // Possible choices in dropdown
             const currentArray = tablesData.characteristicArrays.find(a => a.id === arrayPreset);
@@ -198,7 +201,7 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
                     : 'bg-stone-900 border-stone-800'
                 }`}
               >
-                <div className="space-y-0.5">
+                <div className="space-y-1.5">
                   <div className="flex items-center space-x-2">
                     <span className="font-semibold text-stone-100 text-sm">
                       {STAT_NAMES[code]} ({code})
@@ -210,12 +213,39 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
                     )}
                   </div>
 
-                  <div className="text-[11px] text-stone-400 flex items-center space-x-2">
-                    <span>Total final : <strong className={`font-mono text-sm ${total >= 0 ? 'text-amber-300' : 'text-red-400'}`}>
-                      {total >= 0 ? `+${total}` : total}
-                    </strong></span>
-                    {racialMod > 0 && <span className="text-emerald-400 font-semibold">(+{racialMod} peuple)</span>}
-                    {racialMod < 0 && <span className="text-red-400 font-semibold">({racialMod} peuple)</span>}
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-11 h-10 rounded-lg bg-stone-950 border-2 border-amber-500/70 flex flex-col items-center justify-center font-mono shrink-0">
+                      <span className="text-[7px] uppercase text-amber-300/80 font-bold leading-none">TOTAL</span>
+                      <span className={`text-sm font-black leading-tight ${total >= 0 ? 'text-amber-300' : 'text-red-400'}`}>
+                        {total >= 0 ? `+${total}` : total}
+                      </span>
+                    </div>
+                    <div className="w-9 h-8 rounded bg-stone-950/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0">
+                      <span className="text-[7px] text-stone-400 uppercase leading-none">Init.</span>
+                      <span className="text-[11px] font-bold text-stone-200 leading-tight">
+                        {base >= 0 ? `+${base}` : base}
+                      </span>
+                    </div>
+                    <div className="w-9 h-8 rounded bg-stone-950/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0">
+                      <span className="text-[7px] text-stone-400 uppercase leading-none">Peuple</span>
+                      <span
+                        className={`text-[11px] font-bold leading-tight ${
+                          racialMod > 0 ? 'text-emerald-400' : racialMod < 0 ? 'text-red-400' : 'text-stone-500'
+                        }`}
+                      >
+                        {racialMod > 0 ? `+${racialMod}` : racialMod}
+                      </span>
+                    </div>
+                    <div className="w-9 h-8 rounded bg-stone-950/90 border border-stone-700/80 flex flex-col items-center justify-center font-mono shrink-0">
+                      <span className="text-[7px] text-stone-400 uppercase leading-none">Autres</span>
+                      <span
+                        className={`text-[11px] font-bold leading-tight ${
+                          otherMod > 0 ? 'text-amber-300' : otherMod < 0 ? 'text-red-400' : 'text-stone-500'
+                        }`}
+                      >
+                        {otherMod > 0 ? `+${otherMod}` : otherMod}
+                      </span>
+                    </div>
                   </div>
                 </div>
 

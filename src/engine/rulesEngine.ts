@@ -882,15 +882,18 @@ export const STAT_NAMES: Record<StatCode, string> = {
   CHA: "Charisme",
 };
 
-export function computeCharacterStats(
-  char: CharacterSheet,
-): ComputedCharacterStats {
-  const profile = getProfileById(char.profileId) || PROFILES[0];
-  const people = getPeopleById(char.peopleId);
-  const stats: Record<StatCode, number> = { ...char.baseStats };
+const ALL_STAT_CODES: StatCode[] = [
+  "FOR",
+  "AGI",
+  "CON",
+  "PER",
+  "INT",
+  "VOL",
+  "CHA",
+];
 
-  // Apply racial fixed stats & player choices
-  const racialBonusStats: Record<StatCode, number> = {
+function createEmptyStatRecord(): Record<StatCode, number> {
+  return {
     FOR: 0,
     AGI: 0,
     CON: 0,
@@ -899,18 +902,43 @@ export function computeCharacterStats(
     VOL: 0,
     CHA: 0,
   };
+}
 
-  if (people?.stats) {
+/**
+ * Calcule unitairement les modificateurs raciaux pour les 7 caractéristiques à partir du peuple
+ * et des choix raciaux du joueur, avec repli optionnel sur des modificateurs stockés.
+ */
+export function computeRacialStatModifiers(
+  peopleId: string,
+  racialStatChoices?: StatCode[],
+  fallbackModifiers?: Partial<Record<StatCode, number>>,
+): Record<StatCode, number> {
+  const result = createEmptyStatRecord();
+  const people = getPeopleById(peopleId);
+
+  if (!people) {
+    if (fallbackModifiers) {
+      for (const code of ALL_STAT_CODES) {
+        const val = fallbackModifiers[code];
+        if (typeof val === "number" && Number.isFinite(val)) {
+          result[code] = val;
+        }
+      }
+    }
+    return result;
+  }
+
+  if (people.stats) {
     for (const [key, val] of Object.entries(people.stats)) {
-      if (val && racialBonusStats[key as StatCode] !== undefined) {
-        racialBonusStats[key as StatCode] += val;
+      if (val && result[key as StatCode] !== undefined) {
+        result[key as StatCode] += val;
       }
     }
   }
 
-  if (people?.statChoices) {
+  if (people.statChoices) {
     people.statChoices.forEach((choice, idx) => {
-      const chosen = char.racialStatChoices?.[idx];
+      const chosen = racialStatChoices?.[idx];
       const isAny = choice.options.includes("ANY_LOWEST");
       let targetStat: StatCode | undefined;
       if (chosen && (isAny || choice.options.includes(chosen))) {
@@ -920,23 +948,39 @@ export function computeCharacterStats(
       } else if (isAny) {
         targetStat = "FOR";
       }
-      if (targetStat && racialBonusStats[targetStat] !== undefined) {
-        racialBonusStats[targetStat] += choice.value;
+      if (targetStat && result[targetStat] !== undefined) {
+        result[targetStat] += choice.value;
       }
     });
   }
 
-  for (const [key, val] of Object.entries(racialBonusStats)) {
-    if (val && stats[key as StatCode] !== undefined) {
-      stats[key as StatCode] += val;
-    }
+  return result;
+}
+
+export function computeCharacterStats(
+  char: CharacterSheet,
+): ComputedCharacterStats {
+  const profile = getProfileById(char.profileId) || PROFILES[0];
+  const people = getPeopleById(char.peopleId);
+
+  const baseStats = createEmptyStatRecord();
+  for (const code of ALL_STAT_CODES) {
+    const val = char.baseStats?.[code];
+    baseStats[code] = typeof val === "number" && Number.isFinite(val) ? val : 0;
   }
 
-  // Apply manual adjustments if any
+  const racialBonusStats = computeRacialStatModifiers(
+    char.peopleId,
+    char.racialStatChoices,
+    char.racialStatModifiers,
+  );
+
+  const manualBonusStats = createEmptyStatRecord();
   if (char.manualStatBonuses) {
-    for (const [key, val] of Object.entries(char.manualStatBonuses)) {
-      if (val && stats[key as StatCode] !== undefined) {
-        stats[key as StatCode] += val;
+    for (const code of ALL_STAT_CODES) {
+      const val = char.manualStatBonuses[code];
+      if (typeof val === "number" && Number.isFinite(val)) {
+        manualBonusStats[code] = val;
       }
     }
   }
@@ -1073,11 +1117,12 @@ export function computeCharacterStats(
     collectModifiersFromBlock(rankData.modifiers, acq.pathId, acq.rank);
   });
 
-  // Apply pathBonusStats to final stats
-  for (const [s, val] of Object.entries(pathBonusStats)) {
-    if (val && stats[s as StatCode] !== undefined) {
-      stats[s as StatCode] += val;
-    }
+  // Compute otherBonusStats (path bonuses + manual bonuses) and reconstruct final stats from unit components
+  const otherBonusStats = createEmptyStatRecord();
+  const stats = createEmptyStatRecord();
+  for (const code of ALL_STAT_CODES) {
+    otherBonusStats[code] = pathBonusStats[code] + manualBonusStats[code];
+    stats[code] = baseStats[code] + racialBonusStats[code] + otherBonusStats[code];
   }
 
   const level = Math.max(1, char.level || 1);
@@ -1440,6 +1485,7 @@ export function computeCharacterStats(
   const secondaryProfileName = secProfile?.name;
 
   return {
+    baseStats,
     finalStats: stats,
     bab,
     attacks,
@@ -1467,6 +1513,8 @@ export function computeCharacterStats(
     effectiveAgi,
     racialBonusStats,
     pathBonusStats,
+    manualBonusStats,
+    otherBonusStats,
     pathBonusDefense,
     pathBonusInitiative,
     pathBonusHp,
@@ -1763,6 +1811,7 @@ export function applyRacialDefaults(
     physicalTraits: p.physicalTraits,
     languages: p.defaultLanguages,
     racialStatChoices,
+    racialStatModifiers: computeRacialStatModifiers(peopleId, racialStatChoices),
     selectedPathIds: updatedPaths,
     acquiredAbilities: updatedAcquired,
     updatedAt: new Date().toISOString(),
@@ -1814,6 +1863,7 @@ export function createDefaultCharacter(): CharacterSheet {
     },
     statArrayPreset: "polyvalent",
     racialStatChoices: ["FOR"],
+    racialStatModifiers: computeRacialStatModifiers(defaultPeople.id, ["FOR"]),
     manualStatBonuses: {},
     selectedPathIds: [
       defaultProfile.paths[0],

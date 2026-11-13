@@ -1,6 +1,6 @@
 import React from 'react';
 import { CharacterSheet, StatCode, PeopleData } from '../../../types/cof2';
-import { PEOPLES, STAT_NAMES, getPathById, applyRacialDefaults } from '../../../engine/rulesEngine';
+import { PEOPLES, STAT_NAMES, getPathById, applyRacialDefaults, computeRacialStatModifiers } from '../../../engine/rulesEngine';
 import { Search, CheckCircle2, ChevronRight, AlertTriangle } from 'lucide-react';
 
 interface Step1PeoplesProps {
@@ -295,7 +295,10 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                                 ((c.options[0] !== 'ANY_LOWEST' ? c.options[0] : 'FOR') as StatCode)
                               );
                             });
-                            update({ racialStatChoices: nextChoices });
+                            update({
+                              racialStatChoices: nextChoices,
+                              racialStatModifiers: computeRacialStatModifiers(selectedPeople.id, nextChoices),
+                            });
                           }}
                           className="w-full bg-stone-900 border border-stone-700 rounded px-2.5 py-1.5 text-xs text-stone-200"
                         >
@@ -353,7 +356,10 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                                 ((c.options[0] !== 'ANY_LOWEST' ? c.options[0] : 'FOR') as StatCode)
                               );
                             });
-                            update({ racialStatChoices: nextChoices });
+                            update({
+                              racialStatChoices: nextChoices,
+                              racialStatModifiers: computeRacialStatModifiers(selectedPeople.id, nextChoices),
+                            });
                           }}
                           className="w-full bg-stone-900 border border-stone-700 rounded px-2.5 py-1.5 text-xs text-stone-200"
                         >

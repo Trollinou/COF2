@@ -1227,4 +1227,61 @@ describe('COF2 Rules Engine', () => {
       expect(detectCharacteristicArrayPreset(customStats)).toBe('libre');
     });
   });
+
+  describe('Unitary Characteristic Storage and Decomposition', () => {
+    it('stores racialStatModifiers on creation and race switch, and reconstructs finalStats from unit components', () => {
+      const defaultChar = createDefaultCharacter();
+      expect(defaultChar.racialStatModifiers).toEqual({
+        FOR: 1,
+        AGI: 0,
+        CON: 0,
+        PER: 0,
+        INT: 0,
+        VOL: 0,
+        CHA: 0,
+      });
+
+      // Minotaure: fixed racial stats { FOR: +2, VOL: +1, INT: -2, CHA: -2 }
+      let char = applyRacialDefaults(defaultChar, 'minotaure');
+      expect(char.racialStatModifiers).toEqual({
+        FOR: 2,
+        AGI: 0,
+        CON: 0,
+        PER: 0,
+        INT: -2,
+        VOL: 1,
+        CHA: -2,
+      });
+
+      char.baseStats = { FOR: 3, AGI: 2, CON: 1, PER: 1, INT: 0, VOL: 0, CHA: -1 };
+      // Voie du demi-orc R5 ("Colosse"): +1 FOR, +1 CON
+      char.acquiredAbilities = [{ pathId: 'voie-du-demi-orc', rank: 5 }];
+      // Bonus/malus manuel: +1 AGI, -1 CON
+      char.manualStatBonuses = { AGI: 1, CON: -1 };
+
+      const stats = computeCharacterStats(char);
+
+      expect(stats.baseStats).toEqual({ FOR: 3, AGI: 2, CON: 1, PER: 1, INT: 0, VOL: 0, CHA: -1 });
+      expect(stats.racialBonusStats).toEqual({ FOR: 2, AGI: 0, CON: 0, PER: 0, INT: -2, VOL: 1, CHA: -2 });
+      expect(stats.pathBonusStats).toEqual({ FOR: 1, AGI: 0, CON: 1, PER: 0, INT: 0, VOL: 0, CHA: 0 });
+      expect(stats.manualBonusStats).toEqual({ FOR: 0, AGI: 1, CON: -1, PER: 0, INT: 0, VOL: 0, CHA: 0 });
+      expect(stats.otherBonusStats).toEqual({ FOR: 1, AGI: 1, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 });
+
+      (['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'] as const).forEach(code => {
+        expect(stats.finalStats[code]).toBe(
+          stats.baseStats[code] + stats.racialBonusStats[code] + stats.otherBonusStats[code],
+        );
+      });
+
+      expect(stats.finalStats).toEqual({
+        FOR: 6,
+        AGI: 3,
+        CON: 1,
+        PER: 1,
+        INT: -2,
+        VOL: 1,
+        CHA: -3,
+      });
+    });
+  });
 });

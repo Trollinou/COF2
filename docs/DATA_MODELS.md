@@ -477,7 +477,41 @@ Le fichier [`src/data/tables.json`](file:///c:/Users/egagnon/Personnel/Dev/COF2/
 
 ---
 
-## 6. 🔍 Méthodologie d'Audit & Arbre de Décision pour l'Encodage d'une Capacité
+## 6. 🧬 Modélisation & Décomposition Unitaire des Caractéristiques
+
+Afin de garantir une traçabilité totale et une reconstruction déterministe à tout moment, le modèle du personnage (`CharacterSheet` / `CharacterRecord`) et les résultats dérivés (`ComputedCharacterStats` / `ComputedCharacterSheet`) décomposent chaque caractéristique (`FOR`, `AGI`, `CON`, `PER`, `INT`, `VOL`, `CHA`) en éléments unitaires distincts :
+
+$$\text{Total (finalStats)} = \text{Valeur Initiale (baseStats)} + \text{Modificateur Peuple (racialBonusStats)} + \text{Autres Modificateurs (otherBonusStats)}$$
+
+où $\text{otherBonusStats} = \text{pathBonusStats (capacités de voies)} + \text{manualBonusStats (ajustements manuels)}$.
+
+### 6.1. Stockage Unitaire Persistant (`CharacterSheet` / `CharacterRecord`)
+- `baseStats: Record<StatCode, number>` : Valeurs initiales choisies lors de la création (issue d'une série officielle *Polyvalent*, *Expert*, *Spécialiste* ou saisie *Libre*).
+- `racialStatChoices?: StatCode[]` : Choix dynamiques de caractéristiques effectués pour le peuple (ex: bonus ou malus au choix du Demi-elfe, Frouïn, etc.).
+- `racialStatModifiers?: Record<StatCode, number>` : Dictionnaire persistant et synchronisé des modificateurs de peuple unitaires calculé par `computeRacialStatModifiers`.
+- `manualStatBonuses?: Partial<Record<StatCode, number>>` : Ajustements manuels libres appliqués par le joueur via les boutons `+` / `-` de la fiche.
+- `acquiredAbilities`, `pathRankChoices`, `externalAbilityChoices` : Voies et rangs acquis traçant les augmentations de caractéristiques issues des voies (ex: rang 4 ou rang 5 de certaines voies).
+
+### 6.2. Décomposition Dérivée (`ComputedCharacterStats` / `ComputedCharacterSheet`)
+Le moteur calcule et expose les 5 blocs unitaires pour chaque caractéristique :
+1. `baseStats` : Valeur initiale brute.
+2. `racialBonusStats` : Modificateur de peuple effectif (fixes + choix dynamiques).
+3. `pathBonusStats` : Bonus passifs cumulés des voies.
+4. `manualBonusStats` : Bonus ou malus manuels.
+5. `otherBonusStats` : Somme de `pathBonusStats + manualBonusStats`.
+6. `finalStats` : Total final calculé.
+
+### 6.3. Affichage dans la Fiche de Personnage
+Dans l'interface interactive ([`CharacteristicsCard.tsx`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/components/sheet/CharacteristicsCard.tsx)), l'étape 4 du wizard ([`Step4Stats.tsx`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/components/wizard/steps/Step4Stats.tsx)) et la fiche A4 imprimable ([`PrintableCharacterSheet.tsx`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/components/pdf/PrintableCharacterSheet.tsx)), chaque caractéristique présente :
+- Une **grande case principale `TOTAL`** mettant en valeur le score effectif de jeu.
+- **3 cases de détail réduites** disposées à côté :
+  - **`Init.`** : Valeur initiale de base.
+  - **`Peuple` / `RAC.`** : Modificateur racial.
+  - **`Autres` / `AUT.`** : Autres modificateurs (voies et ajustements manuels, avec infobulle détaillée dans l'UI).
+
+---
+
+## 7. 🔍 Méthodologie d'Audit & Arbre de Décision pour l'Encodage d'une Capacité
 
 Lorsque vous ajoutez ou vérifiez une capacité dans `paths.json`, suivez cet arbre de décision pour déterminer comment encoder ses effets mécaniques dans `modifiers` :
 

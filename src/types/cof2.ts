@@ -416,6 +416,7 @@ export interface CharacterSheet {
   baseStats: Record<StatCode, number>;
   statArrayPreset?: string;
   racialStatChoices?: StatCode[];
+  racialStatModifiers?: Record<StatCode, number>;
   manualStatBonuses?: Partial<Record<StatCode, number>>;
 
   // Paths & Abilities.
@@ -449,6 +450,7 @@ export interface CharacterSheet {
 }
 
 export interface ComputedCharacterStats {
+  baseStats: Record<StatCode, number>;
   finalStats: Record<StatCode, number>;
   bab: number;
   attacks: {
@@ -487,6 +489,8 @@ export interface ComputedCharacterStats {
   // Breakdown of racial & path passive bonuses.
   racialBonusStats: Record<StatCode, number>;
   pathBonusStats: Record<StatCode, number>;
+  manualBonusStats: Record<StatCode, number>;
+  otherBonusStats: Record<StatCode, number>;
   pathBonusDefense: number;
   pathBonusInitiative: number;
   pathBonusHp: number;

@@ -40,6 +40,7 @@ fn create_test_record(profile_id: &str, people_id: &str, level: u8) -> Character
         base_stats,
         stat_array_preset: None,
         racial_stat_choices: vec![],
+        racial_stat_modifiers: HashMap::new(),
         manual_stat_bonuses: HashMap::new(),
         selected_path_ids: vec!["voie-du-bouclier".into()],
         acquired_abilities: vec![AcquiredAbility {
@@ -190,4 +191,71 @@ fn test_level_up_progression_history_and_rollback() {
     assert_eq!(record.progression_history.len(), 0);
     assert_eq!(record.acquired_abilities.len(), 1);
     assert_eq!(sheet_lvl1_restored.max_hp, 14);
+}
+
+#[test]
+fn test_unitary_stat_decomposition_and_reconstruction() {
+    let rules = RulesDatabase::load_embedded().unwrap();
+    // Minotaure: fixed racial stats { FOR: +2, VOL: +1, INT: -2, CHA: -2 }
+    let mut record = create_test_record("guerrier", "minotaure", 1);
+    // Voie du demi-orc rang 5 ("Colosse"): +1 FOR, +1 CON
+    record.acquired_abilities.push(AcquiredAbility {
+        path_id: "voie-du-demi-orc".into(),
+        rank: 5,
+    });
+    // Bonus/malus manuel: +1 AGI, -1 CON
+    record.manual_stat_bonuses.insert(StatCode::AGI, 1);
+    record.manual_stat_bonuses.insert(StatCode::CON, -1);
+
+    let sheet = RulesEngine::compute_sheet(&record, &rules).expect("Calcul valide");
+
+    // Base stats
+    assert_eq!(sheet.base_stats.get(&StatCode::FOR), Some(&3));
+    assert_eq!(sheet.base_stats.get(&StatCode::AGI), Some(&2));
+    assert_eq!(sheet.base_stats.get(&StatCode::CON), Some(&2));
+    assert_eq!(sheet.base_stats.get(&StatCode::INT), Some(&0));
+
+    // Racial bonus stats
+    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::FOR), Some(&2));
+    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::INT), Some(&-2));
+    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::VOL), Some(&1));
+    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::CHA), Some(&-2));
+    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::AGI), Some(&0));
+
+    // Path bonus stats
+    assert_eq!(sheet.path_bonus_stats.get(&StatCode::FOR), Some(&1));
+    assert_eq!(sheet.path_bonus_stats.get(&StatCode::CON), Some(&1));
+    assert_eq!(sheet.path_bonus_stats.get(&StatCode::AGI), Some(&0));
+
+    // Manual bonus stats
+    assert_eq!(sheet.manual_bonus_stats.get(&StatCode::AGI), Some(&1));
+    assert_eq!(sheet.manual_bonus_stats.get(&StatCode::CON), Some(&-1));
+    assert_eq!(sheet.manual_bonus_stats.get(&StatCode::FOR), Some(&0));
+
+    // Other bonus stats = path + manual
+    assert_eq!(sheet.other_bonus_stats.get(&StatCode::FOR), Some(&1));
+    assert_eq!(sheet.other_bonus_stats.get(&StatCode::AGI), Some(&1));
+    assert_eq!(sheet.other_bonus_stats.get(&StatCode::CON), Some(&0));
+
+    // Reconstruction invariant for all 7 stats: final = base + racial + other
+    for stat in [
+        StatCode::FOR,
+        StatCode::AGI,
+        StatCode::CON,
+        StatCode::PER,
+        StatCode::INT,
+        StatCode::VOL,
+        StatCode::CHA,
+    ] {
+        let base = sheet.base_stats.get(&stat).copied().unwrap_or(0);
+        let racial = sheet.racial_bonus_stats.get(&stat).copied().unwrap_or(0);
+        let other = sheet.other_bonus_stats.get(&stat).copied().unwrap_or(0);
+        let final_val = sheet.final_stats.get(&stat).copied().unwrap_or(0);
+        assert_eq!(final_val, base + racial + other);
+    }
+
+    assert_eq!(sheet.final_stats.get(&StatCode::FOR), Some(&6));
+    assert_eq!(sheet.final_stats.get(&StatCode::AGI), Some(&3));
+    assert_eq!(sheet.final_stats.get(&StatCode::CON), Some(&2));
+    assert_eq!(sheet.final_stats.get(&StatCode::INT), Some(&-2));
 }

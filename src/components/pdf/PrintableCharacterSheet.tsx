@@ -201,25 +201,39 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
                   <div className="bg-amber-800 text-white font-serif font-bold text-[9px] tracking-wider text-center py-0.5 uppercase">
                     CARACTÉRISTIQUES
                   </div>
-                  <div className="grid grid-cols-12 bg-stone-100 text-[7.5px] font-bold text-stone-600 border-b border-stone-400 py-0.5 px-1 text-center">
-                    <span className="col-span-4 text-left pl-1">CARAC</span>
-                    <span className="col-span-4">VALEUR</span>
-                    <span className="col-span-4">SCORE</span>
+                  <div className="grid grid-cols-12 bg-stone-100 text-[7px] font-bold text-stone-600 border-b border-stone-400 py-0.5 px-1 text-center">
+                    <span className="col-span-3 text-left pl-0.5">CARAC</span>
+                    <span className="col-span-3">TOTAL</span>
+                    <span className="col-span-2">INIT.</span>
+                    <span className="col-span-2">RAC.</span>
+                    <span className="col-span-2">AUT.</span>
                   </div>
                   <div className="divide-y divide-stone-200">
                     {STAT_DISPLAY_ORDER.map(code => {
                       const mod = stats.finalStats[code];
                       const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
+                      const baseVal = stats.baseStats?.[code] ?? character.baseStats[code] ?? 0;
+                      const racialMod = stats.racialBonusStats?.[code] ?? 0;
+                      const otherMod =
+                        stats.otherBonusStats?.[code] ??
+                        (stats.pathBonusStats?.[code] ?? 0) + (character.manualStatBonuses?.[code] ?? 0);
+
                       return (
                         <div key={code} className="grid grid-cols-12 items-center py-0.5 px-1 text-center">
-                          <span className="col-span-4 text-left pl-1 font-bold text-[9px] text-stone-800">
-                            {code} <span className="text-[7px] font-normal text-stone-500">({STAT_NAMES[code]?.slice(0, 3)})</span>
+                          <span className="col-span-3 text-left pl-0.5 font-bold text-[8.5px] text-stone-800" title={STAT_NAMES[code]}>
+                            {code}
                           </span>
-                          <span className="col-span-4 font-mono font-black text-xs text-stone-950 bg-stone-100 border border-stone-300 rounded mx-0.5">
+                          <span className="col-span-3 font-mono font-black text-xs text-stone-950 bg-amber-50/70 border border-amber-800 rounded mx-0.5 leading-tight">
                             {modStr}
                           </span>
-                          <span className="col-span-4 font-mono text-[9px] text-stone-600">
-                            {character.baseStats[code]}
+                          <span className="col-span-2 font-mono font-semibold text-[8px] text-stone-700 bg-stone-50 border border-stone-300 rounded mx-[1px] leading-tight">
+                            {baseVal >= 0 ? `+${baseVal}` : `${baseVal}`}
+                          </span>
+                          <span className="col-span-2 font-mono font-semibold text-[8px] text-stone-700 bg-stone-50 border border-stone-300 rounded mx-[1px] leading-tight">
+                            {racialMod > 0 ? `+${racialMod}` : `${racialMod}`}
+                          </span>
+                          <span className="col-span-2 font-mono font-semibold text-[8px] text-stone-700 bg-stone-50 border border-stone-300 rounded mx-[1px] leading-tight">
+                            {otherMod > 0 ? `+${otherMod}` : `${otherMod}`}
                           </span>
                         </div>
                       );

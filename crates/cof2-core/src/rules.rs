@@ -78,10 +78,39 @@ pub struct EquipmentStatic {
     pub armors: Vec<ArmorStatic>,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RankChoiceOptionStatic {
+    pub id: String,
+    pub modifiers: Option<RankModifiersStatic>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RankModifiersStatic {
+    pub stats: Option<HashMap<StatCode, i32>>,
+    pub choice_options: Option<Vec<RankChoiceOptionStatic>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActionRankStatic {
+    pub rank: u8,
+    pub modifiers: Option<RankModifiersStatic>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PathStatic {
+    pub id: String,
+    pub ranks: Vec<ActionRankStatic>,
+}
+
 pub struct RulesDatabase {
     pub peoples: HashMap<String, PeopleStatic>,
     pub profiles: HashMap<String, ProfileStatic>,
     pub armors: HashMap<String, ArmorStatic>,
+    pub paths: HashMap<String, PathStatic>,
 }
 
 impl RulesDatabase {
@@ -90,6 +119,7 @@ impl RulesDatabase {
         let peoples_str = include_str!("../../../src/data/peoples.json");
         let profiles_str = include_str!("../../../src/data/profiles.json");
         let equipment_str = include_str!("../../../src/data/equipment.json");
+        let paths_str = include_str!("../../../src/data/paths.json");
 
         let peoples_vec: Vec<PeopleStatic> = serde_json::from_str(peoples_str)
             .map_err(|e| format!("Erreur parsing peoples.json : {e}"))?;
@@ -97,11 +127,14 @@ impl RulesDatabase {
             .map_err(|e| format!("Erreur parsing profiles.json : {e}"))?;
         let equipment: EquipmentStatic = serde_json::from_str(equipment_str)
             .map_err(|e| format!("Erreur parsing equipment.json : {e}"))?;
+        let paths_vec: Vec<PathStatic> = serde_json::from_str(paths_str)
+            .map_err(|e| format!("Erreur parsing paths.json : {e}"))?;
 
         Ok(Self {
             peoples: peoples_vec.into_iter().map(|p| (p.id.clone(), p)).collect(),
             profiles: profiles_vec.into_iter().map(|p| (p.id.clone(), p)).collect(),
             armors: equipment.armors.into_iter().map(|a| (a.id.clone(), a)).collect(),
+            paths: paths_vec.into_iter().map(|p| (p.id.clone(), p)).collect(),
         })
     }
 }

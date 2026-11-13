@@ -1,5 +1,5 @@
 import { CharacterSheet, StatCode } from '../types/cof2';
-import { createDefaultCharacter } from '../engine/rulesEngine';
+import { createDefaultCharacter, computeRacialStatModifiers } from '../engine/rulesEngine';
 
 const VALID_STATS: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
 
@@ -123,6 +123,16 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     po: typeof raw.coins?.po === 'number' && Number.isFinite(raw.coins.po) ? raw.coins.po : 0,
   };
 
+  const racialStatChoices = Array.isArray(raw.racialStatChoices)
+    ? raw.racialStatChoices.filter((s: unknown): s is StatCode => typeof s === 'string' && VALID_STATS.includes(s as StatCode))
+    : defaultChar.racialStatChoices;
+
+  const racialStatModifiers = computeRacialStatModifiers(
+    peopleId,
+    racialStatChoices,
+    raw.racialStatModifiers && typeof raw.racialStatModifiers === 'object' ? raw.racialStatModifiers : undefined,
+  );
+
   const migratedChar: CharacterSheet = {
     id,
     version,
@@ -148,9 +158,8 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     level,
     baseStats,
     statArrayPreset,
-    racialStatChoices: Array.isArray(raw.racialStatChoices)
-      ? raw.racialStatChoices.filter((s: unknown): s is StatCode => typeof s === 'string' && VALID_STATS.includes(s as StatCode))
-      : defaultChar.racialStatChoices,
+    racialStatChoices,
+    racialStatModifiers,
     manualStatBonuses: (() => {
       const safe: Partial<Record<StatCode, number>> = {};
       if (raw.manualStatBonuses && typeof raw.manualStatBonuses === 'object') {
