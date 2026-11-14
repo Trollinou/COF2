@@ -1332,5 +1332,55 @@ describe('COF2 Rules Engine', () => {
         CHA: -3,
       });
     });
+
+    it('applies +2 DEF from Petit compagnon (Voie des animaux R2) for a Farfadet with leather armor', () => {
+      const char = createDefaultCharacter();
+      char.peopleId = 'farfadet';
+      char.profileId = 'druide';
+      char.racialStatModifiers = { FOR: -2, AGI: 1, CON: -1, PER: 1, INT: 0, VOL: 0, CHA: 0 };
+      char.baseStats = { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 };
+      char.equippedArmorId = 'cuir-simple'; // +2 DEF
+      char.equippedShieldId = undefined;
+      char.acquiredAbilities = [
+        { pathId: 'voie-des-animaux', rank: 1 },
+        { pathId: 'voie-des-animaux', rank: 2 }, // Petit compagnon: +2 DEF
+      ];
+
+      const stats = computeCharacterStats(char);
+      // 10 + 1 (AGI) + 2 (Cuir simple) + 2 (Farfadet size) + 2 (Petit compagnon) = 17
+      expect(stats.finalStats.AGI).toBe(1);
+      expect(stats.armorDefense).toBe(2);
+      expect(stats.pathBonusDefense).toBe(4);
+      expect(stats.defense).toBe(17);
+    });
+
+    it('applies +2 DEF and +2 Initiative from Familier (Voie de la magie universelle R2) and does not stack DEF with Petit compagnon', () => {
+      const mago = createDefaultCharacter();
+      mago.peopleId = 'humain';
+      mago.profileId = 'magicien';
+      mago.racialStatModifiers = { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 };
+      mago.baseStats = { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 };
+      mago.equippedArmorId = undefined;
+      mago.equippedShieldId = undefined;
+      mago.acquiredAbilities = [
+        { pathId: 'voie-de-la-magie-universelle', rank: 1 },
+        { pathId: 'voie-de-la-magie-universelle', rank: 2 },
+      ];
+      const magoStats = computeCharacterStats(mago);
+      expect(magoStats.pathBonusDefense).toBe(2);
+      expect(magoStats.defense).toBe(12);
+      expect(magoStats.pathBonusInitiative).toBe(2);
+      expect(magoStats.initiative).toBe(12);
+
+      // Having both Petit compagnon and Familier should NOT stack the +2 DEF bonus
+      mago.acquiredAbilities.push(
+        { pathId: 'voie-des-animaux', rank: 1 },
+        { pathId: 'voie-des-animaux', rank: 2 },
+      );
+      const bothStats = computeCharacterStats(mago);
+      expect(bothStats.pathBonusDefense).toBe(2);
+      expect(bothStats.defense).toBe(12);
+      expect(bothStats.pathBonusInitiative).toBe(2);
+    });
   });
 });

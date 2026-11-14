@@ -307,6 +307,7 @@ Chaque règle de `bonuses` cible une statistique dérivée (`target`) et peut co
 | `atLevel` | `Record<string, number>` | Valeur évoluant par palier de niveau du personnage (ex: `{ "4": 2, "10": 3 }`). |
 | `cap` | `'rank' \| number` | Plafonne le bonus au rang atteint dans la voie (`"rank"`) ou à un nombre fixe. |
 | `condition` | `'noArmor' \| 'noShield' \| 'lightArmor'` | Condition d'équipement requise pour activer le bonus (`noArmor`: DEF armure = 0 ; `lightArmor`: DEF armure <= 3). |
+| `nonStackingGroup` | `string` | Identifiant de groupe de non-cumul : pour un même `(target, nonStackingGroup)`, seul le bonus le plus élevé est appliqué (ex: `"familier_defense"` entre *Petit compagnon* et *Familier*). |
 | `note` | `string` | Précision affichée pour la réduction des dommages (`damageReduction`), ex: `"sauf fer froid"`. |
 
 **Exemples concrets de `bonuses` :**

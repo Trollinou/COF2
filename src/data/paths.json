@@ -5125,6 +5125,24 @@
         "isMovement": false,
         "isFreeAction": false,
         "isPassive": false,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "nonStackingGroup": "familier_defense",
+              "note": "Lorsque le familier est en vue (non cumulable avec Petit compagnon)"
+            },
+            {
+              "target": "initiative",
+              "flat": 2,
+              "note": "Lorsque le familier est en vue"
+            }
+          ],
+          "situationalNotes": [
+            "Familier : +2 Initiative et +2 DEF lorsque le familier est en vue"
+          ]
+        },
         "companions": [
           {
             "name": "Familier",
@@ -5692,6 +5710,19 @@
         "isMovement": false,
         "isFreeAction": false,
         "isPassive": true,
+        "modifiers": {
+          "bonuses": [
+            {
+              "target": "defense",
+              "flat": 2,
+              "nonStackingGroup": "familier_defense",
+              "note": "Lorsque le familier est en vue (non cumulable avec Familier)"
+            }
+          ],
+          "situationalNotes": [
+            "Petit compagnon : +2 DEF lorsque le familier est en vue (non cumulable avec Familier)"
+          ]
+        },
         "companions": [
           {
             "name": "Petit compagnon",

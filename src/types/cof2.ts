@@ -77,6 +77,7 @@ export interface ScalingBonusRule {
   atLevel?: Record<string, number>;
   cap?: 'rank' | number;
   condition?: 'noArmor' | 'noShield' | 'lightArmor';
+  nonStackingGroup?: string;
   note?: string;
 }
 

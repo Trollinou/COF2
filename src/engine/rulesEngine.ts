@@ -1136,6 +1136,8 @@ export function computeCharacterStats(
     ? getArmorById(char.equippedShieldId)
     : undefined;
 
+  const nonStackingBest = new Map<string, number>();
+
   // Helper to evaluate a ScalingBonusRule now that finalStats, level, armor, and shield are known
   const evaluateBonusRule = (
     b: ScalingBonusRule,
@@ -1196,6 +1198,18 @@ export function computeCharacterStats(
         val = Math.min(val, effectiveRankCount);
       } else if (typeof b.cap === "number") {
         val = Math.min(val, b.cap);
+      }
+    }
+
+    if (b.nonStackingGroup) {
+      const groupKey = `${b.target}:${b.nonStackingGroup}`;
+      const prev = nonStackingBest.get(groupKey);
+      if (prev !== undefined) {
+        if (val <= prev) return;
+        nonStackingBest.set(groupKey, val);
+        val -= prev;
+      } else {
+        nonStackingBest.set(groupKey, val);
       }
     }
 
