@@ -120,7 +120,7 @@ Le fichier [`src/data/peoples.json`](file:///c:/Users/egagnon/Personnel/Dev/COF2
 | `heightRange` | `string` | ✅ | Fourchette de taille (ex: `"1,50 m à 2,00 m"`). |
 | `weightRange` | `string` | ✅ | Fourchette de poids (ex: `"50 kg à 100 kg"`). |
 | `physicalTraits` | `string` | ✅ | Description physique typique pré-remplie sur la fiche. |
-| `defaultLanguages` | `string` | ✅ | Langues parlées à la création (ex: `"Commun, Elfique"`). |
+| `defaultLanguages` | `string` | ✅ | Langues de départ du peuple (ex: `"Commun, Sylvestre"`). |
 | `interpretationTip` | `string` | ✅ | Conseil de roleplay affiché dans l'étape 1 du Wizard. |
 | `racialPathId` | `string \| null` | ✅ | Identifiant de la voie de peuple dans `paths.json` (ex: `"voie-du-nain"`), ou `null` pour le Demi-elfe qui utilise `selectableRacialPaths`. |
 | `selectableRacialPaths` | `string[]` | ❌ | Uniquement pour les peuples pouvant choisir leur voie culturelle (ex: Demi-elfe : `["voie-de-l-humain", "voie-de-l-elfe-haut", "voie-de-l-elfe-sylvain", "voie-du-demi-elfe"]`). |
@@ -575,4 +575,23 @@ Le serveur local Vite démarre sur `http://localhost:5180` avec ouverture automa
 - **Édition directe & sécurisée** : Lecture et écriture atomique dans `src/data/*.json`.
 - **Sauvegarde automatique (`.bak`)** : Chaque écriture génère une copie horodatée dans `src/data/backups/` avec possibilité de restauration en 1 clic.
 - **Tableau de Bord d'Audit relationnel** : Détecte immédiatement les erreurs de clés étrangères (voies introuvables, armes orphelines, IDs dupliqués) avec lien direct de correction.
+
+---
+
+## 9. 🗣️ Langues Maîtrisées, Alphabétisation & Talents Secondaires
+
+Le moteur Rust (`crates/cof2-core`) calcule automatiquement les langues de départ, les emplacements bonus et l'alphabétisation dans `ComputedCharacterSheet.languagesInfo` (`LanguageSummary`) :
+
+- **Référentiel des langues** : `Commun`, `Sylvestre`, `Runique`, `Noir parlé`, `Draconique`, `Abyssal`, `Célestien`, `Argotien`, `Profond`, `Aquarien`, `Ophidien`.
+- **Langues automatiques (`automaticLanguages`)** :
+  - `Commun` (sauf si `INT ≤ -2`, où le personnage ne parle que sa langue natale et quelques mots de commun) ;
+  - Langue maternelle du peuple (dérivée de `peoples.json` hors `Commun`) ;
+  - `Argotien` si la capacité *Voie de l'assassin R1* (`voie-de-l-assassin`) est acquise.
+- **Alphabétisation (`literacy`)** : `illiterate` (`INT < 0`), `hesitant` (`INT = 0`), `literate` (`INT > 0` ou *Voie de la noblesse R1*).
+- **Emplacements bonus (`bonusLanguageSlots`)** :
+  - `max(0, INT)` + `1` (*Voie de la noblesse R1*, Chevalier) + `rang - 1` (*Voie du diplomate R2–R5*, Caravanier *Polyglotte*).
+  - **Coût de l'Argotien (`argotienSlotCost`)** : `1` emplacement pour `voleur`, `barde` ou *Voie de l'assassin R1*, sinon `2` emplacements.
+  - **Talents secondaires (`secondaryTalents: string[]`)** : option MJ permettant de remplacer 1 langue bonus par un talent secondaire / loisir (`+3` sur les tests concernés).
+- **Montée de niveau & Rollback** : `LevelProgressionStep` trace `languagesLearned` et `secondaryTalentsLearned` afin d'appliquer et d'annuler proprement les apprentissages par niveau.
+
 

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { LevelUpPathCard } from './LevelUpPathCard';
 import { PrestigePathSelector } from './PrestigePathSelector';
+import { LanguageSelectorPanel } from '../shared/LanguageSelectorPanel';
 
 interface LevelUpModalProps {
   character: CharacterSheet;
@@ -53,8 +54,28 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
 
   // Working copy of acquired abilities in the modal
   const [acquired, setAcquired] = useState<Array<{ pathId: string; rank: number }>>(
-    [...character.acquiredAbilities]
+    character.acquiredAbilities || []
   );
+  const [languagesLearned, setLanguagesLearned] = useState<string[]>([]);
+  const [talentsLearned, setTalentsLearned] = useState<string[]>([]);
+
+  const projectedStats = useMemo(() => {
+    const draft: CharacterSheet = {
+      ...character,
+      level: newLevel,
+      acquiredAbilities: acquired,
+      languages: [...(character.languages || []), ...languagesLearned],
+      secondaryTalents: [...(character.secondaryTalents || []), ...talentsLearned],
+    };
+    return computeCharacterStats(draft);
+  }, [character, newLevel, acquired, languagesLearned, talentsLearned]);
+
+  const showLanguageSection =
+    projectedStats.languagesInfo.bonusLanguageSlots > projectedStats.languagesInfo.usedBonusSlots ||
+    projectedStats.languagesInfo.automaticLanguages.length > oldStats.languagesInfo.automaticLanguages.length ||
+    projectedStats.languagesInfo.literacy !== oldStats.languagesInfo.literacy ||
+    languagesLearned.length > 0 ||
+    talentsLearned.length > 0;
 
   // Available accessible paths: all 5 profile paths + racial/domain/prestige
   const initialAccessiblePaths = useMemo(() => {
@@ -237,8 +258,13 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       hpGain: levelUpHpResult.hpGain,
       abilitiesLearned: newlyAcquired,
       selectedPathIds: nextSelectedPathIds,
+      languagesLearned,
+      secondaryTalentsLearned: talentsLearned,
       timestamp: new Date().toISOString(),
     };
+
+    const nextLanguages = Array.from(new Set([...(character.languages || []), ...languagesLearned]));
+    const nextTalents = Array.from(new Set([...(character.secondaryTalents || []), ...talentsLearned]));
 
     const draftUpdated: CharacterSheet = {
       ...character,
@@ -251,6 +277,8 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       halfHpPending: levelUpHpResult.newHalfHpPending,
       selectedPathIds: nextSelectedPathIds,
       acquiredAbilities: acquired,
+      languages: nextLanguages,
+      secondaryTalents: nextTalents,
       progressionHistory: [...(character.progressionHistory || []), step],
       updatedAt: new Date().toISOString(),
     };
@@ -292,12 +320,20 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
 
     const updatedHpGains = (character.levelUpHpGains || []).slice(0, targetLevel);
     const updatedHistory = history.filter(s => s.level <= targetLevel);
+    const languagesToRevert = stepToRevert?.languagesLearned || [];
+    const talentsToRevert = stepToRevert?.secondaryTalentsLearned || [];
 
     const updated: CharacterSheet = {
       ...character,
       level: targetLevel,
       levelUpHpGains: updatedHpGains,
       acquiredAbilities: updatedAcquired,
+      languages: (character.languages || []).filter(
+        l => !languagesToRevert.some(rem => rem.toLowerCase() === l.toLowerCase())
+      ),
+      secondaryTalents: (character.secondaryTalents || []).filter(
+        t => !talentsToRevert.some(rem => rem.toLowerCase() === t.toLowerCase())
+      ),
       progressionHistory: updatedHistory,
       updatedAt: new Date().toISOString(),
     };
@@ -536,6 +572,41 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
               })}
             </div>
           </div>
+
+          {showLanguageSection && (
+            <LanguageSelectorPanel
+              compact
+              automaticLanguages={projectedStats.languagesInfo.automaticLanguages}
+              selectedLanguages={[...(character.languages || []), ...languagesLearned]}
+              secondaryTalents={[...(character.secondaryTalents || []), ...talentsLearned]}
+              bonusLanguageSlots={projectedStats.languagesInfo.bonusLanguageSlots}
+              usedBonusSlots={projectedStats.languagesInfo.usedBonusSlots}
+              argotienSlotCost={projectedStats.languagesInfo.argotienSlotCost}
+              literacy={projectedStats.languagesInfo.literacy}
+              intNote={projectedStats.languagesInfo.intNote}
+              onAddLanguage={lang => {
+                const existing = [...(character.languages || []), ...languagesLearned];
+                if (existing.some(l => l.toLowerCase() === lang.toLowerCase())) return;
+                if (projectedStats.languagesInfo.automaticLanguages.some(l => l.toLowerCase() === lang.toLowerCase())) return;
+                setLanguagesLearned(prev => [...prev, lang]);
+              }}
+              onRemoveLanguage={lang => {
+                if (languagesLearned.some(l => l.toLowerCase() === lang.toLowerCase())) {
+                  setLanguagesLearned(prev => prev.filter(l => l.toLowerCase() !== lang.toLowerCase()));
+                }
+              }}
+              onAddSecondaryTalent={talent => {
+                const existing = [...(character.secondaryTalents || []), ...talentsLearned];
+                if (existing.some(t => t.toLowerCase() === talent.toLowerCase())) return;
+                setTalentsLearned(prev => [...prev, talent]);
+              }}
+              onRemoveSecondaryTalent={talent => {
+                if (talentsLearned.some(t => t.toLowerCase() === talent.toLowerCase())) {
+                  setTalentsLearned(prev => prev.filter(t => t.toLowerCase() !== talent.toLowerCase()));
+                }
+              }}
+            />
+          )}
         </div>
 
         {/* Modal Footer */}

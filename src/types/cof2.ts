@@ -375,6 +375,17 @@ export interface CharacterWeaponInstance {
   attackStatSource?: string;
 }
 
+export type LiteracyStatus = 'illiterate' | 'hesitant' | 'literate';
+
+export interface LanguageSummary {
+  automaticLanguages: string[];
+  bonusLanguageSlots: number;
+  usedBonusSlots: number;
+  argotienSlotCost: number;
+  literacy: LiteracyStatus;
+  intNote: string | null;
+}
+
 export interface LevelProgressionStep {
   level: number;
   hpGain: number;
@@ -382,6 +393,8 @@ export interface LevelProgressionStep {
   selectedPathIds?: string[];
   pathRankChoices?: Record<string, string>;
   manualStatBonuses?: Partial<Record<StatCode, number>>;
+  languagesLearned?: string[];
+  secondaryTalentsLearned?: string[];
   timestamp?: string;
 }
 
@@ -398,7 +411,8 @@ export interface CharacterSheet {
   height?: string;
   weight?: string;
   physicalTraits?: string;
-  languages?: string;
+  languages?: string[];
+  secondaryTalents?: string[];
   background?: string;
   ideal?: string;
   flaw?: string;
@@ -510,4 +524,5 @@ export interface ComputedCharacterStats {
   pathBonusDr: number;
   pathBonusPm: number;
   pathSituationalNotes: string[];
+  languagesInfo: LanguageSummary;
 }

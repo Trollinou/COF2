@@ -144,7 +144,12 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     height: typeof raw.height === 'string' ? raw.height : '',
     weight: typeof raw.weight === 'string' ? raw.weight : '',
     physicalTraits: typeof raw.physicalTraits === 'string' ? raw.physicalTraits : '',
-    languages: typeof raw.languages === 'string' ? raw.languages : '',
+    languages: Array.isArray(raw.languages)
+      ? raw.languages.filter((l: unknown): l is string => typeof l === 'string' && l.trim().length > 0)
+      : [],
+    secondaryTalents: Array.isArray(raw.secondaryTalents)
+      ? raw.secondaryTalents.filter((t: unknown): t is string => typeof t === 'string' && t.trim().length > 0)
+      : [],
     background: typeof raw.background === 'string' ? raw.background : '',
     ideal: typeof raw.ideal === 'string' ? raw.ideal : '',
     flaw: typeof raw.flaw === 'string' ? raw.flaw : '',

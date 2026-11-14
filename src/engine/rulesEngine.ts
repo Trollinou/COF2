@@ -1,3 +1,4 @@
+import { computeLanguagesInfo } from '../utils/languageUtils';
 import {
   CharacterSheet,
   ComputedCharacterStats,
@@ -1497,6 +1498,7 @@ export function computeCharacterStats(
     ? getProfileById(char.secondaryProfileId)
     : undefined;
   const secondaryProfileName = secProfile?.name;
+  const languagesInfo = computeLanguagesInfo(char, people, stats.INT);
 
   return {
     baseStats,
@@ -1539,6 +1541,7 @@ export function computeCharacterStats(
     pathBonusDr,
     pathBonusPm,
     pathSituationalNotes,
+    languagesInfo,
   };
 }
 
@@ -1823,7 +1826,8 @@ export function applyRacialDefaults(
     height: p.heightRange,
     weight: p.weightRange,
     physicalTraits: p.physicalTraits,
-    languages: p.defaultLanguages,
+    languages: [],
+    secondaryTalents: [],
     racialStatChoices,
     racialStatModifiers: computeRacialStatModifiers(peopleId, racialStatChoices),
     selectedPathIds: updatedPaths,
@@ -1858,7 +1862,8 @@ export function createDefaultCharacter(): CharacterSheet {
     height: defaultPeople.heightRange,
     weight: defaultPeople.weightRange,
     physicalTraits: defaultPeople.physicalTraits,
-    languages: defaultPeople.defaultLanguages,
+    languages: [],
+    secondaryTalents: [],
     background: "",
     ideal: "Courage",
     flaw: "Impulsif",

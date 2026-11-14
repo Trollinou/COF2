@@ -543,7 +543,9 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       {/* Step 7: Summary */}
       {currentStep === 7 && (
         <Step7Summary
+          character={character}
           computed={computed}
+          update={update}
           handleFinishWizard={handleFinishWizard}
         />
       )}

@@ -1,16 +1,44 @@
 import React from 'react';
-import { ComputedCharacterStats } from '../../../types/cof2';
+import { CharacterSheet, ComputedCharacterStats } from '../../../types/cof2';
 import { CheckCircle2 } from 'lucide-react';
+import { LanguageSelectorPanel } from '../../shared/LanguageSelectorPanel';
 
 interface Step7SummaryProps {
+  character: CharacterSheet;
   computed: ComputedCharacterStats;
+  update: (patch: Partial<CharacterSheet>) => void;
   handleFinishWizard: () => void;
 }
 
 export const Step7Summary: React.FC<Step7SummaryProps> = ({
+  character,
   computed,
+  update,
   handleFinishWizard,
 }) => {
+  const { languagesInfo } = computed;
+  const currentLanguages = character.languages || [];
+  const currentTalents = character.secondaryTalents || [];
+
+  const handleAddLanguage = (lang: string) => {
+    if (currentLanguages.some(l => l.toLowerCase() === lang.toLowerCase())) return;
+    if (languagesInfo.automaticLanguages.some(l => l.toLowerCase() === lang.toLowerCase())) return;
+    update({ languages: [...currentLanguages, lang] });
+  };
+
+  const handleRemoveLanguage = (lang: string) => {
+    update({ languages: currentLanguages.filter(l => l !== lang) });
+  };
+
+  const handleAddTalent = (talent: string) => {
+    if (currentTalents.some(t => t.toLowerCase() === talent.toLowerCase())) return;
+    update({ secondaryTalents: [...currentTalents, talent] });
+  };
+
+  const handleRemoveTalent = (talent: string) => {
+    update({ secondaryTalents: currentTalents.filter(t => t !== talent) });
+  };
+
   return (
     <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 shadow space-y-6">
       <div className="border-b border-stone-800 pb-4">
@@ -18,7 +46,7 @@ export const Step7Summary: React.FC<Step7SummaryProps> = ({
           Étape 7 : Bilan & Finalisation du Héros
         </h3>
         <p className="text-xs text-stone-400">
-          Vérifiez toutes les statistiques calculées de votre personnage de Niveau 1 avant de commencer à jouer.
+          Vérifiez les statistiques de votre personnage de Niveau 1 et choisissez ses langues bonus avant de commencer à jouer.
         </p>
       </div>
 
@@ -42,6 +70,21 @@ export const Step7Summary: React.FC<Step7SummaryProps> = ({
         </div>
       </div>
 
+      <LanguageSelectorPanel
+        automaticLanguages={languagesInfo.automaticLanguages}
+        selectedLanguages={currentLanguages}
+        secondaryTalents={currentTalents}
+        bonusLanguageSlots={languagesInfo.bonusLanguageSlots}
+        usedBonusSlots={languagesInfo.usedBonusSlots}
+        argotienSlotCost={languagesInfo.argotienSlotCost}
+        literacy={languagesInfo.literacy}
+        intNote={languagesInfo.intNote}
+        onAddLanguage={handleAddLanguage}
+        onRemoveLanguage={handleRemoveLanguage}
+        onAddSecondaryTalent={handleAddTalent}
+        onRemoveSecondaryTalent={handleRemoveTalent}
+      />
+
       <div className="flex justify-center pt-4">
         <button
           onClick={handleFinishWizard}
@@ -54,4 +97,3 @@ export const Step7Summary: React.FC<Step7SummaryProps> = ({
     </div>
   );
 };
-

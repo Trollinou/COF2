@@ -80,6 +80,10 @@ pub struct LevelProgressionStep {
     #[serde(default)]
     pub manual_stat_bonuses: HashMap<StatCode, i32>,
     #[serde(default)]
+    pub languages_learned: Vec<String>,
+    #[serde(default)]
+    pub secondary_talents_learned: Vec<String>,
+    #[serde(default)]
     pub timestamp: String,
 }
 
@@ -106,7 +110,9 @@ pub struct CharacterRecord {
     #[serde(default)]
     pub physical_traits: String,
     #[serde(default)]
-    pub languages: String,
+    pub languages: Vec<String>,
+    #[serde(default)]
+    pub secondary_talents: Vec<String>,
     #[serde(default)]
     pub background: String,
     #[serde(default)]
@@ -191,6 +197,25 @@ pub struct AttackBonuses {
     pub magique: i32,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum LiteracyStatus {
+    Illiterate,
+    Hesitant,
+    Literate,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct LanguageSummary {
+    pub automatic_languages: Vec<String>,
+    pub bonus_language_slots: i32,
+    pub used_bonus_slots: i32,
+    pub argotien_slot_cost: i32,
+    pub literacy: LiteracyStatus,
+    pub int_note: Option<String>,
+}
+
 /// Fiche de statistiques dérivées calculée à la volée par le moteur Rust
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -222,4 +247,5 @@ pub struct ComputedCharacterSheet {
     pub distance_attack_stat: StatCode,
     pub distance_attack_stat_source: Option<String>,
     pub situational_notes: Vec<String>,
+    pub languages_info: LanguageSummary,
 }

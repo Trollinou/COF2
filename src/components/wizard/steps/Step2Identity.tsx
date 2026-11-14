@@ -126,14 +126,14 @@ export const Step2Identity: React.FC<Step2IdentityProps> = ({
 
         <div>
           <label className="block text-xs font-semibold text-stone-300 mb-1">
-            Langues maîtrisées (selon peuple et INT)
+            Langues de départ (peuple)
           </label>
-          <input
-            type="text"
-            value={character.languages || selectedPeople.defaultLanguages}
-            onChange={e => update({ languages: e.target.value })}
-            className="w-full bg-stone-950 border border-stone-700 rounded px-3 py-1.5 text-xs text-stone-100"
-          />
+          <div className="w-full bg-stone-950/70 border border-stone-800 rounded px-3 py-1.5 text-xs text-amber-200">
+            {selectedPeople.defaultLanguages}
+          </div>
+          <p className="text-[11px] text-stone-400 mt-1">
+            Les langues supplémentaires (selon votre INT et vos voies) seront choisies à l'étape 7.
+          </p>
         </div>
       </div>
 

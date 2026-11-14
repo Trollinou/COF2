@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { getAllKnownLanguages } from '../../utils/languageUtils';
 import {
   CharacterSheet,
   StatCode,
@@ -507,7 +508,16 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
                     <span><strong>Taille :</strong> {character.height || people?.heightRange || '—'}</span>
                     <span><strong>Poids :</strong> {character.weight || people?.weightRange || '—'}</span>
                     <span><strong>Sexe :</strong> {character.sex || '—'}</span>
-                    <span><strong>Langues :</strong> {character.languages || people?.defaultLanguages || 'Commun'}</span>
+                    <span>
+                      <strong>Langues :</strong>{' '}
+                      {getAllKnownLanguages(character, stats.languagesInfo).join(', ') || 'Commun'}
+                      {stats.languagesInfo.literacy === 'illiterate' && ' (illettré)'}
+                    </span>
+                    {(character.secondaryTalents?.length || 0) > 0 && (
+                      <span>
+                        <strong>Talents sec. (+3) :</strong> {character.secondaryTalents?.join(', ')}
+                      </span>
+                    )}
                   </div>
                   {(character.physicalTraits || people?.physicalTraits) && (
                     <div className="mt-0.5 italic text-stone-600 truncate">

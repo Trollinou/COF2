@@ -25,7 +25,8 @@ fn create_test_record(profile_id: &str, people_id: &str, level: u8) -> Character
         height: "1m80".into(),
         weight: "80kg".into(),
         physical_traits: "Balafré".into(),
-        languages: "Commun".into(),
+        languages: vec![],
+        secondary_talents: vec![],
         background: "Soldat".into(),
         ideal: "Bravoure".into(),
         flaw: "Téméraire".into(),
@@ -130,6 +131,8 @@ fn test_level_up_progression_history_and_rollback() {
         selected_path_ids: vec!["voie-du-bouclier".into()],
         path_rank_choices: HashMap::new(),
         manual_stat_bonuses: HashMap::new(),
+        languages_learned: vec![],
+        secondary_talents_learned: vec![],
         timestamp: "2026-11-11T13:00:00Z".into(),
     };
 
@@ -155,6 +158,8 @@ fn test_level_up_progression_history_and_rollback() {
         selected_path_ids: vec!["voie-du-bouclier".into()],
         path_rank_choices: HashMap::new(),
         manual_stat_bonuses: HashMap::new(),
+        languages_learned: vec![],
+        secondary_talents_learned: vec![],
         timestamp: "2026-11-11T13:05:00Z".into(),
     };
 
@@ -258,4 +263,90 @@ fn test_unitary_stat_decomposition_and_reconstruction() {
     assert_eq!(sheet.final_stats.get(&StatCode::AGI), Some(&3));
     assert_eq!(sheet.final_stats.get(&StatCode::CON), Some(&2));
     assert_eq!(sheet.final_stats.get(&StatCode::INT), Some(&-2));
+}
+
+#[test]
+fn test_languages_rules_int_paths_and_rollback() {
+    use cof2_core::models::LiteracyStatus;
+
+    let rules = RulesDatabase::load_embedded().unwrap();
+
+    // 1. Farfadet (Commun, Sylvestre) avec INT -2 : ne parle que Sylvestre, illettré, 0 bonus
+    let mut record = create_test_record("guerrier", "farfadet", 1);
+    record.base_stats.insert(StatCode::INT, -2);
+    let sheet = RulesEngine::compute_sheet(&record, &rules).unwrap();
+    assert_eq!(sheet.languages_info.automatic_languages, vec!["Sylvestre"]);
+    assert_eq!(sheet.languages_info.bonus_language_slots, 0);
+    assert_eq!(sheet.languages_info.literacy, LiteracyStatus::Illiterate);
+    assert!(sheet.languages_info.int_note.is_some());
+
+    // 2. INT 0 : Commun + Sylvestre, déchiffrement hésitant
+    record.base_stats.insert(StatCode::INT, 0);
+    let sheet = RulesEngine::compute_sheet(&record, &rules).unwrap();
+    assert_eq!(
+        sheet.languages_info.automatic_languages,
+        vec!["Commun", "Sylvestre"]
+    );
+    assert_eq!(sheet.languages_info.literacy, LiteracyStatus::Hesitant);
+
+    // 3. Guerrier avec Argotien choisi en bonus : coûte 2 emplacements ; INT +2 -> 2/2 utilisés
+    record.base_stats.insert(StatCode::INT, 2);
+    record.languages = vec!["Argotien".into()];
+    let sheet = RulesEngine::compute_sheet(&record, &rules).unwrap();
+    assert_eq!(sheet.languages_info.argotien_slot_cost, 2);
+    assert_eq!(sheet.languages_info.bonus_language_slots, 2);
+    assert_eq!(sheet.languages_info.used_bonus_slots, 2);
+    assert_eq!(sheet.languages_info.literacy, LiteracyStatus::Literate);
+
+    // 4. Chevalier Voie de la noblesse R1 avec INT -1 : alphabétisé et +1 slot
+    let mut knight = create_test_record("chevalier", "humain", 1);
+    knight.base_stats.insert(StatCode::INT, -1);
+    knight.acquired_abilities = vec![AcquiredAbility {
+        path_id: "voie-de-la-noblesse".into(),
+        rank: 1,
+    }];
+    let sheet = RulesEngine::compute_sheet(&knight, &rules).unwrap();
+    assert_eq!(sheet.languages_info.literacy, LiteracyStatus::Literate);
+    assert_eq!(sheet.languages_info.bonus_language_slots, 1);
+
+    // 5. Voleur Voie de l'assassin R1 : Argotien automatique gratuit
+    let mut rogue = create_test_record("voleur", "humain", 1);
+    rogue.acquired_abilities = vec![AcquiredAbility {
+        path_id: "voie-de-l-assassin".into(),
+        rank: 1,
+    }];
+    let sheet = RulesEngine::compute_sheet(&rogue, &rules).unwrap();
+    assert_eq!(
+        sheet.languages_info.automatic_languages,
+        vec!["Commun", "Argotien"]
+    );
+    assert_eq!(sheet.languages_info.argotien_slot_cost, 1);
+
+    // 6. Caravanier Voie du diplomate (Polyglotte R2 & R3) : montée de niveau + rollback
+    let mut carav = create_test_record("caravanier", "humain", 1);
+    carav.base_stats.insert(StatCode::INT, 1);
+    let step2 = LevelProgressionStep {
+        level: 2,
+        hp_gain: 5,
+        abilities_learned: vec![AcquiredAbility {
+            path_id: "voie-du-diplomate".into(),
+            rank: 2,
+        }],
+        selected_path_ids: vec![],
+        path_rank_choices: HashMap::new(),
+        manual_stat_bonuses: HashMap::new(),
+        languages_learned: vec!["Runique".into()],
+        secondary_talents_learned: vec!["Calligraphie".into()],
+        timestamp: "2026-11-14T12:00:00Z".into(),
+    };
+    let sheet2 = RulesEngine::apply_level_up(&mut carav, step2, &rules).unwrap();
+    assert_eq!(sheet2.languages_info.bonus_language_slots, 2); // +1 INT + 1 Polyglotte R2
+    assert_eq!(sheet2.languages_info.used_bonus_slots, 2); // Runique + Calligraphie
+    assert_eq!(carav.languages, vec!["Runique"]);
+    assert_eq!(carav.secondary_talents, vec!["Calligraphie"]);
+
+    let sheet1 = RulesEngine::rollback_to_level(&mut carav, 1, &rules).unwrap();
+    assert_eq!(sheet1.languages_info.bonus_language_slots, 1);
+    assert!(carav.languages.is_empty());
+    assert!(carav.secondary_talents.is_empty());
 }

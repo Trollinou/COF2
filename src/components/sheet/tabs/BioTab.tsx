@@ -1,4 +1,5 @@
 import React from 'react';
+import { LanguageSelectorPanel } from '../../shared/LanguageSelectorPanel';
 import {
   CharacterSheet,
   ComputedCharacterStats,
@@ -50,11 +51,10 @@ export const BioTab: React.FC<BioTabProps> = ({
                   height: people.heightRange,
                   weight: people.weightRange,
                   physicalTraits: people.physicalTraits,
-                  languages: people.defaultLanguages,
                 });
               }}
               className="text-xs bg-stone-800 hover:bg-stone-700 text-amber-300 px-3 py-1 rounded border border-stone-700 transition"
-              title="Appliquer les mensurations, traits et langues typiques de ce peuple"
+              title="Appliquer les mensurations et traits typiques de ce peuple"
             >
               ↺ Réappliquer les mensurations du peuple
             </button>
@@ -387,64 +387,36 @@ export const BioTab: React.FC<BioTabProps> = ({
           </div>
         </div>
 
-        {/* Languages with INT calculation guidance */}
-        <div className="bg-stone-950/70 p-3.5 rounded-lg border border-stone-800 space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-stone-300">
-              Langues maîtrisées
-            </label>
-            <span className="text-[11px] text-amber-400 font-mono">
-              INT: {stats.finalStats.INT >= 0 ? `+${stats.finalStats.INT}` : stats.finalStats.INT}
-              {stats.finalStats.INT > 0 && ` (+${stats.finalStats.INT} langue(s) bonus)`}
-            </span>
-          </div>
-
-          <input
-            type="text"
-            value={character.languages || ''}
-            onChange={e => updateCharacter({ languages: e.target.value })}
-            className="w-full bg-stone-900 border border-stone-700 rounded px-3 py-1.5 text-xs text-stone-200"
-            placeholder="Ex: Commun, Sylvestre, Runique..."
-          />
-
-          <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px] text-stone-400">
-            <span className="font-semibold text-stone-300">Ajouter rapidement :</span>
-            {[
-              'Commun',
-              'Sylvestre',
-              'Runique',
-              'Noir parlé',
-              'Draconique',
-              'Abyssal',
-              'Célestien',
-              'Argotien',
-              'Profond',
-              'Aquarien',
-            ].map(lang => {
-              const current = character.languages || '';
-              const hasLang = current.toLowerCase().includes(lang.toLowerCase());
-              return (
-                <button
-                  key={lang}
-                  onClick={() => {
-                    if (!hasLang) {
-                      const updated = current ? `${current}, ${lang}` : lang;
-                      updateCharacter({ languages: updated });
-                    }
-                  }}
-                  disabled={hasLang}
-                  className={`px-2.5 py-0.5 rounded text-[10px] transition ${
-                    hasLang
-                      ? 'bg-amber-950/60 text-amber-400 border border-amber-800 opacity-60 cursor-default'
-                      : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700'
-                  }`}
-                >
-                  + {lang}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* Languages & Secondary Talents */}
+        <LanguageSelectorPanel
+          automaticLanguages={stats.languagesInfo.automaticLanguages}
+          selectedLanguages={character.languages || []}
+          secondaryTalents={character.secondaryTalents || []}
+          bonusLanguageSlots={stats.languagesInfo.bonusLanguageSlots}
+          usedBonusSlots={stats.languagesInfo.usedBonusSlots}
+          argotienSlotCost={stats.languagesInfo.argotienSlotCost}
+          literacy={stats.languagesInfo.literacy}
+          intNote={stats.languagesInfo.intNote}
+          onAddLanguage={lang => {
+            const current = character.languages || [];
+            if (current.some(l => l.toLowerCase() === lang.toLowerCase())) return;
+            if (stats.languagesInfo.automaticLanguages.some(l => l.toLowerCase() === lang.toLowerCase())) return;
+            updateCharacter({ languages: [...current, lang] });
+          }}
+          onRemoveLanguage={lang => {
+            updateCharacter({ languages: (character.languages || []).filter(l => l !== lang) });
+          }}
+          onAddSecondaryTalent={talent => {
+            const current = character.secondaryTalents || [];
+            if (current.some(t => t.toLowerCase() === talent.toLowerCase())) return;
+            updateCharacter({ secondaryTalents: [...current, talent] });
+          }}
+          onRemoveSecondaryTalent={talent => {
+            updateCharacter({
+              secondaryTalents: (character.secondaryTalents || []).filter(t => t !== talent),
+            });
+          }}
+        />
 
         <div>
           <label className="block text-xs text-stone-400 mb-1">

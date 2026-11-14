@@ -39,9 +39,29 @@ pub struct PeopleEquipmentRules {
 pub struct PeopleStatic {
     pub id: String,
     pub name: String,
+    #[serde(default)]
+    pub default_languages: String,
     pub stats: Option<HashMap<StatCode, i32>>,
     pub stat_choices: Option<Vec<RacialStatChoice>>,
     pub equipment_rules: Option<PeopleEquipmentRules>,
+}
+
+impl PeopleStatic {
+    /// Retourne la langue maternelle du peuple (hors "Commun"), si elle existe.
+    pub fn native_language(&self) -> Option<String> {
+        let langs: Vec<String> = self
+            .default_languages
+            .split(',')
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty() && !s.eq_ignore_ascii_case("Commun"))
+            .map(|s| s.to_string())
+            .collect();
+        if langs.is_empty() {
+            None
+        } else {
+            Some(langs.join(", "))
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
