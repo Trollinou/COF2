@@ -12,7 +12,6 @@ import {
   calculateArmorSpellManaCost,
 } from '../../../engine/rulesEngine';
 import {
-  TrendingUp,
   ChevronDown,
   ChevronRight,
   Sparkles,
@@ -20,7 +19,8 @@ import {
 } from 'lucide-react';
 import { ActionBadges } from '../ActionBadges';
 import { CompanionCard } from '../CompanionCard';
-import { ExternalAbilitySelector } from '../ExternalAbilitySelector';
+import { ExternalAbilitySelector } from '../../shared/ExternalAbilitySelector';
+import { RankChoiceSelector } from '../../shared/RankChoiceSelector';
 
 const TARGET_LABELS: Record<string, string> = {
   defense: 'DEF',
@@ -110,9 +110,6 @@ interface AbilitiesTabProps {
   capabilityBudget: { spent: number; totalEarned: number; available: number };
   expandedPaths: Record<string, boolean>;
   togglePathExpand: (pathId: string) => void;
-  toggleAbility: (pathId: string, rank: number) => void;
-  updateCharacter: (partial: Partial<CharacterSheet>) => void;
-  onOpenLevelUp: () => void;
 }
 
 export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
@@ -121,9 +118,6 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
   capabilityBudget,
   expandedPaths,
   togglePathExpand,
-  toggleAbility,
-  updateCharacter,
-  onOpenLevelUp,
 }) => {
   return (
     <div className="space-y-4">
@@ -132,13 +126,6 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
           <span className="text-amber-400 font-semibold">{character.acquiredAbilities.length}</span> capacités acquises.
           Budget points de capacités dépensés : <span className="font-mono text-amber-300">{capabilityBudget.spent} / {capabilityBudget.totalEarned}</span>
         </div>
-        <button
-          onClick={onOpenLevelUp}
-          className="flex items-center space-x-1 text-xs bg-amber-600 hover:bg-amber-500 text-stone-950 px-2.5 py-1 rounded font-semibold transition"
-        >
-          <TrendingUp className="w-3.5 h-3.5" />
-          <span>Gérer la progression</span>
-        </button>
       </div>
 
       {/* List of Character Paths */}
@@ -281,16 +268,15 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                           })()}
                         </div>
 
-                        <button
-                          onClick={() => toggleAbility(pathId, rank.rank)}
-                          className={`px-2.5 py-0.5 rounded text-xs font-semibold transition ${
-                            isAcquired
-                              ? 'bg-amber-600/30 text-amber-300 border border-amber-600/50 hover:bg-red-950/40 hover:text-red-300 hover:border-red-700'
-                              : 'bg-stone-800 text-stone-300 hover:bg-amber-600 hover:text-stone-950'
-                          }`}
-                        >
-                          {isAcquired ? 'Acquise ✓' : 'Débloquer'}
-                        </button>
+                        {isAcquired ? (
+                          <span className="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-600/20 text-amber-300 border border-amber-600/40">
+                            Acquise ✓
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-stone-900 text-stone-500 border border-stone-800">
+                            Non acquise
+                          </span>
+                        )}
                       </div>
 
                       <p className="text-xs text-stone-400 leading-relaxed pl-7">
@@ -315,51 +301,24 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                       {/* Passive bonus indicator pill */}
                       {renderModifierBadges(rank.modifiers)}
 
-                      {/* External ability selector (free choice or replacement if already owned) */}
+                      {/* External ability selector (read-only on sheet) */}
                       {isAcquired && rank.modifiers?.grantExternalAbility && (
                         <ExternalAbilitySelector
                           character={character}
                           pathId={pathId}
                           rank={rank}
-                          updateCharacter={updateCharacter}
+                          readOnly
                         />
                       )}
 
-                      {/* Interactive Choice Selector if acquired */}
-                      {isAcquired && rank.modifiers?.choiceOptions && rank.modifiers.choiceOptions.length > 0 && (
-                        <div className="mt-2.5 ml-7 p-2.5 bg-stone-900 border border-amber-800/50 rounded-lg space-y-1.5">
-                          <div className="text-[11px] font-semibold text-amber-300 flex items-center space-x-1">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                            <span>Option d'application choisie pour ce rang :</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {rank.modifiers.choiceOptions.map(opt => {
-                              const choiceKey = `${pathId}_${rank.rank}`;
-                              const isChosen = (character.pathRankChoices?.[choiceKey] || rank.modifiers?.choiceOptions?.[0]?.id) === opt.id;
-                              return (
-                                <button
-                                  key={opt.id}
-                                  type="button"
-                                  onClick={() => {
-                                    updateCharacter({
-                                      pathRankChoices: {
-                                        ...character.pathRankChoices,
-                                        [choiceKey]: opt.id,
-                                      },
-                                    });
-                                  }}
-                                  className={`px-2.5 py-1 rounded text-xs transition border ${
-                                    isChosen
-                                      ? 'bg-amber-600 text-stone-950 font-bold border-amber-500 shadow'
-                                      : 'bg-stone-950 text-stone-300 border-stone-800 hover:border-amber-700'
-                                  }`}
-                                >
-                                  {opt.label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
+                      {/* Interactive Choice Selector (read-only on sheet) */}
+                      {isAcquired && (
+                        <RankChoiceSelector
+                          character={character}
+                          pathId={pathId}
+                          rank={rank}
+                          readOnly
+                        />
                       )}
 
                       {/* Reminder for Replaced Racial Path Rank 1 Ability */}
@@ -406,41 +365,14 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                           {/* Passive modifiers for racial rank 1 */}
                           {renderModifierBadges(replacedRacial.rank1.modifiers)}
 
-                          {/* Interactive choice selector for racial rank 1 if any */}
-                          {replacedRacial.rank1.modifiers?.choiceOptions && replacedRacial.rank1.modifiers.choiceOptions.length > 0 && (
-                            <div className="ml-7 pt-2 border-t border-emerald-900/60 space-y-1">
-                              <div className="text-[11px] font-semibold text-emerald-300">
-                                Option choisie pour cette capacité de peuple :
-                              </div>
-                              <div className="flex flex-wrap gap-1.5">
-                                {replacedRacial.rank1.modifiers.choiceOptions.map((opt: { id: string; label: string }) => {
-                                  const choiceKey = `${replacedRacial.path.id}_1`;
-                                  const isChosen = (character.pathRankChoices?.[choiceKey] || replacedRacial.rank1.modifiers?.choiceOptions?.[0]?.id) === opt.id;
-                                  return (
-                                    <button
-                                      key={opt.id}
-                                      type="button"
-                                      onClick={() => {
-                                        updateCharacter({
-                                          pathRankChoices: {
-                                            ...character.pathRankChoices,
-                                            [choiceKey]: opt.id,
-                                          },
-                                        });
-                                      }}
-                                      className={`px-2 py-0.5 rounded text-xs transition border ${
-                                        isChosen
-                                          ? 'bg-emerald-600 text-stone-950 font-bold border-emerald-500 shadow'
-                                          : 'bg-stone-950 text-stone-300 border-stone-800 hover:border-emerald-700'
-                                      }`}
-                                    >
-                                      {opt.label}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
+                          {/* Choice selector for racial rank 1 (read-only on sheet) */}
+                          <RankChoiceSelector
+                            character={character}
+                            pathId={replacedRacial.path.id}
+                            rank={replacedRacial.rank1}
+                            readOnly
+                            variant="emerald"
+                          />
                         </div>
                       )}
                     </div>

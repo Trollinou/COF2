@@ -17,6 +17,8 @@ import { ChevronDown, ChevronUp, Sparkles, Shield, BookOpen, Shuffle } from 'luc
 import { ActionBadges } from '../../sheet/ActionBadges';
 import { CompanionCard } from '../../sheet/CompanionCard';
 import { MageBonusRank2Panel } from './MageBonusRank2Panel';
+import { ExternalAbilitySelector } from '../../shared/ExternalAbilitySelector';
+import { RankChoiceSelector } from '../../shared/RankChoiceSelector';
 
 interface Step5PathsProps {
   character: CharacterSheet;
@@ -51,6 +53,19 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
   const hasMageBonus = hasMageCreationBonus(character);
   const defaultRacialPathId = getRacialPathId(character.peopleId);
   const defaultRacialPath = getPathById(defaultRacialPathId);
+
+  const handleUpdatePartial = (partial: Partial<CharacterSheet>) => {
+    onChange({ ...character, ...partial });
+  };
+
+  const handleRankChoice = (choiceKey: string, optionId: string) => {
+    handleUpdatePartial({
+      pathRankChoices: {
+        ...character.pathRankChoices,
+        [choiceKey]: optionId,
+      },
+    });
+  };
 
   const currentThirdPathId = character.selectedPathIds.find(id => !allProfilePathIds.includes(id))
     || defaultRacialPathId;
@@ -260,6 +275,22 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                     <p className="text-xs text-stone-400 pl-7 leading-relaxed">
                       {pathData.ranks[0]?.description}
                     </p>
+                    {isSelected && pathData.ranks[0] && (
+                      <>
+                        <ExternalAbilitySelector
+                          character={character}
+                          pathId={pathData.id}
+                          rank={pathData.ranks[0]}
+                          updateCharacter={handleUpdatePartial}
+                        />
+                        <RankChoiceSelector
+                          character={character}
+                          pathId={pathData.id}
+                          rank={pathData.ranks[0]}
+                          onChangeChoice={handleRankChoice}
+                        />
+                      </>
+                    )}
                   </div>
 
                   {/* Extended Ranks 2-5 when expanded */}
@@ -390,6 +421,22 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                       <p className="text-xs text-stone-400 pl-7 leading-relaxed">
                         {pathData.ranks[0]?.description}
                       </p>
+                      {isSelected && pathData.ranks[0] && (
+                        <>
+                          <ExternalAbilitySelector
+                            character={character}
+                            pathId={pathData.id}
+                            rank={pathData.ranks[0]}
+                            updateCharacter={handleUpdatePartial}
+                          />
+                          <RankChoiceSelector
+                            character={character}
+                            pathId={pathData.id}
+                            rank={pathData.ranks[0]}
+                            onChangeChoice={handleRankChoice}
+                          />
+                        </>
+                      )}
                     </div>
 
                     {isExpanded && (
@@ -614,6 +661,22 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                     <p className="text-xs text-stone-400 pl-7 leading-relaxed">
                       {currentThirdPath.ranks[0]?.description}
                     </p>
+                    {currentThirdPath.ranks[0] && (
+                      <>
+                        <ExternalAbilitySelector
+                          character={character}
+                          pathId={currentThirdPath.id}
+                          rank={currentThirdPath.ranks[0]}
+                          updateCharacter={handleUpdatePartial}
+                        />
+                        <RankChoiceSelector
+                          character={character}
+                          pathId={currentThirdPath.id}
+                          rank={currentThirdPath.ranks[0]}
+                          onChangeChoice={handleRankChoice}
+                        />
+                      </>
+                    )}
 
                     {/* Prominent Reminder for the retained racial ability */}
                     <div className="mt-2.5 ml-7 p-3 rounded-lg bg-emerald-950/40 border border-emerald-700/50 space-y-1.5">
@@ -628,6 +691,15 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                       <p className="text-xs text-stone-300 pl-2 border-l border-emerald-800/60 leading-relaxed">
                         {defaultRacialPath?.ranks[0]?.description}
                       </p>
+                      {defaultRacialPath?.ranks[0] && (
+                        <RankChoiceSelector
+                          character={character}
+                          pathId={defaultRacialPath.id}
+                          rank={defaultRacialPath.ranks[0]}
+                          onChangeChoice={handleRankChoice}
+                          variant="emerald"
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -795,6 +867,22 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                     <p className="text-xs text-stone-300 pl-7 leading-relaxed">
                       {currentThirdPath.ranks[0]?.description}
                     </p>
+                    {currentThirdPath.ranks[0] && (
+                      <>
+                        <ExternalAbilitySelector
+                          character={character}
+                          pathId={currentThirdPath.id}
+                          rank={currentThirdPath.ranks[0]}
+                          updateCharacter={handleUpdatePartial}
+                        />
+                        <RankChoiceSelector
+                          character={character}
+                          pathId={currentThirdPath.id}
+                          rank={currentThirdPath.ranks[0]}
+                          onChangeChoice={handleRankChoice}
+                        />
+                      </>
+                    )}
                   </div>
 
                   {/* Extended Ranks 2-5 when expanded */}

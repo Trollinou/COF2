@@ -6,12 +6,9 @@ import {
   PeopleData,
 } from '../../../types/cof2';
 import {
-  applyRacialDefaults,
   getPathById,
   getRacialPathId,
   isDomainPath,
-  PRIEST_DEITIES,
-  getDomainPathForDeity,
   getDeityByDomainPathId,
 } from '../../../engine/rulesEngine';
 import { Sparkles } from 'lucide-react';
@@ -43,21 +40,6 @@ export const BioTab: React.FC<BioTabProps> = ({
                 Espérance : {people.lifeExpectancy}
               </span>
             </div>
-
-            <button
-              onClick={() => {
-                updateCharacter({
-                  age: people.startingAge,
-                  height: people.heightRange,
-                  weight: people.weightRange,
-                  physicalTraits: people.physicalTraits,
-                });
-              }}
-              className="text-xs bg-stone-800 hover:bg-stone-700 text-amber-300 px-3 py-1 rounded border border-stone-700 transition"
-              title="Appliquer les mensurations et traits typiques de ce peuple"
-            >
-              ↺ Réappliquer les mensurations du peuple
-            </button>
           </div>
 
           {/* Racial Benchmarks Grid */}
@@ -98,7 +80,7 @@ export const BioTab: React.FC<BioTabProps> = ({
             </div>
           )}
 
-          {/* Selectable Racial Path for Demi-elfe */}
+          {/* Selectable Racial Path for Demi-elfe (read-only on sheet) */}
           {people.selectableRacialPaths && (
             <div className="bg-stone-950/70 p-3 rounded-lg border border-amber-900/40 flex flex-wrap items-center justify-between gap-2 text-xs">
               <div>
@@ -106,101 +88,24 @@ export const BioTab: React.FC<BioTabProps> = ({
                   Voie de Peuple active (Héritage culturel du Demi-elfe) :
                 </span>
                 <span className="text-stone-400 text-[11px]">
-                  Règles COF2 & Compagnon : choisir entre l'humain, l'elfe (haut ou sylvain) ou la voie propre
+                  Règles COF2 & Compagnon : choix défini lors de la création
                 </span>
               </div>
-              <select
-                value={character.selectedPathIds[2]}
-                onChange={e => {
-                  const updated = applyRacialDefaults(character, character.peopleId, e.target.value);
-                  updateCharacter(updated);
-                }}
-                className="bg-stone-900 border border-stone-700 rounded px-3 py-1.5 text-xs text-amber-300 focus:outline-none"
-              >
-                {people.selectableRacialPaths.map(pid => {
-                  const pth = getPathById(pid);
-                  return (
-                    <option key={pid} value={pid}>
-                      {pth?.name || pid}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          )}
-
-          {/* Typical names suggestions */}
-          {people.names && (
-            <div className="pt-2 border-t border-stone-800/80">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold text-stone-300">
-                  Suggestions de noms typiques pour {people.name} :
-                </span>
-                <span className="text-[11px] text-stone-400 italic">
-                  {people.names.namingTip}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {[...(people.names.masculine || []).slice(0, 5), ...(people.names.feminine || []).slice(0, 5)].map((sampleName) => (
-                  <button
-                    key={sampleName}
-                    onClick={() => updateCharacter({ name: sampleName })}
-                    className="text-[11px] bg-stone-800 hover:bg-amber-600 hover:text-stone-950 text-stone-300 px-2 py-0.5 rounded transition"
-                    title="Cliquer pour adopter ce nom"
-                  >
-                    {sampleName}
-                  </button>
-                ))}
-              </div>
+              <span className="bg-stone-900 border border-stone-700 rounded px-3 py-1.5 text-xs font-semibold text-amber-300">
+                {getPathById(character.selectedPathIds[2])?.name || character.selectedPathIds[2]}
+              </span>
             </div>
           )}
         </div>
       )}
 
-      {/* Priest Religion & Domain Path Card */}
+      {/* Priest Religion & Domain Path Card (read-only on sheet) */}
       {character.profileId === 'pretre' && (() => {
         const defaultRacialId = getRacialPathId(character.peopleId);
         const defaultRacial = getPathById(defaultRacialId);
         const domainPathId = character.selectedPathIds.find(pid => isDomainPath(pid));
         const activeDomain = domainPathId ? getPathById(domainPathId) : undefined;
         const deityInfo = domainPathId ? getDeityByDomainPathId(domainPathId) : undefined;
-
-        const handleSwitchToDomain = (deityName: string) => {
-          const dPath = getDomainPathForDeity(deityName);
-          if (!dPath) return;
-          const profilePaths = character.selectedPathIds.filter(pid => !isDomainPath(pid) && pid !== defaultRacialId);
-          const nextSelected = [...profilePaths, dPath.id];
-          const nextAcquired = character.acquiredAbilities.filter(
-            a => a.pathId !== domainPathId
-          );
-          if (!nextAcquired.some(a => a.pathId === defaultRacialId && a.rank === 1)) {
-            nextAcquired.push({ pathId: defaultRacialId, rank: 1 });
-          }
-          if (!nextAcquired.some(a => a.pathId === dPath.id && a.rank === 1)) {
-            nextAcquired.push({ pathId: dPath.id, rank: 1 });
-          }
-          updateCharacter({
-            deity: deityName,
-            selectedPathIds: nextSelected,
-            acquiredAbilities: nextAcquired,
-          });
-        };
-
-        const handleSwitchToRacial = () => {
-          const profilePaths = character.selectedPathIds.filter(pid => !isDomainPath(pid) && pid !== defaultRacialId);
-          const nextSelected = [...profilePaths, defaultRacialId];
-          const nextAcquired = character.acquiredAbilities.filter(
-            a => !domainPathId || a.pathId !== domainPathId
-          );
-          if (!nextAcquired.some(a => a.pathId === defaultRacialId && a.rank === 1)) {
-            nextAcquired.push({ pathId: defaultRacialId, rank: 1 });
-          }
-          updateCharacter({
-            deity: undefined,
-            selectedPathIds: nextSelected,
-            acquiredAbilities: nextAcquired,
-          });
-        };
 
         return (
           <div className="bg-stone-900 border border-amber-800/80 rounded-xl p-5 shadow space-y-4">
@@ -211,61 +116,19 @@ export const BioTab: React.FC<BioTabProps> = ({
                   Sacerdoce & Voie de Domaine (Compagnon COF2)
                 </span>
               </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={handleSwitchToRacial}
-                  className={`px-3 py-1 rounded text-xs transition ${
-                    !activeDomain
-                      ? 'bg-amber-600 text-stone-950 font-bold'
-                      : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700'
-                  }`}
-                >
-                  Voie de Peuple ({people?.name})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!activeDomain) {
-                      handleSwitchToDomain(character.deity || PRIEST_DEITIES[0].name);
-                    }
-                  }}
-                  className={`px-3 py-1 rounded text-xs transition ${
-                    activeDomain
-                      ? 'bg-amber-600 text-stone-950 font-bold'
-                      : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700'
-                  }`}
-                >
-                  Voie de Domaine Active
-                </button>
-              </div>
+              <span className="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-950/70 text-amber-300 border border-amber-800">
+                {activeDomain ? 'Voie de Domaine Active' : `Voie de Peuple (${people?.name})`}
+              </span>
             </div>
 
             {activeDomain && deityInfo ? (
               <div className="space-y-3 bg-stone-950/70 p-3.5 rounded-lg border border-amber-900/60">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <span className="font-serif font-bold text-amber-300 text-sm">
-                      {activeDomain.name}
-                    </span>
-                    <div className="text-xs text-stone-400 mt-0.5">
-                      Divinité : <strong className="text-stone-200">{deityInfo.name}</strong> ({deityInfo.domainTitle})
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <label className="text-xs text-stone-400">Changer :</label>
-                    <select
-                      value={deityInfo.name}
-                      onChange={e => handleSwitchToDomain(e.target.value)}
-                      className="bg-stone-900 border border-stone-700 rounded px-2.5 py-1 text-xs text-amber-300 focus:outline-none"
-                    >
-                      {PRIEST_DEITIES.map(d => (
-                        <option key={d.domainPathId} value={d.name}>
-                          {d.name} — {d.domainTitle} ({d.sacredWeapon})
-                        </option>
-                      ))}
-                    </select>
+                <div>
+                  <span className="font-serif font-bold text-amber-300 text-sm">
+                    {activeDomain.name}
+                  </span>
+                  <div className="text-xs text-stone-400 mt-0.5">
+                    Divinité : <strong className="text-stone-200">{deityInfo.name}</strong> ({deityInfo.domainTitle})
                   </div>
                 </div>
 
@@ -286,17 +149,8 @@ export const BioTab: React.FC<BioTabProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="text-xs text-stone-400 bg-stone-950/40 p-3 rounded-lg border border-stone-800 flex items-center justify-between">
-                <span>
-                  Ce prêtre suit actuellement la <strong>Voie de Peuple</strong> de son peuple d'origine ({people?.name}).
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleSwitchToDomain(PRIEST_DEITIES[0].name)}
-                  className="text-xs bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold px-3 py-1 rounded transition"
-                >
-                  Choisir une divinité tutélaire
-                </button>
+              <div className="text-xs text-stone-400 bg-stone-950/40 p-3 rounded-lg border border-stone-800">
+                Ce prêtre suit actuellement la <strong>Voie de Peuple</strong> de son peuple d&apos;origine ({people?.name}).
               </div>
             )}
           </div>

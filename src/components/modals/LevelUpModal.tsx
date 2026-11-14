@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { CharacterSheet, ProfileFamily, PathData } from '../../types/cof2';
+import { CharacterSheet, ProfileFamily, PathData, AbilityRef } from '../../types/cof2';
 import {
   getProfileById,
   getPathById,
@@ -52,23 +52,32 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
   const oldStats = useMemo(() => computeCharacterStats(character), [character]);
   const newLevel = (character.level || 1) + 1;
 
-  // Working copy of acquired abilities in the modal
+  // Working copy of acquired abilities & rank/external choices in the modal
   const [acquired, setAcquired] = useState<Array<{ pathId: string; rank: number }>>(
     character.acquiredAbilities || []
+  );
+  const [draftPathRankChoices, setDraftPathRankChoices] = useState<Record<string, string>>(
+    character.pathRankChoices || {}
+  );
+  const [draftExternalChoices, setDraftExternalChoices] = useState<Record<string, AbilityRef>>(
+    character.externalAbilityChoices || {}
   );
   const [languagesLearned, setLanguagesLearned] = useState<string[]>([]);
   const [talentsLearned, setTalentsLearned] = useState<string[]>([]);
 
+  const draftCharacter = useMemo<CharacterSheet>(() => ({
+    ...character,
+    level: newLevel,
+    acquiredAbilities: acquired,
+    pathRankChoices: draftPathRankChoices,
+    externalAbilityChoices: draftExternalChoices,
+    languages: [...(character.languages || []), ...languagesLearned],
+    secondaryTalents: [...(character.secondaryTalents || []), ...talentsLearned],
+  }), [character, newLevel, acquired, draftPathRankChoices, draftExternalChoices, languagesLearned, talentsLearned]);
+
   const projectedStats = useMemo(() => {
-    const draft: CharacterSheet = {
-      ...character,
-      level: newLevel,
-      acquiredAbilities: acquired,
-      languages: [...(character.languages || []), ...languagesLearned],
-      secondaryTalents: [...(character.secondaryTalents || []), ...talentsLearned],
-    };
-    return computeCharacterStats(draft);
-  }, [character, newLevel, acquired, languagesLearned, talentsLearned]);
+    return computeCharacterStats(draftCharacter);
+  }, [draftCharacter]);
 
   const showLanguageSection =
     projectedStats.languagesInfo.bonusLanguageSlots > projectedStats.languagesInfo.usedBonusSlots ||
@@ -277,6 +286,8 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       halfHpPending: levelUpHpResult.newHalfHpPending,
       selectedPathIds: nextSelectedPathIds,
       acquiredAbilities: acquired,
+      pathRankChoices: draftPathRankChoices,
+      externalAbilityChoices: draftExternalChoices,
       languages: nextLanguages,
       secondaryTalents: nextTalents,
       progressionHistory: [...(character.progressionHistory || []), step],
@@ -554,10 +565,19 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
                     key={pathId}
                     pathData={pathData}
                     character={character}
+                    draftCharacter={draftCharacter}
                     acquired={acquired}
                     newLevel={newLevel}
                     pointsToSpend={pointsToSpend}
                     onToggleAbility={toggleAbility}
+                    onChangeRankChoice={(choiceKey, optionId) =>
+                      setDraftPathRankChoices(prev => ({ ...prev, [choiceKey]: optionId }))
+                    }
+                    onUpdateExternalChoices={partial => {
+                      if (partial.externalAbilityChoices !== undefined) {
+                        setDraftExternalChoices(partial.externalAbilityChoices);
+                      }
+                    }}
                     isPrestige={isPrestige}
                     onRemovePrestige={handleRemovePrestigePath}
                     canRemovePrestige={canRemovePrestige}

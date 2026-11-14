@@ -6,13 +6,14 @@ import {
   resolveExternalGrants,
   PROFILES,
 } from '../../engine/rulesEngine';
-import { ActionBadges } from './ActionBadges';
+import { ActionBadges } from '../sheet/ActionBadges';
 
 interface ExternalAbilitySelectorProps {
   character: CharacterSheet;
   pathId: string;
   rank: ActionRank;
-  updateCharacter: (partial: Partial<CharacterSheet>) => void;
+  updateCharacter?: (partial: Partial<CharacterSheet>) => void;
+  readOnly?: boolean;
 }
 
 const refKey = (a: AbilityRef) => `${a.pathId}_${a.rank}`;
@@ -28,6 +29,7 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
   pathId,
   rank,
   updateCharacter,
+  readOnly = false,
 }) => {
   const grantRule = rank.modifiers?.grantExternalAbility;
   if (!grantRule) return null;
@@ -38,6 +40,7 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
 
   const currentChoice = character.externalAbilityChoices?.[choiceKey];
   const setChoice = (value?: AbilityRef) => {
+    if (readOnly || !updateCharacter) return;
     const next = { ...character.externalAbilityChoices };
     if (value) next[choiceKey] = value;
     else delete next[choiceKey];
@@ -150,17 +153,23 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
         <span>{grantRule.label || 'Capacité externe choisie :'}</span>
       </div>
 
-      {resolved.mode === 'free' && renderFreeSelectors()}
-      {resolved.mode === 'replacement' && renderReplacementSelector()}
+      {!readOnly && resolved.mode === 'free' && renderFreeSelectors()}
+      {!readOnly && resolved.mode === 'replacement' && renderReplacementSelector()}
       {resolved.mode === 'default' && (
         <div className="text-[11px] text-stone-400">
           Capacité obtenue automatiquement (non encore possédée).
         </div>
       )}
 
-      {resolved.mode === 'replacement' && resolved.needsChoice && currentChoice && (
+      {readOnly && !grantedRank && (
+        <div className="text-[11px] text-stone-400 italic">
+          Aucune capacité externe sélectionnée.
+        </div>
+      )}
+
+      {!readOnly && resolved.mode === 'replacement' && resolved.needsChoice && currentChoice && (
         <div className="text-[11px] text-red-300">
-          Le choix précédent n'est plus valide, veuillez en sélectionner un nouveau.
+          Le choix précédent n&apos;est plus valide, veuillez en sélectionner un nouveau.
         </div>
       )}
 

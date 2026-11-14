@@ -59,6 +59,48 @@ export const Step2Identity: React.FC<Step2IdentityProps> = ({
             Conseil pour les noms de {selectedPeople.name} : {selectedPeople.names.namingTip}
           </div>
         )}
+        {selectedPeople.names && (
+          <div className="pt-2 border-t border-stone-800/80 space-y-1.5">
+            <span className="text-[11px] font-semibold text-stone-300 block">
+              Suggestions de noms typiques pour {selectedPeople.name} :
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {[...(selectedPeople.names.masculine || []).slice(0, 5), ...(selectedPeople.names.feminine || []).slice(0, 5)].map((sampleName) => (
+                <button
+                  key={sampleName}
+                  type="button"
+                  onClick={() => update({ name: sampleName })}
+                  className="text-[11px] bg-stone-800 hover:bg-amber-600 hover:text-stone-950 text-stone-300 px-2 py-0.5 rounded transition"
+                  title="Cliquer pour adopter ce nom"
+                >
+                  {sampleName}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Physical Stats Header + Reset */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-amber-200 uppercase tracking-wide">
+          Mensurations & Apparence
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            update({
+              age: selectedPeople.startingAge,
+              height: selectedPeople.heightRange,
+              weight: selectedPeople.weightRange,
+              physicalTraits: selectedPeople.physicalTraits,
+            });
+          }}
+          className="text-xs bg-stone-800 hover:bg-stone-700 text-amber-300 px-3 py-1 rounded border border-stone-700 transition"
+          title="Réappliquer les mensurations et traits typiques de ce peuple"
+        >
+          ↺ Réappliquer les mensurations du peuple
+        </button>
       </div>
 
       {/* Physical Stats Grid */}

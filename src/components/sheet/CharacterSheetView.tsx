@@ -7,7 +7,6 @@ import {
   computeCharacterStats,
   getPeopleById,
   getProfileById,
-  getPathById,
   WEAPONS,
   calculateCapabilityPoints,
   checkWeaponProficiency,
@@ -23,13 +22,11 @@ import { BioTab } from './tabs/BioTab';
 interface CharacterSheetViewProps {
   character: CharacterSheet;
   onChange: (updated: CharacterSheet) => void;
-  onOpenLevelUp: () => void;
 }
 
 export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
   character,
   onChange,
-  onOpenLevelUp,
 }) => {
   const stats = useMemo(() => computeCharacterStats(character), [character]);
   const people = useMemo(() => getPeopleById(character.peopleId), [character.peopleId]);
@@ -107,25 +104,6 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
     updateCharacter({ currentPm: next });
   };
 
-  // Toggle ability acquisition
-  const toggleAbility = (pathId: string, rank: number) => {
-    const exists = character.acquiredAbilities.some(a => a.pathId === pathId && a.rank === rank);
-    let nextAbilities = [...character.acquiredAbilities];
-
-    if (exists) {
-      nextAbilities = nextAbilities.filter(a => !(a.pathId === pathId && a.rank >= rank));
-    } else {
-      const pth = getPathById(pathId);
-      const minRank = pth?.type === 'prestige' ? (pth.ranks[0]?.rank || 4) : 1;
-      for (let r = minRank; r <= rank; r++) {
-        if (!nextAbilities.some(a => a.pathId === pathId && a.rank === r)) {
-          nextAbilities.push({ pathId, rank: r });
-        }
-      }
-    }
-    updateCharacter({ acquiredAbilities: nextAbilities });
-  };
-
   // Add weapon from library with rule validation
   const addWeapon = (weaponRefId: string) => {
     const ref = WEAPONS.find(w => w.id === weaponRefId);
@@ -156,6 +134,16 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
     if (tab !== 'abilities') {
       setCenterTab(tab);
     }
+  };
+
+  const getTabClass = (tab: 'combat' | 'inventory' | 'bio') => {
+    if (activeTab === tab) {
+      return 'border-amber-500 text-amber-200';
+    }
+    if (activeTab === 'abilities' && centerTab === tab) {
+      return 'border-transparent text-stone-400 hover:text-stone-200 2xl:border-amber-500 2xl:text-amber-200';
+    }
+    return 'border-transparent text-stone-400 hover:text-stone-200';
   };
 
   return (
@@ -200,11 +188,7 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
           <div className="flex border-b border-stone-800 space-x-2">
             <button
               onClick={() => handleSelectTab('combat')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
-                activeTab === 'combat' || (activeTab === 'abilities' && centerTab === 'combat')
-                  ? 'border-amber-500 text-amber-200'
-                  : 'border-transparent text-stone-400 hover:text-stone-200'
-              }`}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition ${getTabClass('combat')}`}
             >
               Armes & Armures
             </button>
@@ -226,22 +210,14 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
 
             <button
               onClick={() => handleSelectTab('inventory')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
-                activeTab === 'inventory' || (activeTab === 'abilities' && centerTab === 'inventory')
-                  ? 'border-amber-500 text-amber-200'
-                  : 'border-transparent text-stone-400 hover:text-stone-200'
-              }`}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition ${getTabClass('inventory')}`}
             >
               Équipement & Bourse
             </button>
 
             <button
               onClick={() => handleSelectTab('bio')}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
-                activeTab === 'bio' || (activeTab === 'abilities' && centerTab === 'bio')
-                  ? 'border-amber-500 text-amber-200'
-                  : 'border-transparent text-stone-400 hover:text-stone-200'
-              }`}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition ${getTabClass('bio')}`}
             >
               Biographie & Traits
             </button>
@@ -257,9 +233,6 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
                 capabilityBudget={capabilityBudget}
                 expandedPaths={expandedPaths}
                 togglePathExpand={togglePathExpand}
-                toggleAbility={toggleAbility}
-                updateCharacter={updateCharacter}
-                onOpenLevelUp={onOpenLevelUp}
               />
             )}
           </div>
@@ -316,9 +289,6 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
             capabilityBudget={capabilityBudget}
             expandedPaths={expandedPaths}
             togglePathExpand={togglePathExpand}
-            toggleAbility={toggleAbility}
-            updateCharacter={updateCharacter}
-            onOpenLevelUp={onOpenLevelUp}
           />
         </div>
       </div>

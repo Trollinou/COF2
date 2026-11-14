@@ -13,14 +13,19 @@ import {
 } from 'lucide-react';
 import { ActionBadges } from '../sheet/ActionBadges';
 import { CompanionCard } from '../sheet/CompanionCard';
+import { ExternalAbilitySelector } from '../shared/ExternalAbilitySelector';
+import { RankChoiceSelector } from '../shared/RankChoiceSelector';
 
 interface LevelUpPathCardProps {
   pathData: PathData;
   character: CharacterSheet;
+  draftCharacter?: CharacterSheet;
   acquired: Array<{ pathId: string; rank: number }>;
   newLevel: number;
   pointsToSpend: number;
   onToggleAbility: (pathId: string, rank: number) => void;
+  onChangeRankChoice?: (choiceKey: string, optionId: string) => void;
+  onUpdateExternalChoices?: (partial: Partial<CharacterSheet>) => void;
   isPrestige?: boolean;
   onRemovePrestige?: (pathId: string) => void;
   canRemovePrestige?: boolean;
@@ -35,10 +40,13 @@ interface LevelUpPathCardProps {
 export const LevelUpPathCard: React.FC<LevelUpPathCardProps> = ({
   pathData,
   character,
+  draftCharacter,
   acquired,
   newLevel,
   pointsToSpend,
   onToggleAbility,
+  onChangeRankChoice,
+  onUpdateExternalChoices,
   isPrestige = false,
   onRemovePrestige,
   canRemovePrestige = false,
@@ -361,6 +369,23 @@ export const LevelUpPathCard: React.FC<LevelUpPathCardProps> = ({
                       <CompanionCard key={cIdx} companion={comp} />
                     ))}
                   </div>
+                )}
+
+                {(isPrior || isSelectedNow) && (
+                  <>
+                    <ExternalAbilitySelector
+                      character={draftCharacter || character}
+                      pathId={pathData.id}
+                      rank={r}
+                      updateCharacter={onUpdateExternalChoices}
+                    />
+                    <RankChoiceSelector
+                      character={draftCharacter || character}
+                      pathId={pathData.id}
+                      rank={r}
+                      onChangeChoice={onChangeRankChoice}
+                    />
+                  </>
                 )}
               </div>
             );

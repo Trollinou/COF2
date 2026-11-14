@@ -12,6 +12,11 @@
 
 ### Modifié
 
+- **Revue UX de la Fiche de personnage, Assistant et Montée de niveau** :
+  - **Voies & Capacités (`AbilitiesTab`, `CharacterSheetView`, `App`)** : suppression du déblocage/retrait libre des capacités et du bouton redondant « Gérer la progression » ; affichage en lecture seule des rangs (`Acquise ✓` / `Non acquise`), des options de rang (`RankChoiceSelector`) et des capacités externes (`ExternalAbilitySelector`).
+  - **Biographie & Traits (`BioTab`)** : passage en lecture seule de la voie de peuple du Demi-elfe et du sacerdoce/domaine du Prêtre ; suppression des suggestions de noms et du bouton de réapplication des mensurations (reportés dans l'assistant).
+  - **Assistant de création (`Step2Identity`, `Step5Paths`)** : ajout des suggestions de noms typiques cliquables et du bouton `↺ Réappliquer les mensurations du peuple` à l'étape 2 ; intégration de `RankChoiceSelector` et `ExternalAbilitySelector` à l'étape 5.
+  - **Montée de niveau (`LevelUpModal`, `LevelUpPathCard`)** : intégration des choix d'options de rang (`pathRankChoices`) et de capacités externes (`externalAbilityChoices`) en brouillon avec calcul en direct et sauvegarde à la validation.
 - Remplacement du choix « Saisie libre » par la **Méthode par achat** (règle avancée de l'Atlas) à l'étape 4 de l'assistant de création (`Step4Stats`, `CharacterWizard`) :
   - Base de `0` pour les 7 caractéristiques avec un budget initial de **7 points** (`+1` : 1 pt, `+2` : 2 pts, `+3` : 4 pts, `+4` : 6 pts).
   - Jusqu'à **2 caractéristiques faibles à `-1`**, accordant chacune **+1 point** supplémentaire au budget (jusqu'à 9 points).
@@ -26,6 +31,7 @@
 
 ### Corrigé
 
+- `CharacterSheetView` : correction de la surbrillance simultanée de l'onglet précédent et de l'onglet « Voies & Capacités » sur écrans `< 2xl`.
 - `save_character_file` / `CharacterWeaponInstance` : ajout de `#[serde(default)]` sur `bonus_attack` et `bonus_damage` dans `crates/cof2-core/src/models.rs` et initialisation explicite (`bonusAttack: 0`, `bonusDamage: 0`) à la création d'armes (`rulesEngine.ts`, `CharacterWizard.tsx`, `CharacterSheetView.tsx`).
 - `InventoryTab` : affichage des pièces dans l'ordre officiel **Or (po) → Argent (pa) → Cuivre (pc)**.
 - `paths.json` & `rulesEngine.ts` : ajout du bonus de DEF (+2) sur *Petit compagnon* (Voie des animaux R2) et des bonus de *Familier* (+2 DEF, +2 Initiative, Voie de la magie universelle R2), avec gestion du non-cumul de DEF via `nonStackingGroup`.

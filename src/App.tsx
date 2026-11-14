@@ -161,7 +161,6 @@ export function App() {
               <CharacterSheetView
                 character={character}
                 onChange={setCharacter}
-                onOpenLevelUp={() => setIsLevelUpOpen(true)}
               />
             )}
 
