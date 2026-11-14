@@ -158,5 +158,18 @@ describe('Character Validation & Migration', () => {
     expect(res.character.coins.pc).toBe(5);
     expect(res.character.coins.po).toBe(0);
   });
+
+  it('preserves creationCompleted=false and defaults legacy files without it to true', () => {
+    const incomplete = validateAndMigrateCharacter({
+      name: 'Apprenti',
+      creationCompleted: false,
+    });
+    expect(incomplete.character.creationCompleted).toBe(false);
+
+    const legacy = validateAndMigrateCharacter({
+      name: 'Vétéran',
+    });
+    expect(legacy.character.creationCompleted).toBe(true);
+  });
 });
 

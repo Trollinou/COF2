@@ -22,6 +22,7 @@ Application Desktop (**Rust + Tauri v2**) et Web (**Vite / React 19**) de créat
 
 2. **Assistant de Création Guidé (Niveau 1)** :
    - Parcours pas-à-pas validé en 7 étapes : Peuple, Profil, Caractéristiques, Voies de départ, Équipement & Bourse (2d6 pa), Identité & Langues, Bilan complet en lecture seule.
+   - Verrouillage de la Fiche, de l'Aperçu PDF et de la montée de niveau tant que l'étape 7 (*Bilan*) n'est pas validée, avec reprise automatique dans l'Assistant si un personnage en cours de création est sauvegardé puis rechargé.
 
 3. **Fiche de Personnage Interactive** :
    - Suivi en temps réel des PV, DR, PC et PM durant les parties.
@@ -35,8 +36,9 @@ Application Desktop (**Rust + Tauri v2**) et Web (**Vite / React 19**) de créat
 5. **Génération & Export PDF Imprimable (Format A4)** :
    - Mise en page exacte en 2 pages A4 sur fond blanc, prête pour l'impression papier ou l'enregistrement en PDF haute fidélité via la boîte d'impression native du système (`window.print()`).
 
-6. **Persistance Atomique & Sécurité Sans Faille** :
+6. **Persistance Atomique, Menu Natif & Sécurité Sans Faille** :
    - Sauvegardes atomiques (`.tmp` $\to$ `rename`) garantissant zéro corruption en cas de coupure de courant.
+   - Barre de menu native Tauri v2 (**Fichier** : *Nouveau* `Cmd/Ctrl+N`, *Charger...* `Cmd/Ctrl+O`, *Sauvegarder...* `Cmd/Ctrl+S`, *Imprimer / PDF...* `Cmd/Ctrl+P`) et détection des modifications non sauvegardées avant tout nouveau personnage ou chargement.
    - 100% hors-ligne (Air-Gapped, `connect-src 'none'`), aucune ressource externe requise.
 
 ---
@@ -86,7 +88,7 @@ Les installateurs natifs seront générés automatiquement :
   - `src/components/wizard/` : Assistant guidé pas-à-pas.
   - `src/components/sheet/` : Fiche de personnage interactive.
   - `src/components/pdf/` : Gabarit A4 imprimable et exportable en PDF.
-  - `src/components/modals/` : Module de progression et montée de niveau réversible.
+  - `src/components/modals/` : Module de progression réversible (`LevelUpModal`) et confirmation de sauvegarde (`UnsavedChangesModal`).
 - `docs/DATA_MODELS.md` : Documentation exhaustive des modèles de données JSON.
 - `docs/SECURITY.md` : Politique et architecture de sécurité DevSecOps.
 

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { listen } from '@tauri-apps/api/event';
 import { CharacterSheet } from './types/cof2';
 import { createDefaultCharacter, createBlankWizardCharacter } from './engine/rulesEngine';
 import { validateAndMigrateCharacter } from './utils/characterValidation';
@@ -6,7 +7,9 @@ import { useCharacterHistory } from './utils/useCharacterHistory';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Navbar } from './components/Navbar';
 import { CharacterSheetView } from './components/sheet/CharacterSheetView';
+import { UnsavedChangesModal } from './components/modals/UnsavedChangesModal';
 import {
+  isTauri,
   saveCharacterFile,
   loadCharacterFile,
   triggerPrintOrExportPdf,
@@ -49,9 +52,16 @@ export function App() {
     canRedo,
   } = useCharacterHistory(getInitialCharacter());
 
-  const [activeTab, setActiveTab] = useState<'sheet' | 'wizard' | 'pdf'>('sheet');
+  const [activeTab, setActiveTab] = useState<'sheet' | 'wizard' | 'pdf'>(() =>
+    character.creationCompleted === false ? 'wizard' : 'sheet'
+  );
+  const [savedSnapshot, setSavedSnapshot] = useState<string>(() => JSON.stringify(character));
+  const [pendingAction, setPendingAction] = useState<'new' | 'load' | null>(null);
   const [isLevelUpOpen, setIsLevelUpOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const isCreationCompleted = character.creationCompleted !== false;
+  const isDirty = JSON.stringify(character) !== savedSnapshot;
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -67,32 +77,69 @@ export function App() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleNewCharacter = () => {
-    if (window.confirm('Voulez-vous créer un nouveau personnage ? Les données actuelles non sauvegardées sur fichier seront remplacées.')) {
-      const fresh = createBlankWizardCharacter();
-      resetCharacter(fresh);
-      setActiveTab('wizard');
-      showToast('Nouveau personnage initialisé dans l\'Assistant !');
-    }
+  const executeNewCharacter = () => {
+    const fresh = createBlankWizardCharacter();
+    resetCharacter(fresh);
+    setSavedSnapshot(JSON.stringify(fresh));
+    setActiveTab('wizard');
+    showToast('Nouveau personnage initialisé dans l\'Assistant !');
   };
 
-  const handleSave = async () => {
-    const res = await saveCharacterFile(character);
-    if (res.message) showToast(res.message);
-  };
-
-  const handleLoad = async () => {
+  const executeLoad = async () => {
     const res = await loadCharacterFile();
     if (res.character) {
       resetCharacter(res.character);
-      setActiveTab('sheet');
-      showToast(`Personnage "${res.character.name}" chargé avec succès !`);
+      setSavedSnapshot(JSON.stringify(res.character));
+      if (res.character.creationCompleted === false) {
+        setActiveTab('wizard');
+        showToast(`Personnage "${res.character.name || 'Sans nom'}" repris dans l'Assistant !`);
+      } else {
+        setActiveTab('sheet');
+        showToast(`Personnage "${res.character.name}" chargé avec succès !`);
+      }
     } else if (res.message && res.message !== 'Annulé') {
       showToast(res.message);
     }
   };
 
+  const handleNewCharacter = () => {
+    if (isDirty) {
+      setPendingAction('new');
+      return;
+    }
+    executeNewCharacter();
+  };
+
+  const handleSave = async (): Promise<boolean> => {
+    const res = await saveCharacterFile(character);
+    if (res.success) {
+      setSavedSnapshot(JSON.stringify(character));
+    }
+    if (res.message) showToast(res.message);
+    return res.success;
+  };
+
+  const handleLoad = async () => {
+    if (isDirty) {
+      setPendingAction('load');
+      return;
+    }
+    await executeLoad();
+  };
+
+  const handleOpenLevelUp = () => {
+    if (!isCreationCompleted) {
+      showToast("Validez l'étape 7 (Bilan) de l'Assistant pour débloquer la montée de niveau.");
+      return;
+    }
+    setIsLevelUpOpen(true);
+  };
+
   const handleExportPdf = async () => {
+    if (!isCreationCompleted) {
+      showToast("Validez l'étape 7 (Bilan) de l'Assistant pour accéder à l'impression PDF.");
+      return;
+    }
     // Switch to PDF tab preview if not already, then trigger print/export
     setActiveTab('pdf');
     setTimeout(async () => {
@@ -101,26 +148,68 @@ export function App() {
     }, 150);
   };
 
-  // Register keyboard shortcuts (Cmd/Ctrl + S, O, P)
+  const menuHandlersRef = useRef({
+    new: handleNewCharacter,
+    load: handleLoad,
+    save: handleSave,
+    print: handleExportPdf,
+  });
+  menuHandlersRef.current = {
+    new: handleNewCharacter,
+    load: handleLoad,
+    save: handleSave,
+    print: handleExportPdf,
+  };
+
+  // Listen to native Tauri menu bar events (Nouveau, Charger, Sauvegarder, Imprimer)
   useEffect(() => {
+    if (!isTauri) return;
+
+    let unlisten: (() => void) | undefined;
+    let disposed = false;
+
+    listen<'new' | 'load' | 'save' | 'print'>('menu-action', (event) => {
+      const handler = menuHandlersRef.current[event.payload];
+      if (handler) handler();
+    }).then((fn) => {
+      if (disposed) {
+        fn();
+      } else {
+        unlisten = fn;
+      }
+    });
+
+    return () => {
+      disposed = true;
+      if (unlisten) unlisten();
+    };
+  }, []);
+
+  // Register keyboard shortcuts in Web mode (Tauri uses native menu accelerators)
+  useEffect(() => {
+    if (isTauri) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey) {
-        if (e.key === 's' || e.key === 'S') {
+        if (e.key === 'n' || e.key === 'N') {
           e.preventDefault();
-          handleSave();
+          menuHandlersRef.current.new();
+        } else if (e.key === 's' || e.key === 'S') {
+          e.preventDefault();
+          menuHandlersRef.current.save();
         } else if (e.key === 'o' || e.key === 'O') {
           e.preventDefault();
-          handleLoad();
+          menuHandlersRef.current.load();
         } else if (e.key === 'p' || e.key === 'P') {
           e.preventDefault();
-          handleExportPdf();
+          menuHandlersRef.current.print();
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [character]);
+  }, []);
 
   return (
     <ErrorBoundary>
@@ -136,16 +225,24 @@ export function App() {
         <Navbar
           character={character}
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={(tab) => {
+            if (!isCreationCompleted && tab !== 'wizard') {
+              showToast("Validez l'étape 7 (Bilan) de l'Assistant pour accéder à la fiche.");
+              return;
+            }
+            setActiveTab(tab);
+          }}
           onNewCharacter={handleNewCharacter}
           onSave={handleSave}
           onLoad={handleLoad}
           onExportPdf={handleExportPdf}
-          onOpenLevelUp={() => setIsLevelUpOpen(true)}
+          onOpenLevelUp={handleOpenLevelUp}
           canUndo={canUndo}
           canRedo={canRedo}
           onUndo={undo}
           onRedo={redo}
+          isCreationCompleted={isCreationCompleted}
+          isDirty={isDirty}
         />
 
         {/* Main View Area */}
@@ -199,6 +296,27 @@ export function App() {
             />
           </Suspense>
         )}
+        {/* Unsaved Changes Confirmation Modal */}
+        <UnsavedChangesModal
+          isOpen={pendingAction !== null}
+          characterName={character.name}
+          pendingAction={pendingAction}
+          onCancel={() => setPendingAction(null)}
+          onDiscardAndContinue={async () => {
+            const action = pendingAction;
+            setPendingAction(null);
+            if (action === 'new') executeNewCharacter();
+            if (action === 'load') await executeLoad();
+          }}
+          onSaveAndContinue={async () => {
+            const action = pendingAction;
+            const saved = await handleSave();
+            if (!saved) return;
+            setPendingAction(null);
+            if (action === 'new') executeNewCharacter();
+            if (action === 'load') await executeLoad();
+          }}
+        />
       </div>
     </ErrorBoundary>
   );

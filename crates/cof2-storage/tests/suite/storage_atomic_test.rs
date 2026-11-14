@@ -21,6 +21,7 @@ fn test_atomic_save_and_load() {
         id: "hero-persiste-1".into(),
         version: "0.8.5".into(),
         updated_at: "2026-11-11T12:00:00Z".into(),
+        creation_completed: Some(true),
         name: "Lidda".into(),
         player_name: "Joueur 2".into(),
         sex: "Féminin".into(),

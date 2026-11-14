@@ -137,6 +137,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     id,
     version,
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : new Date().toISOString(),
+    creationCompleted: typeof raw.creationCompleted === 'boolean' ? raw.creationCompleted : true,
     name,
     playerName,
     sex: typeof raw.sex === 'string' ? raw.sex : 'Masculin',

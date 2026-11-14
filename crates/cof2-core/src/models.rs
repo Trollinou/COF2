@@ -98,6 +98,8 @@ pub struct CharacterRecord {
     pub version: String,
     #[serde(default)]
     pub updated_at: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub creation_completed: Option<bool>,
     pub name: String,
     #[serde(default)]
     pub player_name: String,

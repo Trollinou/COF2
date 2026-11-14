@@ -48,7 +48,9 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
   onChange,
   onFinish,
 }) => {
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentStep, setCurrentStep] = useState<number>(() =>
+    character.creationCompleted === false ? Math.min(6, getMaxUnlockedWizardStep(character)) : 1
+  );
   const totalSteps = 7;
 
   // Selected array mode in Step 3 ('polyvalent' | 'expert' | 'specialiste' | 'achat' | '')
@@ -297,6 +299,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     const finalComputed = computeCharacterStats(character);
     const finalizedChar: CharacterSheet = {
       ...character,
+      creationCompleted: true,
       currentHp: finalComputed.maxHp,
       currentDr: finalComputed.maxDr,
       currentPc: finalComputed.maxPc,

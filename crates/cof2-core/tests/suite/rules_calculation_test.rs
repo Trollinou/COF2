@@ -18,6 +18,7 @@ fn create_test_record(profile_id: &str, people_id: &str, level: u8) -> Character
         id: "char-test-1".into(),
         version: "0.8.5".into(),
         updated_at: "2026-11-11T12:00:00Z".into(),
+        creation_completed: Some(true),
         name: "Valeros".into(),
         player_name: "Joueur".into(),
         sex: "Masculin".into(),

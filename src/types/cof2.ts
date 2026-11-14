@@ -402,6 +402,7 @@ export interface CharacterSheet {
   id: string;
   version: string;
   updatedAt: string;
+  creationCompleted?: boolean;
 
   // Identity.
   name: string;
