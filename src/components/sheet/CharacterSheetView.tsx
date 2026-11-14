@@ -140,6 +140,8 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
       damage: ref.damage,
       range: ref.range,
       category: ref.category as 'contact' | 'distance',
+      bonusAttack: 0,
+      bonusDamage: 0,
       requiresTwoHands: check.requiresTwoHands,
     };
     updateCharacter({ weapons: [...character.weapons, newW] });

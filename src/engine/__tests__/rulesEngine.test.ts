@@ -14,6 +14,9 @@ import {
   PRIEST_DEITIES,
   isDomainPath,
   isMageProfile,
+  hasMageCreationBonus,
+  canUseVoieDuMage,
+  getMageCreationRank2Ability,
   isRacialReplacementPath,
   getReplacedRacialPath,
   getDomainPathForDeity,
@@ -430,7 +433,7 @@ describe('COF2 Rules Engine', () => {
       expect(replaced?.rank1.title).toBe('Diversité');
     });
 
-    it('calculates capability budget for a mage with Voie du Mage retaining racial rank 1', () => {
+    it('calculates capability budget for a mage with Voie du Mage retaining racial rank 1 and bonus rank 2', () => {
       const char = createDefaultCharacter();
       char.profileId = 'magicien';
       char.peopleId = 'nain';
@@ -440,23 +443,84 @@ describe('COF2 Rules Engine', () => {
         { pathId: 'voie-de-la-magie-elementaire', rank: 1 },
         { pathId: 'voie-du-nain', rank: 1 },
         { pathId: 'voie-du-mage', rank: 1 },
+        // Official COF2 Mage bonus: free rank 2 at level 1 (e.g. Maîtrise de la magie)
+        { pathId: 'voie-du-mage', rank: 2 },
       ];
 
       const budget = calculateCapabilityPoints(char);
       expect(budget.totalEarned).toBe(0);
-      expect(budget.spent).toBe(0); // All 4 starting rank-1 abilities are free
+      expect(budget.spent).toBe(0); // All 4 starting rank-1s + 1 Mage bonus rank-2 are free
       expect(budget.available).toBe(0);
+      expect(getMageCreationRank2Ability(char)).toEqual({ pathId: 'voie-du-mage', rank: 2 });
 
-      // Level 2 gives 2 points
+      // Level 2 gives 2 full points
       char.level = 2;
       const budgetL2 = calculateCapabilityPoints(char);
       expect(budgetL2.available).toBe(2);
 
-      // Rank 2 of Voie du Mage costs 1 point
+      // Buying an additional rank 2 at level 2 costs 1 point
+      char.acquiredAbilities.push({ pathId: 'voie-de-la-magie-destructrice', rank: 2 });
+      const budgetWithSecondR2 = calculateCapabilityPoints(char);
+      expect(budgetWithSecondR2.spent).toBe(1);
+      expect(budgetWithSecondR2.available).toBe(1);
+    });
+
+    it('handles Mage creation bonus and Voie du Mage eligibility including Psionique Mages and hybrids', () => {
+      const magicien = createDefaultCharacter();
+      magicien.profileId = 'magicien';
+      expect(hasMageCreationBonus(magicien)).toBe(true);
+      expect(canUseVoieDuMage(magicien)).toBe(true);
+
+      const primaliste = createDefaultCharacter();
+      primaliste.profileId = 'primaliste';
+      expect(hasMageCreationBonus(primaliste)).toBe(true);
+      expect(canUseVoieDuMage(primaliste)).toBe(false);
+
+      const guerrier = createDefaultCharacter();
+      guerrier.profileId = 'guerrier';
+      expect(hasMageCreationBonus(guerrier)).toBe(false);
+      expect(canUseVoieDuMage(guerrier)).toBe(false);
+
+      // Psionique choosing Mages family gets both the bonus rank 2 and Voie du Mage
+      const psioniqueMage = createDefaultCharacter();
+      psioniqueMage.profileId = 'psionique';
+      psioniqueMage.profileFamily = 'Mages';
+      expect(hasMageCreationBonus(psioniqueMage)).toBe(true);
+      expect(canUseVoieDuMage(psioniqueMage)).toBe(true);
+
+      // Psionique choosing Mystiques does not
+      const psioniqueMystique = createDefaultCharacter();
+      psioniqueMystique.profileId = 'psionique';
+      psioniqueMystique.profileFamily = 'Mystiques';
+      expect(hasMageCreationBonus(psioniqueMystique)).toBe(false);
+      expect(canUseVoieDuMage(psioniqueMystique)).toBe(false);
+
+      // Hybrid Guerrier + Sorcier
+      const hybridMage = createDefaultCharacter();
+      hybridMage.profileId = 'guerrier';
+      hybridMage.isHybrid = true;
+      hybridMage.secondaryProfileId = 'sorcier';
+      expect(hasMageCreationBonus(hybridMage)).toBe(true);
+      expect(canUseVoieDuMage(hybridMage)).toBe(true);
+    });
+
+    it('counts Maîtrise de la magie (Voie du Mage rank 2) in PM at level 1 when chosen as Mage bonus', () => {
+      const char = createDefaultCharacter();
+      char.profileId = 'magicien';
+      char.peopleId = 'humain';
+      char.baseStats.VOL = 2;
+      char.selectedPathIds = ['voie-de-la-magie-des-arcanes', 'voie-de-la-magie-protectrice', 'voie-du-mage'];
+      char.acquiredAbilities = [
+        { pathId: 'voie-de-la-magie-des-arcanes', rank: 1 }, // isSpell: false (or depends on path)
+        { pathId: 'voie-de-la-magie-protectrice', rank: 1 },
+        { pathId: 'voie-de-l-humain', rank: 1 },
+        { pathId: 'voie-du-mage', rank: 1 },
+      ];
+      const statsWithoutR2 = computeCharacterStats(char);
+
       char.acquiredAbilities.push({ pathId: 'voie-du-mage', rank: 2 });
-      const budgetWithR2 = calculateCapabilityPoints(char);
-      expect(budgetWithR2.spent).toBe(1);
-      expect(budgetWithR2.available).toBe(1);
+      const statsWithR2 = computeCharacterStats(char);
+      expect(statsWithR2.maxPm).toBe(statsWithoutR2.maxPm + 1);
     });
   });
 

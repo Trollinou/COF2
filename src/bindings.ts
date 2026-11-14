@@ -75,7 +75,7 @@ export type CharacterRecord = { id: string; version?: string; updatedAt?: string
  * Historique des apprentissages niveau par niveau (permet de tracer et de revenir en arrière)
  */
 progressionHistory?: LevelProgressionStep[]; currentHp: number; maxHpBonus?: number; levelUpHpGains?: number[]; halfHpPending?: boolean | null; currentDr: number; currentPc: number; currentPm: number; equippedArmorId?: string | null; equippedShieldId?: string | null; weapons?: CharacterWeaponInstance[]; inventory?: InventoryItem[]; coins?: Coins }
-export type CharacterWeaponInstance = { id: string; weaponRefId: string; name: string; damage: string; range: string; category: string; bonusAttack: number; bonusDamage: number; requiresTwoHands?: boolean; attackStatUsed?: StatCode | null; attackStatSource?: string | null }
+export type CharacterWeaponInstance = { id: string; weaponRefId: string; name: string; damage: string; range: string; category: string; bonusAttack?: number; bonusDamage?: number; requiresTwoHands?: boolean; attackStatUsed?: StatCode | null; attackStatSource?: string | null }
 export type Coins = { pa: number; pc: number; po: number }
 /**
  * Fiche de statistiques dérivées calculée à la volée par le moteur Rust

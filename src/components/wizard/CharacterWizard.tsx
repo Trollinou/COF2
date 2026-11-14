@@ -13,7 +13,9 @@ import {
   applyRacialDefaults,
   getRacialPathId,
   isDomainPath,
-  isMageProfile,
+  canUseVoieDuMage,
+  hasMageCreationBonus,
+  getMageCreationRank2Ability,
   isRacialReplacementPath,
   getReplacedRacialPath,
   checkWeaponProficiency,
@@ -157,26 +159,42 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     update({ coins: { ...character.coins, pa: d1 + d2 } });
   };
 
-  // Ensure character.selectedPathIds contains the exact racial, domain or mage path
+  // Ensure character.selectedPathIds contains the exact racial, domain or mage path,
+  // and clean up any ineligible Mage bonus rank 2 if profile/family changed.
   React.useEffect(() => {
     const secProf = character.isHybrid && character.secondaryProfileId
       ? PROFILES.find(p => p.id === character.secondaryProfileId)
       : undefined;
     const allProfilePaths = [...selectedProfile.paths, ...(secProf ? secProf.paths : [])];
 
+    const hasIneligibleRank2 = !hasMageCreationBonus(character) && character.acquiredAbilities.some(a => a.rank === 2);
     const existingThirdPath = character.selectedPathIds.find(id => !allProfilePaths.includes(id));
-    if (existingThirdPath && (
-      (isDomainPath(existingThirdPath) && (character.profileId === 'pretre' || character.secondaryProfileId === 'pretre')) ||
-      (existingThirdPath === 'voie-du-mage' && (isMageProfile(character.profileId) || (character.secondaryProfileId ? isMageProfile(character.secondaryProfileId) : false)))
-    )) {
+    const isValidReplacement = Boolean(
+      existingThirdPath && (
+        (isDomainPath(existingThirdPath) && (character.profileId === 'pretre' || character.secondaryProfileId === 'pretre')) ||
+        (existingThirdPath === 'voie-du-mage' && canUseVoieDuMage(character))
+      )
+    );
+
+    if (isValidReplacement && !hasIneligibleRank2) {
       return;
     }
+
     const expectedRacial = getRacialPathId(character.peopleId, existingThirdPath);
-    if (existingThirdPath !== expectedRacial) {
-      const updated = applyRacialDefaults(character, character.peopleId, expectedRacial);
+    let updated = character;
+    if (!isValidReplacement && existingThirdPath !== expectedRacial) {
+      updated = applyRacialDefaults(updated, updated.peopleId, expectedRacial);
+    }
+    if (!hasMageCreationBonus(updated) && updated.acquiredAbilities.some(a => a.rank === 2)) {
+      updated = {
+        ...updated,
+        acquiredAbilities: updated.acquiredAbilities.filter(a => a.rank !== 2),
+      };
+    }
+    if (updated !== character) {
       onChange(updated);
     }
-  }, [character.peopleId, character.profileId, character.secondaryProfileId, character.isHybrid, selectedProfile]);
+  }, [character.peopleId, character.profileId, character.profileFamily, character.secondaryProfileId, character.isHybrid, selectedProfile]);
 
   // Handle Profile Selection
   const handleSelectProfile = (profileId: string) => {
@@ -253,6 +271,8 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       damage: w.damage,
       range: w.range,
       category: w.category,
+      bonusAttack: 0,
+      bonusDamage: 0,
       requiresTwoHands: check.requiresTwoHands,
     };
 
@@ -566,13 +586,20 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
             ? PROFILES.find(p => p.id === character.secondaryProfileId)
             : undefined;
           const allProfilePaths = [...selectedProfile.paths, ...(secProf ? secProf.paths : [])];
-          const isStep5Incomplete = currentStep === 5 && character.selectedPathIds.filter(id => allProfilePaths.includes(id)).length < 2;
+          const missingProfilePaths = character.selectedPathIds.filter(id => allProfilePaths.includes(id)).length < 2;
+          const missingMageRank2 = hasMageCreationBonus(character) && !getMageCreationRank2Ability(character);
+          const isStep5Incomplete = currentStep === 5 && (missingProfilePaths || missingMageRank2);
+          const step5IncompleteReason = missingProfilePaths
+            ? "Veuillez choisir 2 voies de profil pour continuer"
+            : missingMageRank2
+            ? "Veuillez choisir votre capacité de rang 2 bonus (Famille des Mages) pour continuer"
+            : undefined;
           return (
             <button
               disabled={isStep5Incomplete}
               onClick={() => setCurrentStep(prev => Math.min(totalSteps, prev + 1))}
               className="flex items-center space-x-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed text-stone-950 px-4 py-2 rounded-lg text-sm font-bold transition shadow"
-              title={isStep5Incomplete ? "Veuillez choisir 2 voies de profil pour continuer" : undefined}
+              title={step5IncompleteReason}
             >
               <span>Suivant</span>
               <ChevronRight className="w-4 h-4" />

@@ -6,7 +6,8 @@ import {
   applyRacialDefaults,
   PRIEST_DEITIES,
   isDomainPath,
-  isMageProfile,
+  canUseVoieDuMage,
+  hasMageCreationBonus,
   isRacialReplacementPath,
   getDomainPathForDeity,
   getDeityByDomainPathId,
@@ -15,6 +16,7 @@ import {
 import { ChevronDown, ChevronUp, Sparkles, Shield, BookOpen, Shuffle } from 'lucide-react';
 import { ActionBadges } from '../../sheet/ActionBadges';
 import { CompanionCard } from '../../sheet/CompanionCard';
+import { MageBonusRank2Panel } from './MageBonusRank2Panel';
 
 interface Step5PathsProps {
   character: CharacterSheet;
@@ -45,7 +47,8 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
 
   const selectedProfilePaths = character.selectedPathIds.filter(id => allProfilePathIds.includes(id));
   const isPriest = selectedProfile.id === 'pretre' || secondaryProfile?.id === 'pretre';
-  const isMage = isMageProfile(selectedProfile.id) || (secondaryProfile ? isMageProfile(secondaryProfile.id) : false);
+  const isMage = canUseVoieDuMage(character);
+  const hasMageBonus = hasMageCreationBonus(character);
   const defaultRacialPathId = getRacialPathId(character.peopleId);
   const defaultRacialPath = getPathById(defaultRacialPathId);
 
@@ -831,6 +834,16 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
           </div>
         )}
       </div>
+
+      {/* Mage Family Bonus Rank 2 Capability at Level 1 */}
+      {hasMageBonus && (
+        <MageBonusRank2Panel
+          character={character}
+          onChange={onChange}
+          selectedProfilePaths={selectedProfilePaths}
+          isVoieDuMageActive={isVoieDuMageActive}
+        />
+      )}
     </div>
   );
 };

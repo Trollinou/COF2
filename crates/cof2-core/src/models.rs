@@ -37,7 +37,9 @@ pub struct CharacterWeaponInstance {
     pub damage: String,
     pub range: String,
     pub category: String,
+    #[serde(default)]
     pub bonus_attack: i32,
+    #[serde(default)]
     pub bonus_damage: i32,
     #[serde(default)]
     pub requires_two_hands: bool,

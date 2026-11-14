@@ -219,6 +219,78 @@ export function isMageProfile(profileId: string): boolean {
   );
 }
 
+/**
+ * Returns true if the character belongs to the Mages family for the level-1
+ * bonus rank-2 capability (profiles with `hasMageBonus: true`, or a Psionique
+ * who chose the Mages family, including in hybrid mode).
+ */
+export function hasMageCreationBonus(char: CharacterSheet): boolean {
+  const profile = getProfileById(char.profileId);
+  const secondaryProfile =
+    char.isHybrid && char.secondaryProfileId
+      ? getProfileById(char.secondaryProfileId)
+      : undefined;
+  const isPsionicMage =
+    (char.profileId === "psionique" ||
+      (Boolean(char.isHybrid) && char.secondaryProfileId === "psionique")) &&
+    char.profileFamily === "Mages";
+  return Boolean(
+    profile?.hasMageBonus || secondaryProfile?.hasMageBonus || isPsionicMage,
+  );
+}
+
+/**
+ * Returns true if the character can replace their racial path with Voie du Mage
+ * (classic Mage profiles or a Psionique who chose the Mages family).
+ */
+export function canUseVoieDuMage(char: CharacterSheet): boolean {
+  const isPsionicMage =
+    (char.profileId === "psionique" ||
+      (Boolean(char.isHybrid) && char.secondaryProfileId === "psionique")) &&
+    char.profileFamily === "Mages";
+  return (
+    isMageProfile(char.profileId) ||
+    Boolean(
+      char.isHybrid &&
+        char.secondaryProfileId &&
+        isMageProfile(char.secondaryProfileId),
+    ) ||
+    isPsionicMage
+  );
+}
+
+/**
+ * Returns the eligible rank-2 capability chosen at level 1 for a Mage-family
+ * character (either in one of the 2 selected profile paths or in Voie du Mage),
+ * or null if none is currently selected.
+ */
+export function getMageCreationRank2Ability(
+  char: CharacterSheet,
+): { pathId: string; rank: number } | null {
+  if (!hasMageCreationBonus(char)) return null;
+  const profile = getProfileById(char.profileId);
+  const secondaryProfile =
+    char.isHybrid && char.secondaryProfileId
+      ? getProfileById(char.secondaryProfileId)
+      : undefined;
+  const allProfilePathIds = [
+    ...(profile?.paths || []),
+    ...(secondaryProfile?.paths || []),
+  ];
+  const eligiblePathIds = new Set(
+    (char.selectedPathIds || []).filter(
+      (id) =>
+        allProfilePathIds.includes(id) ||
+        (id === "voie-du-mage" && canUseVoieDuMage(char)),
+    ),
+  );
+  return (
+    (char.acquiredAbilities || []).find(
+      (a) => a.rank === 2 && eligiblePathIds.has(a.pathId),
+    ) || null
+  );
+}
+
 export function isRacialReplacementPath(pathId: string): boolean {
   return isDomainPath(pathId) || pathId === "voie-du-mage";
 }
@@ -786,6 +858,8 @@ export function getDefaultEquipmentForProfile(
           damage: w.damage,
           range: w.range,
           category: w.category,
+          bonusAttack: 0,
+          bonusDamage: 0,
           requiresTwoHands: check.requiresTwoHands,
         });
       }
@@ -2074,7 +2148,8 @@ export function calculateCapabilityPoints(char: CharacterSheet) {
     return p?.type === "racial" && a.rank === 1;
   });
 
-  const baseFreePoints = hasDomainR1 && hasRacialR1 ? 4 : 3;
+  const mageCreationBonus = hasMageCreationBonus(char) ? 1 : 0;
+  const baseFreePoints = (hasDomainR1 && hasRacialR1 ? 4 : 3) + mageCreationBonus;
   const netSpent = Math.max(0, pointsSpent - baseFreePoints);
   const available = levelUpPoints - netSpent;
 
