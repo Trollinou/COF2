@@ -152,7 +152,6 @@ export const Step2Identity: React.FC<Step2IdentityProps> = ({
             {!isSexLocked && <option value="">— Choisir —</option>}
             <option value="Masculin">Masculin</option>
             <option value="Féminin">Féminin</option>
-            {!isSexLocked && <option value="Autre">Autre</option>}
           </select>
         </div>
 
