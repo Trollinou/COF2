@@ -8,6 +8,7 @@ interface RankChoiceSelectorProps {
   rank: ActionRank;
   onChangeChoice?: (choiceKey: string, optionId: string) => void;
   readOnly?: boolean;
+  requireExplicitChoice?: boolean;
   variant?: 'amber' | 'emerald';
 }
 
@@ -17,14 +18,16 @@ export const RankChoiceSelector: React.FC<RankChoiceSelectorProps> = ({
   rank,
   onChangeChoice,
   readOnly = false,
+  requireExplicitChoice = false,
   variant = 'amber',
 }) => {
   const options = rank.modifiers?.choiceOptions;
   if (!options || options.length === 0) return null;
 
   const choiceKey = `${pathId}_${rank.rank}`;
-  const chosenId = character.pathRankChoices?.[choiceKey] || options[0]?.id;
-  const chosenOption = options.find(o => o.id === chosenId) || options[0];
+  const explicitChoice = character.pathRankChoices?.[choiceKey];
+  const chosenId = requireExplicitChoice ? explicitChoice : (explicitChoice || options[0]?.id);
+  const chosenOption = options.find(o => o.id === chosenId) || (requireExplicitChoice ? undefined : options[0]);
 
   const isEmerald = variant === 'emerald';
   const containerClass = isEmerald

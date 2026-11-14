@@ -6,7 +6,7 @@ import { Search, CheckCircle2, ChevronRight, Sparkles, Target, Shuffle, Heart, S
 interface Step3ProfilesProps {
   character: CharacterSheet;
   update: (partial: Partial<CharacterSheet>) => void;
-  selectedProfile: ProfileData;
+  selectedProfile?: ProfileData;
   handleSelectProfile: (profileId: string) => void;
   profileFamilyFilter: ProfileFamily | 'all';
   setProfileFamilyFilter: (filter: ProfileFamily | 'all') => void;
@@ -55,7 +55,7 @@ export const Step3Profiles: React.FC<Step3ProfilesProps> = ({
       <div className="border-b border-stone-800 pb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="font-serif font-bold text-lg text-amber-200">
-            Étape 3 : Choix du Profil (Classe)
+            Étape 2 : Choix du Profil (Classe)
           </h3>
           <p className="text-xs text-stone-400">
             Sélectionnez votre profil dans la liste à gauche. Sa description, ses caractéristiques clés et son équipement s'affichent instantanément à droite.
@@ -105,7 +105,7 @@ export const Step3Profiles: React.FC<Step3ProfilesProps> = ({
       </div>
 
       {/* Hybrid Configuration Banner */}
-      {isHybrid && (
+      {isHybrid && selectedProfile && (
         <div className="bg-gradient-to-r from-amber-950/50 via-stone-950 to-amber-950/50 p-4 rounded-xl border border-amber-800/80 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-900/40 pb-2">
             <div className="flex items-center space-x-2">
@@ -258,7 +258,16 @@ export const Step3Profiles: React.FC<Step3ProfilesProps> = ({
         </div>
 
         {/* DROITE : DÉTAIL DU PROFIL SÉLECTIONNÉ */}
-        {selectedProfile && (
+        {!selectedProfile ? (
+          <div className="lg:col-span-8 xl:col-span-8 bg-stone-950/70 border border-stone-800 rounded-xl p-10 text-center space-y-2">
+            <p className="text-sm font-serif font-bold text-amber-200">
+              Aucun profil sélectionné
+            </p>
+            <p className="text-xs text-stone-400">
+              Choisissez un profil dans la liste à gauche pour découvrir ses caractéristiques clés, ses voies et ses règles d'équipement.
+            </p>
+          </div>
+        ) : (
           <div className="lg:col-span-8 xl:col-span-8 space-y-4">
             {/* PARTIE DROITE SUPÉRIEURE : PRÉSENTATION & CARACS CLÉS */}
             <div className="bg-stone-950 p-4 sm:p-5 rounded-xl border border-stone-800 space-y-3 shadow-sm">
@@ -268,7 +277,7 @@ export const Step3Profiles: React.FC<Step3ProfilesProps> = ({
                     {selectedProfile.name}
                   </h4>
                   <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-medium">
-                    Famille : {selectedProfile.isFamilySelectable ? (character.profileFamily || selectedProfile.family) + ' (au choix)' : selectedProfile.family}
+                    Famille : {selectedProfile.isFamilySelectable ? (character.profileFamily || 'À choisir') : selectedProfile.family}
                   </span>
                 </div>
                 <div className="text-xs text-stone-400 font-mono">
@@ -282,10 +291,10 @@ export const Step3Profiles: React.FC<Step3ProfilesProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-purple-200 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                      <span>Famille d'intégration du Psionique :</span>
+                      <span>Famille d'intégration du Psionique * :</span>
                     </span>
                     <span className="text-[10px] px-2 py-0.5 rounded bg-purple-900/80 text-purple-200 font-mono">
-                      {character.profileFamily || selectedProfile.family}
+                      {character.profileFamily || 'Non choisie'}
                     </span>
                   </div>
                   <p className="text-[11px] text-stone-300 leading-relaxed">
@@ -293,7 +302,7 @@ export const Step3Profiles: React.FC<Step3ProfilesProps> = ({
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {(['Aventuriers', 'Combattants', 'Mages', 'Mystiques'] as const).map(fam => {
-                      const isChosen = (character.profileFamily || selectedProfile.family) === fam;
+                      const isChosen = character.profileFamily === fam;
                       return (
                         <button
                           key={fam}

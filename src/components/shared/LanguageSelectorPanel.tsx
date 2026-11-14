@@ -21,6 +21,7 @@ interface LanguageSelectorPanelProps {
   onAddSecondaryTalent: (talent: string) => void;
   onRemoveSecondaryTalent: (talent: string) => void;
   compact?: boolean;
+  enforceSlotLimit?: boolean;
 }
 
 export const LanguageSelectorPanel: React.FC<LanguageSelectorPanelProps> = ({
@@ -37,12 +38,14 @@ export const LanguageSelectorPanel: React.FC<LanguageSelectorPanelProps> = ({
   onAddSecondaryTalent,
   onRemoveSecondaryTalent,
   compact = false,
+  enforceSlotLimit = false,
 }) => {
   const [customLang, setCustomLang] = useState('');
   const [customTalent, setCustomTalent] = useState('');
 
   const remainingSlots = bonusLanguageSlots - usedBonusSlots;
   const isOverLimit = remainingSlots < 0;
+  const noSlotsLeft = enforceSlotLimit && remainingSlots <= 0;
 
   const literacyBadgeClass =
     literacy === 'literate'
@@ -55,6 +58,8 @@ export const LanguageSelectorPanel: React.FC<LanguageSelectorPanelProps> = ({
     e.preventDefault();
     const trimmed = customLang.trim();
     if (!trimmed) return;
+    const cost = trimmed.toLowerCase() === 'argotien' ? argotienSlotCost : 1;
+    if (enforceSlotLimit && remainingSlots < cost) return;
     onAddLanguage(trimmed);
     setCustomLang('');
   };
@@ -63,6 +68,7 @@ export const LanguageSelectorPanel: React.FC<LanguageSelectorPanelProps> = ({
     e.preventDefault();
     const trimmed = customTalent.trim();
     if (!trimmed) return;
+    if (noSlotsLeft) return;
     onAddSecondaryTalent(trimmed);
     setCustomTalent('');
   };
@@ -152,7 +158,9 @@ export const LanguageSelectorPanel: React.FC<LanguageSelectorPanelProps> = ({
           {OFFICIAL_LANGUAGES.map(lang => {
             const isAuto = automaticLanguages.some(l => l.toLowerCase() === lang.toLowerCase());
             const isSelected = selectedLanguages.some(l => l.toLowerCase() === lang.toLowerCase());
-            const disabled = isAuto || isSelected;
+            const cost = lang === 'Argotien' ? argotienSlotCost : 1;
+            const insufficientSlots = enforceSlotLimit && remainingSlots < cost;
+            const disabled = isAuto || isSelected || insufficientSlots;
             return (
               <button
                 key={lang}
@@ -176,13 +184,15 @@ export const LanguageSelectorPanel: React.FC<LanguageSelectorPanelProps> = ({
           <input
             type="text"
             value={customLang}
+            disabled={noSlotsLeft}
             onChange={e => setCustomLang(e.target.value)}
-            placeholder="Autre langue (dialecte, langue ancienne...)"
-            className="flex-1 bg-stone-900 border border-stone-700 rounded px-2.5 py-1 text-xs text-stone-200 focus:border-amber-500 focus:outline-none"
+            placeholder={noSlotsLeft ? 'Aucun emplacement disponible' : 'Autre langue (dialecte, langue ancienne...)'}
+            className="flex-1 bg-stone-900 border border-stone-700 rounded px-2.5 py-1 text-xs text-stone-200 focus:border-amber-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button
             type="submit"
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition"
+            disabled={noSlotsLeft}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Ajouter</span>
@@ -221,14 +231,15 @@ export const LanguageSelectorPanel: React.FC<LanguageSelectorPanelProps> = ({
         <div className="flex flex-wrap gap-1.5">
           {SECONDARY_TALENT_EXAMPLES.map(example => {
             const exists = secondaryTalents.some(t => t.toLowerCase() === example.toLowerCase());
+            const disabled = exists || noSlotsLeft;
             return (
               <button
                 key={example}
                 type="button"
-                disabled={exists}
+                disabled={disabled}
                 onClick={() => onAddSecondaryTalent(example)}
                 className={`px-2 py-0.5 rounded text-[10px] transition border ${
-                  exists
+                  disabled
                     ? 'bg-stone-900 text-stone-500 border-stone-800 cursor-default opacity-60'
                     : 'bg-stone-900 hover:bg-stone-800 text-stone-300 border-stone-700'
                 }`}
@@ -243,13 +254,15 @@ export const LanguageSelectorPanel: React.FC<LanguageSelectorPanelProps> = ({
           <input
             type="text"
             value={customTalent}
+            disabled={noSlotsLeft}
             onChange={e => setCustomTalent(e.target.value)}
-            placeholder="Autre talent secondaire / loisir..."
-            className="flex-1 bg-stone-900 border border-stone-700 rounded px-2.5 py-1 text-xs text-stone-200 focus:border-amber-500 focus:outline-none"
+            placeholder={noSlotsLeft ? 'Aucun emplacement disponible' : 'Autre talent secondaire / loisir...'}
+            className="flex-1 bg-stone-900 border border-stone-700 rounded px-2.5 py-1 text-xs text-stone-200 focus:border-amber-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button
             type="submit"
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition"
+            disabled={noSlotsLeft}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Talent</span>

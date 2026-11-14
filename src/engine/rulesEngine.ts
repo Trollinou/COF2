@@ -957,7 +957,7 @@ export const STAT_NAMES: Record<StatCode, string> = {
   CHA: "Charisme",
 };
 
-const ALL_STAT_CODES: StatCode[] = [
+export const ALL_STAT_CODES: StatCode[] = [
   "FOR",
   "AGI",
   "CON",
@@ -1013,15 +1013,18 @@ export function computeRacialStatModifiers(
 
   if (people.statChoices) {
     people.statChoices.forEach((choice, idx) => {
+      const hasExplicitChoicesArray = Array.isArray(racialStatChoices);
       const chosen = racialStatChoices?.[idx];
       const isAny = choice.options.includes("ANY_LOWEST");
       let targetStat: StatCode | undefined;
       if (chosen && (isAny || choice.options.includes(chosen))) {
         targetStat = chosen;
-      } else if (!isAny && choice.options.length > 0) {
-        targetStat = choice.options[0] as StatCode;
-      } else if (isAny) {
-        targetStat = "FOR";
+      } else if (!hasExplicitChoicesArray) {
+        if (!isAny && choice.options.length > 0) {
+          targetStat = choice.options[0] as StatCode;
+        } else if (isAny) {
+          targetStat = "FOR";
+        }
       }
       if (targetStat && result[targetStat] !== undefined) {
         result[targetStat] += choice.value;
@@ -1837,45 +1840,71 @@ export function applyRacialDefaults(
   char: CharacterSheet,
   peopleId: string,
   chosenRacialPathId?: string,
+  options?: { preserveEmptyChoices?: boolean },
 ): CharacterSheet {
   const p = getPeopleById(peopleId);
   if (!p) return char;
 
-  const racialStatChoices: StatCode[] = (p.statChoices || []).map((c) =>
-    c.options[0] && c.options[0] !== "ANY_LOWEST"
-      ? (c.options[0] as StatCode)
-      : "FOR",
+  const preserveEmpty = Boolean(options?.preserveEmptyChoices);
+
+  const racialStatChoices: StatCode[] = preserveEmpty
+    ? []
+    : (p.statChoices || []).map((c) =>
+        c.options[0] && c.options[0] !== "ANY_LOWEST"
+          ? (c.options[0] as StatCode)
+          : "FOR",
+      );
+
+  const hasSelectableRacial = Boolean(
+    p.selectableRacialPaths && p.selectableRacialPaths.length > 0,
   );
+  const racialPathId =
+    preserveEmpty && hasSelectableRacial && !chosenRacialPathId
+      ? ""
+      : getRacialPathId(peopleId, chosenRacialPathId);
 
-  const racialPathId = getRacialPathId(peopleId, chosenRacialPathId);
-
-  // Keep the 2 profile paths, replace the racial path (at index 2)
-  const profile = getProfileById(char.profileId) || PROFILES[0];
+  // Keep existing profile paths if any (do not auto-select profile paths when preserveEmpty is true)
+  const profile = getProfileById(char.profileId);
   const secProfile =
     char.isHybrid && char.secondaryProfileId
       ? getProfileById(char.secondaryProfileId)
       : undefined;
-  const allProfilePaths = [
-    ...profile.paths,
-    ...(secProfile ? secProfile.paths : []),
-  ];
+  const allProfilePaths = profile
+    ? [...profile.paths, ...(secProfile ? secProfile.paths : [])]
+    : [];
 
   const currentProfilePaths = char.selectedPathIds.filter((id) =>
     allProfilePaths.includes(id),
   );
-  const p1 = currentProfilePaths[0] || profile.paths[0];
-  const p2 =
-    currentProfilePaths[1] ||
-    (secProfile
-      ? secProfile.paths[0]
-      : profile.paths.find((id) => id !== p1) || profile.paths[1]);
-  const updatedPaths = [p1, p2, racialPathId];
 
-  // Keep profile abilities, replace racial ability
-  const updatedAcquired = [
-    ...char.acquiredAbilities.filter((a) => a.pathId === p1 || a.pathId === p2),
-    { pathId: racialPathId, rank: 1 },
-  ];
+  let updatedPaths: string[];
+  let updatedAcquired: CharacterSheet["acquiredAbilities"];
+
+  if (preserveEmpty) {
+    updatedPaths = racialPathId
+      ? [...currentProfilePaths, racialPathId]
+      : [...currentProfilePaths];
+    updatedAcquired = [
+      ...char.acquiredAbilities.filter((a) =>
+        currentProfilePaths.includes(a.pathId),
+      ),
+      ...(racialPathId ? [{ pathId: racialPathId, rank: 1 }] : []),
+    ];
+  } else {
+    const fallbackProfile = profile || PROFILES[0];
+    const p1 = currentProfilePaths[0] || fallbackProfile.paths[0];
+    const p2 =
+      currentProfilePaths[1] ||
+      (secProfile
+        ? secProfile.paths[0]
+        : fallbackProfile.paths.find((id) => id !== p1) ||
+          fallbackProfile.paths[1]);
+    updatedPaths = [p1, p2, racialPathId];
+    updatedAcquired = [
+      ...char.acquiredAbilities.filter((a) => a.pathId === p1 || a.pathId === p2),
+      { pathId: racialPathId, rank: 1 },
+    ];
+  }
 
   let nextArmorId = char.equippedArmorId;
   const preferredArmorId = p.equipmentRules?.preferredArmorId;
@@ -1892,13 +1921,24 @@ export function applyRacialDefaults(
     nextArmorId = preferredArmorId;
   }
 
+  // Sex lock for Lutins (farfadet -> Masculin, fee -> Féminin)
+  let nextSex = char.sex;
+  if (peopleId === "farfadet") {
+    nextSex = "Masculin";
+  } else if (peopleId === "fee") {
+    nextSex = "Féminin";
+  } else if (preserveEmpty && (char.peopleId === "farfadet" || char.peopleId === "fee")) {
+    nextSex = "";
+  }
+
   const updatedChar: CharacterSheet = {
     ...char,
     peopleId,
+    sex: nextSex,
     equippedArmorId: nextArmorId,
     age: p.startingAge,
-    height: p.heightRange,
-    weight: p.weightRange,
+    height: preserveEmpty ? "" : p.heightRange,
+    weight: preserveEmpty ? "" : p.weightRange,
     physicalTraits: p.physicalTraits,
     languages: [],
     secondaryTalents: [],
@@ -1909,7 +1949,9 @@ export function applyRacialDefaults(
     updatedAt: new Date().toISOString(),
   };
 
-  const sanitized = sanitizeCharacterEquipment(updatedChar);
+  const sanitized = char.profileId
+    ? sanitizeCharacterEquipment(updatedChar)
+    : updatedChar;
   const computed = computeCharacterStats(sanitized);
   sanitized.currentHp = computed.maxHp;
   sanitized.currentDr = computed.maxDr;
@@ -2012,6 +2054,69 @@ export function createDefaultCharacter(): CharacterSheet {
   initialChar.currentPm = computed.maxPm;
 
   return initialChar;
+}
+
+/**
+ * Creates a blank character for the creation wizard with no pre-selected choices.
+ */
+export function createBlankWizardCharacter(): CharacterSheet {
+  return {
+    id: "char_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7),
+    version: "1.0.0",
+    updatedAt: new Date().toISOString(),
+    name: "",
+    playerName: "",
+    sex: "",
+    age: "",
+    height: "",
+    weight: "",
+    physicalTraits: "",
+    languages: [],
+    secondaryTalents: [],
+    background: "",
+    ideal: "",
+    flaw: "",
+    notes: "",
+    peopleId: "",
+    profileId: "",
+    profileFamily: undefined,
+    level: 1,
+    baseStats: {
+      FOR: 0,
+      AGI: 0,
+      CON: 0,
+      PER: 0,
+      INT: 0,
+      VOL: 0,
+      CHA: 0,
+    },
+    statArrayPreset: "",
+    racialStatChoices: [],
+    racialStatModifiers: createEmptyStatRecord(),
+    manualStatBonuses: {},
+    selectedPathIds: [],
+    acquiredAbilities: [],
+    deity: undefined,
+    pathRankChoices: {},
+    currentHp: 0,
+    maxHpBonus: 0,
+    currentDr: 0,
+    currentPc: 0,
+    currentPm: 0,
+    equippedArmorId: undefined,
+    equippedShieldId: undefined,
+    weapons: [],
+    inventory: ADVENTURER_KIT.map((item, idx) => ({
+      id: "inv_" + idx,
+      name: item,
+      quantity: 1,
+    })),
+    coins: {
+      pa: 0,
+      pc: 0,
+      po: 0,
+    },
+  };
 }
 
 export const POINT_BUY_BASE_BUDGET = 7;

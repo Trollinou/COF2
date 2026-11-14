@@ -52,7 +52,7 @@ export const Step6Equipment: React.FC<Step6EquipmentProps> = ({
     <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 shadow space-y-6">
       <div className="border-b border-stone-800 pb-4">
         <h3 className="font-serif font-bold text-lg text-amber-200">
-          Étape 6 : Équipement & Armes de Départ
+          Étape 5 : Équipement & Armes de Départ
         </h3>
         <p className="text-xs text-stone-400">
           Sélectionnez vos armes et armures selon les limitations strictes de votre profil et de votre peuple.

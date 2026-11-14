@@ -67,33 +67,35 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
     });
   };
 
-  const currentThirdPathId = character.selectedPathIds.find(id => !allProfilePathIds.includes(id))
-    || defaultRacialPathId;
+  const explicitThirdPathId = character.selectedPathIds.find(id => !allProfilePathIds.includes(id)) || '';
+  const currentThirdPathId = explicitThirdPathId;
   const isDomainActive = isDomainPath(currentThirdPathId);
   const isVoieDuMageActive = currentThirdPathId === 'voie-du-mage';
+  const isRacialActive = Boolean(currentThirdPathId && !isDomainActive && !isVoieDuMageActive);
   const isReplacementActive = isDomainActive || isVoieDuMageActive;
-  const currentThirdPath = getPathById(currentThirdPathId);
-  const currentDeityInfo = getDeityByDomainPathId(currentThirdPathId);
+  const currentThirdPath = currentThirdPathId ? getPathById(currentThirdPathId) : undefined;
+  const currentDeityInfo = currentThirdPathId ? getDeityByDomainPathId(currentThirdPathId) : undefined;
 
   const [domainFilter, setDomainFilter] = useState('');
+  const [domainPending, setDomainPending] = useState(false);
 
   const handleSelectDomain = (deityName: string) => {
+    if (!deityName) return;
     const dPath = getDomainPathForDeity(deityName);
     if (!dPath) return;
-    const p1 = selectedProfilePaths[0] || selectedProfile.paths[0];
-    const p2 = selectedProfilePaths[1] || (secondaryProfile ? secondaryProfile.paths[0] : selectedProfile.paths[1]);
 
-    const nextSelected = [p1, p2, dPath.id];
+    const nextSelected = [...selectedProfilePaths, dPath.id];
     const nextAcquired = character.acquiredAbilities.filter(
-      a => a.pathId === p1 || a.pathId === p2 || a.pathId === defaultRacialPathId
+      a => selectedProfilePaths.includes(a.pathId) || a.pathId === defaultRacialPathId
     );
-    if (!nextAcquired.some(a => a.pathId === defaultRacialPathId && a.rank === 1)) {
+    if (defaultRacialPathId && !nextAcquired.some(a => a.pathId === defaultRacialPathId && a.rank === 1)) {
       nextAcquired.push({ pathId: defaultRacialPathId, rank: 1 });
     }
     if (!nextAcquired.some(a => a.pathId === dPath.id && a.rank === 1)) {
       nextAcquired.push({ pathId: dPath.id, rank: 1 });
     }
 
+    setDomainPending(false);
     onChange({
       ...character,
       deity: deityName,
@@ -104,14 +106,12 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
   };
 
   const handleSelectVoieDuMage = () => {
-    const p1 = selectedProfilePaths[0] || selectedProfile.paths[0];
-    const p2 = selectedProfilePaths[1] || (secondaryProfile ? secondaryProfile.paths[0] : selectedProfile.paths[1]);
-
-    const nextSelected = [p1, p2, 'voie-du-mage'];
+    setDomainPending(false);
+    const nextSelected = [...selectedProfilePaths, 'voie-du-mage'];
     const nextAcquired = character.acquiredAbilities.filter(
-      a => a.pathId === p1 || a.pathId === p2 || a.pathId === defaultRacialPathId
+      a => selectedProfilePaths.includes(a.pathId) || a.pathId === defaultRacialPathId
     );
-    if (!nextAcquired.some(a => a.pathId === defaultRacialPathId && a.rank === 1)) {
+    if (defaultRacialPathId && !nextAcquired.some(a => a.pathId === defaultRacialPathId && a.rank === 1)) {
       nextAcquired.push({ pathId: defaultRacialPathId, rank: 1 });
     }
     if (!nextAcquired.some(a => a.pathId === 'voie-du-mage' && a.rank === 1)) {
@@ -127,13 +127,13 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
   };
 
   const handleSelectRacial = (targetRacialId?: string) => {
+    setDomainPending(false);
     const rId = targetRacialId || defaultRacialPathId;
-    const p1 = selectedProfilePaths[0] || selectedProfile.paths[0];
-    const p2 = selectedProfilePaths[1] || (secondaryProfile ? secondaryProfile.paths[0] : selectedProfile.paths[1]);
+    if (!rId) return;
 
-    const nextSelected = [p1, p2, rId];
+    const nextSelected = [...selectedProfilePaths, rId];
     const nextAcquired = character.acquiredAbilities.filter(
-      a => a.pathId === p1 || a.pathId === p2 || a.pathId === rId
+      a => selectedProfilePaths.includes(a.pathId) || a.pathId === rId
     );
     if (!nextAcquired.some(a => a.pathId === rId && a.rank === 1)) {
       nextAcquired.push({ pathId: rId, rank: 1 });
@@ -152,7 +152,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
     <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 shadow space-y-6">
       <div className="border-b border-stone-800 pb-4">
         <h3 className="font-serif font-bold text-lg text-amber-200">
-          Étape 5 : Voies & Capacités de Départ (Niveau 1)
+          Étape 4 : Voies & Capacités de Départ (Niveau 1)
         </h3>
         <p className="text-xs text-stone-400">
           Consultez le contenu détaillé des 5 voies de votre profil et choisissez les <strong>2 voies de départ</strong> pour votre héros. Le rang 1 de chaque voie choisie ainsi que votre voie de peuple sont immédiatement acquis !
@@ -288,6 +288,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                           pathId={pathData.id}
                           rank={pathData.ranks[0]}
                           onChangeChoice={handleRankChoice}
+                          requireExplicitChoice
                         />
                       </>
                     )}
@@ -434,6 +435,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                             pathId={pathData.id}
                             rank={pathData.ranks[0]}
                             onChangeChoice={handleRankChoice}
+                          requireExplicitChoice
                           />
                         </>
                       )}
@@ -493,7 +495,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                 type="button"
                 onClick={() => handleSelectRacial()}
                 className={`px-3 py-1.5 rounded text-xs font-semibold transition ${
-                  !isDomainActive
+                  isRacialActive && !domainPending
                     ? 'bg-amber-600 text-stone-950 font-bold shadow'
                     : 'bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-700'
                 }`}
@@ -504,11 +506,24 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                 type="button"
                 onClick={() => {
                   if (!isDomainActive) {
-                    handleSelectDomain(character.deity || PRIEST_DEITIES[0].name);
+                    if (character.deity) {
+                      handleSelectDomain(character.deity);
+                    } else {
+                      setDomainPending(true);
+                      if (currentThirdPathId) {
+                        onChange({
+                          ...character,
+                          selectedPathIds: selectedProfilePaths,
+                          acquiredAbilities: character.acquiredAbilities.filter(a =>
+                            selectedProfilePaths.includes(a.pathId),
+                          ),
+                        });
+                      }
+                    }
                   }
                 }}
                 className={`px-3 py-1.5 rounded text-xs font-semibold transition flex items-center space-x-1 ${
-                  isDomainActive
+                  isDomainActive || domainPending
                     ? 'bg-amber-600 text-stone-950 font-bold shadow'
                     : 'bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-700'
                 }`}
@@ -539,7 +554,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                 type="button"
                 onClick={() => handleSelectRacial()}
                 className={`px-3 py-1.5 rounded text-xs font-semibold transition ${
-                  !isVoieDuMageActive
+                  isRacialActive
                     ? 'bg-amber-600 text-stone-950 font-bold shadow'
                     : 'bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-700'
                 }`}
@@ -558,6 +573,34 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                 <span>Voie du Mage</span>
               </button>
             </div>
+          </div>
+        )}
+
+        {(isPriest || isMage) && !currentThirdPathId && !domainPending && (
+          <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-700/60 text-xs text-amber-200 text-center">
+            Veuillez choisir ci-dessus votre 3e voie : <strong>Voie de Peuple ({selectedPeople.name})</strong>
+            {isPriest ? ' ou Voie de Domaine' : ''}
+            {isMage ? ' ou Voie du Mage' : ''}.
+          </div>
+        )}
+
+        {domainPending && !isDomainActive && (
+          <div className="bg-stone-950/70 p-4 rounded-xl border border-amber-800/70 flex flex-wrap items-center justify-between gap-3">
+            <div className="text-xs text-amber-200 font-semibold">
+              Sélectionnez votre divinité tutélaire pour activer sa Voie de Domaine :
+            </div>
+            <select
+              value=""
+              onChange={e => handleSelectDomain(e.target.value)}
+              className="bg-stone-900 border border-amber-600 rounded-lg px-3 py-1.5 text-xs text-amber-300 focus:outline-none focus:border-amber-500"
+            >
+              <option value="">— Choisir une divinité —</option>
+              {PRIEST_DEITIES.map(d => (
+                <option key={d.domainPathId} value={d.name}>
+                  {d.name} — {d.domainTitle} ({d.sacredWeapon})
+                </option>
+              ))}
+            </select>
           </div>
         )}
 
@@ -593,10 +636,11 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                 <div className="flex items-center space-x-2">
                   <label className="text-xs text-stone-400">Changer de divinité :</label>
                   <select
-                    value={currentDeityInfo?.name || PRIEST_DEITIES[0].name}
+                    value={currentDeityInfo?.name || ''}
                     onChange={e => handleSelectDomain(e.target.value)}
                     className="bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 focus:outline-none focus:border-amber-500"
                   >
+                    <option value="">— Choisir une divinité —</option>
                     {PRIEST_DEITIES.map(d => (
                       <option key={d.domainPathId} value={d.name}>
                         {d.name} — {d.domainTitle} ({d.sacredWeapon})
@@ -674,6 +718,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                           pathId={currentThirdPath.id}
                           rank={currentThirdPath.ranks[0]}
                           onChangeChoice={handleRankChoice}
+                          requireExplicitChoice
                         />
                       </>
                     )}
@@ -697,6 +742,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                           pathId={defaultRacialPath.id}
                           rank={defaultRacialPath.ranks[0]}
                           onChangeChoice={handleRankChoice}
+                          requireExplicitChoice
                           variant="emerald"
                         />
                       )}
@@ -880,6 +926,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                           pathId={currentThirdPath.id}
                           rank={currentThirdPath.ranks[0]}
                           onChangeChoice={handleRankChoice}
+                          requireExplicitChoice
                         />
                       </>
                     )}

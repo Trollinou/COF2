@@ -15,16 +15,14 @@ import {
   isDomainPath,
   canUseVoieDuMage,
   hasMageCreationBonus,
-  getMageCreationRank2Ability,
   isRacialReplacementPath,
-  getReplacedRacialPath,
   checkWeaponProficiency,
   getDefaultEquipmentForProfile,
   sanitizeCharacterEquipment,
   detectCharacteristicArrayPreset,
 } from '../../engine/rulesEngine';
 import tablesData from '../../data/tables.json';
-import { ChevronRight, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, CheckCircle2, Lock } from 'lucide-react';
 
 import { Step1Peoples } from './steps/Step1Peoples';
 import { Step2Identity } from './steps/Step2Identity';
@@ -33,6 +31,11 @@ import { Step4Stats } from './steps/Step4Stats';
 import { Step5Paths } from './steps/Step5Paths';
 import { Step6Equipment } from './steps/Step6Equipment';
 import { Step7Summary } from './steps/Step7Summary';
+import {
+  WIZARD_STEPS,
+  validateWizardStep,
+  getMaxUnlockedWizardStep,
+} from './wizardValidation';
 
 interface CharacterWizardProps {
   character: CharacterSheet;
@@ -48,20 +51,23 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
   const [currentStep, setCurrentStep] = useState<number>(1);
   const totalSteps = 7;
 
-  // Selected array mode in Step 4 ('polyvalent' | 'expert' | 'specialiste' | 'achat')
+  // Selected array mode in Step 3 ('polyvalent' | 'expert' | 'specialiste' | 'achat' | '')
   const initialPreset = useMemo(() => {
-    if (character.statArrayPreset) {
-      return character.statArrayPreset === 'libre' ? 'achat' : character.statArrayPreset;
+    if (character.statArrayPreset === undefined || character.statArrayPreset === '') {
+      return '';
     }
-    return detectCharacteristicArrayPreset(character.baseStats);
-  }, [character.statArrayPreset, character.baseStats]);
+    return character.statArrayPreset === 'libre' ? 'achat' : character.statArrayPreset;
+  }, [character.statArrayPreset]);
 
   const [arrayPreset, setArrayPreset] = useState<string>(initialPreset);
 
   React.useEffect(() => {
+    if (character.statArrayPreset === undefined || character.statArrayPreset === '') {
+      setArrayPreset('');
+      return;
+    }
     const rawPreset = character.statArrayPreset === 'libre' ? 'achat' : character.statArrayPreset;
-    const currentPreset = rawPreset || detectCharacteristicArrayPreset(character.baseStats);
-    setArrayPreset(currentPreset);
+    setArrayPreset(rawPreset || detectCharacteristicArrayPreset(character.baseStats));
   }, [character.statArrayPreset, character.baseStats]);
 
   // Track expanded path previews in Step 5
@@ -118,11 +124,11 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
   };
 
   const selectedPeople = useMemo(() => {
-    return PEOPLES.find(p => p.id === character.peopleId) || PEOPLES[0];
+    return PEOPLES.find(p => p.id === character.peopleId);
   }, [character.peopleId]);
 
   const selectedProfile = useMemo(() => {
-    return PROFILES.find(p => p.id === character.profileId) || PROFILES[0];
+    return PROFILES.find(p => p.id === character.profileId);
   }, [character.profileId]);
 
   const computed = useMemo(() => {
@@ -143,12 +149,20 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     }
   };
 
-  // Roll d20 for ideal & flaw
-  const rollIdealAndFlaw = () => {
+  // Roll d20 independently for ideal or flaw
+  const rollIdeal = () => {
     const roll = Math.floor(Math.random() * 20) + 1;
     const entry = tablesData.idealsAndFlaws.find(i => i.roll === roll);
     if (entry) {
-      update({ ideal: entry.ideal, flaw: entry.flaw });
+      update({ ideal: entry.ideal });
+    }
+  };
+
+  const rollFlaw = () => {
+    const roll = Math.floor(Math.random() * 20) + 1;
+    const entry = tablesData.idealsAndFlaws.find(i => i.roll === roll);
+    if (entry) {
+      update({ flaw: entry.flaw });
     }
   };
 
@@ -159,9 +173,11 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     update({ coins: { ...character.coins, pa: d1 + d2 } });
   };
 
-  // Ensure character.selectedPathIds contains the exact racial, domain or mage path,
-  // and clean up any ineligible Mage bonus rank 2 if profile/family changed.
+  // Ensure character.selectedPathIds stays coherent with people/profile,
+  // without auto-selecting a 3rd path when Priest or Mage options are available.
   React.useEffect(() => {
+    if (!selectedProfile || !selectedPeople) return;
+
     const secProf = character.isHybrid && character.secondaryProfileId
       ? PROFILES.find(p => p.id === character.secondaryProfileId)
       : undefined;
@@ -169,10 +185,12 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
 
     const hasIneligibleRank2 = !hasMageCreationBonus(character) && character.acquiredAbilities.some(a => a.rank === 2);
     const existingThirdPath = character.selectedPathIds.find(id => !allProfilePaths.includes(id));
+    const isPriest = character.profileId === 'pretre' || character.secondaryProfileId === 'pretre';
+    const isMage = canUseVoieDuMage(character);
     const isValidReplacement = Boolean(
       existingThirdPath && (
-        (isDomainPath(existingThirdPath) && (character.profileId === 'pretre' || character.secondaryProfileId === 'pretre')) ||
-        (existingThirdPath === 'voie-du-mage' && canUseVoieDuMage(character))
+        (isDomainPath(existingThirdPath) && isPriest) ||
+        (existingThirdPath === 'voie-du-mage' && isMage)
       )
     );
 
@@ -180,11 +198,33 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       return;
     }
 
-    const expectedRacial = getRacialPathId(character.peopleId, existingThirdPath);
     let updated = character;
-    if (!isValidReplacement && existingThirdPath !== expectedRacial) {
-      updated = applyRacialDefaults(updated, updated.peopleId, expectedRacial);
+
+    // Only auto-apply racial path if no Priest/Mage replacement choice is pending
+    // and the people doesn't have selectable cultural paths left unchosen.
+    const hasSelectableCultural = Boolean(selectedPeople.selectableRacialPaths?.length);
+    if (!existingThirdPath && !isPriest && !isMage && !hasSelectableCultural) {
+      const expectedRacial = getRacialPathId(character.peopleId);
+      if (expectedRacial) {
+        updated = {
+          ...updated,
+          selectedPathIds: [...updated.selectedPathIds, expectedRacial],
+          acquiredAbilities: updated.acquiredAbilities.some(a => a.pathId === expectedRacial && a.rank === 1)
+            ? updated.acquiredAbilities
+            : [...updated.acquiredAbilities, { pathId: expectedRacial, rank: 1 }],
+        };
+      }
+    } else if (existingThirdPath && !isValidReplacement && (isDomainPath(existingThirdPath) || existingThirdPath === 'voie-du-mage')) {
+      // Remove invalid replacement path
+      const keptPaths = updated.selectedPathIds.filter(id => id !== existingThirdPath);
+      updated = {
+        ...updated,
+        deity: isDomainPath(existingThirdPath) ? undefined : updated.deity,
+        selectedPathIds: keptPaths,
+        acquiredAbilities: updated.acquiredAbilities.filter(a => a.pathId !== existingThirdPath),
+      };
     }
+
     if (!hasMageCreationBonus(updated) && updated.acquiredAbilities.some(a => a.rank === 2)) {
       updated = {
         ...updated,
@@ -194,9 +234,9 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     if (updated !== character) {
       onChange(updated);
     }
-  }, [character.peopleId, character.profileId, character.profileFamily, character.secondaryProfileId, character.isHybrid, selectedProfile]);
+  }, [character.peopleId, character.profileId, character.profileFamily, character.secondaryProfileId, character.isHybrid, selectedProfile, selectedPeople]);
 
-  // Handle Profile Selection
+  // Handle Profile Selection (without pre-selecting profile paths or Psionique family)
   const handleSelectProfile = (profileId: string) => {
     const prof = PROFILES.find(p => p.id === profileId);
     if (!prof) return;
@@ -204,32 +244,41 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     const secProf = character.isHybrid && character.secondaryProfileId
       ? PROFILES.find(p => p.id === character.secondaryProfileId)
       : undefined;
-
-    // Pick first two profile paths by default (or 1 from each profile if hybrid)
-    const p1 = prof.paths[0];
-    const p2 = secProf ? secProf.paths[0] : prof.paths[1];
     const allProfilePathIds = [...prof.paths, ...(secProf ? secProf.paths : [])];
 
-    const existingRacial = character.selectedPathIds.find(id => !allProfilePathIds.includes(id));
-    const racialPathId = getRacialPathId(character.peopleId, existingRacial);
+    const existingThird = character.selectedPathIds.find(id => !allProfilePathIds.includes(id));
+    const isPriest = profileId === 'pretre' || character.secondaryProfileId === 'pretre';
+    const tempChar: CharacterSheet = {
+      ...character,
+      profileId,
+      profileFamily: undefined,
+    };
+    const isMage = canUseVoieDuMage(tempChar);
 
-    const newAcquired = [
-      { pathId: p1, rank: 1 },
-      { pathId: p2, rank: 1 },
-      { pathId: racialPathId, rank: 1 },
-    ];
+    // Keep racial path only if not Priest/Mage, or if already explicitly chosen
+    let nextSelectedPaths: string[] = [];
+    let nextAcquired: CharacterSheet['acquiredAbilities'] = [];
+
+    if (!isPriest && !isMage) {
+      const hasSelectableCultural = Boolean(selectedPeople?.selectableRacialPaths?.length);
+      const racialPathId = existingThird || (!hasSelectableCultural && character.peopleId ? getRacialPathId(character.peopleId) : '');
+      if (racialPathId) {
+        nextSelectedPaths = [racialPathId];
+        nextAcquired = [{ pathId: racialPathId, rank: 1 }];
+      }
+    }
 
     // Equip default starting equipment matching new profile & race
-    const defaultEq = getDefaultEquipmentForProfile(profileId, character.peopleId);
+    const defaultEq = getDefaultEquipmentForProfile(profileId, character.peopleId || 'humain');
 
     const updatedChar: CharacterSheet = {
       ...character,
       profileId,
-      profileFamily: prof.isFamilySelectable
-        ? (character.profileFamily || (profileFamilyFilter !== 'all' ? (profileFamilyFilter as ProfileFamily) : 'Mystiques'))
-        : undefined,
-      selectedPathIds: [p1, p2, racialPathId],
-      acquiredAbilities: newAcquired,
+      profileFamily: undefined,
+      deity: undefined,
+      selectedPathIds: nextSelectedPaths,
+      acquiredAbilities: nextAcquired,
+      pathRankChoices: {},
       equippedArmorId: defaultEq.armorId,
       equippedShieldId: defaultEq.shieldId,
       weapons: defaultEq.weapons,
@@ -287,9 +336,11 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     });
   };
 
-  // Handle People Selection with full racial baseline synchronization
+  // Handle People Selection without pre-selecting stat choices or Demi-elfe cultural path
   const handleSelectPeople = (peopleId: string) => {
-    const updated = applyRacialDefaults(character, peopleId);
+    const updated = applyRacialDefaults(character, peopleId, undefined, {
+      preserveEmptyChoices: true,
+    });
     onChange(updated);
   };
 
@@ -305,7 +356,8 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
 
   // Auto assign characteristics based on array preset & profile's primary stats
   const handleAutoAssignStats = (presetId: string = arrayPreset) => {
-    const primary = selectedProfile.primaryStats || ['FOR', 'AGI', 'CON'];
+    if (!presetId) return;
+    const primary = selectedProfile?.primaryStats || ['FOR', 'AGI', 'CON'];
     const allStats: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
 
     if (presetId === 'achat') {
@@ -388,19 +440,21 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     });
   };
 
-  // Toggle selection of a profile path in Step 5
+  // Toggle selection of a profile path in Step 4
   const toggleProfilePath = (pathId: string) => {
+    if (!selectedProfile) return;
     const secProf = character.isHybrid && character.secondaryProfileId
       ? PROFILES.find(p => p.id === character.secondaryProfileId)
       : undefined;
     const allProfilePathIds = [...selectedProfile.paths, ...(secProf ? secProf.paths : [])];
 
     const currentProfilePaths = character.selectedPathIds.filter(id => allProfilePathIds.includes(id));
-    const existingThirdPath = character.selectedPathIds.find(id => !allProfilePathIds.includes(id))
-      || getRacialPathId(character.peopleId);
-    const isSpecialThird = isRacialReplacementPath(existingThirdPath);
+    const existingThirdPath = character.selectedPathIds.find(id => !allProfilePathIds.includes(id)) || '';
+    const isSpecialThird = existingThirdPath ? isRacialReplacementPath(existingThirdPath) : false;
     const racialPath = getRacialPathId(character.peopleId);
-    const thirdPath = isSpecialThird ? existingThirdPath : getRacialPathId(character.peopleId, existingThirdPath);
+    const thirdPath = existingThirdPath
+      ? (isSpecialThird ? existingThirdPath : getRacialPathId(character.peopleId, existingThirdPath))
+      : '';
 
     let newProfilePaths: string[];
     if (currentProfilePaths.includes(pathId)) {
@@ -413,19 +467,21 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       }
     }
 
-    const nextSelected = [...newProfilePaths, thirdPath];
+    const nextSelected = thirdPath ? [...newProfilePaths, thirdPath] : [...newProfilePaths];
     const nextAcquired = character.acquiredAbilities.filter(
-      a => a.pathId === thirdPath || a.pathId === racialPath || newProfilePaths.includes(a.pathId)
+      a =>
+        (thirdPath && (a.pathId === thirdPath || (isSpecialThird && a.pathId === racialPath))) ||
+        newProfilePaths.includes(a.pathId)
     );
     newProfilePaths.forEach(pid => {
       if (!nextAcquired.some(a => a.pathId === pid && a.rank === 1)) {
         nextAcquired.push({ pathId: pid, rank: 1 });
       }
     });
-    if (!nextAcquired.some(a => a.pathId === thirdPath && a.rank === 1)) {
+    if (thirdPath && !nextAcquired.some(a => a.pathId === thirdPath && a.rank === 1)) {
       nextAcquired.push({ pathId: thirdPath, rank: 1 });
     }
-    if (isSpecialThird && !nextAcquired.some(a => a.pathId === racialPath && a.rank === 1)) {
+    if (isSpecialThird && racialPath && !nextAcquired.some(a => a.pathId === racialPath && a.rank === 1)) {
       nextAcquired.push({ pathId: racialPath, rank: 1 });
     }
 
@@ -434,6 +490,12 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       acquiredAbilities: nextAcquired,
     });
   };
+
+  const maxUnlockedStep = useMemo(() => getMaxUnlockedWizardStep(character), [character]);
+  const currentStepValidation = useMemo(
+    () => validateWizardStep(currentStep, character),
+    [currentStep, character],
+  );
 
   return (
     <div className="max-w-6xl xl:max-w-7xl 2xl:max-w-[1800px] mx-auto px-4 py-8 space-y-6">
@@ -449,29 +511,32 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
         </div>
 
         <div className="grid grid-cols-7 gap-2">
-          {[
-            { step: 1, label: 'Peuple' },
-            { step: 2, label: 'Identité' },
-            { step: 3, label: 'Profil' },
-            { step: 4, label: 'Caracs' },
-            { step: 5, label: 'Voies' },
-            { step: 6, label: 'Équipement' },
-            { step: 7, label: 'Bilan' },
-          ].map(s => (
-            <button
-              key={s.step}
-              onClick={() => setCurrentStep(s.step)}
-              className={`py-1.5 px-2 rounded text-center text-xs font-medium transition flex flex-col items-center ${
-                currentStep === s.step
-                  ? 'bg-amber-600 text-stone-950 font-bold shadow'
-                  : currentStep > s.step
-                  ? 'bg-amber-950/40 text-amber-300 border border-amber-800/40'
-                  : 'bg-stone-950 text-stone-500 border border-stone-800'
-              }`}
-            >
-              <span>{s.step}. {s.label}</span>
-            </button>
-          ))}
+          {WIZARD_STEPS.map(s => {
+            const isLocked = s.step > maxUnlockedStep;
+            return (
+              <button
+                key={s.step}
+                type="button"
+                disabled={isLocked}
+                onClick={() => {
+                  if (!isLocked) setCurrentStep(s.step);
+                }}
+                title={isLocked ? 'Complétez les étapes précédentes pour débloquer' : undefined}
+                className={`py-1.5 px-2 rounded text-center text-xs font-medium transition flex items-center justify-center gap-1 ${
+                  currentStep === s.step
+                    ? 'bg-amber-600 text-stone-950 font-bold shadow'
+                    : isLocked
+                    ? 'bg-stone-950 text-stone-600 border border-stone-800/70 opacity-50 cursor-not-allowed'
+                    : currentStep > s.step
+                    ? 'bg-amber-950/40 text-amber-300 border border-amber-800/40 hover:bg-amber-950/60'
+                    : 'bg-stone-950 text-stone-300 border border-stone-700 hover:border-amber-600/60'
+                }`}
+              >
+                {isLocked && <Lock className="w-3 h-3 shrink-0" />}
+                <span>{s.step}. {s.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -492,19 +557,8 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
         />
       )}
 
-      {/* Step 2: Identity */}
+      {/* Step 2: Profiles */}
       {currentStep === 2 && (
-        <Step2Identity
-          character={character}
-          update={update}
-          selectedPeople={selectedPeople}
-          suggestRandomName={suggestRandomName}
-          rollIdealAndFlaw={rollIdealAndFlaw}
-        />
-      )}
-
-      {/* Step 3: Profiles */}
-      {currentStep === 3 && (
         <Step3Profiles
           character={character}
           update={update}
@@ -518,8 +572,8 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
         />
       )}
 
-      {/* Step 4: Stats */}
-      {currentStep === 4 && (
+      {/* Step 3: Stats */}
+      {currentStep === 3 && selectedPeople && selectedProfile && (
         <Step4Stats
           character={character}
           selectedProfile={selectedProfile}
@@ -534,8 +588,8 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
         />
       )}
 
-      {/* Step 5: Paths */}
-      {currentStep === 5 && (
+      {/* Step 4: Paths */}
+      {currentStep === 4 && selectedPeople && selectedProfile && (
         <Step5Paths
           character={character}
           onChange={onChange}
@@ -547,8 +601,8 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
         />
       )}
 
-      {/* Step 6: Equipment */}
-      {currentStep === 6 && (
+      {/* Step 5: Equipment */}
+      {currentStep === 5 && selectedPeople && selectedProfile && (
         <Step6Equipment
           character={character}
           update={update}
@@ -560,18 +614,32 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
         />
       )}
 
-      {/* Step 7: Summary */}
+      {/* Step 6: Identity & Languages */}
+      {currentStep === 6 && selectedPeople && (
+        <Step2Identity
+          character={character}
+          computed={computed}
+          update={update}
+          selectedPeople={selectedPeople}
+          suggestRandomName={suggestRandomName}
+          rollIdeal={rollIdeal}
+          rollFlaw={rollFlaw}
+        />
+      )}
+
+      {/* Step 7: Summary (Read-only) */}
       {currentStep === 7 && (
         <Step7Summary
           character={character}
           computed={computed}
-          update={update}
+          selectedPeople={selectedPeople}
+          selectedProfile={selectedProfile}
           handleFinishWizard={handleFinishWizard}
         />
       )}
 
       {/* Stepper Navigation Buttons */}
-      <div className="flex justify-between items-center pt-2">
+      <div className="flex flex-wrap justify-between items-center gap-3 pt-2">
         <button
           disabled={currentStep === 1}
           onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
@@ -581,39 +649,33 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
           <span>Précédent</span>
         </button>
 
-        {currentStep < totalSteps ? (() => {
-          const secProf = character.isHybrid && character.secondaryProfileId
-            ? PROFILES.find(p => p.id === character.secondaryProfileId)
-            : undefined;
-          const allProfilePaths = [...selectedProfile.paths, ...(secProf ? secProf.paths : [])];
-          const missingProfilePaths = character.selectedPathIds.filter(id => allProfilePaths.includes(id)).length < 2;
-          const missingMageRank2 = hasMageCreationBonus(character) && !getMageCreationRank2Ability(character);
-          const isStep5Incomplete = currentStep === 5 && (missingProfilePaths || missingMageRank2);
-          const step5IncompleteReason = missingProfilePaths
-            ? "Veuillez choisir 2 voies de profil pour continuer"
-            : missingMageRank2
-            ? "Veuillez choisir votre capacité de rang 2 bonus (Famille des Mages) pour continuer"
-            : undefined;
-          return (
+        <div className="flex items-center gap-3">
+          {currentStep < totalSteps && !currentStepValidation.valid && currentStepValidation.reason && (
+            <span className="text-xs text-amber-300 bg-amber-950/50 border border-amber-800/60 px-3 py-1.5 rounded-lg">
+              {currentStepValidation.reason}
+            </span>
+          )}
+
+          {currentStep < totalSteps ? (
             <button
-              disabled={isStep5Incomplete}
+              disabled={!currentStepValidation.valid}
               onClick={() => setCurrentStep(prev => Math.min(totalSteps, prev + 1))}
               className="flex items-center space-x-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed text-stone-950 px-4 py-2 rounded-lg text-sm font-bold transition shadow"
-              title={step5IncompleteReason}
+              title={currentStepValidation.reason}
             >
               <span>Suivant</span>
               <ChevronRight className="w-4 h-4" />
             </button>
-          );
-        })() : (
-          <button
-            onClick={handleFinishWizard}
-            className="flex items-center space-x-1 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition shadow"
-          >
-            <span>Ouvrir la Fiche</span>
-            <CheckCircle2 className="w-4 h-4" />
-          </button>
-        )}
+          ) : (
+            <button
+              onClick={handleFinishWizard}
+              className="flex items-center space-x-1 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition shadow"
+            >
+              <span>Ouvrir la Fiche</span>
+              <CheckCircle2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

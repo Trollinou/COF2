@@ -7,7 +7,7 @@ interface Step1PeoplesProps {
   character: CharacterSheet;
   update: (partial: Partial<CharacterSheet>) => void;
   onChange: (updated: CharacterSheet) => void;
-  selectedPeople: PeopleData;
+  selectedPeople?: PeopleData;
   handleSelectPeople: (peopleId: string) => void;
   isCompagnonPeople: (id: string) => boolean;
   peopleFilter: 'all' | 'base' | 'compagnon';
@@ -15,6 +15,26 @@ interface Step1PeoplesProps {
   peopleSearch: string;
   setPeopleSearch: (search: string) => void;
   filteredPeoples: PeopleData[];
+}
+
+function getPeopleModifierBadges(p: PeopleData): { bonuses: string[]; maluses: string[] } {
+  const bonuses: string[] = [];
+  const maluses: string[] = [];
+
+  Object.entries(p.stats || {}).forEach(([code, val]) => {
+    if (!val) return;
+    if (val > 0) bonuses.push(`+${code}`);
+    else if (val < 0) maluses.push(`-${code}`);
+  });
+
+  (p.statChoices || []).forEach(choice => {
+    const isAny = choice.options.includes('ANY_LOWEST');
+    const label = isAny ? 'Choix' : choice.options.join('/');
+    if (choice.value > 0) bonuses.push(`+${label}`);
+    else if (choice.value < 0) maluses.push(`-${label}`);
+  });
+
+  return { bonuses, maluses };
 }
 
 export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
@@ -130,6 +150,30 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                     <div className="text-[10px] text-stone-400 font-mono mt-0.5">
                       Âge: {p.startingAge} • max ~{p.lifeExpectancy}
                     </div>
+                    {(() => {
+                      const { bonuses, maluses } = getPeopleModifierBadges(p);
+                      if (bonuses.length === 0 && maluses.length === 0) return null;
+                      return (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {bonuses.map((b, idx) => (
+                            <span
+                              key={`b_${idx}`}
+                              className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-800/70"
+                            >
+                              {b}
+                            </span>
+                          ))}
+                          {maluses.map((m, idx) => (
+                            <span
+                              key={`m_${idx}`}
+                              className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-red-950/60 text-red-300 border border-red-800/70"
+                            >
+                              {m}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {isSelected ? (
@@ -150,7 +194,16 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
         </div>
 
         {/* DROITE : DÉTAIL DU PEUPLE SÉLECTIONNÉ */}
-        {selectedPeople && (
+        {!selectedPeople ? (
+          <div className="lg:col-span-8 xl:col-span-8 bg-stone-950/70 border border-stone-800 rounded-xl p-10 text-center space-y-2">
+            <p className="text-sm font-serif font-bold text-amber-200">
+              Aucun peuple sélectionné
+            </p>
+            <p className="text-xs text-stone-400">
+              Choisissez un peuple dans la liste à gauche pour consulter ses caractéristiques, ses modificateurs raciaux et ses traits culturels.
+            </p>
+          </div>
+        ) : (
           <div className="lg:col-span-8 xl:col-span-8 space-y-4">
             {/* PARTIE DROITE SUPÉRIEURE : DESCRIPTION & LORE */}
             <div className="bg-stone-950 p-4 sm:p-5 rounded-xl border border-stone-800 space-y-3 shadow-sm">
@@ -239,7 +292,16 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                           key={pathId}
                           type="button"
                           onClick={() => {
-                            const updated = applyRacialDefaults(character, 'demi-elfe', pathId);
+                            const updated = applyRacialDefaults(character, 'demi-elfe', pathId, {
+                              preserveEmptyChoices: true,
+                            });
+                            if (character.racialStatChoices?.length) {
+                              updated.racialStatChoices = character.racialStatChoices;
+                              updated.racialStatModifiers = computeRacialStatModifiers(
+                                'demi-elfe',
+                                character.racialStatChoices,
+                              );
+                            }
                             onChange(updated);
                           }}
                           className={`p-2.5 rounded text-left border text-xs transition flex flex-col justify-between ${
@@ -276,8 +338,7 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                   {(selectedPeople.statChoices || []).map((choice, cIdx) => {
                     if (choice.value <= 0) return null;
                     const isAny = choice.options.includes('ANY_LOWEST');
-                    const defaultStat = (!isAny && choice.options[0] ? choice.options[0] : 'FOR') as StatCode;
-                    const currentVal = character.racialStatChoices?.[cIdx] || defaultStat;
+                    const currentVal = character.racialStatChoices?.[cIdx] || '';
                     const signStr = `+${choice.value}`;
 
                     return (
@@ -288,20 +349,20 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                         <select
                           value={currentVal}
                           onChange={e => {
-                            const nextChoices = (selectedPeople.statChoices || []).map((c, idx) => {
+                            const nextChoices = (selectedPeople.statChoices || []).map((_, idx) => {
                               if (idx === cIdx) return e.target.value as StatCode;
-                              return (
-                                character.racialStatChoices?.[idx] ||
-                                ((c.options[0] !== 'ANY_LOWEST' ? c.options[0] : 'FOR') as StatCode)
-                              );
+                              return (character.racialStatChoices?.[idx] || '') as StatCode;
                             });
                             update({
                               racialStatChoices: nextChoices,
                               racialStatModifiers: computeRacialStatModifiers(selectedPeople.id, nextChoices),
                             });
                           }}
-                          className="w-full bg-stone-900 border border-stone-700 rounded px-2.5 py-1.5 text-xs text-stone-200"
+                          className={`w-full bg-stone-900 border rounded px-2.5 py-1.5 text-xs text-stone-200 ${
+                            !currentVal ? 'border-amber-600/70' : 'border-stone-700'
+                          }`}
                         >
+                          <option value="">— Choisir une caractéristique —</option>
                           {(isAny
                             ? (['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'] as StatCode[])
                             : (choice.options as StatCode[])
@@ -338,8 +399,7 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                   {/* Render choice malus slots */}
                   {(selectedPeople.statChoices || []).map((choice, cIdx) => {
                     if (choice.value >= 0) return null;
-                    const defaultStat = (choice.options[0] !== 'ANY_LOWEST' ? choice.options[0] : 'FOR') as StatCode;
-                    const currentVal = character.racialStatChoices?.[cIdx] || defaultStat;
+                    const currentVal = character.racialStatChoices?.[cIdx] || '';
 
                     return (
                       <div key={`m_choice_${cIdx}`}>
@@ -349,20 +409,20 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                         <select
                           value={currentVal}
                           onChange={e => {
-                            const nextChoices = (selectedPeople.statChoices || []).map((c, idx) => {
+                            const nextChoices = (selectedPeople.statChoices || []).map((_, idx) => {
                               if (idx === cIdx) return e.target.value as StatCode;
-                              return (
-                                character.racialStatChoices?.[idx] ||
-                                ((c.options[0] !== 'ANY_LOWEST' ? c.options[0] : 'FOR') as StatCode)
-                              );
+                              return (character.racialStatChoices?.[idx] || '') as StatCode;
                             });
                             update({
                               racialStatChoices: nextChoices,
                               racialStatModifiers: computeRacialStatModifiers(selectedPeople.id, nextChoices),
                             });
                           }}
-                          className="w-full bg-stone-900 border border-stone-700 rounded px-2.5 py-1.5 text-xs text-stone-200"
+                          className={`w-full bg-stone-900 border rounded px-2.5 py-1.5 text-xs text-stone-200 ${
+                            !currentVal ? 'border-amber-600/70' : 'border-stone-700'
+                          }`}
                         >
+                          <option value="">— Choisir une caractéristique —</option>
                           {(choice.options as StatCode[]).map(opt => (
                             <option key={opt} value={opt}>
                               {choice.value} en {STAT_NAMES[opt]} ({opt})

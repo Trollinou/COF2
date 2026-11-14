@@ -1,6 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { CharacterSheet } from './types/cof2';
-import { createDefaultCharacter } from './engine/rulesEngine';
+import { createDefaultCharacter, createBlankWizardCharacter } from './engine/rulesEngine';
 import { validateAndMigrateCharacter } from './utils/characterValidation';
 import { useCharacterHistory } from './utils/useCharacterHistory';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -69,7 +69,7 @@ export function App() {
 
   const handleNewCharacter = () => {
     if (window.confirm('Voulez-vous créer un nouveau personnage ? Les données actuelles non sauvegardées sur fichier seront remplacées.')) {
-      const fresh = createDefaultCharacter();
+      const fresh = createBlankWizardCharacter();
       resetCharacter(fresh);
       setActiveTab('wizard');
       showToast('Nouveau personnage initialisé dans l\'Assistant !');

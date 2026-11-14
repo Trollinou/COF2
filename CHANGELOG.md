@@ -4,6 +4,11 @@
 
 ### Ajouté
 
+- **Refonte de l'Assistant de Création (`CharacterWizard`, `wizardValidation.ts`)** :
+  - Nouvel enchaînement en 7 étapes : **Peuple → Profil → Caractéristiques → Voies → Équipement → Identité & Langues → Bilan**.
+  - Initialisation vierge via `createBlankWizardCharacter()` (aucun peuple, profil, méthode de caractéristiques, voie de profil, divinité ou sexe présélectionné).
+  - Contrôles bloquants par étape (`validateWizardStep`, `getMaxUnlockedWizardStep`) avec verrouillage des étapes futures dans le stepper et affichage de la raison du blocage.
+  - Tests unitaires dans `src/engine/__tests__/wizardValidation.test.ts`.
 - **Capacité de rang 2 bonus des Mages (niveau 1)** :
   - Prise en charge de la règle officielle COF2 pour tous les profils de la famille des Mages (`Magicien`, `Sorcier`, `Ensorceleur`, `Forgesort`, `Primaliste`), le `Psionique` ayant choisi la famille `Mages`, ainsi que les personnages hybrides concernés.
   - Nouveau composant `MageBonusRank2Panel` dans l'étape 5 (`Step5Paths`) pour choisir gratuitement dès la création une capacité de rang 2 dans l'une des deux voies de profil ou le rang 2 de la *Voie du Mage* (*Maîtrise de la magie*), avec validation dans `CharacterWizard` et nettoyage automatique en cas de changement de profil ou de famille.
@@ -12,6 +17,13 @@
 
 ### Modifié
 
+- **Refonte des écrans de l'Assistant de Création** :
+  - **Peuple (`Step1Peoples`)** : ajout des badges de modificateurs raciaux (bonus en émeraude puis malus en rouge) sur la liste des peuples ; suppression des présélections sur les choix raciaux et l'héritage du Demi-elfe.
+  - **Profil (`Step3Profiles`)** : suppression de la présélection de famille pour le Psionique.
+  - **Caractéristiques (`Step4Stats`)** : séparation des modificateurs raciaux en deux lignes distinctes (Bonus / Malus) et validation de la répartition complète (dont méthode par achat).
+  - **Voies (`Step5Paths`, `RankChoiceSelector`)** : aucune voie de profil ni divinité présélectionnée ; choix explicite requis pour les options de rang (`requireExplicitChoice`).
+  - **Identité & Langues (`Step2Identity`, `LanguageSelectorPanel`)** : verrouillage automatique du sexe pour les Lutins (`Farfadet` → Masculin, `Fée` → Féminin), réorganisation de `Taille` et `Poids` avec labels `Défaut` alignés à droite, boutons `1d20` séparés pour Idéal et Travers, et intégration du sélecteur de langues/talents avec blocage quand tous les emplacements sont utilisés (`enforceSlotLimit`).
+  - **Bilan (`Step7Summary`)** : écran 100 % lecture seule affichant les 4 panels (PV, DR, PC, Défense) avec détail des formules, peuple et modificateurs, profil(s), caractéristiques détaillées, voies et rangs sans description, équipement et bourse.
 - **Revue UX de la Fiche de personnage, Assistant et Montée de niveau** :
   - **Voies & Capacités (`AbilitiesTab`, `CharacterSheetView`, `App`)** : suppression du déblocage/retrait libre des capacités et du bouton redondant « Gérer la progression » ; affichage en lecture seule des rangs (`Acquise ✓` / `Non acquise`), des options de rang (`RankChoiceSelector`) et des capacités externes (`ExternalAbilitySelector`).
   - **Biographie & Traits (`BioTab`)** : passage en lecture seule de la voie de peuple du Demi-elfe et du sacerdoce/domaine du Prêtre ; suppression des suggestions de noms et du bouton de réapplication des mensurations (reportés dans l'assistant).

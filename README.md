@@ -21,7 +21,7 @@ Application Desktop (**Rust + Tauri v2**) et Web (**Vite / React 19**) de créat
      - Attaques : Contact (`BAB + FOR`), Distance (`BAB + AGI`), Magique (`BAB + VOL`).
 
 2. **Assistant de Création Guidé (Niveau 1)** :
-   - Parcours pas-à-pas en 7 étapes : Identité, Peuple, Profil, Caractéristiques, Voies de départ, Équipement & Bourse (2d6 pa), Bilan.
+   - Parcours pas-à-pas validé en 7 étapes : Peuple, Profil, Caractéristiques, Voies de départ, Équipement & Bourse (2d6 pa), Identité & Langues, Bilan complet en lecture seule.
 
 3. **Fiche de Personnage Interactive** :
    - Suivi en temps réel des PV, DR, PC et PM durant les parties.

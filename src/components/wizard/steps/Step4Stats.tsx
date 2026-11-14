@@ -52,7 +52,7 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
     <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 shadow space-y-6">
       <div className="border-b border-stone-800 pb-4">
         <h3 className="font-serif font-bold text-lg text-amber-200">
-          Étape 4 : Caractéristiques
+          Étape 3 : Caractéristiques
         </h3>
         <p className="text-xs text-stone-400">
           Choisissez une série de valeurs officielle ou la méthode par achat de l'Atlas. Vos modificateurs de peuple s'ajoutent ensuite automatiquement.
@@ -87,20 +87,45 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
           <div className="text-xs font-bold text-stone-200">
             Modificateurs raciaux ({selectedPeople.name}) :
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            {Object.entries(computed.racialBonusStats)
-              .filter(([, val]) => val !== 0)
-              .map(([code, val]) => (
-                <span
-                  key={`r_${code}`}
-                  className={`${val > 0 ? 'text-emerald-400' : 'text-red-400'} font-semibold flex items-center space-x-1`}
-                >
-                  <span>
-                    {val > 0 ? `+${val}` : val} en {STAT_NAMES[code as StatCode]} ({code})
-                  </span>
-                </span>
-              ))}
-          </div>
+          {(() => {
+            const entries = Object.entries(computed.racialBonusStats).filter(([, val]) => val !== 0);
+            const bonuses = entries.filter(([, val]) => val > 0);
+            const maluses = entries.filter(([, val]) => val < 0);
+            return (
+              <div className="space-y-1 text-xs">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] uppercase font-semibold text-stone-400 w-12">Bonus :</span>
+                  {bonuses.length > 0 ? (
+                    bonuses.map(([code, val]) => (
+                      <span
+                        key={`rb_${code}`}
+                        className="px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-800/70 font-semibold font-mono"
+                      >
+                        +{val} {STAT_NAMES[code as StatCode]} ({code})
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-stone-500 italic">Aucun</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] uppercase font-semibold text-stone-400 w-12">Malus :</span>
+                  {maluses.length > 0 ? (
+                    maluses.map(([code, val]) => (
+                      <span
+                        key={`rm_${code}`}
+                        className="px-2 py-0.5 rounded bg-red-950/60 text-red-300 border border-red-800/70 font-semibold font-mono"
+                      >
+                        {val} {STAT_NAMES[code as StatCode]} ({code})
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-stone-500 italic">Aucun</span>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
           <div className="text-[11px] text-stone-400 leading-tight">
             Appliqués automatiquement en temps réel sur le total final de vos caractéristiques.
           </div>
@@ -115,8 +140,9 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
           </span>
           <button
             type="button"
+            disabled={!arrayPreset}
             onClick={() => handleAutoAssignStats(arrayPreset)}
-            className="flex items-center space-x-1.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-950 font-bold px-3 py-1 rounded-md text-xs shadow transition"
+            className="flex items-center space-x-1.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-stone-950 font-bold px-3 py-1 rounded-md text-xs shadow transition"
           >
             <Wand className="w-3.5 h-3.5" />
             <span>Répartir automatiquement selon le Profil</span>
@@ -186,7 +212,11 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
             Attribution des 7 Caractéristiques
           </h4>
           <div className="text-xs text-stone-400">
-            {!isPointBuy ? (
+            {!arrayPreset ? (
+              <span className="text-amber-400 font-semibold">
+                Veuillez d'abord sélectionner une méthode d'attribution ci-dessus.
+              </span>
+            ) : !isPointBuy ? (
               <span>
                 Série active : <strong className="text-amber-300 font-mono">
                   {tablesData.characteristicArrays.find(a => a.id === arrayPreset)?.values.map(v => (v >= 0 ? `+${v}` : v)).join(', ')}
@@ -344,9 +374,10 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-stone-400 font-medium">Base :</span>
                   <select
+                    disabled={!arrayPreset}
                     value={base}
                     onChange={e => handleSetStatValue(code, parseInt(e.target.value, 10))}
-                    className="bg-stone-950 border border-stone-700 rounded px-2.5 py-1.5 text-xs font-mono font-bold text-amber-300 focus:border-amber-500 focus:outline-none"
+                    className="bg-stone-950 border border-stone-700 rounded px-2.5 py-1.5 text-xs font-mono font-bold text-amber-300 focus:border-amber-500 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {options.map(v => (
                       <option key={v} value={v} disabled={isOptionDisabled(v)}>
