@@ -18,22 +18,6 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
         <h4 className="font-serif font-bold text-amber-200 text-sm">Bourse & Pièces</h4>
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-stone-950 p-3 rounded-lg border border-stone-800 text-center">
-            <label className="block text-[11px] text-amber-500 font-semibold mb-1">
-              Pièces d'Argent (pa)
-            </label>
-            <input
-              type="number"
-              value={character.coins.pa}
-              onChange={e =>
-                updateCharacter({
-                  coins: { ...character.coins, pa: parseInt(e.target.value, 10) || 0 },
-                })
-              }
-              className="w-full text-center bg-transparent font-mono text-xl font-bold text-amber-300 focus:outline-none"
-            />
-          </div>
-
-          <div className="bg-stone-950 p-3 rounded-lg border border-stone-800 text-center">
             <label className="block text-[11px] text-yellow-500 font-semibold mb-1">
               Pièces d'Or (po)
             </label>
@@ -46,6 +30,22 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                 })
               }
               className="w-full text-center bg-transparent font-mono text-xl font-bold text-yellow-300 focus:outline-none"
+            />
+          </div>
+
+          <div className="bg-stone-950 p-3 rounded-lg border border-stone-800 text-center">
+            <label className="block text-[11px] text-amber-500 font-semibold mb-1">
+              Pièces d'Argent (pa)
+            </label>
+            <input
+              type="number"
+              value={character.coins.pa}
+              onChange={e =>
+                updateCharacter({
+                  coins: { ...character.coins, pa: parseInt(e.target.value, 10) || 0 },
+                })
+              }
+              className="w-full text-center bg-transparent font-mono text-xl font-bold text-amber-300 focus:outline-none"
             />
           </div>
 

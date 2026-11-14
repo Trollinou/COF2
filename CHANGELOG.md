@@ -16,6 +16,11 @@
 
 - `README.md`, `CHANGELOG.md` et `docs/DATA_MODELS.md` : documentation de la méthode par achat (Atlas) et de `statArrayPreset: 'achat'`.
 
+### Corrigé
+
+- `InventoryTab` : affichage des pièces dans l'ordre officiel **Or (po) → Argent (pa) → Cuivre (pc)**.
+- `paths.json` & `rulesEngine.ts` : ajout du bonus de DEF (+2) sur *Petit compagnon* (Voie des animaux R2) et des bonus de *Familier* (+2 DEF, +2 Initiative, Voie de la magie universelle R2), avec gestion du non-cumul de DEF via `nonStackingGroup`.
+
 ## 0.8.5
 
 ### Ajouté
