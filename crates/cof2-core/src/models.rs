@@ -239,6 +239,31 @@ pub struct LanguageSummary {
     pub int_note: Option<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct WeaponModifierRule {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weapon_ids: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub grant_proficiency: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attack_bonus: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub damage_bonus: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub damage_stat_bonus: Option<StatCode>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub crit_range_bonus: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
+}
+
 /// Fiche de statistiques dérivées calculée à la volée par le moteur Rust
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -264,11 +289,24 @@ pub struct ComputedCharacterSheet {
     pub max_pc: i32,
     pub max_pm: i32,
     pub energy_type: String,
+    pub effective_family: ProfileFamily,
+    pub is_hybrid: bool,
+    pub secondary_profile_name: Option<String>,
     pub attacks: AttackBonuses,
     pub contact_attack_stat: StatCode,
     pub contact_attack_stat_source: Option<String>,
     pub distance_attack_stat: StatCode,
     pub distance_attack_stat_source: Option<String>,
+    pub path_bonus_defense: i32,
+    pub path_bonus_initiative: i32,
+    pub path_bonus_hp: i32,
+    pub path_bonus_attacks: AttackBonuses,
+    pub path_bonus_damage: AttackBonuses,
+    pub path_crit_range_bonus: i32,
+    pub path_bonus_pc: i32,
+    pub path_bonus_dr: i32,
+    pub path_bonus_pm: i32,
+    pub active_weapon_modifiers: Vec<WeaponModifierRule>,
     pub situational_notes: Vec<String>,
     pub languages_info: LanguageSummary,
 }

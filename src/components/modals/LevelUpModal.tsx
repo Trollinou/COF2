@@ -3,7 +3,6 @@ import { CharacterSheet, ProfileFamily, PathData, AbilityRef } from '../../types
 import {
   getProfileById,
   getPathById,
-  computeCharacterStats,
   PROFILES,
   getAccessiblePathsForLevelUp,
   getReplacedRacialPath,
@@ -16,6 +15,8 @@ import {
   isPathInProfilePool,
   getProfileAllPoolPathIds,
 } from '../../engine/rulesEngine';
+import { computeSheetAsync } from '../../engine/rustBridge';
+import { useComputedSheet } from '../../hooks/useComputedSheet';
 import {
   TrendingUp,
   X,
@@ -51,7 +52,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     () => getProfileById(character.profileId) || PROFILES[0],
     [character.profileId]
   );
-  const oldStats = useMemo(() => computeCharacterStats(character), [character]);
+  const oldStats = useComputedSheet(character);
   const newLevel = (character.level || 1) + 1;
 
   // Working copy of acquired abilities & rank/external choices in the modal
@@ -77,9 +78,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     secondaryTalents: [...(character.secondaryTalents || []), ...talentsLearned],
   }), [character, newLevel, acquired, draftPathRankChoices, draftExternalChoices, languagesLearned, talentsLearned]);
 
-  const projectedStats = useMemo(() => {
-    return computeCharacterStats(draftCharacter);
-  }, [draftCharacter]);
+  const projectedStats = useComputedSheet(draftCharacter);
 
   const showLanguageSection =
     projectedStats.languagesInfo.bonusLanguageSlots > projectedStats.languagesInfo.usedBonusSlots ||
@@ -249,7 +248,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     // Keep previously selected paths + any path that now has acquired abilities + prestige path if adopted
     const nextSelectedPathIds = Array.from(
       new Set([
@@ -296,7 +295,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       updatedAt: new Date().toISOString(),
     };
 
-    const newStats = computeCharacterStats(draftUpdated);
+    const newStats = await computeSheetAsync(draftUpdated);
     const hpDelta = Math.max(0, newStats.maxHp - oldStats.maxHp);
     const drDelta = Math.max(0, newStats.maxDr - oldStats.maxDr);
     const pcDelta = Math.max(0, newStats.maxPc - oldStats.maxPc);

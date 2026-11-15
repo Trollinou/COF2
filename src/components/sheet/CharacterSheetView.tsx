@@ -4,13 +4,13 @@ import {
   CharacterWeaponInstance,
 } from '../../types/cof2';
 import {
-  computeCharacterStats,
   getPeopleById,
   getProfileById,
   WEAPONS,
   calculateCapabilityPoints,
   checkWeaponProficiency,
 } from '../../engine/rulesEngine';
+import { useComputedSheet } from '../../hooks/useComputedSheet';
 import { HeroBanner } from './HeroBanner';
 import { CharacteristicsCard } from './CharacteristicsCard';
 import { CombatDefensesCard } from './CombatDefensesCard';
@@ -28,7 +28,7 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
   character,
   onChange,
 }) => {
-  const stats = useMemo(() => computeCharacterStats(character), [character]);
+  const stats = useComputedSheet(character);
   const people = useMemo(() => getPeopleById(character.peopleId), [character.peopleId]);
   const profile = useMemo(() => getProfileById(character.profileId), [character.profileId]);
   const capabilityBudget = useMemo(() => calculateCapabilityPoints(character), [character]);

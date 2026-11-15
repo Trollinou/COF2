@@ -9,7 +9,6 @@ import {
   PEOPLES,
   PROFILES,
   WEAPONS,
-  computeCharacterStats,
   applyRacialDefaults,
   getRacialPathId,
   isDomainPath,
@@ -22,6 +21,8 @@ import {
   detectCharacteristicArrayPreset,
   getProfileAllPoolPathIds,
 } from '../../engine/rulesEngine';
+import { computeSheetAsync } from '../../engine/rustBridge';
+import { useComputedSheet } from '../../hooks/useComputedSheet';
 import tablesData from '../../data/tables.json';
 import { ChevronRight, ChevronLeft, CheckCircle2, Lock } from 'lucide-react';
 
@@ -134,9 +135,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     return PROFILES.find(p => p.id === character.profileId);
   }, [character.profileId]);
 
-  const computed = useMemo(() => {
-    return computeCharacterStats(character);
-  }, [character]);
+  const computed = useComputedSheet(character);
 
   // Suggest random name based on people and gender
   const suggestRandomName = () => {
@@ -240,7 +239,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
   }, [character.peopleId, character.profileId, character.profileFamily, character.secondaryProfileId, character.isHybrid, selectedProfile, selectedPeople]);
 
   // Handle Profile Selection (without pre-selecting profile paths or Psionique family)
-  const handleSelectProfile = (profileId: string) => {
+  const handleSelectProfile = async (profileId: string) => {
     const prof = PROFILES.find(p => p.id === profileId);
     if (!prof) return;
 
@@ -288,7 +287,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     };
 
     const sanitized = sanitizeCharacterEquipment(updatedChar);
-    const computedStats = computeCharacterStats(sanitized);
+    const computedStats = await computeSheetAsync(sanitized);
     sanitized.currentHp = computedStats.maxHp;
     sanitized.currentDr = computedStats.maxDr;
     sanitized.currentPc = computedStats.maxPc;
@@ -296,8 +295,8 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     update(sanitized);
   };
 
-  const handleFinishWizard = () => {
-    const finalComputed = computeCharacterStats(character);
+  const handleFinishWizard = async () => {
+    const finalComputed = await computeSheetAsync(character);
     const finalizedChar: CharacterSheet = {
       ...character,
       creationCompleted: true,

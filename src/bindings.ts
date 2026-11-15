@@ -80,7 +80,7 @@ export type Coins = { pa: number; pc: number; po: number }
 /**
  * Fiche de statistiques dérivées calculée à la volée par le moteur Rust
  */
-export type ComputedCharacterSheet = { record: CharacterRecord; baseStats: Partial<{ [key in StatCode]: number }>; racialBonusStats: Partial<{ [key in StatCode]: number }>; pathBonusStats: Partial<{ [key in StatCode]: number }>; manualBonusStats: Partial<{ [key in StatCode]: number }>; otherBonusStats: Partial<{ [key in StatCode]: number }>; finalStats: Partial<{ [key in StatCode]: number }>; bab: number; defense: number; defenseStat: StatCode; defenseStatSource: string | null; effectiveAgi: number; armorDefense: number; shieldDefense: number; initiative: number; maxHp: number; maxDr: number; drDice: string; maxPc: number; maxPm: number; energyType: string; attacks: AttackBonuses; contactAttackStat: StatCode; contactAttackStatSource: string | null; distanceAttackStat: StatCode; distanceAttackStatSource: string | null; situationalNotes: string[]; languagesInfo: LanguageSummary }
+export type ComputedCharacterSheet = { record: CharacterRecord; baseStats: Partial<{ [key in StatCode]: number }>; racialBonusStats: Partial<{ [key in StatCode]: number }>; pathBonusStats: Partial<{ [key in StatCode]: number }>; manualBonusStats: Partial<{ [key in StatCode]: number }>; otherBonusStats: Partial<{ [key in StatCode]: number }>; finalStats: Partial<{ [key in StatCode]: number }>; bab: number; defense: number; defenseStat: StatCode; defenseStatSource: string | null; effectiveAgi: number; armorDefense: number; shieldDefense: number; initiative: number; maxHp: number; maxDr: number; drDice: string; maxPc: number; maxPm: number; energyType: string; effectiveFamily: ProfileFamily; isHybrid: boolean; secondaryProfileName: string | null; attacks: AttackBonuses; contactAttackStat: StatCode; contactAttackStatSource: string | null; distanceAttackStat: StatCode; distanceAttackStatSource: string | null; pathBonusDefense: number; pathBonusInitiative: number; pathBonusHp: number; pathBonusAttacks: AttackBonuses; pathBonusDamage: AttackBonuses; pathCritRangeBonus: number; pathBonusPc: number; pathBonusDr: number; pathBonusPm: number; activeWeaponModifiers: WeaponModifierRule[]; situationalNotes: string[]; languagesInfo: LanguageSummary }
 /**
  * Choix structuré pour la capacité « Diversité » (Voie de l'humain, Rang 1)
  */
@@ -94,6 +94,7 @@ export type LevelProgressionStep = { level: number; hpGain: number; abilitiesLea
 export type LiteracyStatus = "illiterate" | "hesitant" | "literate"
 export type ProfileFamily = "Aventuriers" | "Combattants" | "Mages" | "Mystiques"
 export type StatCode = "FOR" | "AGI" | "CON" | "PER" | "INT" | "VOL" | "CHA"
+export type WeaponModifierRule = { tags?: string[] | null; weaponIds?: string[] | null; category?: string | null; grantProficiency?: boolean | null; attackBonus?: number | null; damageBonus?: number | null; damageStatBonus?: StatCode | null; critRangeBonus?: number | null; sourceName?: string | null; note?: string | null }
 
 /** tauri-specta globals **/
 

@@ -26,7 +26,7 @@ COF2/
 │   └── SECURITY.md            # Politique & Architecture de Sécurité (DevSecOps)
 ├── crates/
 │   ├── cof2-core/             # Moteur de règles COF2 pur en Rust (ZÉRO dépendance UI/OS/Tauri)
-│   │   ├── src/               # Modèles, compendium statique embarqué, moteur de calcul, level-up
+│   │   ├── src/               # Modèles, compendium statique embarqué, moteur modulaire (engine/{stats,grants,bonuses,combat,resources,languages,progression})
 │   │   └── tests/             # Tests d'intégration monobinaires (tests/integration_tests.rs -> tests/suite/)
 │   └── cof2-storage/          # Bibliothèque de persistance locale atomique (.tmp -> rename)
 │       ├── src/               # Sauvegarde et chargement non-bloquants zéro-corruption
@@ -39,7 +39,8 @@ COF2/
 ├── src/
 │   ├── bindings.ts            # Définitions TypeScript et fonctions IPC générées par tauri-specta
 │   ├── data/                  # Données statiques JSON (peoples, profiles, paths, equipment, tables)
-│   ├── engine/                # Helpers et référentiels de compendium pour le frontend
+│   ├── engine/                # Pont Rust/Tauri (rustBridge.ts), helpers et référentiels de compendium
+│   ├── hooks/                 # Hooks React (useComputedSheet.ts -> commands.computeCharacter)
 │   ├── types/                 # Définitions des types TypeScript (cof2.ts)
 │   ├── utils/                 # Utilitaires (fileBridge Tauri v2, validation, formatage)
 │   ├── components/            # Composants React 19
@@ -127,7 +128,7 @@ COF2/
 ### E. Frontend React 19 ("Dumb UI")
 
 1. **Interface Déclarative Pure** :
-   - Le frontend ne réalise plus aucun calcul de règles de combat ni de points de vie : il consomme directement `ComputedCharacterSheet` retourné par le moteur Rust.
+   - Le frontend consomme `ComputedCharacterSheet` retourné par le moteur Rust (`commands.computeCharacter`) via `useComputedSheet` (`src/hooks/useComputedSheet.ts`) et `rustBridge.ts` (`src/engine/rustBridge.ts`), avec repli TypeScript en mode Web autonome (`!isTauri`).
 2. **Modularité & Mémoïsation** :
    - Fichiers sous **300 à 400 lignes maximum**.
    - Découpage par étape de wizard (`Step1Peoples.tsx`, etc.) et par onglet de fiche (`CombatTab.tsx`, `AbilitiesTab.tsx`, etc.).

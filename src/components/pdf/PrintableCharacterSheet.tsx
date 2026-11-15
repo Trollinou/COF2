@@ -7,7 +7,6 @@ import {
   PathData,
 } from '../../types/cof2';
 import {
-  computeCharacterStats,
   getPeopleById,
   getProfileById,
   getPathById,
@@ -18,6 +17,7 @@ import {
   getReplacedRacialPath,
   getRacialPathId,
 } from '../../engine/rulesEngine';
+import { useComputedSheet } from '../../hooks/useComputedSheet';
 import { Printer } from 'lucide-react';
 import { ActionBadges } from '../sheet/ActionBadges';
 
@@ -32,7 +32,7 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
   character,
   onPrint,
 }) => {
-  const stats = useMemo(() => computeCharacterStats(character), [character]);
+  const stats = useComputedSheet(character);
   const people = useMemo(() => getPeopleById(character.peopleId), [character.peopleId]);
   const profile = useMemo(() => getProfileById(character.profileId), [character.profileId]);
   const secondaryProfile = useMemo(() => {
