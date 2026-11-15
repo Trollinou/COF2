@@ -1192,6 +1192,25 @@ describe('COF2 Rules Engine', () => {
       expect(monture?.name).toBe('Monture fantastique');
       const resolvedMonture = resolveCompanionStats(monture!, char, stats, 'voie-du-cavalier');
       expect(resolvedMonture.hp).toBe('40'); // 10 + Niveau (5) * 6
+
+      const marchandPath = getPathById('voie-du-marchand');
+      const montureGeante = marchandPath?.ranks[4].companions?.[0];
+      expect(montureGeante?.name).toBe('Monture géante');
+      char.profileId = 'caravanier';
+      char.acquiredAbilities = [{ pathId: 'voie-du-marchand', rank: 5 }];
+      const statsM1 = computeCharacterStats(char);
+      const resolvedM1 = resolveCompanionStats(montureGeante!, char, statsM1, 'voie-du-marchand');
+      expect(resolvedM1.defense).toBe('17'); // 16 + M(1)
+      expect(resolvedM1.hp).toBe('50'); // Niveau (5) * 10
+      expect(resolvedM1.initiative).toBe('9');
+      expect(resolvedM1.attacks[0].attackBonus).toBe('+11'); // 10 + M(1)
+
+      // With a second Caravanier path at rank 5, M becomes 2
+      char.acquiredAbilities.push({ pathId: 'voie-du-baroudeur', rank: 5 });
+      const statsM2 = computeCharacterStats(char);
+      const resolvedM2 = resolveCompanionStats(montureGeante!, char, statsM2, 'voie-du-marchand');
+      expect(resolvedM2.defense).toBe('18'); // 16 + M(2)
+      expect(resolvedM2.attacks[0].attackBonus).toBe('+12'); // 10 + M(2)
     });
 
     it('restricts Cotte d’écorce to Satyre, equips it by default, and adds its special note', () => {

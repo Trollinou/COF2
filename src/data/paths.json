@@ -6171,7 +6171,7 @@
         "title": "Animation d'un arbre",
         "actionType": "Limitée",
         "isSpell": true,
-        "description": "Le druide peut animer un arbre en le touchant. Il combat à son service pendant [niveau du druide] rounds. Il peut animer un seul arbre à la fois.\n\n>\n> **Attaque de contact**\n> > [attaque magique] • DM 1d4°+3\n>\n> **Déplacement**\n> > 5 m par action de mouvement.",
+        "description": "Le druide peut animer un arbre en le touchant. Il combat à son service pendant [niveau du druide] rounds. Il peut animer un seul arbre à la fois.",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
@@ -9282,7 +9282,7 @@
         "title": "Garde",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le caravanier engage un garde incorruptible et fidèle jusqu'à la mort, qui lui coûte 10 % de toutes les richesses qu'il gagne (trésors trouvés et récompenses). Le garde suit les ordres du PJ, mais rechigne à s'éloigner de lui.\n\nLe joueur ne peut pas équiper le garde d'objets magiques qui lui confèrent des bonus ; l'évolution du profil de ce PNJ remplace les règles qui permettent de gérer l'équipement. Le garde récupère un quart de ses PV (soit le niveau du PJ) après chaque récupération rapide ou la totalité après une récupération complète. S'il est tué, le PJ peut embaucher un nouveau garde au niveau suivant.\n\n>\n> **Attaque** [attaque magique du caravanier]\n> **• DM** 1d4° +3",
+        "description": "Le caravanier engage un garde incorruptible et fidèle jusqu'à la mort, qui lui coûte 10 % de toutes les richesses qu'il gagne (trésors trouvés et récompenses). Le garde suit les ordres du PJ, mais rechigne à s'éloigner de lui.\n\nLe joueur ne peut pas équiper le garde d'objets magiques qui lui confèrent des bonus ; l'évolution du profil de ce PNJ remplace les règles qui permettent de gérer l'équipement. Le garde récupère un quart de ses PV (soit le niveau du PJ) après chaque récupération rapide ou la totalité après une récupération complète. S'il est tué, le PJ peut embaucher un nouveau garde au niveau suivant.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -9450,7 +9450,7 @@
         "title": "Caravane sur pattes",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le caravanier obtient une monture géante destinée à transporter des quantités considérables de denrées ou de voyageurs. La monture est caractérisée par sa valeur de masse (abrégée M dans son profil) qui débute à 1 et augmente de 1 chaque fois que le personnage atteint le rang 5 dans une autre voie de caravanier. Cette monture peut accueillir sur son dos jusqu'à [10 × M] ballots de marchandise d'environ 100 kg, chaque ballot pouvant être remplacé par un humanoïde de taille *moyenne*. Initialement de taille *énorme* (M = 1), la monture devient *colossale* lorsque sa masse atteint 2. À partir d'une masse de 3, elle est capable d'accueillir sur son dos une maisonnette (et une de plus par point). Elle se déplace lentement, mais sûrement, à la vitesse d'un poney (15 km par période de déplacement). La description de la créature doit être négociée avec le MJ : une tortue géante (au choix terrestre ou maritime), un animal préhistorique exceptionnel, une créature mécanique ou un puissant navire sont toutes des propositions valables.\n\n>\n> **Attaque** [10 + M]\n> **· DM** Md12+10\n>\n> **RÉDUCTION DES · DM :**\n> La monture géante bénéficie d'une RD égale au double de sa masse. Elle est placide et on ne peut pas lui ordonner d'attaquer, bien qu'elle se défende si elle est blessée. Elle récupère 10 % de ses PV par jour. Si la monture est détruite, en trouver une nouvelle serait une quête à part entière.",
+        "description": "Le caravanier obtient une monture géante destinée à transporter des quantités considérables de denrées ou de voyageurs. La monture est caractérisée par sa valeur de masse (abrégée M dans son profil) qui débute à 1 et augmente de 1 chaque fois que le personnage atteint le rang 5 dans une autre voie de caravanier. Cette monture peut accueillir sur son dos jusqu'à [10 × M] ballots de marchandise d'environ 100 kg, chaque ballot pouvant être remplacé par un humanoïde de taille *moyenne*. Initialement de taille *énorme* (M = 1), la monture devient *colossale* lorsque sa masse atteint 2. À partir d'une masse de 3, elle est capable d'accueillir sur son dos une maisonnette (et une de plus par point). Elle se déplace lentement, mais sûrement, à la vitesse d'un poney (15 km par période de déplacement). La description de la créature doit être négociée avec le MJ : une tortue géante (au choix terrestre ou maritime), un animal préhistorique exceptionnel, une créature mécanique ou un puissant navire sont toutes des propositions valables.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -9459,39 +9459,46 @@
         "companions": [
           {
             "name": "Monture géante",
-            "category": "Taille grande ou très grande (éléphant, mammouth)",
+            "category": "Taille selon M (énorme à M=1, colossale à M≥2)",
             "stats": {
-              "FOR": "+7",
-              "AGI": "-1",
-              "CON": "+7",
-              "PER": "+1",
-              "INT": "-3",
-              "VOL": "+3",
-              "CHA": "-2"
+              "FOR": "+[10 + M×2]",
+              "AGI": "-2",
+              "CON": "+[10 + M×2]",
+              "PER": "-1",
+              "INT": "-2",
+              "VOL": "+5",
+              "CHA": "-1"
             },
-            "defense": "18",
-            "hp": "Niv. du caravanier × 6",
-            "initiative": "Init. du caravanier",
+            "defense": "16 + M",
+            "hp": "Niv. du caravanier × 10",
+            "initiative": "9",
             "attacks": [
               {
                 "name": "Attaque",
                 "attackBonus": "10 + M",
-                "damage": "Md12+10"
+                "damage": "Md12+10",
+                "attackFormula": {
+                  "base": 10,
+                  "perProfileRank5": 1
+                }
               }
             ],
             "specialFeatures": [
-              "Réduction des DM (RD) égale au double de sa masse (2 × M)."
+              "Réduction des DM (RD) égale au double de sa masse (2 × M).",
+              "Placide : ne se bat que pour se défendre si elle est blessée.",
+              "Récupère 10 % de ses PV par jour.",
+              "Déplacement : 15 km par période de déplacement (capacité : 10 × M ballots)."
             ],
             "defenseFormula": {
-              "base": 18
+              "base": 16,
+              "perProfileRank5": 1
             },
             "hpFormula": {
               "base": 0,
-              "perLevel": 6
+              "perLevel": 10
             },
             "initiativeFormula": {
-              "heroStatRef": "initiative",
-              "offset": 0
+              "base": 9
             }
           }
         ]
@@ -11930,7 +11937,7 @@
         "isPassive": false,
         "companions": [
           {
-            "name": "Familier fantastique",
+            "name": "Familier fantastique (Profil de base)",
             "category": "Taille minuscule",
             "stats": {
               "FOR": "-4",
@@ -11960,6 +11967,469 @@
               "heroStatRef": "initiative",
               "offset": 0
             }
+          },
+          {
+            "name": "Animal céleste",
+            "category": "Familier volant doué de parole (taille minuscule)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "specialFeatures": [
+              "Doué de parole, vol 20 m par action de mouvement.",
+              "R4 (Pouvoir mineur) : Compréhension des langues (rang 4, voie du vagabond, barde), 1/jour (oral uniquement).",
+              "R5 (Profil de magie associé) : Prêtre.",
+              "R7 (Pouvoir supérieur) : Prescience (rang 5, voie de la divination, ensorceleur), 1/jour. Caractéristique : CHA +1."
+            ]
+          },
+          {
+            "name": "Animal mort-vivant",
+            "category": "Non-vivant (taille minuscule)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "attacks": [
+              {
+                "name": "Drain vital",
+                "attackBonus": "Attaque magique",
+                "damage": "1d4° (+1 PV récupéré)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Type « non-vivant ».",
+              "R4 (Pouvoir mineur) : Siphon des âmes (rang 1, voie de la mort, sorcier ; effet doublé si déjà acquis).",
+              "R5 (Profil de magie associé) : Sorcier.",
+              "R7 (Pouvoir supérieur) : Exsangue (rang 3, voie du sang, sorcier ; aucune pénalité à 0 PV si déjà acquis). Caractéristique : CON +1."
+            ]
+          },
+          {
+            "name": "Araignée géante",
+            "category": "Monstre minuscule (30 cm)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "attacks": [
+              {
+                "name": "Morsure venimeuse",
+                "attackBonus": "Attaque magique",
+                "damage": "1 + poison (test CON [10 + rang] ou 1d4° DM)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Capable de grimper aux murs.",
+              "R4 (Pouvoir mineur) : Toile (L, 1/combat, portée 5 m, attaque magique vs DEF, immobilisé 1d6 rounds, FOR 12 (M) pour se libérer).",
+              "R5 (Profil de magie associé) : Sorcier.",
+              "R7 (Pouvoir supérieur) : Poison (+1d4° DM de poison sur 1 attaque/round avec arme tranchante ou perforante). Caractéristique : AGI +1."
+            ]
+          },
+          {
+            "name": "Diablotin",
+            "category": "Démon miniature (taille minuscule)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "specialFeatures": [
+              "Doué de parole, vol 10 m par action de mouvement.",
+              "R4 (Pouvoir mineur) : Métamorphose en animal très petit (M) avec ses modes de locomotion.",
+              "R5 (Profil de magie associé) : Sorcier.",
+              "R7 (Pouvoir supérieur) : Pacte démoniaque (rang 3, voie du démon, sorcier ; DM divisés par 2 si déjà acquis). Caractéristique : INT +1."
+            ]
+          },
+          {
+            "name": "Dragon féérique",
+            "category": "Dragonnet ailé (taille minuscule)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "specialFeatures": [
+              "Vol 10 m par action de mouvement. Télépathie 20 m (langage commun ou sylvestre).",
+              "R4 (Pouvoir mineur) : Image décalée (rang 2, voie des illusions, ensorceleur), 2/jour.",
+              "R5 (Profil de magie associé) : Ensorceleur.",
+              "R7 (Pouvoir supérieur) : Mirage (rang 1, voie des illusions, ensorceleur), 1/combat. Caractéristique : CHA +1."
+            ]
+          },
+          {
+            "name": "Fée ou lutin",
+            "category": "Créature féérique (15-30 cm)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "+2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "specialFeatures": [
+              "Invisibilité à volonté. Fée : vol 10 m (M). Lutin : téléportation 10 m (M).",
+              "R4 (Pouvoir mineur) : Invisibilité (rang 3, voie de la magie universelle, magicien), 2/jour.",
+              "R5 (Profil de magie associé) : Ensorceleur.",
+              "R7 (Pouvoir supérieur) : Marche des plans (voie de la spiritualité, prêtre), 1/jour. Caractéristique : AGI +1."
+            ]
+          },
+          {
+            "name": "Grig",
+            "category": "Esprit follet (45 cm)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "specialFeatures": [
+              "Violon : Danse irrésistible (rang 5, voie du musicien, barde), 1/jour.",
+              "R4 (Pouvoir mineur) : Prison végétale (rang 2, voie des végétaux, druide), 2/jour.",
+              "R5 (Profil de magie associé) : Druide.",
+              "R7 (Pouvoir supérieur) : Nuée d'insectes (rang 3, voie des animaux, druide), 3/jour. Caractéristique : AGI +1."
+            ]
+          },
+          {
+            "name": "Lézard voltaïque",
+            "category": "Gros lézard (~10 kg)",
+            "stats": {
+              "FOR": "-2",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "attacks": [
+              {
+                "name": "Décharge électrique",
+                "attackBonus": "Attaque magique",
+                "damage": "1d4° (test CON 10 ou affaibli 1 tour)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Immunisé aux DM d'électricité.",
+              "R4 (Pouvoir mineur) : Sous tension (rang 1, voie de l'air, ensorceleur), 2/jour.",
+              "R5 (Profil de magie associé) : Magicien.",
+              "R7 (Pouvoir supérieur) : Foudre (rang 4, voie de l'air, ensorceleur), 2/jour. Caractéristique : INT +1."
+            ]
+          },
+          {
+            "name": "Minimoi",
+            "category": "Double miniature de 30 cm",
+            "stats": {
+              "FOR": "-3",
+              "AGI": "AGI + 2",
+              "CON": "CON - 2",
+              "PER": "PER - 2",
+              "INT": "INT - 2",
+              "VOL": "VOL - 2",
+              "CHA": "CHA - 2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "specialFeatures": [
+              "Le maître peut le guérir au contact en lui transférant ses propres PV.",
+              "R4 (Pouvoir mineur) : Imitation (rang 4, voie des illusions, ensorceleur), 1/jour.",
+              "R5 (Profil de magie associé) : Profil principal du personnage.",
+              "R7 (Pouvoir supérieur) : Clone (L, 1/jour, taille normale pendant INT rounds, réserve de PM partagée, perd sa RD). Caractéristique : CHA +1."
+            ]
+          },
+          {
+            "name": "Pseudo-dragon",
+            "category": "Lézard ailé (30 cm, queue 60 cm)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "attacks": [
+              {
+                "name": "Dard empoisonné",
+                "attackBonus": "Attaque magique",
+                "damage": "Poison (test CON 10 ou sommeil 2d6 min, NC > 1 immunisés)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Vol 10 m par action de mouvement. Télépathie 20 m (langage commun ou sylvestre).",
+              "R4 (Pouvoir mineur) : Télépathie 50 m.",
+              "R5 (Profil de magie associé) : Ensorceleur.",
+              "R7 (Pouvoir supérieur) : Sommeil (rang 2, voie de l'envoûteur, ensorceleur), 1/combat. Caractéristique : CHA +1."
+            ]
+          },
+          {
+            "name": "Pantin ou poupée",
+            "category": "Familier artificiel (non-vivant)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "specialFeatures": [
+              "Type « non-vivant ». RD 5 (cumulative avec la RD du rang 5/6).",
+              "R4 (Pouvoir mineur) : Serviteur invisible (rang 2, voie de l'invocation, ensorceleur), 3/jour.",
+              "R5 (Profil de magie associé) : Forgesort.",
+              "R7 (Pouvoir supérieur) : Peau de pierre (rang 5, voie de la magie élémentaire, magicien), 1/jour. Caractéristique : CON +1."
+            ]
+          },
+          {
+            "name": "Stique",
+            "category": "Créature volante suceuse de sang (30 cm)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+3*",
+              "CON": "+2",
+              "PER": "+2",
+              "INT": "+1",
+              "VOL": "+2",
+              "CHA": "-2"
+            },
+            "defense": "14 + rang dans la voie",
+            "hp": "Niv. du personnage × 2",
+            "initiative": "Init. du personnage",
+            "defenseFormula": {
+              "base": 14,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            },
+            "attacks": [
+              {
+                "name": "Succion sanguine",
+                "attackBonus": "Attaque magique",
+                "damage": "1d4° par round (s'agrippe)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Vol 10 m par action de mouvement.",
+              "R4 (Pouvoir mineur) : Saignement (rang 1, voie du sang, sorcier), 3/jour.",
+              "R5 (Profil de magie associé) : Sorcier.",
+              "R7 (Pouvoir supérieur) : Rituel de sang (rang 4, voie du sang, sorcier), 1/combat. Caractéristique : CON +1."
+            ]
           }
         ]
       },
@@ -12022,110 +12492,12 @@
         "title": "Pouvoir supérieur",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le familier confère au personnage un second pouvoir magique indiqué dans sa description, ainsi qu'un bonus de +1 sur la valeur de caractéristique indiquée dans la description du familier.\n\n>\n> **ANIMAL CÉLESTE**\n> Un familier ordinaire auquel des ailes ont poussé. Celles‑ci symbolisent son élévation spirituelle. Le familier obtient la faculté de parler et la capacité de voler sur une distance de 20 m par action de mouvement.\n> *R4 ‑ Pouvoir mineur :* Compréhension des langues (rang 4, voie du vagabond, barde), 1 fois par jour, seulement à l'oral, pas à l'écrit.\n> *R5 ‑ Profil de magie associé :* prêtre\n> *R7 ‑ Pouvoir supérieur :* Prescience (rang 5, voie de la divination, ensorceleur), une fois par jour. *Caractéristique* : CHA.\n>\n> **ANIMAL MORT‑VIVANT**\n> Le personnage obtient la version morte‑vivante d'un familier ordinaire (rat, chat, corbeau, etc.). Ce peut être un nouveau familier ou son ancien familier passé de vie à trépas et fidèle par‑delà la mort. Le familier acquiert le type « non‑vivant » et tous les avantages qui en découlent (voir les créatures). Il obtient une attaque qui draine la force vitale des créatures vivantes (attaque = attaque magique du personnage), l'attaque inflige 1d4° DM et permet au magicien ou au familier de récupérer 1 PV par attaque réussie.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient la capacité Siphon des âmes (rang 1, voie de la mort, sorcier). S'il possède déjà cette capacité, il double son effet.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Exsangue (rang 3, voie du sang de sorcier). S'il possède déjà cette capacité, le personnage ne subit plus de pénalité à ses tests lorsqu'il est à 0 PV. *Caractéristique* : CON.\n>\n> **ARAIGNÉE GÉANTE**\n> Une araignée de la taille d'un familier normal, c'est‑à‑dire un monstre d'environ 30 cm de diamètre pattes comprises! L'araignée possède une attaque (attaque = attaque magique du personnage) qui inflige 1 DM et oblige la victime à faire un test de CON difficulté [10 + rang atteint dans la voie]. En cas d'échec, la cible subit 1d4° DM de poison. Elle est capable de grimper aux murs.\n> *R4 ‑ Pouvoir mineur :* Toile (L). Une fois par combat, le personnage peut projeter des toiles gluantes du bout de ses doigts sur une cible à une distance maximale de 5 m. Cette action lui demande la réussite d'un test d'attaque magique contre la DEF de la cible. La victime de cette attaque est *immobilisée* par la toile pour 1d6 rounds. À son tour, la victime peut tenter un test de FOR difficulté 12 pour se libérer par une action de mouvement (M). Une réussite lui restitue sa complète liberté d'action.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur :* Poison. Une fois par round, une attaque que le personnage effectue avec une arme tranchante ou perforante inflige +1d4° DM supplémentaires de poison. *Caractéristique* : AGI.\n>\n> **DIABLOTIN**\n> Cette créature a tout du démon miniature : ailes de chauve‑souris, queue fourchue et surtout caractère pervers et cruel. Heureusement, le diablotin est aussi un couard et obéit à son maître dès lors que celui‑ci se montre suffisamment persuasif… Ce qui ne l'empêche pas de passer son temps à lui suggérer les actions les plus dépravées possibles. Le diablotin vole à une vitesse de 10 m par action de mouvement et est doué de parole.\n> *R4 ‑ Pouvoir mineur :* Le diablotin devient capable de se transformer en animal (de taille très petite) de son choix (corbeau, chouette, serpent, chat, chien, singe ou même saumon). Cela lui demande une action de mouvement pour changer de forme. Une fois transformé, il acquiert tous les modes de locomotion de l'animal imité.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Pacte démoniaque (rang 3, voie du démon, sorcier). Si le personnage possède déjà cette capacité, il divise par 2 les DM subis (arrondi au supérieur). *Caractéristique* : INT.\n>\n> **DRAGON FÉÉRIQUE**\n> Le dragon féérique est un cousin du pseudo‑dragon que l'on reconnaît facilement à ses grandes ailes colorées de papillon. Les dragons féériques sont d'un naturel farceur et prisent les sorts d'illusion. Le dragon féérique vole à une vitesse de 10 m par action de mouvement. Il est capable de communiquer par télépathie avec toutes les créatures comprenant le langage commun ou le sylvestre (le langage de la forêt) jusqu'à une portée de 20 m.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient le sort Image décalée (rang 2, voie des illusions, ensorceleur), 2 fois par jour.\n> *R5 ‑ Profil de magie associé :* ensorceleur\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient le sort Mirage (rang 1, voie des Illusions, ensorceleur), 1 fois par combat. *Caractéristique* : CHA.\n>\n> **FÉE OU LUTIN**\n> Le personnage adopte un lutin (30 cm) ou une fée (15 cm). Ce sont des créatures espiègles et farceuses (CHA +2) dont le MJ pourra parfois prendre le contrôle pour jouer des tours pendables aux alliés du personnage, et pourquoi pas au personnage lui‑même. Fée et lutin possèdent la capacité de se rendre invisible à volonté. La fée peut voler (10m par action de mouvement) et le lutin est capable de se téléporter sur une distance de 10 m par action de mouvement.\n> *R4 ‑ Pouvoir mineur :* 2 fois par jour, le personnage peut se rendre invisible comme avec la capacité de magicien (rang 3, voie de la magie universelle).\n> *R5 ‑ Profil de magie associé :* ensorceleur\n> *R7 ‑ Pouvoir supérieur.* Une fois par jour, le personnage peut basculer dans le monde invisible et s'y déplacer pour en ressortir là où il le souhaite. Ce pouvoir fonctionne exactement comme la capacité Marche des plans de la voie de la spiritualité du profil de prêtre. *Caractéristique* : AGI.\n>\n> **GRIG**\n> Le buste humanoïde de cet esprit follet de 45 cm de haut surmonte un bas‑ventre et des pattes inférieures semblables au corps d'une sauterelle. Tête brûlée veillant à la protection des zones naturelles, le Grig n'a peur de rien et prend souvent des risques inconsidérés. Le Grig aime jouer du violon et, une fois par jour, il peut reproduire avec cet instrument les effets d'un sort de Danse irrésistible (rang 5 de la voie du musicien, barde).\n> *R4 ‑ Pouvoir mineur :* Prison végétale comme la capacité de rang 2 de la voie des végétaux du druide, 2 fois par jour.\n> *R5 ‑ Profil de magie associé :* druide\n> *R7 ‑ Pouvoir supérieur :* Nuée d'insectes (rang 3 de la voie des animaux, druide), 3 fois par jour. *Caractéristique* : AGI.\n>\n> **LÉZARD VOLTAÏQUE**\n> Plus grand que les autres créatures proposées (FOR ‑2), ce familier pèse une dizaine de kilogrammes et fait la taille d'un petit chien, un animal dont il partage le tempérament joueur et affectueux. Ce gros lézard de couleur bleue ou verte possède deux cornes qui produisent des arcs électriques. Le lézard voltaïque est immunisé aux DM d'électricité et il peut délivrer une décharge étourdissante à ses ennemis. Cette attaque de contact (attaque magique du personnage] inflige 1d4° DM et contraint à réussir un test de CON difficulté 10 pour ne pas être *affaibli* durant 1 tour.\n> *R4 ‑ Pouvoir mineur.* Le personnage obtient la capacité Sous tension (rang 1, voie de l'air, ensorceleur), 2 fois par jour.\n> *R5 ‑ Profil de magie associé :* magicien\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Foudre (rang 4, voie de l'air, ensorceleur), 2 fois par jour. *Caractéristique* : INT.\n>\n> **MINIMOI**\n> À partir d'un petit morceau de sa chair, le personnage se dote d'une réplique miniature de sa personne. Cette réplique peut être créée à la suite d'une péripétie jouée ou subie par le personnage. Le familier est l'exacte copie de son maître, mais il mesure environ 30 cm. Son caractère et son attitude tendent à caricaturer les défauts et les qualités du personnage (en les accentuant ou au contraire en prenant le contrepied). Lorsqu'ils sont au contact l'un de l'autre, le personnage peut guérir le minimoi en lui transférant ses propres PV.\n> *Caractéristiques :* le minimoi a FOR ‑3 et AGI [AGI du personnage + 2] ; toutes ses autres caractéristiques sont égales à celles du personnage ‑ 2.\n> *R4 ‑ Pouvoir mineur :* Imitation. Le personnage obtient la capacité Imitation (rang 4, voie des illusions, ensorceleur) qu'il peut utiliser une fois par jour.\n> *R5 ‑ Profil de magie associé :* Le profil principal du personnage. Même si le personnage n'est pas un lanceur de sort, le personnage choisit tout de même une capacité de son propre profil principal.\n> *R7 ‑ Pouvoir supérieur :* Clone. Une fois par jour, par une action limitée, le minimoi peut grandir jusqu'à prendre une taille normale et devenir le double exact du personnage pendant INT rounds. Les deux personnages ont exactement les mêmes caractéristiques, le joueur les fait agir une fois par round de façon indépendante. Toutefois, ils partagent une unique réserve de PM (celle du PJ) et tous les sorts lancés par le familier sont déduits des PM du personnage. Durant sa transformation, le familier perd sa RD (il conserve ses PV habituels). *Caractéristique* : CHA.\n>\n> **PSEUDO‑DRAGON**\n> Le pseudo‑dragon est un petit lézard ailé de 30 cm environ pourvu d'une longue queue de 60 cm qui se termine par un dard empoisonné. Le pseudo‑dragon vole à une vitesse de 10 m par action de mouvement. Il est capable de communiquer par télépathie avec toutes les créatures comprenant le langage commun ou celui de la forêt (le sylvestre) à une portée de 20 m.\n> Il attaque avec la valeur d'attaque magique du personnage et, en cas de réussite, son poison oblige la victime à réussir un test de CON difficulté 10 ou à s'endormir pendant 2d6 min. Les créatures de NC supérieur à 1 sont immunisées à ce poison.\n> *R4 ‑ Pouvoir mineur :* Télépathie. Le personnage peut communiquer par télépathie à une distance de 50 m avec toutes les créatures douées de conscience avec lesquelles il partage un langage commun.\n> *R5 ‑ Profil de magie associé :* ensorceleur\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Sommeil (rang 2, voie de l'envoûteur, ensorceleur), une fois par combat. *Caractéristique* : CHA.\n>\n> **PANTIN OU POUPÉE**\n> Le personnage obtient un familier artificiel, qui peut être une poupée de chiffon, une merveille de miniaturisation et d'engrenages, ou encore une statuette s'animant par magie. Le pantin ou la poupée peut être un ancien familier transformé ou une nouvelle créature. Le familier acquiert le type «non‑vivant» et tous les avantages qui en découlent. Le pantin possède une RD 5. Celle‑ci s'ajoute à celle obtenue à partir du rang 6.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient la capacité Serviteur invisible (rang 2, voie de l'invocation, ensorceleur), 3 fois par jour.\n> *R5 ‑ Profil de magie associé :* forgesort\n> *R7 ‑ Pouvoir supérieur :* Le personnage obtient la capacité Peau de pierre (rang 5, voie de la magie élémentaire, magicien) qu'il peut utiliser une fois par jour. *Caractéristique* : CON.\n>\n> **STIQUE**\n> La stique est une affreuse petite créature de couleur verte de 30 cm de haut, croisement entre un moustique géant et une chauve‑souris pourvue de quatre ailes. Elle possède six pattes barbelées lui permettant de s'accrocher férocement à ses victimes pour leur sucer le sang. Son exosquelette est excessivement dur et très difficile à briser sans blesser ces dernières au passage.\n> Une stique attaque avec la valeur d'attaque magique du personnage. Si elle réussit son attaque, elle s'agrippe à sa proie pour lui aspirer le sang et inflige ainsi 1d4° DM par round. La stique vole à une vitesse de 10 m par action de mouvement.\n> *R4 ‑ Pouvoir mineur :* Le personnage obtient la capacité Saignement (rang 1, voie du sang, sorcier), 3 fois par jour.\n> *R5 ‑ Profil de magie associé :* sorcier\n> *R7 ‑ Pouvoir supérieur.* Le personnage obtient la capacité Rituel de sang (rang 4, voie du sang, sorcier), 1 fois par combat. *Caractéristique* : CON.",
+        "description": "Le familier confère au personnage un second pouvoir magique indiqué dans sa description (voir la liste des familiers fantastiques au rang 3), ainsi qu'un bonus de +1 sur la valeur de caractéristique indiquée dans la description du familier.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true,
-        "companions": [
-          {
-            "name": "Animal céleste",
-            "category": "Familier volant doué de parole",
-            "specialFeatures": [
-              "Vol 20 m par action de mouvement.",
-              "R4 (Pouvoir mineur) : Compréhension des langues (1/jour, oral).",
-              "R5 : Sorts de prêtre.",
-              "R7 (Pouvoir supérieur) : Prescience (1/jour). Statistique : CHA +1."
-            ]
-          },
-          {
-            "name": "Animal mort-vivant",
-            "category": "Non-vivant",
-            "attacks": [
-              {
-                "name": "Drain vital",
-                "attackBonus": "Attaque magique",
-                "damage": "1d4° (+1 PV récupéré)",
-                "attackFormula": {
-                  "heroStatRef": "magicAttack",
-                  "offset": 0
-                }
-              }
-            ],
-            "specialFeatures": [
-              "R4 : Siphon des âmes (rang 1, voie de la mort, sorcier).",
-              "R5 : Sorts de sorcier.",
-              "R7 : Exsangue (rang 3, voie du sang, sorcier). Statistique : CON +1."
-            ]
-          },
-          {
-            "name": "Minimoi",
-            "category": "Double miniature de 30 cm",
-            "stats": {
-              "FOR": "-3",
-              "AGI": "AGI du maître + 2"
-            },
-            "specialFeatures": [
-              "Toutes autres caractéristiques = caractéristiques du maître - 2.",
-              "R4 : Imitation (1/jour).",
-              "R5 : Capacité du profil principal du maître.",
-              "R7 : Clone (taille normale pendant INT rounds, 1/jour). Statistique : CHA +1."
-            ]
-          },
-          {
-            "name": "Pseudo-dragon",
-            "category": "Lézard ailé (30 cm, queue 60 cm)",
-            "attacks": [
-              {
-                "name": "Dard empoisonné",
-                "attackBonus": "Attaque magique",
-                "damage": "Poison (test CON 10 ou sommeil 2d6 min)",
-                "attackFormula": {
-                  "heroStatRef": "magicAttack",
-                  "offset": 0
-                }
-              }
-            ],
-            "specialFeatures": [
-              "Vol 10 m par action de mouvement. Télépathie 20 m.",
-              "R4 : Télépathie 50 m.",
-              "R5 : Sorts d'ensorceleur.",
-              "R7 : Sommeil (1/combat). Statistique : CHA +1."
-            ]
-          },
-          {
-            "name": "Pantin ou poupée",
-            "category": "Familier artificiel (non-vivant)",
-            "defense": "RD 5",
-            "specialFeatures": [
-              "R4 : Serviteur invisible (3/jour).",
-              "R5 : Sorts de forgesort.",
-              "R7 : Peau de pierre (1/jour). Statistique : CON +1."
-            ]
-          },
-          {
-            "name": "Stique",
-            "category": "Créature volante suceuse de sang",
-            "attacks": [
-              {
-                "name": "Succion sanguine",
-                "attackBonus": "Attaque magique",
-                "damage": "1d4° par round (s'agrippe)",
-                "attackFormula": {
-                  "heroStatRef": "magicAttack",
-                  "offset": 0
-                }
-              }
-            ],
-            "specialFeatures": [
-              "Vol 10 m par action de mouvement.",
-              "R4 : Saignement (3/jour).",
-              "R5 : Sorts de sorcier.",
-              "R7 : Rituel de sang (1/combat). Statistique : CON +1."
-            ]
-          }
-        ]
+        "isPassive": true
       }
     ],
     "type": "prestige",
@@ -12905,12 +13277,59 @@
         "title": "Compagnon féérique",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le personnage a adopté (ou l'inverse?) une fée, un farfadet ou un grig. Ce compagnon est affectueux, mais souvent blagueur et parfois irritant! Il ne suit pas les ordres du PJ, mais il agit dans ce qu'il estime être l'intérêt du PJ et peut accepter différentes missions (messager, éclaireur, espion, etc.). Si le compagnon féérique est réduit à 0 PV, il disparaît dans le monde féérique et revient guéri au bout de 24 h.\n\n> [!INFO] ÊTRE FÉÉRIQUE\n> AGI +4\\* | CON\\* +1 | FOR -4 | PER +2 | CHA +2 | INT +0 | VOL +2\n> **Défense** [12 + rang]\n> **Points de vigueur** [Niveau × 2]\n> **Initiative** 14\n>\n> **Attaque au contact**\n> > [dague] ou **à distance** [arc] = [attaque magique du PJ] • **DM** 1d4° (ce sont des DM de poison).\n>\n> Un être féérique peut se rendre invisible au prix d'une action limitée.\n> **Fée:** vol 15 m par action de mouvement.\n> **Farfadet :** téléportation de 15 m en action de mouvement.\n> **Grig** (un être au corps de cricket) : bonds de 15 m en action de mouvement.",
+        "description": "Le personnage a adopté (ou l'inverse?) une fée, un farfadet ou un grig. Ce compagnon est affectueux, mais souvent blagueur et parfois irritant! Il ne suit pas les ordres du PJ, mais il agit dans ce qu'il estime être l'intérêt du PJ et peut accepter différentes missions (messager, éclaireur, espion, etc.). Si le compagnon féérique est réduit à 0 PV, il disparaît dans le monde féérique et revient guéri au bout de 24 h.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Être féérique (Fée, Farfadet ou Grig)",
+            "category": "Compagnon féérique (taille minuscule)",
+            "stats": {
+              "FOR": "-4",
+              "AGI": "+4*",
+              "CON": "+1*",
+              "PER": "+2",
+              "INT": "+0",
+              "VOL": "+2",
+              "CHA": "+2"
+            },
+            "defense": "12 + rang",
+            "hp": "Niveau × 2",
+            "initiative": "14",
+            "attacks": [
+              {
+                "name": "Dague (contact) ou Arc (distance)",
+                "attackBonus": "[attaque magique du PJ]",
+                "damage": "1d4° (poison)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Invisibilité au prix d'une action limitée.",
+              "Fée : vol 15 m par action de mouvement.",
+              "Farfadet : téléportation de 15 m par action de mouvement.",
+              "Grig : bonds de 15 m par action de mouvement.",
+              "Si réduit à 0 PV, disparaît dans le monde féérique et revient guéri au bout de 24 h."
+            ],
+            "defenseFormula": {
+              "base": 12,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 2
+            },
+            "initiativeFormula": {
+              "base": 14
+            }
+          }
+        ]
       },
       {
         "rank": 7,
@@ -13066,27 +13485,216 @@
         "isPassive": true,
         "modifiers": {
           "choiceOptions": [
-            { "id": "for_agi", "label": "+1 FOR & +1 AGI", "modifiers": { "stats": { "FOR": 1, "AGI": 1 } } },
-            { "id": "for_con", "label": "+1 FOR & +1 CON", "modifiers": { "stats": { "FOR": 1, "CON": 1 } } },
-            { "id": "for_per", "label": "+1 FOR & +1 PER", "modifiers": { "stats": { "FOR": 1, "PER": 1 } } },
-            { "id": "for_int", "label": "+1 FOR & +1 INT", "modifiers": { "stats": { "FOR": 1, "INT": 1 } } },
-            { "id": "for_vol", "label": "+1 FOR & +1 VOL", "modifiers": { "stats": { "FOR": 1, "VOL": 1 } } },
-            { "id": "for_cha", "label": "+1 FOR & +1 CHA", "modifiers": { "stats": { "FOR": 1, "CHA": 1 } } },
-            { "id": "agi_con", "label": "+1 AGI & +1 CON", "modifiers": { "stats": { "AGI": 1, "CON": 1 } } },
-            { "id": "agi_per", "label": "+1 AGI & +1 PER", "modifiers": { "stats": { "AGI": 1, "PER": 1 } } },
-            { "id": "agi_int", "label": "+1 AGI & +1 INT", "modifiers": { "stats": { "AGI": 1, "INT": 1 } } },
-            { "id": "agi_vol", "label": "+1 AGI & +1 VOL", "modifiers": { "stats": { "AGI": 1, "VOL": 1 } } },
-            { "id": "agi_cha", "label": "+1 AGI & +1 CHA", "modifiers": { "stats": { "AGI": 1, "CHA": 1 } } },
-            { "id": "con_per", "label": "+1 CON & +1 PER", "modifiers": { "stats": { "CON": 1, "PER": 1 } } },
-            { "id": "con_int", "label": "+1 CON & +1 INT", "modifiers": { "stats": { "CON": 1, "INT": 1 } } },
-            { "id": "con_vol", "label": "+1 CON & +1 VOL", "modifiers": { "stats": { "CON": 1, "VOL": 1 } } },
-            { "id": "con_cha", "label": "+1 CON & +1 CHA", "modifiers": { "stats": { "CON": 1, "CHA": 1 } } },
-            { "id": "per_int", "label": "+1 PER & +1 INT", "modifiers": { "stats": { "PER": 1, "INT": 1 } } },
-            { "id": "per_vol", "label": "+1 PER & +1 VOL", "modifiers": { "stats": { "PER": 1, "VOL": 1 } } },
-            { "id": "per_cha", "label": "+1 PER & +1 CHA", "modifiers": { "stats": { "PER": 1, "CHA": 1 } } },
-            { "id": "int_vol", "label": "+1 INT & +1 VOL", "modifiers": { "stats": { "INT": 1, "VOL": 1 } } },
-            { "id": "int_cha", "label": "+1 INT & +1 CHA", "modifiers": { "stats": { "INT": 1, "CHA": 1 } } },
-            { "id": "vol_cha", "label": "+1 VOL & +1 CHA", "modifiers": { "stats": { "VOL": 1, "CHA": 1 } } }
+            {
+              "id": "for_agi",
+              "label": "+1 FOR & +1 AGI",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1,
+                  "AGI": 1
+                }
+              }
+            },
+            {
+              "id": "for_con",
+              "label": "+1 FOR & +1 CON",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1,
+                  "CON": 1
+                }
+              }
+            },
+            {
+              "id": "for_per",
+              "label": "+1 FOR & +1 PER",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1,
+                  "PER": 1
+                }
+              }
+            },
+            {
+              "id": "for_int",
+              "label": "+1 FOR & +1 INT",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1,
+                  "INT": 1
+                }
+              }
+            },
+            {
+              "id": "for_vol",
+              "label": "+1 FOR & +1 VOL",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1,
+                  "VOL": 1
+                }
+              }
+            },
+            {
+              "id": "for_cha",
+              "label": "+1 FOR & +1 CHA",
+              "modifiers": {
+                "stats": {
+                  "FOR": 1,
+                  "CHA": 1
+                }
+              }
+            },
+            {
+              "id": "agi_con",
+              "label": "+1 AGI & +1 CON",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1,
+                  "CON": 1
+                }
+              }
+            },
+            {
+              "id": "agi_per",
+              "label": "+1 AGI & +1 PER",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1,
+                  "PER": 1
+                }
+              }
+            },
+            {
+              "id": "agi_int",
+              "label": "+1 AGI & +1 INT",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1,
+                  "INT": 1
+                }
+              }
+            },
+            {
+              "id": "agi_vol",
+              "label": "+1 AGI & +1 VOL",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1,
+                  "VOL": 1
+                }
+              }
+            },
+            {
+              "id": "agi_cha",
+              "label": "+1 AGI & +1 CHA",
+              "modifiers": {
+                "stats": {
+                  "AGI": 1,
+                  "CHA": 1
+                }
+              }
+            },
+            {
+              "id": "con_per",
+              "label": "+1 CON & +1 PER",
+              "modifiers": {
+                "stats": {
+                  "CON": 1,
+                  "PER": 1
+                }
+              }
+            },
+            {
+              "id": "con_int",
+              "label": "+1 CON & +1 INT",
+              "modifiers": {
+                "stats": {
+                  "CON": 1,
+                  "INT": 1
+                }
+              }
+            },
+            {
+              "id": "con_vol",
+              "label": "+1 CON & +1 VOL",
+              "modifiers": {
+                "stats": {
+                  "CON": 1,
+                  "VOL": 1
+                }
+              }
+            },
+            {
+              "id": "con_cha",
+              "label": "+1 CON & +1 CHA",
+              "modifiers": {
+                "stats": {
+                  "CON": 1,
+                  "CHA": 1
+                }
+              }
+            },
+            {
+              "id": "per_int",
+              "label": "+1 PER & +1 INT",
+              "modifiers": {
+                "stats": {
+                  "PER": 1,
+                  "INT": 1
+                }
+              }
+            },
+            {
+              "id": "per_vol",
+              "label": "+1 PER & +1 VOL",
+              "modifiers": {
+                "stats": {
+                  "PER": 1,
+                  "VOL": 1
+                }
+              }
+            },
+            {
+              "id": "per_cha",
+              "label": "+1 PER & +1 CHA",
+              "modifiers": {
+                "stats": {
+                  "PER": 1,
+                  "CHA": 1
+                }
+              }
+            },
+            {
+              "id": "int_vol",
+              "label": "+1 INT & +1 VOL",
+              "modifiers": {
+                "stats": {
+                  "INT": 1,
+                  "VOL": 1
+                }
+              }
+            },
+            {
+              "id": "int_cha",
+              "label": "+1 INT & +1 CHA",
+              "modifiers": {
+                "stats": {
+                  "INT": 1,
+                  "CHA": 1
+                }
+              }
+            },
+            {
+              "id": "vol_cha",
+              "label": "+1 VOL & +1 CHA",
+              "modifiers": {
+                "stats": {
+                  "VOL": 1,
+                  "CHA": 1
+                }
+              }
+            }
           ],
           "situationalNotes": [
             "+1 aux deux plus faibles caractéristiques"
@@ -13388,7 +13996,51 @@
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Drake",
+            "category": "Monture fantastique (cousin mineur du dragon)",
+            "stats": {
+              "FOR": "+6",
+              "AGI": "+0",
+              "CON": "+6*",
+              "PER": "+1",
+              "INT": "-2",
+              "VOL": "+2",
+              "CHA": "+0"
+            },
+            "defense": "22",
+            "hp": "10 + niveau × 6",
+            "initiative": "Init. du personnage",
+            "attacks": [
+              {
+                "name": "Attaque",
+                "attackBonus": "[attaque magique]",
+                "damage": "2d4°+6",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "RD [feu] 10 (Ordre du chevalier dragon, rang 4).",
+              "Rang 8 (Souffle enflammé) : cône 10 m × 10 m, 8d4° DM de feu (1/combat, AGI 12 pour moitié)."
+            ],
+            "defenseFormula": {
+              "base": 22
+            },
+            "hpFormula": {
+              "base": 10,
+              "perLevel": 6
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
+          }
+        ]
       },
       {
         "rank": 8,

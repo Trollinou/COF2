@@ -1720,11 +1720,13 @@ export function evaluateCompanionFormula(
   level: number,
   maxRankInPath: number,
   stats: ComputedCharacterStats,
+  profileRank5Count = 1,
 ): number | null {
   if (!formula) return null;
   let total = formula.base || 0;
   if (formula.perRank) total += formula.perRank * maxRankInPath;
   if (formula.perLevel) total += formula.perLevel * level;
+  if (formula.perProfileRank5) total += formula.perProfileRank5 * profileRank5Count;
   if (formula.stat && stats.finalStats[formula.stat] !== undefined) {
     total += stats.finalStats[formula.stat];
   }
@@ -1767,23 +1769,38 @@ export function resolveCompanionStats(
     : [];
   const maxRankInPath = ranksInPath.length > 0 ? Math.max(...ranksInPath) : 1;
 
+  const ownerProfile =
+    (pathId
+      ? Array.from(PROFILES_MAP.values()).find((p) => p.paths.includes(pathId))
+      : undefined) || getProfileById(char.profileId);
+  const profilePaths = ownerProfile?.paths || [];
+  const profileRank5Count = Math.max(
+    1,
+    profilePaths.filter((pid) =>
+      char.acquiredAbilities.some((a) => a.pathId === pid && a.rank >= 5),
+    ).length,
+  );
+
   const defVal = evaluateCompanionFormula(
     companion.defenseFormula,
     level,
     maxRankInPath,
     stats,
+    profileRank5Count,
   );
   const hpVal = evaluateCompanionFormula(
     companion.hpFormula,
     level,
     maxRankInPath,
     stats,
+    profileRank5Count,
   );
   const initVal = evaluateCompanionFormula(
     companion.initiativeFormula,
     level,
     maxRankInPath,
     stats,
+    profileRank5Count,
   );
 
   return {
@@ -1796,6 +1813,7 @@ export function resolveCompanionStats(
         level,
         maxRankInPath,
         stats,
+        profileRank5Count,
       );
       return {
         name: atk.name,

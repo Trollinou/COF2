@@ -449,6 +449,7 @@ Chaque compagnon peut inclure des formules déclaratives (`defenseFormula`, `hpF
 - `base?: number` — Valeur fixe de base.
 - `perLevel?: number` — Multiplicateur appliqué au niveau du personnage (ne pas utiliser `perHeroLevel`).
 - `perRank?: number` — Multiplicateur appliqué au rang maximal atteint dans la voie (ne pas utiliser `perRankInPath`).
+- `perProfileRank5?: number` — Multiplicateur appliqué au nombre de voies du profil (propriétaire de la voie ou profil du personnage) atteintes au rang 5 (minimum 1, ex. masse `M` de la Monture géante).
 - `stat?: StatCode` — Ajoute la caractéristique finale du personnage (`FOR`, `AGI`, `CON`, `PER`, `INT`, `VOL`, `CHA`).
 - `heroStatRef?: 'initiative' | 'magicAttack' | 'contactAttack' | 'distanceAttack' | 'defense'` — Référence une statistique dérivée du personnage.
 - `offset?: number` — Décalage additif fixe (positif ou négatif).

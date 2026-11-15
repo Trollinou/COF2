@@ -152,6 +152,7 @@ export interface CompanionFormula {
   base?: number;
   perLevel?: number;
   perRank?: number;
+  perProfileRank5?: number;
   stat?: StatCode;
   heroStatRef?: 'initiative' | 'magicAttack' | 'contactAttack' | 'distanceAttack' | 'defense';
   offset?: number;
