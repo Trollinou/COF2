@@ -13991,7 +13991,7 @@
         "title": "Monture puissante",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le drake atteint sa pleine maturité et augmente ses capacités offensives.\n\n> [!INFO] DRAKE\n> **AGI** +0 | **CON** +6\\* | **FOR** +6 | **PER** +1 | **INT** -2 | **CHA** +0 | **VOL** +2 |\n> **Défense** 22\n> **Points de vigueur** [10 + niveau × 6]\n> **Initiative** [Init. du personnage]\n>\n> **Attaque**\n> > [attaque magique] • DM 2d4°+6",
+        "description": "Le drake atteint sa pleine maturité et augmente ses capacités offensives.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -14595,12 +14595,57 @@
         "title": "Métamorphose",
         "actionType": "Limitée",
         "isSpell": false,
-        "description": "Une fois par jour, le personnage peut prendre la forme d'un ours pendant [1d6+CON] minutes. Le personnage ne doit pas porter d'armure plus lourde que le cuir renforcé pour utiliser cette capacité.\n\n> [!INFO] OURS BRUN\n> TAILLE GRANDE\n> **AGI** +1 | **CON** +6\\* | **FOR** +6 | **PER** +2 | **CHA** -2 | **INT** [INT du personnage] | **VOL** [VOL du personnage + 2]\n> **Défense** [12 + rang]\n> **Points de vigueur** [rang × 5]\n> **Initiative** 11\n>\n>**Attaque**\n> > Morsure et griffes attaque magique du personnage • **DM** 2d4+6\n\nLe personnage conserve sa propre INT, mais il a tendance à réagir comme l'animal qu'il est devenu et ne peut plus utiliser ses capacités de profil. Si le personnage est réduit à 0 PV sous cette forme, il reprend forme humaine au début de son prochain tour par une action de mouvement et retrouve les PV qu'il avait avant la transformation.",
+        "description": "Une fois par jour, le personnage peut prendre la forme d'un ours pendant [1d6+CON] minutes. Le personnage ne doit pas porter d'armure plus lourde que le cuir renforcé pour utiliser cette capacité.",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Ours brun (Forme animale)",
+            "category": "Taille grande",
+            "stats": {
+              "FOR": "+6",
+              "AGI": "+1",
+              "CON": "+6*",
+              "PER": "+2",
+              "INT": "INT du personnage",
+              "VOL": "VOL du personnage + 2",
+              "CHA": "-2"
+            },
+            "defense": "12 + rang",
+            "hp": "rang × 5",
+            "initiative": "11",
+            "attacks": [
+              {
+                "name": "Morsure et griffes",
+                "attackBonus": "attaque magique du personnage",
+                "damage": "2d4+6",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Durée : [1d6 + CON] minutes, 1/jour (armure max : cuir renforcé).",
+              "Ne peut plus utiliser ses capacités de profil (sauf Étreinte de l'ours au rang 7).",
+              "À 0 PV, reprend forme humaine au début de son prochain tour (M) avec ses PV d'avant transformation."
+            ],
+            "defenseFormula": {
+              "base": 12,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perRank": 5
+            },
+            "initiativeFormula": {
+              "base": 11
+            }
+          }
+        ]
       },
       {
         "rank": 7,
@@ -15076,12 +15121,57 @@
         "title": "Invocation d'élémentaire",
         "actionType": "Limitée",
         "isSpell": true,
-        "description": "Une fois par combat, le magicien invoque un élémentaire de l'élément de son choix, il lui obéit pendant INT minutes puis disparaît. Il agit au tour du magicien.\n\n> [!INFO] ÉLÉMENTAIRE\n> CRÉATURE NON VIVANTE DE TAILLE GRANDE\n> **AGI** +2 | **CON** +6\\* | **FOR** +6\\* | **PER** +0 | **CHA** -2 | **INT** -2 | **VOL** +4\n> **Défense** 19\n> **Points de vigueur** [niv. du magicien × 5]\n> **Initiative** 10\n>\n> **Coup** [attaque magique du magicien] • DM 2d4°+6\n> > **Feu :** +1d4° DM, immunisé au feu.\n> > **Eau :** *dé bonus* en attaque, immunisé à l'acide.\n> > **Air:** vol 30 m, immunisé à la foudre.\n> > **Terre:** +5 DEF, immunisé au froid.",
+        "description": "Une fois par combat, le magicien invoque un élémentaire de l'élément de son choix, il lui obéit pendant INT minutes puis disparaît. Il agit au tour du magicien.",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Élémentaire",
+            "category": "Créature non-vivante de taille grande",
+            "stats": {
+              "FOR": "+6*",
+              "AGI": "+2",
+              "CON": "+6*",
+              "PER": "+0",
+              "INT": "-2",
+              "VOL": "+4",
+              "CHA": "-2"
+            },
+            "defense": "19",
+            "hp": "niv. du magicien × 5",
+            "initiative": "10",
+            "attacks": [
+              {
+                "name": "Coup",
+                "attackBonus": "[attaque magique du magicien]",
+                "damage": "2d4°+6",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Feu : +1d4° DM, immunisé au feu.",
+              "Eau : dé bonus en attaque, immunisé à l'acide.",
+              "Air : vol 30 m, immunisé à la foudre.",
+              "Terre : +5 DEF, immunisé au froid."
+            ],
+            "defenseFormula": {
+              "base": 19
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "base": 10
+            }
+          }
+        ]
       },
       {
         "rank": 7,
@@ -15321,12 +15411,53 @@
         "title": "Chasseur ailé",
         "actionType": "Limitée",
         "isSpell": true,
-        "description": "Le personnage invoque à son service une créature ailée de grande taille pendant 24 h. À son arrivée, il doit lui donner la mission de trouver et de lui rapporter une personne ou un objet. Le chasseur se met immédiatement en chasse avec un instinct infaillible et la trouve à moins que la cible ne soit dissimulée par magie (sort de non-détection, par exemple). Le chasseur utilise au mieux ses capacités et son intelligence pour réussir sa mission, mais il ne combat pas, sauf pour se défendre. Il parcourt jusqu'à 25 km/h. En cas de réussite, le chasseur rapporte l'objet ou la créature et le dépose devant l'invocateur. À la fin de la durée du sort, si le chasseur ailé n'a pas pu remplir sa mission, il entre dans une rage destructrice, il retrouve alors le personnage qui l'a invoqué et l'attaque jusqu'à ce qu'il soit vaincu (il n'utilise pas sa capacité d'Enlèvement pour ce combat).\n\n> [!TIPS] CHASSEUR AILÉ | NC5\n> Le chasseur ailé ressemble à un humain à la peau noire, doté d'une tête de faucon de la même couleur. Ses bras sont remplacés par des ailes et ses jambes par de puissantes serres.\n>\n> **TAILLE GRANDE, CRÉATURE NON VIVANTE**\n>  **AGI** +1 | **CON** +6 | **FOR** +6 | **PER** +0 | **CHA** +0 | **INT** +2 | **VOL** +6\n>  **Défense** 18\n>  **Points de vigueur** 50\n>  **Initiative** 12\n>  **Serres** +10 • **DM** 2d6+6\n>\n>  **VOL RAPIDE:**\n>  Le chasseur ailé obtient une action de mouvement supplémentaire par round lorsqu'il est en vol. Au premier round de combat, la créature obtient un bonus de +5 en attaque et +1d6 aux DM si elle est en vol et attaque une créature au sol, elle peut tenter un enlèvement.\n>\n>  **ENLÈVEMENT**:\n>  Le chasseur ailé peut tenter d'agripper une cible de taille moyenne ou inférieure en action d'attaque. La cible peut faire un test de FOR opposé pour échapper à son étreinte à sa première attaque, en cas d'échec, elle est *immobilisée* et elle ne peut pas se libérer avant que le serviteur ne décide de la relâcher ou qu'il soit vaincu.",
+        "description": "Le personnage invoque à son service une créature ailée de grande taille pendant 24 h. À son arrivée, il doit lui donner la mission de trouver et de lui rapporter une personne ou un objet. Le chasseur se met immédiatement en chasse avec un instinct infaillible et la trouve à moins que la cible ne soit dissimulée par magie (sort de non-détection, par exemple). Le chasseur utilise au mieux ses capacités et son intelligence pour réussir sa mission, mais il ne combat pas, sauf pour se défendre. Il parcourt jusqu'à 25 km/h. En cas de réussite, le chasseur rapporte l'objet ou la créature et le dépose devant l'invocateur. À la fin de la durée du sort, si le chasseur ailé n'a pas pu remplir sa mission, il entre dans une rage destructrice, il retrouve alors le personnage qui l'a invoqué et l'attaque jusqu'à ce qu'il soit vaincu (il n'utilise pas sa capacité d'Enlèvement pour ce combat).",
         "isLimited": true,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Chasseur ailé (NC 5)",
+            "category": "Créature non vivante de taille grande",
+            "stats": {
+              "FOR": "+6",
+              "AGI": "+1",
+              "CON": "+6",
+              "PER": "+0",
+              "INT": "+2",
+              "VOL": "+6",
+              "CHA": "+0"
+            },
+            "defense": "18",
+            "hp": "50",
+            "initiative": "12",
+            "attacks": [
+              {
+                "name": "Serres",
+                "attackBonus": "+10",
+                "damage": "2d6+6",
+                "attackFormula": {
+                  "base": 10
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Vol rapide : 1 action de mouvement supplémentaire par round en vol (+5 attaque et +1d6 DM au 1er round en piqué sur une cible au sol).",
+              "Enlèvement : attaque pour agripper une cible de taille moyenne ou inférieure (FOR opposé ou immobilisée)."
+            ],
+            "defenseFormula": {
+              "base": 18
+            },
+            "hpFormula": {
+              "base": 50
+            },
+            "initiativeFormula": {
+              "base": 12
+            }
+          }
+        ]
       },
       {
         "rank": 8,
@@ -15965,12 +16096,55 @@
         "title": "Forme élémentaire de feu",
         "actionType": "Attaque",
         "isSpell": true,
-        "description": "Une fois par jour, le personnage peut se transformer en élémentaire de feu (taille grand), pendant un maximum de CHA minutes. Sous cette forme, il ne peut pas employer d'autres capacités que celles de la voie élémentaire du feu et il ne peut pas parler. S'il est réduit à 0 PV sous cette forme, il reprend sa forme initiale avec les PV qu'il avait au moment de la transformation.\n\n> [!INFO] ÉLÉMENTAIRE DE FEU\n> **AGI** +3\\* | **CON** +5 | **FOR** +5 | **PER** [mystique] | **CHA** [mystique] | **INT** [mystique] | **VOL** [mystique]\n> **Défense** 20\n> **Points de vigueur** [Niv. du mystique × 4]\n> **Initiative** [Init. du mystique]\n>\n> > **Frappe de feu** [attaque magique] • **DM** 2d4°+5\n> > · **DM** de feu.\n>\n> La forme élémentaire de feu profite en permanence des effets des capacités *Insensible au* feu et *Immolation*.",
+        "description": "Une fois par jour, le personnage peut se transformer en élémentaire de feu (taille grand), pendant un maximum de CHA minutes. Sous cette forme, il ne peut pas employer d'autres capacités que celles de la voie élémentaire du feu et il ne peut pas parler. S'il est réduit à 0 PV sous cette forme, il reprend sa forme initiale avec les PV qu'il avait au moment de la transformation.",
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Élémentaire de feu (Forme)",
+            "category": "Élémentaire de taille grande",
+            "stats": {
+              "FOR": "+5",
+              "AGI": "+3*",
+              "CON": "+5",
+              "PER": "[mystique]",
+              "INT": "[mystique]",
+              "VOL": "[mystique]",
+              "CHA": "[mystique]"
+            },
+            "defense": "20",
+            "hp": "Niv. du mystique × 4",
+            "initiative": "Init. du mystique",
+            "attacks": [
+              {
+                "name": "Frappe de feu",
+                "attackBonus": "[attaque magique]",
+                "damage": "2d4°+5 (feu)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Profite en permanence des capacités Insensible au feu et Immolation."
+            ],
+            "defenseFormula": {
+              "base": 20
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 4
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
+          }
+        ]
       }
     ],
     "type": "prestige",
@@ -16041,12 +16215,52 @@
         "title": "Forme élémentaire de terre",
         "actionType": "Attaque",
         "isSpell": true,
-        "description": "Une fois par jour, le personnage peut se transformer en élémentaire de terre (taille grand), pendant un maximum de CHA minutes. Sous cette forme, il ne peut pas employer d'autres capacités que celles de la voie élémentaire de terre et il ne peut pas parler. S'il est réduit à 0 PV sous cette forme, il reprend sa forme initiale avec les PV qu'il avait au moment de la transformation.\n\n> [!INFO] ÉLÉMENTAIRE DE TERRE\n> **AGI** +1 | **CON** +6 | **FOR** +6\\* | **PER** [mystique] | **CHA** [mystique] | **INT** [mystique] | **VOL** [mystique]\n> **Défense** 23\n> Points de vigueur [Niv. × 5]\n> Initiative [mystique]\n>\n> > **Coup de poing** [attaque magique] • **DM** 2d4°+6",
+        "description": "Une fois par jour, le personnage peut se transformer en élémentaire de terre (taille grand), pendant un maximum de CHA minutes. Sous cette forme, il ne peut pas employer d'autres capacités que celles de la voie élémentaire de terre et il ne peut pas parler. S'il est réduit à 0 PV sous cette forme, il reprend sa forme initiale avec les PV qu'il avait au moment de la transformation.",
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Élémentaire de terre (Forme)",
+            "category": "Élémentaire de taille grande",
+            "stats": {
+              "FOR": "+6*",
+              "AGI": "+1",
+              "CON": "+6",
+              "PER": "[mystique]",
+              "INT": "[mystique]",
+              "VOL": "[mystique]",
+              "CHA": "[mystique]"
+            },
+            "defense": "23",
+            "hp": "Niv. × 5",
+            "initiative": "Init. du mystique",
+            "attacks": [
+              {
+                "name": "Coup de poing",
+                "attackBonus": "[attaque magique]",
+                "damage": "2d4°+6",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "defenseFormula": {
+              "base": 23
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
+          }
+        ]
       }
     ],
     "type": "prestige",
@@ -16117,12 +16331,55 @@
         "title": "Forme élémentaire d'air",
         "actionType": "Attaque",
         "isSpell": true,
-        "description": "Une fois par jour, le personnage peut se transformer en élémentaire d'air (taille grand), pendant un maximum de CHA minutes. Sous cette forme, il ne peut pas employer d'autres capacités que celles de la voie élémentaire de l'air et il ne peut pas parler. S'il est réduit à 0 PV sous cette forme, il reprend sa forme initiale avec les PV qu'il avait au moment de la transformation.\n\n> [!INFO] ÉLÉMENTAIRE D'AIR\n> **AGI** +5\\* | **CON** +4 | **FOR** +4 | **PER** [mystique] | **CHA** [mystique] | **INT** [mystique] | **VOL** [mystique]\n> **Défense** 25\n> **Points de vigueur** [Niv. × 5]\n> **Initiative** [mystique + 3]\n>\n> > **Frappe** [attaque magique]\n> > • **DM** 2d4°+ 4 de foudre\n>\n> Immunité aux DM de foudre",
+        "description": "Une fois par jour, le personnage peut se transformer en élémentaire d'air (taille grand), pendant un maximum de CHA minutes. Sous cette forme, il ne peut pas employer d'autres capacités que celles de la voie élémentaire de l'air et il ne peut pas parler. S'il est réduit à 0 PV sous cette forme, il reprend sa forme initiale avec les PV qu'il avait au moment de la transformation.",
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Élémentaire d'air (Forme)",
+            "category": "Élémentaire de taille grande",
+            "stats": {
+              "FOR": "+4",
+              "AGI": "+5*",
+              "CON": "+4",
+              "PER": "[mystique]",
+              "INT": "[mystique]",
+              "VOL": "[mystique]",
+              "CHA": "[mystique]"
+            },
+            "defense": "25",
+            "hp": "Niv. × 5",
+            "initiative": "Init. du mystique + 3",
+            "attacks": [
+              {
+                "name": "Frappe",
+                "attackBonus": "[attaque magique]",
+                "damage": "2d4°+4 (foudre)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Immunité aux DM de foudre."
+            ],
+            "defenseFormula": {
+              "base": 25
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 3
+            }
+          }
+        ]
       }
     ],
     "type": "prestige",
@@ -16193,12 +16450,55 @@
         "title": "Forme élémentaire d'eau",
         "actionType": "Attaque",
         "isSpell": true,
-        "description": "Une fois par jour, le personnage peut se transformer en élémentaire d'eau (taille grand), pendant un maximum de CHA minutes. Sous cette forme, il ne peut pas employer d'autres capacités que celles de la voie élémentaire de l'eau et il ne peut pas parler. S'il est réduit à 0 PV sous cette forme, il reprend sa forme initiale avec les PV qu'il avait au moment de la transformation.\n\n> [!INFO] ÉLÉMENTAIRE D'EAU\n> **AGI** +3\\* | **CON** +5 | **FOR** +5 | **PER** [mystique] | **CHA** [mystique] | **INT** [mystique] | **VOL** [mystique]\n> **Défense** 23\n> **Points de vigueur** [Niv. x 5]\n> **Initiative** [mystique]\n>\n> > **Frappe** [attaque magique]\n> > • **DM** 2d4°+ 5 d'acide\n>\n> Immunité aux DM d'acide.",
+        "description": "Une fois par jour, le personnage peut se transformer en élémentaire d'eau (taille grand), pendant un maximum de CHA minutes. Sous cette forme, il ne peut pas employer d'autres capacités que celles de la voie élémentaire de l'eau et il ne peut pas parler. S'il est réduit à 0 PV sous cette forme, il reprend sa forme initiale avec les PV qu'il avait au moment de la transformation.",
         "isLimited": false,
         "isAttack": true,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": false
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Élémentaire d'eau (Forme)",
+            "category": "Élémentaire de taille grande",
+            "stats": {
+              "FOR": "+5",
+              "AGI": "+3*",
+              "CON": "+5",
+              "PER": "[mystique]",
+              "INT": "[mystique]",
+              "VOL": "[mystique]",
+              "CHA": "[mystique]"
+            },
+            "defense": "23",
+            "hp": "Niv. × 5",
+            "initiative": "Init. du mystique",
+            "attacks": [
+              {
+                "name": "Frappe",
+                "attackBonus": "[attaque magique]",
+                "damage": "2d4°+5 (acide)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Immunité aux DM d'acide."
+            ],
+            "defenseFormula": {
+              "base": 23
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
+          }
+        ]
       }
     ],
     "type": "prestige",
@@ -16720,12 +17020,58 @@
         "title": "Compagnon vermine",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Le personnage adopte un scorpion ou une araignée géante (au choix du joueur).\n\n> [!INFO] SCORPION OU ARAIGNÉE\n> **TAILLE MOYENNE**\n> **AGI** +3\\* | **CON** +5 | **FOR** +5 | **PER** +2 | **CHA** -4 | **INT** -3 | **VOL** +2\n> **Défense** [15 + rang dans la voie]\n> **Points de vigueur** [niveau du personnage × 5]\n> **Initiative** [Init. du personnage]\n>\n> > Attaque au contact [attaque magique]\n> > • **DM** 1d4°+5 et poison +1d4° DM\n> > Au prix d'une action limitée, le scorpion peut attaquer une fois avec ses pinces (pas de poison) et une fois avec son dard (avec poison). L'araignée peut se déplacer sur les surfaces verticales. Déplacement rapide : les vermines se déplacent de 20 m par action de mouvement.",
+        "description": "Le personnage adopte un scorpion ou une araignée géante (au choix du joueur).",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
         "isFreeAction": false,
-        "isPassive": true
+        "isPassive": true,
+        "companions": [
+          {
+            "name": "Scorpion ou Araignée géante",
+            "category": "Vermine (taille moyenne)",
+            "stats": {
+              "FOR": "+5",
+              "AGI": "+3*",
+              "CON": "+5",
+              "PER": "+2",
+              "INT": "-3",
+              "VOL": "+2",
+              "CHA": "-4"
+            },
+            "defense": "15 + rang dans la voie",
+            "hp": "niveau du personnage × 5",
+            "initiative": "Init. du personnage",
+            "attacks": [
+              {
+                "name": "Attaque au contact",
+                "attackBonus": "[attaque magique]",
+                "damage": "1d4°+5 (+1d4° poison)",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                }
+              }
+            ],
+            "specialFeatures": [
+              "Scorpion (L) : 1 attaque de pinces (sans poison) et 1 attaque de dard (avec poison).",
+              "Araignée : déplacement sur les surfaces verticales.",
+              "Déplacement rapide : 20 m par action de mouvement."
+            ],
+            "defenseFormula": {
+              "base": 15,
+              "perRank": 1
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 5
+            },
+            "initiativeFormula": {
+              "heroStatRef": "initiative",
+              "offset": 0
+            }
+          }
+        ]
       },
       {
         "rank": 7,
