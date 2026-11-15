@@ -254,6 +254,7 @@ export const CombatTab: React.FC<CombatTabProps> = ({
                       </div>
                       <div className="text-xs text-stone-400">
                         Portée : {w.range || 'Contact'}
+                        {baseW?.notes ? ` • ${baseW.notes}` : ''}
                       </div>
                     </div>
                   </div>

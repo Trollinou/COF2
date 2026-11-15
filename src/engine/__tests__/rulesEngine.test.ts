@@ -11,6 +11,7 @@ import {
   getPeopleById,
   getProfileById,
   getPathById,
+  getWeaponById,
   PRIEST_DEITIES,
   isDomainPath,
   isMageProfile,
@@ -1510,6 +1511,150 @@ describe('COF2 Rules Engine', () => {
       expect(bothStats.pathBonusDefense).toBe(2);
       expect(bothStats.defense).toBe(12);
       expect(bothStats.pathBonusInitiative).toBe(2);
+    });
+  });
+
+  describe('Atlas Optional Paths (Mages & Corruption)', () => {
+    it('loads all 5 Atlas supplementary paths with 5 ranks and accurate spell flags', () => {
+      const expectedIds = [
+        'voie-des-arcanes-exhumes',
+        'voie-des-arcanes-oublies',
+        'voie-des-arcanes-perdus',
+        'voie-des-arcanes-obscurs',
+        'voie-de-la-corruption',
+      ];
+      expectedIds.forEach(id => {
+        const pth = getPathById(id);
+        expect(pth).toBeDefined();
+        expect(pth?.ranks).toHaveLength(5);
+      });
+
+      const corruption = getPathById('voie-de-la-corruption')!;
+      expect(corruption.ranks[0].isSpell).toBe(true); // Blessure mineure (A)*
+      expect(corruption.ranks[1].isSpell).toBe(false); // Poison (A)
+      expect(corruption.ranks[2].isSpell).toBe(true); // Blessure majeure (L)*
+      expect(corruption.ranks[3].isSpell).toBe(false); // Vengeance (Passif)
+      expect(corruption.ranks[3].isPassive).toBe(true);
+      expect(corruption.ranks[4].isSpell).toBe(true); // Épidémie (L)*
+    });
+
+    it('exposes optionalPaths on magicien, sorcier, and pretre without altering their 5 standard paths', () => {
+      const magicien = getProfileById('magicien');
+      expect(magicien?.paths).toHaveLength(5);
+      expect(magicien?.optionalPaths).toEqual([
+        'voie-des-arcanes-exhumes',
+        'voie-des-arcanes-oublies',
+        'voie-des-arcanes-perdus',
+      ]);
+
+      const sorcier = getProfileById('sorcier');
+      expect(sorcier?.paths).toHaveLength(5);
+      expect(sorcier?.optionalPaths).toEqual(['voie-des-arcanes-obscurs']);
+
+      const pretre = getProfileById('pretre');
+      expect(pretre?.paths).toHaveLength(5);
+      expect(pretre?.optionalPaths).toContain('voie-de-la-corruption');
+      expect(pretre?.optionalPaths).toContain('voie-des-arcanes-obscurs');
+    });
+
+    it('allows a Magicien to pick Atlas optional paths at level 1 without being marked hybrid and grants mage rank-2 bonus', () => {
+      const mag = createDefaultCharacter();
+      mag.peopleId = 'humain';
+      mag.profileId = 'magicien';
+      mag.baseStats = { FOR: 0, AGI: 1, CON: 1, PER: 0, INT: 3, VOL: 2, CHA: 0 };
+      mag.selectedPathIds = ['voie-des-arcanes-exhumes', 'voie-des-arcanes-oublies', 'voie-de-l-humain'];
+      mag.acquiredAbilities = [
+        { pathId: 'voie-des-arcanes-exhumes', rank: 1 },
+        { pathId: 'voie-des-arcanes-exhumes', rank: 2 },
+        { pathId: 'voie-des-arcanes-oublies', rank: 1 },
+        { pathId: 'voie-de-l-humain', rank: 1 },
+      ];
+
+      const stats = computeCharacterStats(mag);
+      expect(stats.isHybrid).toBe(false);
+      expect(getMageCreationRank2Ability(mag)).toEqual({
+        pathId: 'voie-des-arcanes-exhumes',
+        rank: 2,
+      });
+
+      const accessible = getAccessiblePathsForLevelUp(mag).map(p => p.id);
+      expect(accessible).toContain('voie-des-arcanes-exhumes');
+      expect(accessible).toContain('voie-des-arcanes-perdus');
+    });
+
+    it('resolves Chien de garde companion stats (Voie des arcanes exhumés R4) dynamically', () => {
+      const mag = createDefaultCharacter();
+      mag.level = 7;
+      mag.peopleId = 'humain';
+      mag.profileId = 'magicien';
+      mag.racialStatModifiers = { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 };
+      mag.baseStats = { FOR: 0, AGI: 1, CON: 1, PER: 0, INT: 3, VOL: 1, CHA: 0 };
+      mag.acquiredAbilities = [
+        { pathId: 'voie-des-arcanes-exhumes', rank: 1 },
+        { pathId: 'voie-des-arcanes-exhumes', rank: 2 },
+        { pathId: 'voie-des-arcanes-exhumes', rank: 3 },
+        { pathId: 'voie-des-arcanes-exhumes', rank: 4 },
+      ];
+
+      const pth = getPathById('voie-des-arcanes-exhumes')!;
+      const dog = pth.ranks[3].companions![0];
+      const magStats = computeCharacterStats(mag);
+      const resolved = resolveCompanionStats(dog, mag, magStats);
+      expect(resolved.defense).toBe('15');
+      expect(resolved.hp).toBe('28'); // 7 * 4
+      expect(resolved.initiative).toBe('10');
+      // Magic attack equals hero's magic attack (+8 at level 7 with INT +3)
+      expect(resolved.attacks![0].attackBonus).toBe(`+${magStats.attacks.magique}`);
+      expect(resolved.attacks![0].attackBonus).toBe('+8');
+    });
+
+    it('supports Compagnon weapons: Bola, Fouet, Fouet de guerre, Pioche de guerre, Sabres, Sarbacane, Tribâton', () => {
+      const ids = ['bola', 'fouet', 'fouet-de-guerre', 'pioche-de-guerre', 'sabre-court', 'sabre-droit', 'sarbacane', 'tribaton'];
+      for (const id of ids) {
+        expect(getWeaponById(id), `Missing weapon ${id}`).toBeDefined();
+      }
+
+      expect(getWeaponById('sabre-court')?.damage).toBe('1d4°');
+      expect(getWeaponById('sabre-court')?.price).toBe('10 pa');
+      expect(getWeaponById('sabre-droit')?.damage).toBe('1d6° / 1d8°');
+      expect(getWeaponById('sabre-droit')?.price).toBe('15 pa');
+
+      const char = createDefaultCharacter();
+      char.level = 1;
+      char.peopleId = 'humain';
+      char.profileId = 'guerrier';
+      char.racialStatModifiers = { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 };
+      char.baseStats = { FOR: 1, AGI: 3, CON: 0, PER: 2, INT: 0, VOL: 0, CHA: 0 };
+      char.weapons = [
+        { id: 'w-fouet', weaponRefId: 'fouet', name: 'Fouet', damage: '1', range: 'Contact (3 m)', category: 'contact' },
+        { id: 'w-fouet-g', weaponRefId: 'fouet-de-guerre', name: 'Fouet de guerre', damage: '1d4', range: 'Contact (3 m)', category: 'contact' },
+        { id: 'w-tribaton', weaponRefId: 'tribaton', name: 'Tribâton', damage: '1d6', range: 'Contact', category: 'contact', requiresTwoHands: true },
+        { id: 'w-sarbacane', weaponRefId: 'sarbacane', name: 'Sarbacane', damage: '1', range: '10 m', category: 'distance' },
+      ];
+
+      const stats = computeCharacterStats(char);
+      const fouetInfo = getWeaponAttackInfo(char.weapons[0], stats);
+      expect(fouetInfo.statUsed).toBe('AGI');
+      expect(fouetInfo.isSubstituted).toBe(true);
+      expect(fouetInfo.atkBonus).toBe(4); // BAB(1) + AGI(3)
+      expect(fouetInfo.dmBonus).toBe(''); // No FOR added to DM
+
+      const fouetGuerreInfo = getWeaponAttackInfo(char.weapons[1], stats);
+      expect(fouetGuerreInfo.statUsed).toBe('AGI');
+      expect(fouetGuerreInfo.atkBonus).toBe(4);
+      expect(fouetGuerreInfo.dmBonus).toBe(''); // No FOR added to DM
+
+      const tribatonInfo = getWeaponAttackInfo(char.weapons[2], stats);
+      expect(tribatonInfo.statUsed).toBe('FOR');
+      expect(tribatonInfo.dmBonus).toBe('+ 3'); // Uses AGI (+3) instead of FOR (+1)
+
+      const sarbacaneInfo = getWeaponAttackInfo(char.weapons[3], stats);
+      expect(sarbacaneInfo.statUsed).toBe('AGI');
+      expect(sarbacaneInfo.dmBonus).toBe('');
+
+      // Pioche de guerre: sacred weapon for Prêtre of Jeweln, forbidden for Parangon
+      expect(checkWeaponProficiency('pioche-de-guerre', 'pretre', 'humain', 'voie-du-domaine-jeweln').allowed).toBe(true);
+      expect(checkWeaponProficiency('pioche-de-guerre', 'parangon', 'humain').allowed).toBe(false);
     });
   });
 });

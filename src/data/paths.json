@@ -18396,7 +18396,7 @@
     "symbolDesc": "une pioche",
     "sacredWeapon": "pioche de guerre (voir p. 66)",
     "sacredWeaponIds": [
-      "marteau-guerre"
+      "pioche-de-guerre"
     ]
   },
   {
@@ -19668,6 +19668,399 @@
     "sacredWeapon": "épée longue",
     "sacredWeaponIds": [
       "epee-longue"
+    ]
+  },
+  {
+    "id": "voie-des-arcanes-exhumes",
+    "name": "VOIE DES ARCANES EXHUMÉS",
+    "symbol": "▲",
+    "type": "profile",
+    "owner": "MAGICIEN",
+    "ranks": [
+      {
+        "rank": 1,
+        "title": "Message magique",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Le magicien touche une surface inerte (un mur, un arbre, etc.) de son choix et l'enchante pendant 24 h. Lorsqu'une créature passe dans un rayon de 5 m, une bouche apparaît sur la surface et délivre un message prédéterminé d'un nombre maximal de mots égal au niveau du magicien + 5. Le sort devient permanent s'il est lancé comme un sort de rang 4 (4 PM) et que le magicien dépense une gemme d'une valeur de 200 pa.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 2,
+        "title": "Toiles",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Le magicien projette une toile gluante pour emprisonner ses ennemis (mais pas ses alliés) dans une zone de 5 m de diamètre (portée 10 m) pendant INT rounds. Les cibles sont *immobilisées*. À son tour, une créature peut se libérer (action d'attaque) avec un test de FOR difficulté [10 + INT du magicien]. En cas de réussite, la victime n'est plus affectée par le sort pour le reste du combat. Si on met le feu aux toiles, elles sont détruites, mais les créatures emprisonnées subissent 1d6 DM.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 3,
+        "title": "Sphère de ténèbres",
+        "actionType": "Mouvement",
+        "isSpell": true,
+        "description": "Le sort invoque une sphère d'un noir absolu d'environ 50 cm de diamètre pendant niveau rounds. Le magicien peut la faire attaquer une fois par round au prix d'une action de mouvement à une portée maximale de 10 m. Il utilise sa valeur d'attaque magique et la sphère inflige [1d4° + INT] DM de désintégration.",
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": true,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 4,
+        "title": "Chien de garde",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Par un rituel d'une durée de 5 min, le magicien invoque un chien de garde fantomatique pour surveiller une zone de 20 m de diamètre pendant 24 h. Lorsqu'une créature pénètre dans la zone protégée, le chien de garde apparaît et il attaque en poussant un hurlement glaçant. Le magicien peut désigner jusqu'à INT créatures que le chien de garde laisse passer sans intervenir.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false,
+        "companions": [
+          {
+            "name": "Chien de garde",
+            "category": "Créature fantomatique invoquée",
+            "stats": {
+              "FOR": "+3",
+              "AGI": "+0",
+              "CON": "+3*",
+              "PER": "+2",
+              "INT": "-2",
+              "VOL": "+2*",
+              "CHA": "-2"
+            },
+            "defense": "15",
+            "hp": "Niveau × 4",
+            "initiative": "10",
+            "attacks": [
+              {
+                "name": "Morsure",
+                "attackBonus": "Attaque magique",
+                "attackFormula": {
+                  "heroStatRef": "magicAttack",
+                  "offset": 0
+                },
+                "damage": "1d4°+3"
+              }
+            ],
+            "specialFeatures": [
+              "Hurlements (L) : Toutes ses cibles à moins de 50 m doivent réussir un test de CON difficulté 10 ou fuir pendant 2d4 rounds.",
+              "Vol : Capable de courir dans les airs comme sur terre."
+            ],
+            "defenseFormula": {
+              "base": 15
+            },
+            "hpFormula": {
+              "base": 0,
+              "perLevel": 4
+            },
+            "initiativeFormula": {
+              "base": 10
+            }
+          }
+        ]
+      },
+      {
+        "rank": 5,
+        "title": "Nuage empoisonné",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Le personnage crée un nuage de gaz jaunâtre immobile de 10 m de côté qui inflige [3d4° + INT] DM de poison par round à toutes les créatures présentes dans la zone pendant INT minutes. Chaque round, un test de CON difficulté 15 permet de diviser les DM par deux. Ce nuage peut être dispersé par un vent puissant.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      }
+    ]
+  },
+  {
+    "id": "voie-des-arcanes-oublies",
+    "name": "VOIE DES ARCANES OUBLIÉS",
+    "symbol": "▲",
+    "type": "profile",
+    "owner": "MAGICIEN",
+    "ranks": [
+      {
+        "rank": 1,
+        "title": "Ventriloquie",
+        "actionType": "Mouvement",
+        "isSpell": true,
+        "description": "Le personnage peut projeter sa voix et la faire surgir d'un point de son choix situé à moins de 20 m de lui pendant INT rounds. Ce sort coûte 1 PM s'il est lancé en action gratuite ou 0 PM s'il est lancé en action de mouvement.",
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": true,
+        "isFreeAction": true,
+        "isPassive": false
+      },
+      {
+        "rank": 2,
+        "title": "Bouclier de mana",
+        "actionType": "Gratuite",
+        "isSpell": true,
+        "description": "Le magicien peut lancer ce sort une fois par round en action gratuite, contre une attaque de son choix (mais avant de connaître le résultat d'un test d'attaque). Le sort lui confère un bonus de +6 en DEF et annule complètement les DM d'un *Projectile de mana*.",
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": true,
+        "isPassive": false,
+        "modifiers": {
+          "situationalNotes": [
+            "Bouclier de mana (G) : +6 DEF contre une attaque par round et annule les DM d'un Projectile de mana."
+          ]
+        }
+      },
+      {
+        "rank": 3,
+        "title": "Corde magique",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Le magicien touche une corde d'une longueur maximale de 20 m et celle-ci se dresse par magie pendant INT minutes. Il peut la faire se déplacer de 10 m par action de mouvement, s'attacher ou se détacher à distance, et elle peut ramper sur n'importe quelle surface verticale. Chaque round, s'il lui en donne l'ordre (G), la corde peut tenter de renverser un adversaire à portée. La cible doit réussir un test d'AGI difficulté 10 ou être renversée. La corde possède une DEF 10 et 15 PV. Sa longueur est réduite de 1 m par PV perdu.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 4,
+        "title": "Rétrécissement",
+        "actionType": "Attaque",
+        "isSpell": true,
+        "description": "Le magicien (A) ou une cible humanoïde (L) de taille moyenne volontaire voit sa taille réduite à 10 cm (taille minuscule) pendant INT minutes. Sous cette forme, la créature peut passer dans des espaces minuscules et elle obtient un bonus de +10 en discrétion. En revanche, elle subit +1d4° DM par catégorie de taille de la créature qui l'attaque (minuscule +1d4°, très petite +2d4°, petite +3d4°, moyenne +4d4°, grande +5d4°, énorme +6d4°, colossale +7d4°). Elle inflige seulement 1 DM par attaque durant la durée du sort. Si elle doit reprendre sa taille dans un espace clos, elle subit 1 DM par round jusqu'à trouver un espace suffisant.",
+        "isLimited": true,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 5,
+        "title": "Zone de magie nulle",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Le personnage crée une zone immobile de 10 m de diamètre centrée sur lui-même dans laquelle aucune magie ne fonctionne. Les sorts présents cessent de faire effet, les pouvoirs spéciaux qui ne sont pas des sorts, mais qui sont clairement des effets magiques aussi. Les souffles (souffle d'un dragon, par exemple) et les attaques naturelles extraordinaires qui ne sont pas des pouvoirs magiques voient leurs effets divisés par deux.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      }
+    ]
+  },
+  {
+    "id": "voie-des-arcanes-perdus",
+    "name": "VOIE DES ARCANES PERDUS",
+    "symbol": "▲",
+    "type": "profile",
+    "owner": "MAGICIEN",
+    "ranks": [
+      {
+        "rank": 1,
+        "title": "Disque de transport",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Le magicien invoque un disque lumineux d'environ 1 m de diamètre qui le suit à une portée de 0 à 10 m (au choix du magicien) pendant INT heures. Le disque peut transporter [niveau x 20] kg. Si le disque est capable de supporter le poids du magicien, alors il peut monter dessus et se déplacer horizontalement de 5 m par action de mouvement (par exemple, pour traverser un précipice). Il peut transporter d'autres créatures (une seule créature de taille M à la fois) tant que le disque reste à portée.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 2,
+        "title": "Fuite rapide",
+        "actionType": "Mouvement",
+        "isSpell": true,
+        "description": "Le magicien se déplace à une vitesse incroyable, il parcourt 20 m par action de mouvement pendant INT minutes.",
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": true,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 3,
+        "title": "Agrandissement",
+        "actionType": "Attaque",
+        "isSpell": true,
+        "description": "Le magicien (A) ou une cible volontaire (L) qu'il touche voit sa taille augmenter d'une catégorie pendant INT minutes (pour un humain, taille grande, soit environ 1 m de plus). La cible reçoit un bonus de +3 à ses tests de FOR, à ses DM ainsi qu'une RD de la même valeur. Si une créature grandit dans un endroit qui n'est pas approprié, elle subit 2d4° DM (basés sur le niveau de la victime) et le sort est un échec.",
+        "isLimited": true,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 4,
+        "title": "Inversion de la gravité",
+        "actionType": "Attaque",
+        "isSpell": true,
+        "description": "Le personnage désigne une zone d'un maximum de 10 x 10 m à une portée de 10 m dans laquelle la gravité s'inverse. Toutes les créatures au sol chutent vers le haut et subissent des DM comme si elles tombaient au sol lorsqu'elles rencontrent un obstacle (plafond). Si elles ne rencontrent aucun obstacle, elles s'élèvent dans les airs jusqu'à une hauteur de 6 m. Juste après, toutes les victimes chutent à nouveau lorsque la gravité reprend son sens normal. Les DM de chute sont égaux à 1d4° tous les 3 m (dé évolutif selon le niveau de la cible, DM max 4d4°) et à la fin du sort les victimes doivent réussir un test d'AGI difficulté 20 ou être *renversées*.",
+        "isLimited": false,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 5,
+        "title": "Métamorphose",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Le magicien prend la forme d'une créature vivante non humanoïde de son choix (voir le chapitre « Adversité » du livre de règles de *COF*) qu'il a déjà rencontrée ou dont il dispose d'un morceau (poil, goutte de sang, etc.) pendant INT minutes. Le magicien utilise le profil de la créature choisie pendant toute la durée du sort à l'exception de l'INT et des PV. Il ne peut utiliser ses propres capacités et il lui faut une action limitée pour reprendre sa forme. S'il est réduit à 0 PV avant la fin du sort, il retrouve automatiquement sa forme normale. Coût en PM / Niv. requis selon NC : NC 0 (2 PM, niv. 7), NC ½ (3 PM, niv. 7), NC 1 (4 PM, niv. 7), NC 2 (5 PM, niv. 7), NC 3 (6 PM, niv. 9), NC 4 (7 PM, niv. 11), NC 5 (8 PM, niv. 13), NC 6 (9 PM, niv. 16), NC 7 (10 PM, niv. 19).",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      }
+    ]
+  },
+  {
+    "id": "voie-des-arcanes-obscurs",
+    "name": "VOIE DES ARCANES OBSCURS",
+    "symbol": "▲",
+    "type": "profile",
+    "owner": "SORCIER",
+    "ranks": [
+      {
+        "rank": 1,
+        "title": "Contact vampirique",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Si le sorcier réussit un test d'attaque magique contre la DEF d'une cible vivante à son contact, il lui inflige 1d4° + INT DM et se soigne d'autant.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 2,
+        "title": "Tentation du démon",
+        "actionType": "Attaque",
+        "isSpell": true,
+        "description": "Si le sorcier réussit un test d'attaque magique contre une cible vivante à portée (10 m), il invoque son fantasme le plus important à une portée maximale de 20 m. Seule la créature ciblée voit l'être/l'objet et sait ce dont il s'agit. Pendant [INT du sorcier] rounds, elle cesse toute activité pour s'approcher et subit un malus de -10 aux tests de PER. Le sort est brisé si la cible est attaquée. Si la créature est d'un NC supérieur au niveau du sorcier, le sort ne fait effet qu'un seul round. Une cible ne peut pas être ciblée par ce sort plus d'une fois par combat.",
+        "isLimited": false,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 3,
+        "title": "Épidémie",
+        "actionType": "Mouvement",
+        "isSpell": true,
+        "description": "Le sorcier vise une créature humanoïde vivante à une portée de 20 m. Elle doit faire un test de CON difficulté [10 + INT] ou contracter une maladie au choix après 1d6 x 10 min d'incubation pour une durée de 24 h :\n- Bubonite : des ganglions douloureux, *dé malus* en CON, FOR et attaque au contact\n- Rhinusite : tousse et mouche, *dé malus* en PER, VOL et attaque magique\n- Pustulite : des pustules suintantes, *dé malus* en CHA, AGI et attaque à distance\nLa créature est contagieuse et dans une communauté, elle contamine 5 créatures supplémentaires par heure jusqu'à la fin du sort (soit environ 120 personnes en 24 h). Les créatures d'un NC égal ou supérieur au niveau du sorcier ne sont pas affectées.",
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": true,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 4,
+        "title": "Aura maudite",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Le sorcier invoque autour de lui une aura d'énergie nécrotique pendant INT rounds. Toutes les créatures vivantes dans un rayon de 5 m autour de lui subissent 1d4° DM par round, tandis que les morts-vivants récupèrent 1d4° PV par round.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 5,
+        "title": "Extinction de masse",
+        "actionType": "Attaque",
+        "isSpell": true,
+        "description": "Toutes les créatures vivantes de NC 1 ou inférieur dans un rayon de 10 m autour du sorcier doivent réussir un test de CON difficulté [10 + INT] ou périr. Ce sort tue aussi les plantes. La somme des NC des créatures affectées ne peut pas dépasser le niveau du sorcier. Les créatures les plus proches du sorcier sont affectées les premières.",
+        "isLimited": false,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      }
+    ]
+  },
+  {
+    "id": "voie-de-la-corruption",
+    "name": "VOIE DE LA CORRUPTION",
+    "symbol": "■",
+    "type": "profile",
+    "owner": "PRÊTRE",
+    "ranks": [
+      {
+        "rank": 1,
+        "title": "Blessure mineure",
+        "actionType": "Attaque",
+        "isSpell": true,
+        "description": "Le prêtre touche un adversaire de sa main, il doit réussir un test d'attaque au contact avec un *dé bonus*. La victime subit [2d4° + CHA du prêtre] DM. Ce sort peut être lancé une fois par jour par rang atteint dans la voie.",
+        "isLimited": false,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 2,
+        "title": "Poison",
+        "actionType": "Attaque",
+        "isSpell": false,
+        "description": "Le prêtre doit réussir un test d'attaque au contact pour toucher sa victime. Celle-ci subit immédiatement 1d4° DM de poison et la cible doit réussir un test de CON difficulté [10 + CHA du prêtre] ou être affaiblie pendant 1 round. Si la cible est d'un NC inférieur au rang atteint dans le sort, la victime est affaiblie jusqu'à ce qu'elle termine une récupération rapide. Les créatures non-vivantes sont immunisées à ce sort.",
+        "isLimited": false,
+        "isAttack": true,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 3,
+        "title": "Blessure majeure",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Une fois par combat, le prêtre peut blesser une cible à une portée de 20 m. Elle subit automatiquement [2d4° + Niveau du prêtre] DM. Le montant des DM infligés augmente de +1d4° chaque fois que le personnage atteint le rang 5 dans une voie de prêtre.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      },
+      {
+        "rank": 4,
+        "title": "Vengeance",
+        "actionType": "Action",
+        "isSpell": false,
+        "description": "Une fois par jour, lorsque le personnage tombe à 0 PV, il produit une onde d'énergie négative qui inflige [2d4° + CHA] DM à tous ses adversaires dans un rayon de 20 m et le double pour celui qui lui a infligé les DM qui l'ont porté à 0 PV.",
+        "isLimited": false,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": true
+      },
+      {
+        "rank": 5,
+        "title": "Épidémie",
+        "actionType": "Limitée",
+        "isSpell": true,
+        "description": "Une fois par jour, le prêtre peut rendre malade une créature humanoïde par point de CHA dans un rayon de 5 m autour de lui. Chaque victime doit réussir un test de CON difficulté [10 + CHA] ou être affaiblie jusqu'à ce qu'elle termine une récupération rapide ou qu'un sort de Délivrance permette de la soigner.",
+        "isLimited": true,
+        "isAttack": false,
+        "isMovement": false,
+        "isFreeAction": false,
+        "isPassive": false
+      }
     ]
   }
 ]

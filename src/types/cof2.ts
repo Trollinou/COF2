@@ -322,6 +322,7 @@ export interface ProfileData {
   weaponsAndArmor: string;
   startingEquipment: string;
   paths: string[];
+  optionalPaths?: string[];
   equipmentRules?: ProfileEquipmentRule;
   defaultEquipment?: ProfileDefaultEquipment;
 }
@@ -352,6 +353,9 @@ export interface WeaponItem {
   hands: number;
   tags: WeaponTag[];
   smallRaceReplacementId?: string;
+  attackStat?: StatCode;
+  damageStat?: StatCode | null;
+  price?: string;
   notes: string;
 }
 

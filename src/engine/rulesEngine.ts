@@ -261,6 +261,30 @@ export function canUseVoieDuMage(char: CharacterSheet): boolean {
 }
 
 /**
+ * Returns all path IDs accessible as profile paths (the 5 standard paths + any optional Atlas paths).
+ */
+export function getProfileAllPoolPathIds(profile?: ProfileData): string[] {
+  if (!profile) return [];
+  return Array.from(
+    new Set([...profile.paths, ...(profile.optionalPaths || [])]),
+  );
+}
+
+/**
+ * Checks whether a path ID belongs to the profile's standard or optional paths pool.
+ */
+export function isPathInProfilePool(
+  profile: ProfileData | undefined,
+  pathId: string,
+): boolean {
+  if (!profile) return false;
+  return (
+    profile.paths.includes(pathId) ||
+    Boolean(profile.optionalPaths?.includes(pathId))
+  );
+}
+
+/**
  * Returns the eligible rank-2 capability chosen at level 1 for a Mage-family
  * character (either in one of the 2 selected profile paths or in Voie du Mage),
  * or null if none is currently selected.
@@ -275,8 +299,8 @@ export function getMageCreationRank2Ability(
       ? getProfileById(char.secondaryProfileId)
       : undefined;
   const allProfilePathIds = [
-    ...(profile?.paths || []),
-    ...(secondaryProfile?.paths || []),
+    ...getProfileAllPoolPathIds(profile),
+    ...getProfileAllPoolPathIds(secondaryProfile),
   ];
   const eligiblePathIds = new Set(
     (char.selectedPathIds || []).filter(
@@ -1455,10 +1479,14 @@ export function computeCharacterStats(
   // Evaluate weapon instances in char.weapons
   if (char.weapons) {
     char.weapons.forEach((w) => {
+      const baseW = getWeaponById(w.weaponRefId);
       const isContact = w.category === "contact";
-      const defaultStat: StatCode = isContact ? "FOR" : "AGI";
+      const defaultStat: StatCode =
+        baseW?.attackStat ?? (isContact ? "FOR" : "AGI");
       let bestStat: StatCode = defaultStat;
-      let bestSource: string | undefined = undefined;
+      let bestSource: string | undefined = baseW?.attackStat
+        ? baseW.name
+        : undefined;
       let bestMod = stats[defaultStat];
 
       const target = isContact ? "attackContact" : "attackDistance";
@@ -1578,7 +1606,7 @@ export function computeCharacterStats(
     (char.secondaryProfileId && char.secondaryProfileId !== char.profileId) ||
     char.acquiredAbilities.some((a) => {
       const pth = getPathById(a.pathId);
-      return pth && pth.type === "profile" && !profile.paths.includes(a.pathId);
+      return pth && pth.type === "profile" && !isPathInProfilePool(profile, a.pathId);
     }),
   );
   const secProfile = char.secondaryProfileId
@@ -1646,11 +1674,12 @@ export function getWeaponAttackInfo(
   w: CharacterWeaponInstance,
   stats: ComputedCharacterStats,
 ): WeaponAttackInfo {
+  const baseW = getWeaponById(w.weaponRefId);
   const isContact = w.category === "contact";
   const defaultStat: StatCode = isContact ? "FOR" : "AGI";
-  const statUsed = w.attackStatUsed || defaultStat;
+  const statUsed = w.attackStatUsed || baseW?.attackStat || defaultStat;
   const isSubstituted = statUsed !== defaultStat;
-  const sourceName = w.attackStatSource;
+  const sourceName = w.attackStatSource || (baseW?.attackStat ? baseW.name : undefined);
 
   const matchingRules = (stats.activeWeaponModifiers || []).filter((rule) =>
     doesWeaponMatchModifierRule(w, rule),
@@ -1684,9 +1713,15 @@ export function getWeaponAttackInfo(
     ? stats.pathBonusDamage?.contact || 0
     : stats.pathBonusDamage?.distance || 0;
   const extraDm = (w.bonusDamage || 0) + weaponDmBonus + pathDmBonus;
-  const totalDmMod = isContact
-    ? (stats.finalStats.FOR ?? 0) + extraDm
-    : extraDm;
+  let baseDmStatMod = 0;
+  if (baseW?.damageStat !== undefined) {
+    baseDmStatMod = baseW.damageStat
+      ? (stats.finalStats[baseW.damageStat] ?? 0)
+      : 0;
+  } else if (isContact) {
+    baseDmStatMod = stats.finalStats.FOR ?? 0;
+  }
+  const totalDmMod = baseDmStatMod + extraDm;
 
   let dmBonus = "";
   if (totalDmMod > 0) {
@@ -1696,7 +1731,6 @@ export function getWeaponAttackInfo(
   }
 
   // Critical range calculation
-  const baseW = getWeaponById(w.weaponRefId);
   const baseCritMin = baseW?.critMin ?? 20;
   const critMin = Math.max(
     2,
@@ -2528,6 +2562,24 @@ export function getAccessiblePathsForLevelUp(char: CharacterSheet): PathData[] {
     }
   });
 
+  // Inclure les voies supplémentaires (Atlas) du profil si le joueur n'a pas encore atteint le plafond de 5 voies de profil
+  if (profile?.optionalPaths?.length) {
+    const pool = getProfileAllPoolPathIds(profile);
+    const investedCount = pool.filter(
+      (pid) =>
+        char.acquiredAbilities.some((a) => a.pathId === pid) ||
+        char.selectedPathIds.includes(pid),
+    ).length;
+
+    if (investedCount < profile.paths.length) {
+      profile.optionalPaths.forEach((id) => {
+        if (!orderedIds.includes(id)) {
+          orderedIds.push(id);
+        }
+      });
+    }
+  }
+
   return orderedIds
     .map((id) => PATHS_MAP.get(id))
     .filter((p): p is PathData => Boolean(p));
@@ -2599,8 +2651,9 @@ export function canCharacterAdoptHybridPath(
   const profile = getProfileById(char.profileId);
   if (!profile) return { eligible: true };
 
-  // 1. Règle des 5 voies du profil principal
-  const profilePathsInvested = profile.paths.filter((pathId) =>
+  // 1. Règle des 5 voies du profil principal (incluant les voies supplémentaires Atlas)
+  const profilePool = getProfileAllPoolPathIds(profile);
+  const profilePathsInvested = profilePool.filter((pathId) =>
     char.acquiredAbilities.some((a) => a.pathId === pathId),
   ).length;
 

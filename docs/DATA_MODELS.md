@@ -78,7 +78,9 @@ Liste ordonnée des identifiants d'armures de la plus légère à la plus lourde
 | `range` | `string` | ❌ | Portée affichée pour les armes à distance ou lançables (ex: `"30 m"`, `"Contact (ou 10 m)"`). |
 | `throwRange` | `string` | ❌ | Portée de lancer explicite pour une arme de contact ayant le tag `"lancer"` (ex: `"10 m"`). |
 | `smallRaceReplacementId` | `string` | ❌ | Identifiant de l'arme de remplacement automatique lors de l'attribution de l'équipement de départ à un peuple de petite taille (ex: `"epee-courte"` sur `"rapiere"`). |
-| `price` | `string` | ✅ | Prix de l'arme (ex: `"5 pa"`, `"12 po"`). |
+| `attackStat` | `StatCode` | ❌ | Caractéristique d'attaque par défaut spécifique à l'arme (ex: `"AGI"` pour `fouet` et `fouet-de-guerre`, au lieu de `"FOR"` pour une arme de contact). |
+| `damageStat` | `StatCode \| null` | ❌ | Caractéristique ajoutée aux DM (remplace la règle par défaut `"FOR"` au contact / aucune à distance). Mettre `null` pour n'ajouter aucun modificateur (ex: `fouet`, `fouet-de-guerre`) ou `"AGI"` (ex: `tribaton`). |
+| `price` | `string` | ❌ | Prix de l'arme (ex: `"5 pa"`, `"12 po"`). |
 | `notes` | `string` | ❌ | Propriétés textuelles affichées en rappel (ex: `"Critique 19-20, arme d'escrime et légère"`). |
 
 #### Exemple complet (`WeaponItem` V2)
