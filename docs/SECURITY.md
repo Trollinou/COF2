@@ -1,6 +1,6 @@
 # 🛡️ Politique & Architecture de Sécurité (DevSecOps)
 
-Ce document décrit les mesures de sécurité applicative, les règles de durcissement et les politiques de défense en profondeur implémentées dans le projet **COF2 Compagnon**.
+Ce document décrit les mesures de sécurité applicative, les règles de durcissement et les politiques de défense en profondeur implémentées dans le projet **Le Grimoire d'Osgild** (COF2).
 
 ---
 

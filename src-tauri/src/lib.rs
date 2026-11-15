@@ -11,16 +11,16 @@ fn build_app_menu(app: &tauri::AppHandle) -> tauri::Result<tauri::menu::Menu<tau
 
     #[cfg(target_os = "macos")]
     {
-        let app_menu = SubmenuBuilder::new(app, "COF2 Compagnon")
-            .item(&PredefinedMenuItem::about(app, Some("À propos de COF2 Compagnon"), None)?)
+        let app_menu = SubmenuBuilder::new(app, "Le Grimoire d'Osgild")
+            .item(&PredefinedMenuItem::about(app, Some("À propos du Grimoire d'Osgild"), None)?)
             .separator()
             .item(&PredefinedMenuItem::services(app, Some("Services"))?)
             .separator()
-            .item(&PredefinedMenuItem::hide(app, Some("Masquer COF2 Compagnon"))?)
+            .item(&PredefinedMenuItem::hide(app, Some("Masquer Le Grimoire d'Osgild"))?)
             .item(&PredefinedMenuItem::hide_others(app, Some("Masquer les autres"))?)
             .item(&PredefinedMenuItem::show_all(app, Some("Tout afficher"))?)
             .separator()
-            .item(&PredefinedMenuItem::quit(app, Some("Quitter COF2 Compagnon"))?)
+            .item(&PredefinedMenuItem::quit(app, Some("Quitter Le Grimoire d'Osgild"))?)
             .build()?;
         menu_builder = menu_builder.item(&app_menu);
     }

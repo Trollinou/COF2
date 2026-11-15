@@ -1,6 +1,6 @@
 # 🤖 Guide des Bonnes Pratiques & Directives de Développement (AGENTS.md)
 
-Ce document rassemble les conventions d'architecture, règles de développement, contraintes de performance, de sécurité et d'ingénierie Rust destinées aux agents IA et aux développeurs intervenant sur le projet **COF2 Compagnon**.
+Ce document rassemble les conventions d'architecture, règles de développement, contraintes de performance, de sécurité et d'ingénierie Rust destinées aux agents IA et aux développeurs intervenant sur le projet **Le Grimoire d'Osgild** (COF2).
 
 ---
 

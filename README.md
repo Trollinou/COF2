@@ -1,4 +1,4 @@
-# 🎲 COF2 Compagnon & Fiche de Héros
+# 🎲 Le Grimoire d'Osgild — COF2 & Fiche de Héros
 
 Application Desktop (**Rust + Tauri v2**) et Web (**Vite / React 19**) de création, de gestion et d'évolution de personnages pour le jeu de rôle **Chroniques Oubliées Fantasy 2 (COF2)**.
 

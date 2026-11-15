@@ -2,6 +2,16 @@
 
 ## [Non publié]
 
+### Modifié
+
+- **Renommage de l'application en « Le Grimoire d'Osgild » (`eu.gagnon.OsgildApp`)** :
+  - Mise à jour de `productName`, `identifier` (`eu.gagnon.OsgildApp`) et du titre de fenêtre (`COF2 — Le Grimoire d'Osgild`) dans `src-tauri/tauri.conf.json`.
+  - Mise à jour du menu macOS dans `src-tauri/src/lib.rs` et de la description des permissions dans `src-tauri/capabilities/default.json`.
+  - Mise à jour du titre HTML dans `index.html` et du nom affiché dans la barre de navigation (`src/components/Navbar.tsx`).
+  - Mise à jour de la documentation (`README.md`, `AGENTS.md`, `docs/SECURITY.md`, `docs/DATA_MODELS.md`).
+
+## 0.8.6
+
 ### Ajouté
 
 - **Refonte de l'Assistant de Création (`CharacterWizard`, `wizardValidation.ts`)** :

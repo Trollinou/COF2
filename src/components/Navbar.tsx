@@ -53,15 +53,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center space-x-2.5 shrink-0">
             <img
               src={appLogo}
-              alt="COF2 Logo"
+              alt="Le Grimoire d'Osgild"
               className="w-8 h-8 rounded-lg object-cover shadow-md border border-amber-500/40"
             />
             <div className="flex items-center space-x-1.5 whitespace-nowrap">
-              <span className="font-bold text-sm tracking-wider text-amber-400 font-sans">
-                COF2
-              </span>
               <span className="font-serif font-bold text-base text-stone-100 tracking-wide">
-                Compagnon
+                Le Grimoire d'Osgild
               </span>
               <span className="hidden xl:inline-flex ml-1 text-[10px] bg-amber-950 text-amber-400/90 border border-amber-800/50 px-1.5 py-0.5 rounded font-mono font-medium">
                 v{__APP_VERSION__}

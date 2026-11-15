@@ -1,4 +1,4 @@
-# 📚 Documentation des Modèles de Données JSON (Schéma V2 — COF2 Compagnon)
+# 📚 Documentation des Modèles de Données JSON (Schéma V2 — Le Grimoire d'Osgild / COF2)
 
 Ce guide documente de manière exhaustive la structure des **5 fichiers de données statiques** situés dans [`src/data/`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/data) (Version 2 déclarative) afin d'en faciliter l'édition, la maintenance et l'extension sans jamais avoir à coder de cas particuliers dans [`src/engine/rulesEngine.ts`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/engine/rulesEngine.ts).
 
