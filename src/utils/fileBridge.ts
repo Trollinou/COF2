@@ -1,7 +1,13 @@
 import { CharacterSheet } from '../types/cof2';
 import { validateAndMigrateCharacter } from './characterValidation';
-import { commands, CharacterRecord } from '../bindings';
-import { save, open } from '@tauri-apps/plugin-dialog';
+import { commands, CharacterRecord, IpcError } from '../bindings';
+
+function formatIpcError(error: IpcError, fallback: string): string {
+  if (error.kind === 'Cancelled') {
+    return 'Annulé';
+  }
+  return error.message || fallback;
+}
 
 export const isTauri = typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window);
 
@@ -37,23 +43,13 @@ export async function saveCharacterFile(char: CharacterSheet): Promise<{ success
 
   if (isTauri) {
     try {
-      const selectedPath = await save({
-        title: 'Sauvegarder le personnage COF2',
-        defaultPath: filename,
-        filters: [{ name: 'Personnage COF2 (*.cof2, *.json)', extensions: ['cof2', 'json'] }],
-      });
-
-      if (!selectedPath) {
-        return { success: false, message: 'Annulé' };
-      }
-
-      const res = await commands.saveCharacterFile(char as unknown as CharacterRecord, selectedPath);
+      const res = await commands.saveCharacterFile(char as unknown as CharacterRecord, filename);
       if (res.status === 'error') {
-        return { success: false, message: res.error || 'Erreur lors de la sauvegarde' };
+        return { success: false, message: formatIpcError(res.error, 'Erreur lors de la sauvegarde') };
       }
-      return { success: true, message: `Sauvegardé avec succès dans ${selectedPath}` };
+      return { success: true, message: `Sauvegardé avec succès dans ${res.data}` };
     } catch (err: any) {
-      return { success: false, message: err?.message || 'Erreur de dialogue Tauri' };
+      return { success: false, message: err?.message || 'Erreur lors de la sauvegarde' };
     }
   }
 
@@ -77,21 +73,9 @@ export async function saveCharacterFile(char: CharacterSheet): Promise<{ success
 export async function loadCharacterFile(): Promise<{ success: boolean; character?: CharacterSheet; message?: string }> {
   if (isTauri) {
     try {
-      const selectedPath = await open({
-        title: 'Ouvrir un personnage COF2',
-        filters: [{ name: 'Personnage COF2 (*.cof2, *.json)', extensions: ['cof2', 'json'] }],
-        multiple: false,
-        directory: false,
-      });
-
-      if (!selectedPath) {
-        return { success: false, message: 'Annulé' };
-      }
-
-      const filePath = Array.isArray(selectedPath) ? selectedPath[0] : selectedPath;
-      const res = await commands.loadCharacterFile(filePath);
+      const res = await commands.loadCharacterFile();
       if (res.status === 'error') {
-        return { success: false, message: res.error || 'Erreur lors du chargement' };
+        return { success: false, message: formatIpcError(res.error, 'Erreur lors du chargement') };
       }
       const validated = validateAndMigrateCharacter(res.data.record);
       return { success: true, character: validated.character };

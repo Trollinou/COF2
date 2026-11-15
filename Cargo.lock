@@ -367,6 +367,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-dialog",
  "tauri-specta",
+ "thiserror 1.0.69",
 ]
 
 [[package]]

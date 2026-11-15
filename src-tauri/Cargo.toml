@@ -14,6 +14,7 @@ cof2-core = { path = "../crates/cof2-core" }
 cof2-storage = { path = "../crates/cof2-storage" }
 serde.workspace = true
 serde_json.workspace = true
+thiserror.workspace = true
 specta.workspace = true
 tauri-specta.workspace = true
 specta-typescript.workspace = true

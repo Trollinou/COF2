@@ -120,8 +120,9 @@ COF2/
 1. **Sécurité Air-Gapped & Bac à Sable** :
    - Maintenir une politique CSP étanche : `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none';`.
    - Télémétrie désactivée, aucun updater réseau non sollicité.
-2. **Contrats Typés Stricts (`tauri-specta`)** :
-   - Toutes les commandes IPC Rust (`compute_character`, `apply_level_up_character`, `rollback_character_level`, `save_character_file`, `load_character_file`, `print_character_sheet`) doivent être annotées avec `#[specta::specta]` pour régénérer automatiquement `src/bindings.ts`.
+2. **Contrats Typés Stricts (`tauri-specta`) & Dialogues Côté Rust** :
+   - Toutes les commandes IPC Rust (`compute_character`, `apply_level_up_character`, `rollback_character_level`, `save_character_file`, `load_character_file`, `print_character_sheet`) doivent être annotées avec `#[specta::specta]` pour régénérer automatiquement `src/bindings.ts` et retourner des erreurs typées (`IpcError`).
+   - Les dialogues de fichiers natifs (`save_character_file`, `load_character_file`) sont pilotés côté Rust via `tauri_plugin_dialog::DialogExt` afin que la WebView ne transmette jamais de chemins disque arbitraires.
 3. **Impression Native & Localisation OS (macOS & Windows)** :
    - L'impression délègue à la méthode native `window.print()` (`tauri::WebviewWindow`) avec la permission `"core:webview:allow-print"`.
    - **macOS** : `src-tauri/Info.plist` déclare obligatoirement `CFBundleDevelopmentRegion = fr_FR`, `CFBundleLocalizations = ["fr", "fr_FR", "en"]` et `CFBundleAllowMixedLocalizations = true`. Initialisation de `AppleLanguages` pour le mode dev.

@@ -86,5 +86,9 @@ Le serveur de développement autonome du Data Editor (`vite.config.mts` sur le p
    - Ouverture directe du fichier sans pré-vérification `exists()`.
    - Plafonnement strict à **10 Mo** (`MAX_CHARACTER_FILE_BYTES`) via contrôle des métadonnées et `Read::take(MAX_CHARACTER_FILE_BYTES + 1)`.
    - Validation post-désérialisation (`validate_loaded_record`) vérifiant l'intégrité minimale (`id` non vide, `level >= 1`).
-3. **Validation des Extensions IPC (`commands.rs`)** :
-   - Les commandes `save_character_file` et `load_character_file` valident que le chemin cible possède une extension `.cof2` ou `.json` (`validate_character_extension`) avant tout accès au système de fichiers.
+3. **Dialogues Natifs & Erreurs IPC Typées (`src-tauri/src/commands.rs`)** :
+   - Les commandes `save_character_file` et `load_character_file` ouvrent directement les sélecteurs de fichiers natifs côté Rust (`tauri_plugin_dialog::DialogExt`), empêchant la WebView de fournir un chemin disque arbitraire en lecture ou en écriture.
+   - Le paramètre `default_filename` transmis à `save_character_file` est assaini via `Path::file_name()` (`sanitize_default_filename`) pour neutraliser toute tentative de *Path Traversal*.
+   - L'extension du fichier sélectionné (`.cof2` ou `.json`) est vérifiée via `validate_character_extension` avant tout accès disque.
+   - Les erreurs IPC retournées à la WebView utilisent l'enum typé `IpcError` (`tauri-specta`), évitant l'exposition de traces internes brutes.
+   - La CSP Tauri (`src-tauri/tauri.conf.json`) applique en complément `connect-src 'none'`, `img-src 'self' data:` et `font-src 'self'`.

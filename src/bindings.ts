@@ -5,7 +5,7 @@
 
 
 export const commands = {
-async computeCharacter(record: CharacterRecord) : Promise<Result<ComputedCharacterSheet, string>> {
+async computeCharacter(record: CharacterRecord) : Promise<Result<ComputedCharacterSheet, IpcError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("compute_character", { record }) };
 } catch (e) {
@@ -13,7 +13,7 @@ async computeCharacter(record: CharacterRecord) : Promise<Result<ComputedCharact
     else return { status: "error", error: e  as any };
 }
 },
-async applyLevelUpCharacter(record: CharacterRecord, step: LevelProgressionStep) : Promise<Result<ComputedCharacterSheet, string>> {
+async applyLevelUpCharacter(record: CharacterRecord, step: LevelProgressionStep) : Promise<Result<ComputedCharacterSheet, IpcError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("apply_level_up_character", { record, step }) };
 } catch (e) {
@@ -21,7 +21,7 @@ async applyLevelUpCharacter(record: CharacterRecord, step: LevelProgressionStep)
     else return { status: "error", error: e  as any };
 }
 },
-async rollbackCharacterLevel(record: CharacterRecord, targetLevel: number) : Promise<Result<ComputedCharacterSheet, string>> {
+async rollbackCharacterLevel(record: CharacterRecord, targetLevel: number) : Promise<Result<ComputedCharacterSheet, IpcError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("rollback_character_level", { record, targetLevel }) };
 } catch (e) {
@@ -29,23 +29,29 @@ async rollbackCharacterLevel(record: CharacterRecord, targetLevel: number) : Pro
     else return { status: "error", error: e  as any };
 }
 },
-async saveCharacterFile(record: CharacterRecord, filePath: string) : Promise<Result<null, string>> {
+/**
+ * Ouvre le dialogue natif d'enregistrement côté Rust et sauvegarde atomiquement la fiche avec copie `.bak`.
+ */
+async saveCharacterFile(record: CharacterRecord, defaultFilename: string) : Promise<Result<string, IpcError>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("save_character_file", { record, filePath }) };
+    return { status: "ok", data: await TAURI_INVOKE("save_character_file", { record, defaultFilename }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
-async loadCharacterFile(filePath: string) : Promise<Result<ComputedCharacterSheet, string>> {
+/**
+ * Ouvre le dialogue natif de sélection côté Rust, charge la fiche `.cof2`/`.json` et calcule ses statistiques.
+ */
+async loadCharacterFile() : Promise<Result<ComputedCharacterSheet, IpcError>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("load_character_file", { filePath }) };
+    return { status: "ok", data: await TAURI_INVOKE("load_character_file") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
-async printCharacterSheet() : Promise<Result<null, string>> {
+async printCharacterSheet() : Promise<Result<null, IpcError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("print_character_sheet") };
 } catch (e) {
@@ -86,6 +92,10 @@ export type ComputedCharacterSheet = { record: CharacterRecord; baseStats: Parti
  */
 export type HumanDiversityChoice = { originId: string; customOriginName?: string | null; customDomain1?: string | null; customDomain2?: string | null; replacedDomainIndex?: number | null; replacementTrade?: string | null }
 export type InventoryItem = { id: string; name: string; quantity: number; notes?: string | null }
+/**
+ * Erreur IPC structurée exposée à la WebView via `tauri-specta`.
+ */
+export type IpcError = { kind: "Cancelled" } | { kind: "InvalidExtension"; message: string } | { kind: "NotFound"; message: string } | { kind: "FileTooLarge"; message: string } | { kind: "Io"; message: string } | { kind: "InvalidFormat"; message: string } | { kind: "Rules"; message: string } | { kind: "Window"; message: string }
 export type LanguageSummary = { automaticLanguages: string[]; bonusLanguageSlots: number; usedBonusSlots: number; argotienSlotCost: number; literacy: LiteracyStatus; intNote: string | null }
 /**
  * Mémorisation détaillée des apprentissages et choix effectués à un niveau précis

@@ -2,9 +2,40 @@ pub mod commands;
 
 use commands::*;
 use cof2_core::RulesDatabase;
-use std::sync::Mutex;
 use tauri::menu::{MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder};
 use tauri::Emitter;
+
+fn specta_builder() -> tauri_specta::Builder<tauri::Wry> {
+    tauri_specta::Builder::<tauri::Wry>::new().commands(tauri_specta::collect_commands![
+        compute_character,
+        apply_level_up_character,
+        rollback_character_level,
+        save_character_file,
+        load_character_file,
+        print_character_sheet
+    ])
+}
+
+#[cfg(debug_assertions)]
+fn export_bindings_if_changed(builder: &tauri_specta::Builder<tauri::Wry>, target: &str) {
+    let tmp_path = std::env::temp_dir().join("cof2_specta_bindings_preview.ts");
+    if builder
+        .export(specta_typescript::Typescript::default(), &tmp_path)
+        .is_err()
+    {
+        return;
+    }
+
+    let Ok(generated) = std::fs::read_to_string(&tmp_path) else {
+        return;
+    };
+    let _ = std::fs::remove_file(&tmp_path);
+
+    let existing = std::fs::read_to_string(target).ok();
+    if existing.as_deref() != Some(generated.as_str()) {
+        let _ = std::fs::write(target, generated);
+    }
+}
 
 fn build_app_menu(app: &tauri::AppHandle) -> tauri::Result<tauri::menu::Menu<tauri::Wry>> {
     let mut menu_builder = MenuBuilder::new(app);
@@ -12,15 +43,28 @@ fn build_app_menu(app: &tauri::AppHandle) -> tauri::Result<tauri::menu::Menu<tau
     #[cfg(target_os = "macos")]
     {
         let app_menu = SubmenuBuilder::new(app, "Le Grimoire d'Osgild")
-            .item(&PredefinedMenuItem::about(app, Some("À propos du Grimoire d'Osgild"), None)?)
+            .item(&PredefinedMenuItem::about(
+                app,
+                Some("À propos du Grimoire d'Osgild"),
+                None,
+            )?)
             .separator()
             .item(&PredefinedMenuItem::services(app, Some("Services"))?)
             .separator()
-            .item(&PredefinedMenuItem::hide(app, Some("Masquer Le Grimoire d'Osgild"))?)
-            .item(&PredefinedMenuItem::hide_others(app, Some("Masquer les autres"))?)
+            .item(&PredefinedMenuItem::hide(
+                app,
+                Some("Masquer Le Grimoire d'Osgild"),
+            )?)
+            .item(&PredefinedMenuItem::hide_others(
+                app,
+                Some("Masquer les autres"),
+            )?)
             .item(&PredefinedMenuItem::show_all(app, Some("Tout afficher"))?)
             .separator()
-            .item(&PredefinedMenuItem::quit(app, Some("Quitter Le Grimoire d'Osgild"))?)
+            .item(&PredefinedMenuItem::quit(
+                app,
+                Some("Quitter Le Grimoire d'Osgild"),
+            )?)
             .build()?;
         menu_builder = menu_builder.item(&app_menu);
     }
@@ -62,7 +106,10 @@ fn build_app_menu(app: &tauri::AppHandle) -> tauri::Result<tauri::menu::Menu<tau
         .item(&PredefinedMenuItem::cut(app, Some("Couper"))?)
         .item(&PredefinedMenuItem::copy(app, Some("Copier"))?)
         .item(&PredefinedMenuItem::paste(app, Some("Coller"))?)
-        .item(&PredefinedMenuItem::select_all(app, Some("Tout sélectionner"))?)
+        .item(&PredefinedMenuItem::select_all(
+            app,
+            Some("Tout sélectionner"),
+        )?)
         .build()?;
 
     let window_menu = SubmenuBuilder::new(app, "Fenêtre")
@@ -81,39 +128,13 @@ fn build_app_menu(app: &tauri::AppHandle) -> tauri::Result<tauri::menu::Menu<tau
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    #[cfg(target_os = "macos")]
-    if std::env::var("AppleLanguages").is_err() {
-        std::env::set_var("AppleLanguages", "(\"fr-FR\", \"fr\")");
-    }
-
-    #[cfg(target_os = "windows")]
-    if std::env::var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS").is_err() {
-        std::env::set_var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--lang=fr-FR");
-    }
-
     let rules = RulesDatabase::load_embedded().expect("Failed to load embedded rules compendium");
-    let app_state = AppState {
-        rules,
-        active_character: Mutex::new(None),
-    };
+    let app_state = AppState { rules };
 
-    let builder = tauri_specta::Builder::<tauri::Wry>::new()
-        .commands(tauri_specta::collect_commands![
-            compute_character,
-            apply_level_up_character,
-            rollback_character_level,
-            save_character_file,
-            load_character_file,
-            print_character_sheet
-        ]);
+    let builder = specta_builder();
 
     #[cfg(debug_assertions)]
-    builder
-        .export(
-            specta_typescript::Typescript::default(),
-            "../src/bindings.ts",
-        )
-        .expect("Failed to export typescript bindings");
+    export_bindings_if_changed(&builder, "../src/bindings.ts");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -134,7 +155,7 @@ pub fn run() {
                     _ => None,
                 };
                 if let Some(action_name) = action {
-                    let _ = app_handle.emit("menu-action", action_name);
+                    let _ = app_handle.emit_to("main", "menu-action", action_name);
                 }
             });
 
@@ -150,17 +171,7 @@ mod tests {
 
     #[test]
     fn export_typescript_bindings() {
-        let builder = tauri_specta::Builder::<tauri::Wry>::new()
-            .commands(tauri_specta::collect_commands![
-                compute_character,
-                apply_level_up_character,
-                rollback_character_level,
-                save_character_file,
-                load_character_file,
-                print_character_sheet
-            ]);
-
-        builder
+        specta_builder()
             .export(
                 specta_typescript::Typescript::default(),
                 "../src/bindings.ts",
