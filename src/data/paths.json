@@ -3098,7 +3098,7 @@
             },
             "hpFormula": {
               "base": 10,
-              "perHeroLevel": 6
+              "perLevel": 6
             },
             "initiativeFormula": {
               "heroStatRef": "initiative",
@@ -3400,11 +3400,11 @@
             "initiative": "[Init. du chevalier]",
             "defenseFormula": {
               "base": 10,
-              "perRankInPath": 1
+              "perRank": 1
             },
             "hpFormula": {
               "base": 0,
-              "perHeroLevel": 4
+              "perLevel": 4
             },
             "initiativeFormula": {
               "heroStatRef": "initiative",
@@ -6180,24 +6180,24 @@
         "companions": [
           {
             "name": "Arbre animé",
-            "category": "Plante animée (taille très grande)",
+            "category": "Plante animée",
             "stats": {
-              "FOR": "+8",
+              "FOR": "+3",
               "AGI": "-2",
-              "CON": "+8",
-              "PER": "+0",
-              "INT": "-4",
-              "VOL": "+4",
-              "CHA": "-4"
+              "CON": "+3",
+              "PER": "-2",
+              "INT": "-2",
+              "VOL": "+0",
+              "CHA": "-2"
             },
-            "defense": "14",
-            "hp": "Niv. du druide × 6",
-            "initiative": "Init. du druide - 5",
+            "defense": "10 + rang",
+            "hp": "Niveau × 5",
+            "initiative": "8",
             "attacks": [
               {
-                "name": "Balayage de branches",
-                "attackBonus": "Attaque magique du druide",
-                "damage": "2d6+8",
+                "name": "Attaque de contact",
+                "attackBonus": "[attaque magique]",
+                "damage": "1d4°+3",
                 "attackFormula": {
                   "heroStatRef": "magicAttack",
                   "offset": 0
@@ -6205,16 +6205,19 @@
               }
             ],
             "defenseFormula": {
-              "base": 14
+              "base": 10,
+              "perRank": 1
             },
             "hpFormula": {
               "base": 0,
-              "perLevel": 6
+              "perLevel": 5
             },
             "initiativeFormula": {
-              "heroStatRef": "initiative",
-              "offset": -5
-            }
+              "base": 8
+            },
+            "specialFeatures": [
+              "Déplacement : 5 m par action de mouvement."
+            ]
           }
         ]
       },
@@ -9303,11 +9306,11 @@
             "initiative": "Init. du caravanier",
             "attacks": [
               {
-                "name": "Épée longue",
-                "attackBonus": "Attaque contact du caravanier",
-                "damage": "1d8+3",
+                "name": "Attaque",
+                "attackBonus": "Attaque magique du caravanier",
+                "damage": "1d4°+3",
                 "attackFormula": {
-                  "heroStatRef": "contactAttack",
+                  "heroStatRef": "magicAttack",
                   "offset": 0
                 }
               }
@@ -9471,14 +9474,13 @@
             "initiative": "Init. du caravanier",
             "attacks": [
               {
-                "name": "Écrasement",
-                "attackBonus": "Attaque magique du caravanier",
-                "damage": "2d6+7",
-                "attackFormula": {
-                  "heroStatRef": "magicAttack",
-                  "offset": 0
-                }
+                "name": "Attaque",
+                "attackBonus": "10 + M",
+                "damage": "Md12+10"
               }
+            ],
+            "specialFeatures": [
+              "Réduction des DM (RD) égale au double de sa masse (2 × M)."
             ],
             "defenseFormula": {
               "base": 18
@@ -12052,9 +12054,9 @@
               }
             ],
             "specialFeatures": [
-              "R4 : Détection de la magie (à volonté).",
+              "R4 : Siphon des âmes (rang 1, voie de la mort, sorcier).",
               "R5 : Sorts de sorcier.",
-              "R7 : Forme de brume (1/combat). Statistique : CON +1."
+              "R7 : Exsangue (rang 3, voie du sang, sorcier). Statistique : CON +1."
             ]
           },
           {

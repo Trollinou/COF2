@@ -1148,6 +1148,52 @@ describe('COF2 Rules Engine', () => {
       expect(resolved.attacks[0].attackBonus).toBe('+8');
     });
 
+    it('evaluates Arbre animé, Écuyer, and Monture fantastique companion formulas accurately', () => {
+      const char = createDefaultCharacter();
+      char.peopleId = 'humain';
+      char.profileId = 'druide';
+      char.level = 5;
+      char.baseStats = { FOR: 0, AGI: 0, CON: 1, PER: 2, INT: 0, VOL: 3, CHA: 0 };
+      char.acquiredAbilities = [
+        { pathId: 'voie-des-vegetaux', rank: 4 },
+        { pathId: 'voie-de-la-noblesse', rank: 2 },
+      ];
+
+      const stats = computeCharacterStats(char);
+
+      const vegetauxPath = getPathById('voie-des-vegetaux');
+      const arbre = vegetauxPath?.ranks[3].companions?.[0];
+      expect(arbre?.name).toBe('Arbre animé');
+      expect(arbre?.stats).toEqual({
+        FOR: '+3',
+        AGI: '-2',
+        CON: '+3',
+        PER: '-2',
+        INT: '-2',
+        VOL: '+0',
+        CHA: '-2',
+      });
+      const resolvedArbre = resolveCompanionStats(arbre!, char, stats, 'voie-des-vegetaux');
+      expect(resolvedArbre.defense).toBe('14'); // 10 + rang (4)
+      expect(resolvedArbre.hp).toBe('25'); // Niveau (5) * 5
+      expect(resolvedArbre.initiative).toBe('8');
+      expect(resolvedArbre.attacks[0].damage).toBe('1d4°+3');
+      expect(resolvedArbre.attacks[0].attackBonus).toBe(`+${stats.attacks.magique}`);
+
+      const noblessePath = getPathById('voie-de-la-noblesse');
+      const ecuyer = noblessePath?.ranks[1].companions?.[0];
+      expect(ecuyer?.name).toBe('Écuyer');
+      const resolvedEcuyer = resolveCompanionStats(ecuyer!, char, stats, 'voie-de-la-noblesse');
+      expect(resolvedEcuyer.defense).toBe('12'); // 10 + rang (2)
+      expect(resolvedEcuyer.hp).toBe('20'); // Niveau (5) * 4
+
+      const cavalierPath = getPathById('voie-du-cavalier');
+      const monture = cavalierPath?.ranks[4].companions?.[0];
+      expect(monture?.name).toBe('Monture fantastique');
+      const resolvedMonture = resolveCompanionStats(monture!, char, stats, 'voie-du-cavalier');
+      expect(resolvedMonture.hp).toBe('40'); // 10 + Niveau (5) * 6
+    });
+
     it('restricts Cotte d’écorce to Satyre, equips it by default, and adds its special note', () => {
       // 1. Not available to non-Satyres
       const humanArmors = getAllowedArmors('rodeur', undefined, 'humain');

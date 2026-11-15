@@ -443,7 +443,15 @@ Le rang 1 de `voie-de-l-humain` (**Diversité**) utilise un champ structuré dé
 
 ### 4.4. Compagnons, Familiers & Invocations (`companions: CompanionStatBlock[]`)
 
-Chaque compagnon peut inclure des formules déclaratives (`defenseFormula`, `hpFormula`, `initiativeFormula`, `attacks[].attackFormula`) évaluées dynamiquement par `resolveCompanionStats()` dans [`CompanionCard.tsx`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/components/sheet/CompanionCard.tsx) :
+Chaque compagnon peut inclure des formules déclaratives (`defenseFormula`, `hpFormula`, `initiativeFormula`, `attacks[].attackFormula`) évaluées dynamiquement par `resolveCompanionStats()` dans [`rulesEngine.ts`](file:///Users/etienne/Developments/COF2/src/engine/rulesEngine.ts) et affichées via [`CompanionCard.tsx`](file:///Users/etienne/Developments/COF2/src/components/sheet/CompanionCard.tsx).
+
+**Champs reconnus pour `CompanionFormula` :**
+- `base?: number` — Valeur fixe de base.
+- `perLevel?: number` — Multiplicateur appliqué au niveau du personnage (ne pas utiliser `perHeroLevel`).
+- `perRank?: number` — Multiplicateur appliqué au rang maximal atteint dans la voie (ne pas utiliser `perRankInPath`).
+- `stat?: StatCode` — Ajoute la caractéristique finale du personnage (`FOR`, `AGI`, `CON`, `PER`, `INT`, `VOL`, `CHA`).
+- `heroStatRef?: 'initiative' | 'magicAttack' | 'contactAttack' | 'distanceAttack' | 'defense'` — Référence une statistique dérivée du personnage.
+- `offset?: number` — Décalage additif fixe (positif ou négatif).
 
 ```json
 "companions": [
