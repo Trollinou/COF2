@@ -398,6 +398,15 @@ export interface LevelProgressionStep {
   timestamp?: string;
 }
 
+export interface HumanDiversityChoice {
+  originId: string;
+  customOriginName?: string;
+  customDomain1?: string;
+  customDomain2?: string;
+  replacedDomainIndex?: number; // 0 or 1
+  replacementTrade?: string;
+}
+
 export interface CharacterSheet {
   id: string;
   version: string;
@@ -440,6 +449,7 @@ export interface CharacterSheet {
   acquiredAbilities: Array<{ pathId: string; rank: number }>;
   pathRankChoices?: Record<string, string>; // Maps `${pathId}_${rank}` -> choiceOptionId
   externalAbilityChoices?: Record<string, { pathId: string; rank: number }>; // Maps `${pathId}_${rank}` -> borrowed ability
+  humanDiversity?: HumanDiversityChoice | null;
 
   // Historique des montées de niveau
   progressionHistory?: LevelProgressionStep[];

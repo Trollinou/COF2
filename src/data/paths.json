@@ -552,7 +552,7 @@
         "title": "Diversité",
         "actionType": "Action",
         "isSpell": false,
-        "description": "Un humain obtient un bonus de +3 aux tests de deux domaines associés à son origine géographique ou sociale (voir ci-dessous). De plus, il gagne 1 PC supplémentaire.\n\n**Origine géographique ou sociale (choisissez ou lancez un d6):**\n\n- 1 : Montagnard (escalade et résistance au froid).\n- 2 : Citadin (commerce et résistance aux maladies).\n- 3 : Campagnard (météorologie et équitation).\n- 4 : Riverain (natation et navigation).\n- 5 : Sauvage (chasser et pister).\n- 6 : Nomade (orientation et résistance à la chaleur ou au froid).\n\nLe MJ peut en inventer d'autres selon les cultures présentes dans son univers de jeu (troglodyte, marais, etc.). Éventuellement, le joueur peut remplacer un des bonus d'origine géographique par un bonus en relation avec son origine sociale ou un gagne‑pain de son choix (serrurier, forgeron, scribe, maçon, chasseur, cuisinier, acrobate, pickpocket, bibliothécaire, étudiant, etc.). Le gagne‑pain ne peut pas être un profil et le bonus obtenu ne s'applique jamais à des tests de combat.\n\n> ***Exemple*** *: Un citadin étudiant en magie pourrait obtenir un bonus de +3 aux tests de commerce et +3 aux tests d'érudition occulte, même si son personnage est finalement devenu guerrier.*",
+        "description": "Un humain obtient un bonus de +3 aux tests de deux domaines associés à son origine géographique ou sociale (avec possibilité de remplacer l'un d'eux par un gagne-pain hors combat, non issu d'un profil). De plus, il gagne 1 PC supplémentaire.",
         "isLimited": false,
         "isAttack": false,
         "isMovement": false,
@@ -564,9 +564,6 @@
               "target": "pc",
               "flat": 1
             }
-          ],
-          "situationalNotes": [
-            "Diversité : +1 PC et +3 dans deux domaines d'origine"
           ]
         }
       },

@@ -114,6 +114,10 @@ describe('Wizard Initialization & Step Validation', () => {
     expect(validateWizardStep(4, char).valid).toBe(false);
 
     char.deity = deity.name;
+    // Human retains Diversité (rank 1 of Voie de l'humain) and must choose an origin
+    expect(validateWizardStep(4, char).valid).toBe(false);
+
+    char.humanDiversity = { originId: 'montagnard' };
     expect(validateWizardStep(4, char).valid).toBe(true);
   });
 

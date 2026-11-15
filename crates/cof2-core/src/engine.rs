@@ -1,6 +1,6 @@
 use crate::models::{
-    AttackBonuses, CharacterRecord, ComputedCharacterSheet, LanguageSummary, LevelProgressionStep,
-    LiteracyStatus, ProfileFamily, StatCode,
+    AttackBonuses, CharacterRecord, ComputedCharacterSheet, HumanDiversityChoice, LanguageSummary,
+    LevelProgressionStep, LiteracyStatus, ProfileFamily, StatCode,
 };
 use crate::rules::{PeopleStatic, RankModifiersStatic, RuleError, RulesDatabase};
 use std::collections::HashMap;
@@ -177,6 +177,12 @@ impl RulesEngine {
         if let Some(arm) = armor {
             if let Some(ref n) = arm.notes {
                 situational_notes.push(format!("{} : {}", arm.name, n));
+            }
+        }
+
+        if let Some(ref div) = record.human_diversity {
+            if let Some(note) = format_human_diversity_note(div) {
+                situational_notes.push(note);
             }
         }
 
@@ -587,4 +593,74 @@ fn parse_stat(s: &str) -> Result<StatCode, ()> {
         "CHA" => Ok(StatCode::CHA),
         _ => Err(()),
     }
+}
+
+fn format_human_diversity_note(choice: &HumanDiversityChoice) -> Option<String> {
+    let (origin_label, default_d1, default_d2) = match choice.origin_id.as_str() {
+        "montagnard" => ("Montagnard", "Escalade", "Résistance au froid"),
+        "citadin" => ("Citadin", "Commerce", "Résistance aux maladies"),
+        "campagnard" => ("Campagnard", "Météorologie", "Équitation"),
+        "riverain" => ("Riverain", "Natation", "Navigation"),
+        "sauvage" => ("Sauvage", "Chasser", "Pister"),
+        "nomade" => ("Nomade", "Orientation", "Résistance à la chaleur ou au froid"),
+        "custom" => {
+            let label = choice
+                .custom_origin_name
+                .as_deref()
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .unwrap_or("Origine personnalisée");
+            let d1 = choice
+                .custom_domain_1
+                .as_deref()
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .unwrap_or("");
+            let d2 = choice
+                .custom_domain_2
+                .as_deref()
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .unwrap_or("");
+            return format_diversity_domains(label, d1, d2, choice);
+        }
+        _ => return None,
+    };
+
+    format_diversity_domains(origin_label, default_d1, default_d2, choice)
+}
+
+fn format_diversity_domains(
+    origin_label: &str,
+    base_d1: &str,
+    base_d2: &str,
+    choice: &HumanDiversityChoice,
+) -> Option<String> {
+    let trade = choice
+        .replacement_trade
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty());
+
+    let (d1, d2) = match (choice.replaced_domain_index, trade) {
+        (Some(0), Some(t)) => (format!("{t} (gagne-pain)"), base_d2.to_string()),
+        (Some(1), Some(t)) => (base_d1.to_string(), format!("{t} (gagne-pain)")),
+        _ => (base_d1.to_string(), base_d2.to_string()),
+    };
+
+    let domains: Vec<String> = [d1, d2]
+        .into_iter()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    if domains.is_empty() {
+        return None;
+    }
+
+    Some(format!(
+        "Diversité ({}) : +3 aux tests de {}",
+        origin_label,
+        domains.join(" et ")
+    ))
 }

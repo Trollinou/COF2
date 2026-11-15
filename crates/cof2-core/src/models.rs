@@ -67,6 +67,23 @@ pub struct Coins {
     pub po: i32,
 }
 
+/// Choix structuré pour la capacité « Diversité » (Voie de l'humain, Rang 1)
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct HumanDiversityChoice {
+    pub origin_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_origin_name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_domain_1: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_domain_2: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub replaced_domain_index: Option<u8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub replacement_trade: Option<String>,
+}
+
 /// Mémorisation détaillée des apprentissages et choix effectués à un niveau précis
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -156,6 +173,8 @@ pub struct CharacterRecord {
     pub path_rank_choices: HashMap<String, String>,
     #[serde(default)]
     pub external_ability_choices: HashMap<String, AcquiredAbility>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub human_diversity: Option<HumanDiversityChoice>,
 
     /// Historique des apprentissages niveau par niveau (permet de tracer et de revenir en arrière)
     #[serde(default)]

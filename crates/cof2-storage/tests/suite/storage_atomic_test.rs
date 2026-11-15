@@ -51,6 +51,7 @@ fn test_atomic_save_and_load() {
         acquired_abilities: vec![],
         path_rank_choices: HashMap::new(),
         external_ability_choices: HashMap::new(),
+        human_diversity: None,
         progression_history: vec![],
         current_hp: 12,
         max_hp_bonus: 0,

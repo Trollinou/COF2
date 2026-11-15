@@ -1,4 +1,5 @@
 import { computeLanguagesInfo } from '../utils/languageUtils';
+import { formatHumanDiversityNote, hasHumanDiversityRank1 } from '../utils/humanDiversity';
 import {
   CharacterSheet,
   ComputedCharacterStats,
@@ -1125,6 +1126,15 @@ export function computeCharacterStats(
     people.equipmentRules.sizeNotes.forEach((n) => {
       if (!pathSituationalNotes.includes(n)) pathSituationalNotes.push(n);
     });
+  }
+
+  if (hasHumanDiversityRank1(char)) {
+    const diversityNote =
+      formatHumanDiversityNote(char.humanDiversity) ||
+      'Diversité : +1 PC et +3 dans deux domaines d\'origine';
+    if (!pathSituationalNotes.includes(diversityNote)) {
+      pathSituationalNotes.push(diversityNote);
+    }
   }
 
   const collectModifiersFromBlock = (

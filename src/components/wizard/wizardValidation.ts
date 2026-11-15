@@ -12,6 +12,7 @@ import {
   computeCharacterStats,
 } from '../../engine/rulesEngine';
 import tablesData from '../../data/tables.json';
+import { hasHumanDiversityRank1, isHumanDiversityValid } from '../../utils/humanDiversity';
 
 export interface StepValidationResult {
   valid: boolean;
@@ -222,6 +223,13 @@ export function validateWizardStep(
             };
           }
         }
+      }
+
+      if (hasHumanDiversityRank1(character) && !isHumanDiversityValid(character.humanDiversity)) {
+        return {
+          valid: false,
+          reason: "Veuillez choisir l'origine (et, si remplacé, le gagne-pain) pour la capacité Diversité.",
+        };
       }
 
       return { valid: true };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CharacterSheet, ProfileData, PeopleData } from '../../../types/cof2';
+import { CharacterSheet, HumanDiversityChoice, ProfileData, PeopleData } from '../../../types/cof2';
 import {
   getPathById,
   getRacialPathId,
@@ -19,6 +19,7 @@ import { CompanionCard } from '../../sheet/CompanionCard';
 import { MageBonusRank2Panel } from './MageBonusRank2Panel';
 import { ExternalAbilitySelector } from '../../shared/ExternalAbilitySelector';
 import { RankChoiceSelector } from '../../shared/RankChoiceSelector';
+import { HumanDiversitySelector } from '../../shared/HumanDiversitySelector';
 
 interface Step5PathsProps {
   character: CharacterSheet;
@@ -65,6 +66,10 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
         [choiceKey]: optionId,
       },
     });
+  };
+
+  const handleHumanDiversityChange = (humanDiversity: HumanDiversityChoice) => {
+    handleUpdatePartial({ humanDiversity });
   };
 
   const explicitThirdPathId = character.selectedPathIds.find(id => !allProfilePathIds.includes(id)) || '';
@@ -720,6 +725,12 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                           onChangeChoice={handleRankChoice}
                           requireExplicitChoice
                         />
+                        <HumanDiversitySelector
+                          character={character}
+                          pathId={currentThirdPath.id}
+                          rankNumber={1}
+                          onChange={handleHumanDiversityChange}
+                        />
                       </>
                     )}
 
@@ -737,14 +748,23 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                         {defaultRacialPath?.ranks[0]?.description}
                       </p>
                       {defaultRacialPath?.ranks[0] && (
-                        <RankChoiceSelector
-                          character={character}
-                          pathId={defaultRacialPath.id}
-                          rank={defaultRacialPath.ranks[0]}
-                          onChangeChoice={handleRankChoice}
-                          requireExplicitChoice
-                          variant="emerald"
-                        />
+                        <>
+                          <RankChoiceSelector
+                            character={character}
+                            pathId={defaultRacialPath.id}
+                            rank={defaultRacialPath.ranks[0]}
+                            onChangeChoice={handleRankChoice}
+                            requireExplicitChoice
+                            variant="emerald"
+                          />
+                          <HumanDiversitySelector
+                            character={character}
+                            pathId={defaultRacialPath.id}
+                            rankNumber={1}
+                            onChange={handleHumanDiversityChange}
+                            variant="emerald"
+                          />
+                        </>
                       )}
                     </div>
                   </div>
@@ -927,6 +947,12 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
                           rank={currentThirdPath.ranks[0]}
                           onChangeChoice={handleRankChoice}
                           requireExplicitChoice
+                        />
+                        <HumanDiversitySelector
+                          character={character}
+                          pathId={currentThirdPath.id}
+                          rankNumber={1}
+                          onChange={handleHumanDiversityChange}
                         />
                       </>
                     )}

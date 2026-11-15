@@ -21,6 +21,7 @@ import { ActionBadges } from '../ActionBadges';
 import { CompanionCard } from '../CompanionCard';
 import { ExternalAbilitySelector } from '../../shared/ExternalAbilitySelector';
 import { RankChoiceSelector } from '../../shared/RankChoiceSelector';
+import { HumanDiversitySelector } from '../../shared/HumanDiversitySelector';
 
 const TARGET_LABELS: Record<string, string> = {
   defense: 'DEF',
@@ -313,12 +314,20 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
 
                       {/* Interactive Choice Selector (read-only on sheet) */}
                       {isAcquired && (
-                        <RankChoiceSelector
-                          character={character}
-                          pathId={pathId}
-                          rank={rank}
-                          readOnly
-                        />
+                        <>
+                          <RankChoiceSelector
+                            character={character}
+                            pathId={pathId}
+                            rank={rank}
+                            readOnly
+                          />
+                          <HumanDiversitySelector
+                            character={character}
+                            pathId={pathId}
+                            rankNumber={rank.rank}
+                            readOnly
+                          />
+                        </>
                       )}
 
                       {/* Reminder for Replaced Racial Path Rank 1 Ability */}
@@ -370,6 +379,13 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                             character={character}
                             pathId={replacedRacial.path.id}
                             rank={replacedRacial.rank1}
+                            readOnly
+                            variant="emerald"
+                          />
+                          <HumanDiversitySelector
+                            character={character}
+                            pathId={replacedRacial.path.id}
+                            rankNumber={replacedRacial.rank1.rank}
                             readOnly
                             variant="emerald"
                           />

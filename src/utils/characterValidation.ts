@@ -1,4 +1,4 @@
-import { CharacterSheet, StatCode } from '../types/cof2';
+import { CharacterSheet, HumanDiversityChoice, StatCode } from '../types/cof2';
 import { createDefaultCharacter, computeRacialStatModifiers } from '../engine/rulesEngine';
 
 const VALID_STATS: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
@@ -86,6 +86,22 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
       if (v && typeof v.pathId === 'string' && Number.isInteger(v.rank) && v.rank >= 1 && v.rank <= 8) {
         externalAbilityChoices[key] = { pathId: v.pathId, rank: v.rank };
       }
+    }
+  }
+
+  let humanDiversity: HumanDiversityChoice | undefined = undefined;
+  if (raw.humanDiversity && typeof raw.humanDiversity === 'object' && typeof raw.humanDiversity.originId === 'string') {
+    const hd = raw.humanDiversity;
+    const originId = hd.originId.trim();
+    if (/^[a-z0-9_-]+$/i.test(originId)) {
+      humanDiversity = {
+        originId,
+        customOriginName: typeof hd.customOriginName === 'string' ? hd.customOriginName.trim() || undefined : undefined,
+        customDomain1: typeof hd.customDomain1 === 'string' ? hd.customDomain1.trim() || undefined : undefined,
+        customDomain2: typeof hd.customDomain2 === 'string' ? hd.customDomain2.trim() || undefined : undefined,
+        replacedDomainIndex: hd.replacedDomainIndex === 0 || hd.replacedDomainIndex === 1 ? hd.replacedDomainIndex : undefined,
+        replacementTrade: typeof hd.replacementTrade === 'string' ? hd.replacementTrade.trim() || undefined : undefined,
+      };
     }
   }
 
@@ -182,6 +198,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     acquiredAbilities,
     pathRankChoices,
     externalAbilityChoices,
+    humanDiversity,
     currentHp: typeof raw.currentHp === 'number' && Number.isFinite(raw.currentHp) ? raw.currentHp : defaultChar.currentHp,
     maxHpBonus: typeof raw.maxHpBonus === 'number' && Number.isFinite(raw.maxHpBonus) ? raw.maxHpBonus : 0,
     levelUpHpGains: Array.isArray(raw.levelUpHpGains)

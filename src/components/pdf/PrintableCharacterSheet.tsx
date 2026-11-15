@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { getAllKnownLanguages } from '../../utils/languageUtils';
+import { HUMAN_DIVERSITY_PATH_ID, resolveHumanDiversity } from '../../utils/humanDiversity';
 import {
   CharacterSheet,
   StatCode,
@@ -357,6 +358,15 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
                             </strong>{' '}
                             <ActionBadges rank={r} variant="print" />
                             <span className="text-stone-700"> : {r.description}</span>
+                            {racialPath.id === HUMAN_DIVERSITY_PATH_ID && r.rank === 1 && (() => {
+                              const div = resolveHumanDiversity(character.humanDiversity);
+                              if (!div) return null;
+                              return (
+                                <span className="text-amber-900 font-semibold">
+                                  {' '}[{div.originLabel} : {div.effectiveDomains.filter(Boolean).join(', ')} (+3)]
+                                </span>
+                              );
+                            })()}
                             {r.companions && r.companions.length > 0 && (
                               <div className="mt-0.5 text-[6.5px] text-amber-950 font-mono bg-amber-50/70 p-0.5 rounded border border-amber-200">
                                 {r.companions.map((comp, cIdx) => (
@@ -376,6 +386,15 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
                                   Capacité ({replacedRacial.path.name} • {replacedRacial.rank1.title}) :{' '}
                                 </strong>
                                 {replacedRacial.rank1.description}
+                                {replacedRacial.path.id === HUMAN_DIVERSITY_PATH_ID && (() => {
+                                  const div = resolveHumanDiversity(character.humanDiversity);
+                                  if (!div) return null;
+                                  return (
+                                    <span className="text-emerald-900 font-semibold">
+                                      {' '}[{div.originLabel} : {div.effectiveDomains.filter(Boolean).join(', ')} (+3)]
+                                    </span>
+                                  );
+                                })()}
                               </div>
                             )}
                           </div>

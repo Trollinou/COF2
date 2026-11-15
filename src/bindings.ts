@@ -70,7 +70,7 @@ export type AttackBonuses = { contact: number; distance: number; magique: number
 /**
  * Modèle persistant officiel d'un personnage COF2 (compatible avec les fichiers .cof2)
  */
-export type CharacterRecord = { id: string; version?: string; updatedAt?: string; creationCompleted?: boolean | null; name: string; playerName?: string; sex?: string; age?: string; height?: string; weight?: string; physicalTraits?: string; languages?: string[]; secondaryTalents?: string[]; background?: string; ideal?: string; flaw?: string; notes?: string; deity?: string | null; peopleId: string; profileId: string; profileFamily?: ProfileFamily | null; isHybrid?: boolean | null; secondaryProfileId?: string | null; level: number; baseStats: Partial<{ [key in StatCode]: number }>; statArrayPreset?: string | null; racialStatChoices?: StatCode[]; racialStatModifiers?: Partial<{ [key in StatCode]: number }>; manualStatBonuses?: Partial<{ [key in StatCode]: number }>; selectedPathIds?: string[]; acquiredAbilities?: AcquiredAbility[]; pathRankChoices?: Partial<{ [key in string]: string }>; externalAbilityChoices?: Partial<{ [key in string]: AcquiredAbility }>; 
+export type CharacterRecord = { id: string; version?: string; updatedAt?: string; creationCompleted?: boolean | null; name: string; playerName?: string; sex?: string; age?: string; height?: string; weight?: string; physicalTraits?: string; languages?: string[]; secondaryTalents?: string[]; background?: string; ideal?: string; flaw?: string; notes?: string; deity?: string | null; peopleId: string; profileId: string; profileFamily?: ProfileFamily | null; isHybrid?: boolean | null; secondaryProfileId?: string | null; level: number; baseStats: Partial<{ [key in StatCode]: number }>; statArrayPreset?: string | null; racialStatChoices?: StatCode[]; racialStatModifiers?: Partial<{ [key in StatCode]: number }>; manualStatBonuses?: Partial<{ [key in StatCode]: number }>; selectedPathIds?: string[]; acquiredAbilities?: AcquiredAbility[]; pathRankChoices?: Partial<{ [key in string]: string }>; externalAbilityChoices?: Partial<{ [key in string]: AcquiredAbility }>; humanDiversity?: HumanDiversityChoice | null; 
 /**
  * Historique des apprentissages niveau par niveau (permet de tracer et de revenir en arrière)
  */
@@ -81,6 +81,10 @@ export type Coins = { pa: number; pc: number; po: number }
  * Fiche de statistiques dérivées calculée à la volée par le moteur Rust
  */
 export type ComputedCharacterSheet = { record: CharacterRecord; baseStats: Partial<{ [key in StatCode]: number }>; racialBonusStats: Partial<{ [key in StatCode]: number }>; pathBonusStats: Partial<{ [key in StatCode]: number }>; manualBonusStats: Partial<{ [key in StatCode]: number }>; otherBonusStats: Partial<{ [key in StatCode]: number }>; finalStats: Partial<{ [key in StatCode]: number }>; bab: number; defense: number; defenseStat: StatCode; defenseStatSource: string | null; effectiveAgi: number; armorDefense: number; shieldDefense: number; initiative: number; maxHp: number; maxDr: number; drDice: string; maxPc: number; maxPm: number; energyType: string; attacks: AttackBonuses; contactAttackStat: StatCode; contactAttackStatSource: string | null; distanceAttackStat: StatCode; distanceAttackStatSource: string | null; situationalNotes: string[]; languagesInfo: LanguageSummary }
+/**
+ * Choix structuré pour la capacité « Diversité » (Voie de l'humain, Rang 1)
+ */
+export type HumanDiversityChoice = { originId: string; customOriginName?: string | null; customDomain1?: string | null; customDomain2?: string | null; replacedDomainIndex?: number | null; replacementTrade?: string | null }
 export type InventoryItem = { id: string; name: string; quantity: number; notes?: string | null }
 export type LanguageSummary = { automaticLanguages: string[]; bonusLanguageSlots: number; usedBonusSlots: number; argotienSlotCost: number; literacy: LiteracyStatus; intNote: string | null }
 /**

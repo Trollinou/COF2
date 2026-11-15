@@ -1,6 +1,6 @@
 use cof2_core::{
-    AcquiredAbility, CharacterRecord, Coins, LevelProgressionStep, RulesDatabase,
-    RulesEngine, StatCode,
+    AcquiredAbility, CharacterRecord, Coins, HumanDiversityChoice, LevelProgressionStep,
+    RulesDatabase, RulesEngine, StatCode,
 };
 use std::collections::HashMap;
 
@@ -51,6 +51,7 @@ fn create_test_record(profile_id: &str, people_id: &str, level: u8) -> Character
         }],
         path_rank_choices: HashMap::new(),
         external_ability_choices: HashMap::new(),
+        human_diversity: None,
         progression_history: vec![],
         current_hp: 14,
         max_hp_bonus: 0,
@@ -350,4 +351,23 @@ fn test_languages_rules_int_paths_and_rollback() {
     assert_eq!(sheet1.languages_info.bonus_language_slots, 1);
     assert!(carav.languages.is_empty());
     assert!(carav.secondary_talents.is_empty());
+}
+
+#[test]
+fn test_human_diversity_situational_notes() {
+    let rules = RulesDatabase::load_embedded().unwrap();
+    let mut human = create_test_record("guerrier", "humain", 1);
+    human.human_diversity = Some(HumanDiversityChoice {
+        origin_id: "citadin".into(),
+        custom_origin_name: None,
+        custom_domain_1: None,
+        custom_domain_2: None,
+        replaced_domain_index: Some(1),
+        replacement_trade: Some("Forgeron".into()),
+    });
+
+    let sheet = RulesEngine::compute_sheet(&human, &rules).unwrap();
+    assert!(sheet.situational_notes.contains(
+        &"Diversité (Citadin) : +3 aux tests de Commerce et Forgeron (gagne-pain)".to_string()
+    ));
 }

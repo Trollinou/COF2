@@ -433,6 +433,14 @@ Un rang peut accorder une capacité d'une autre voie. Deux modes :
 }
 ```
 
+#### Choix d'origine & gagne-pain « Diversité » (`humanDiversity`)
+
+Le rang 1 de `voie-de-l-humain` (**Diversité**) utilise un champ structuré dédié `humanDiversity` (`HumanDiversityChoice`) sur `CharacterRecord` / `CharacterSheet` (au choix du joueur, sans tirage aléatoire) :
+- `originId` : identifiant de l'origine (`"montagnard"`, `"citadin"`, `"campagnard"`, `"riverain"`, `"sauvage"`, `"nomade"`, ou `"custom"` pour une origine définie avec le MJ).
+- `customOriginName`, `customDomain1`, `customDomain2` : renseignés lorsque `originId === "custom"`.
+- `replacedDomainIndex` (`0` ou `1`) et `replacementTrade` : permettent de remplacer l'un des deux domaines d'origine par une origine sociale ou un gagne-pain hors profil (jamais applicable aux tests de combat).
+- Résolu par `resolveHumanDiversity()` dans [`humanDiversity.ts`](file:///Users/etienne/Developments/COF2/src/utils/humanDiversity.ts) et reflété dynamiquement dans les `situationalNotes` côté Rust et TypeScript.
+
 ### 4.4. Compagnons, Familiers & Invocations (`companions: CompanionStatBlock[]`)
 
 Chaque compagnon peut inclure des formules déclaratives (`defenseFormula`, `hpFormula`, `initiativeFormula`, `attacks[].attackFormula`) évaluées dynamiquement par `resolveCompanionStats()` dans [`CompanionCard.tsx`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/components/sheet/CompanionCard.tsx) :

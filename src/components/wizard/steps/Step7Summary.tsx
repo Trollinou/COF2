@@ -17,6 +17,7 @@ import {
   resolveExternalGrants,
 } from '../../../engine/rulesEngine';
 import { CheckCircle2, Shield, Swords, Sparkles, User, Coins, BookOpen } from 'lucide-react';
+import { HUMAN_DIVERSITY_PATH_ID, resolveHumanDiversity } from '../../../utils/humanDiversity';
 
 interface Step7SummaryProps {
   character: CharacterSheet;
@@ -328,6 +329,10 @@ export const Step7Summary: React.FC<Step7SummaryProps> = ({
                     const extGrant = externalGrants.find(g => g.sourceKey === choiceKey);
                     const extPath = extGrant?.ability ? getPathById(extGrant.ability.pathId) : undefined;
                     const extRank = extPath?.ranks.find(r => r.rank === extGrant?.ability?.rank);
+                    const diversityResolved =
+                      pid === HUMAN_DIVERSITY_PATH_ID && acq.rank === 1
+                        ? resolveHumanDiversity(character.humanDiversity)
+                        : null;
 
                     return (
                       <li key={`${pid}_${acq.rank}`} className="text-xs text-stone-200 flex items-start gap-1.5">
@@ -339,6 +344,11 @@ export const Step7Summary: React.FC<Step7SummaryProps> = ({
                           {chosenOpt && (
                             <span className="text-[10px] text-emerald-300 ml-1.5">
                               ({chosenOpt.label})
+                            </span>
+                          )}
+                          {diversityResolved && (
+                            <span className="text-[10px] text-emerald-300 ml-1.5">
+                              ({diversityResolved.originLabel} : {diversityResolved.effectiveDomains.filter(Boolean).join(', ')})
                             </span>
                           )}
                           {extRank && (
