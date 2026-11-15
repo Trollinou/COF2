@@ -12,6 +12,7 @@ import {
   getDomainPathForDeity,
   getDeityByDomainPathId,
   getProfileById,
+  getProfileAllPoolPathIds,
 } from '../../../engine/rulesEngine';
 import { ChevronDown, ChevronUp, Sparkles, Shield, BookOpen, Shuffle } from 'lucide-react';
 import { ActionBadges } from '../../sheet/ActionBadges';
@@ -45,8 +46,8 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
     : undefined;
   const isHybrid = Boolean(character.isHybrid && secondaryProfile);
   const allProfilePathIds = isHybrid && secondaryProfile
-    ? [...selectedProfile.paths, ...secondaryProfile.paths]
-    : selectedProfile.paths;
+    ? [...getProfileAllPoolPathIds(selectedProfile), ...getProfileAllPoolPathIds(secondaryProfile)]
+    : getProfileAllPoolPathIds(selectedProfile);
 
   const selectedProfilePaths = character.selectedPathIds.filter(id => allProfilePathIds.includes(id));
   const isPriest = selectedProfile.id === 'pretre' || secondaryProfile?.id === 'pretre';
@@ -153,6 +154,143 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
     });
   };
 
+  const renderPrimaryPathCard = (pathId: string, isOptional = false) => {
+    const pathData = getPathById(pathId);
+    if (!pathData) return null;
+
+    const isSelected = selectedProfilePaths.includes(pathId);
+    const isExpanded = expandedPaths[pathId] ?? false;
+
+    return (
+      <div
+        key={pathId}
+        className={`rounded-xl border transition overflow-hidden shadow ${
+          isSelected
+            ? 'bg-stone-950 border-amber-500 ring-1 ring-amber-500'
+            : 'bg-stone-950/60 border-stone-800 hover:border-stone-700'
+        }`}
+      >
+        {/* Path Card Header */}
+        <div className="p-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center space-x-3">
+            <span className="text-amber-400 font-serif font-black text-lg">{pathData.symbol || '▲'}</span>
+            <div>
+              <div className="font-serif font-bold text-base text-stone-100 flex items-center flex-wrap gap-2">
+                <span>{pathData.name}</span>
+                {isOptional && (
+                  <span className="text-[10px] bg-sky-950/90 text-sky-300 border border-sky-800 px-2 py-0.5 rounded font-semibold uppercase tracking-wide">
+                    Atlas
+                  </span>
+                )}
+                {isSelected && (
+                  <span className="text-[10px] bg-amber-500 text-stone-950 px-2 py-0.5 rounded font-bold uppercase tracking-wide">
+                    Choisie ✓
+                  </span>
+                )}
+              </div>
+              <div className="text-xs text-stone-400">
+                Rang 1 initial : <strong className="text-amber-200">{pathData.ranks[0]?.title}</strong> ({pathData.ranks[0]?.actionType})
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => togglePathPreview(pathId)}
+              className="flex items-center space-x-1 text-xs bg-stone-900 hover:bg-stone-800 text-stone-300 px-3 py-1.5 rounded border border-stone-700 transition"
+            >
+              <span>{isExpanded ? 'Réduire' : 'Voir les 5 rangs'}</span>
+              {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => toggleProfilePath(pathId)}
+              className={`px-4 py-1.5 rounded text-xs font-bold transition shadow ${
+                isSelected
+                  ? 'bg-amber-600 text-stone-950 hover:bg-amber-500'
+                  : 'bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-600'
+              }`}
+            >
+              {isSelected ? 'Voie Choisie ✓' : 'Choisir cette voie'}
+            </button>
+          </div>
+        </div>
+
+        {/* Preview of Rank 1 always visible, ranks 2-5 when expanded */}
+        <div className="px-4 pb-4 pt-1 border-t border-stone-800/80 space-y-2 bg-stone-900/30">
+          {/* Rank 1 highlight */}
+          <div className="p-2.5 rounded bg-stone-900/70 border border-stone-800">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center space-x-2">
+                <span className="w-5 h-5 rounded-full bg-amber-500 text-stone-950 text-xs font-mono font-bold flex items-center justify-center">
+                  1
+                </span>
+                <span className="font-semibold text-stone-200 text-xs">
+                  {pathData.ranks[0]?.title}
+                </span>
+                {pathData.ranks[0] && <ActionBadges rank={pathData.ranks[0]} />}
+              </div>
+              <span className="text-[10px] text-amber-400 font-semibold">
+                {isSelected ? 'Acquis au Niv. 1' : 'Disponible au Niv. 1'}
+              </span>
+            </div>
+            <p className="text-xs text-stone-400 pl-7 leading-relaxed">
+              {pathData.ranks[0]?.description}
+            </p>
+            {isSelected && pathData.ranks[0] && (
+              <>
+                <ExternalAbilitySelector
+                  character={character}
+                  pathId={pathData.id}
+                  rank={pathData.ranks[0]}
+                  updateCharacter={handleUpdatePartial}
+                />
+                <RankChoiceSelector
+                  character={character}
+                  pathId={pathData.id}
+                  rank={pathData.ranks[0]}
+                  onChangeChoice={handleRankChoice}
+                  requireExplicitChoice
+                />
+              </>
+            )}
+          </div>
+
+          {/* Extended Ranks 2-5 when expanded */}
+          {isExpanded && (
+            <div className="space-y-2 pt-2 border-t border-stone-800/60">
+              {pathData.ranks.slice(1).map(r => (
+                <div key={r.rank} className="p-2.5 rounded bg-stone-900/40 border border-stone-800/60 text-xs">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="w-5 h-5 rounded-full bg-stone-800 text-stone-400 text-xs font-mono font-bold flex items-center justify-center">
+                      {r.rank}
+                    </span>
+                    <span className="font-semibold text-stone-200">
+                      {r.title}
+                    </span>
+                    <ActionBadges rank={r} />
+                  </div>
+                  <p className="text-stone-400 pl-7 leading-relaxed">
+                    {r.description}
+                  </p>
+                  {r.companions && r.companions.length > 0 && (
+                    <div className="pl-7 space-y-2 mt-2">
+                      {r.companions.map((comp, cIdx) => (
+                        <CompanionCard key={cIdx} companion={comp} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 shadow space-y-6">
       <div className="border-b border-stone-800 pb-4">
@@ -200,138 +338,26 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          {selectedProfile.paths.map(pathId => {
-            const pathData = getPathById(pathId);
-            if (!pathData) return null;
-
-            const isSelected = selectedProfilePaths.includes(pathId);
-            const isExpanded = expandedPaths[pathId] ?? false;
-
-            return (
-              <div
-                key={pathId}
-                className={`rounded-xl border transition overflow-hidden shadow ${
-                  isSelected
-                    ? 'bg-stone-950 border-amber-500 ring-1 ring-amber-500'
-                    : 'bg-stone-950/60 border-stone-800 hover:border-stone-700'
-                }`}
-              >
-                {/* Path Card Header */}
-                <div className="p-4 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-amber-400 font-serif font-black text-lg">▲</span>
-                    <div>
-                      <div className="font-serif font-bold text-base text-stone-100 flex items-center space-x-2">
-                        <span>{pathData.name}</span>
-                        {isSelected && (
-                          <span className="text-[10px] bg-amber-500 text-stone-950 px-2 py-0.5 rounded font-bold uppercase tracking-wide">
-                            Choisie ✓
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-stone-400">
-                        Rang 1 initial : <strong className="text-amber-200">{pathData.ranks[0]?.title}</strong> ({pathData.ranks[0]?.actionType})
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => togglePathPreview(pathId)}
-                      className="flex items-center space-x-1 text-xs bg-stone-900 hover:bg-stone-800 text-stone-300 px-3 py-1.5 rounded border border-stone-700 transition"
-                    >
-                      <span>{isExpanded ? 'Réduire' : 'Voir les 5 rangs'}</span>
-                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => toggleProfilePath(pathId)}
-                      className={`px-4 py-1.5 rounded text-xs font-bold transition shadow ${
-                        isSelected
-                          ? 'bg-amber-600 text-stone-950 hover:bg-amber-500'
-                          : 'bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-600'
-                      }`}
-                    >
-                      {isSelected ? 'Voie Choisie ✓' : 'Choisir cette voie'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Preview of Rank 1 always visible, ranks 2-5 when expanded */}
-                <div className="px-4 pb-4 pt-1 border-t border-stone-800/80 space-y-2 bg-stone-900/30">
-                  {/* Rank 1 highlight */}
-                  <div className="p-2.5 rounded bg-stone-900/70 border border-stone-800">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="w-5 h-5 rounded-full bg-amber-500 text-stone-950 text-xs font-mono font-bold flex items-center justify-center">
-                          1
-                        </span>
-                        <span className="font-semibold text-stone-200 text-xs">
-                          {pathData.ranks[0]?.title}
-                        </span>
-                        {pathData.ranks[0] && <ActionBadges rank={pathData.ranks[0]} />}
-                      </div>
-                      <span className="text-[10px] text-amber-400 font-semibold">
-                        {isSelected ? 'Acquis au Niv. 1' : 'Disponible au Niv. 1'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-stone-400 pl-7 leading-relaxed">
-                      {pathData.ranks[0]?.description}
-                    </p>
-                    {isSelected && pathData.ranks[0] && (
-                      <>
-                        <ExternalAbilitySelector
-                          character={character}
-                          pathId={pathData.id}
-                          rank={pathData.ranks[0]}
-                          updateCharacter={handleUpdatePartial}
-                        />
-                        <RankChoiceSelector
-                          character={character}
-                          pathId={pathData.id}
-                          rank={pathData.ranks[0]}
-                          onChangeChoice={handleRankChoice}
-                          requireExplicitChoice
-                        />
-                      </>
-                    )}
-                  </div>
-
-                  {/* Extended Ranks 2-5 when expanded */}
-                  {isExpanded && (
-                    <div className="space-y-2 pt-2 border-t border-stone-800/60">
-                      {pathData.ranks.slice(1).map(r => (
-                        <div key={r.rank} className="p-2.5 rounded bg-stone-900/40 border border-stone-800/60 text-xs">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <span className="w-5 h-5 rounded-full bg-stone-800 text-stone-400 text-xs font-mono font-bold flex items-center justify-center">
-                              {r.rank}
-                            </span>
-                            <span className="font-semibold text-stone-200">
-                              {r.title}
-                            </span>
-                            <ActionBadges rank={r} />
-                          </div>
-                          <p className="text-stone-400 pl-7 leading-relaxed">
-                            {r.description}
-                          </p>
-                          {r.companions && r.companions.length > 0 && (
-                            <div className="pl-7 space-y-2 mt-2">
-                              {r.companions.map((comp, cIdx) => (
-                                <CompanionCard key={cIdx} companion={comp} />
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {selectedProfile.paths.map(pathId => renderPrimaryPathCard(pathId, false))}
         </div>
+
+        {selectedProfile.optionalPaths && selectedProfile.optionalPaths.length > 0 && (
+          <div className="space-y-3 pt-4 border-t border-stone-800/80">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h4 className="font-serif font-semibold text-sm text-sky-300 uppercase tracking-wider">
+                Voies supplémentaires (Atlas) — {selectedProfile.name} :
+              </h4>
+              <span className="text-[11px] text-stone-400">
+                {selectedProfile.id === 'pretre'
+                  ? 'Prêtre maléfique : remplace la Voie des soins dès le niveau 1.'
+                  : 'Peut remplacer une des 5 voies habituelles dès le niveau 1.'}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              {selectedProfile.optionalPaths.map(pathId => renderPrimaryPathCard(pathId, true))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Secondary Profile Paths for Hybrid Characters */}
@@ -348,7 +374,7 @@ export const Step5Paths: React.FC<Step5PathsProps> = ({
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            {secondaryProfile.paths.map(pathId => {
+            {getProfileAllPoolPathIds(secondaryProfile).map(pathId => {
               const pathData = getPathById(pathId);
               if (!pathData) return null;
 

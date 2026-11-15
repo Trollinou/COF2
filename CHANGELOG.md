@@ -2,6 +2,14 @@
 
 ## [Non publié]
 
+### Ajouté
+
+- **Voies supplémentaires de l'Atlas (`regles/ATLAS - Voie supplementaire.md`)** :
+  - Ajout de 5 nouvelles voies dans `src/data/paths.json` : *Voie des Arcanes Exhumés* (Magicien, avec compagnon *Chien de garde* au rang 4), *Voie des Arcanes Oubliés* (Magicien), *Voie des Arcanes Perdus* (Magicien), *Voie des Arcanes Obscurs* (Sorcier) et *Voie de la Corruption* (Prêtre maléfique).
+  - Ajout du champ optionnel `optionalPaths` sur `ProfileData` (`src/data/profiles.json`, `src/types/cof2.ts`) pour `magicien`, `sorcier` et `pretre` (en remplacement d'une des 5 voies habituelles dès le niveau 1).
+  - Prise en charge dans `rulesEngine.ts` (`getProfileAllPoolPathIds`, `isPathInProfilePool`, `getMageCreationRank2Ability`, `getAccessiblePathsForLevelUp`, `canCharacterAdoptHybridPath`), l'assistant de création (`Step5Paths`, `CharacterWizard`, `wizardValidation`) et la montée de niveau (`LevelUpModal`).
+  - Mise à jour de `docs/DATA_MODELS.md` et ajout de tests unitaires dans `src/engine/__tests__/rulesEngine.test.ts`.
+
 ### Modifié
 
 - **Renommage de l'application en « Le Grimoire d'Osgild » (`eu.gagnon.OsgildApp`)** :

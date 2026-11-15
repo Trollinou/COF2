@@ -10,6 +10,7 @@ import {
   getMageCreationRank2Ability,
   resolveExternalGrants,
   computeCharacterStats,
+  getProfileAllPoolPathIds,
 } from '../../engine/rulesEngine';
 import tablesData from '../../data/tables.json';
 import { hasHumanDiversityRank1, isHumanDiversityValid } from '../../utils/humanDiversity';
@@ -159,8 +160,8 @@ export function validateWizardStep(
           ? getProfileById(character.secondaryProfileId)
           : undefined;
       const allProfilePaths = [
-        ...profile.paths,
-        ...(secProfile ? secProfile.paths : []),
+        ...getProfileAllPoolPathIds(profile),
+        ...getProfileAllPoolPathIds(secProfile),
       ];
 
       const selectedProfilePaths = character.selectedPathIds.filter(id =>

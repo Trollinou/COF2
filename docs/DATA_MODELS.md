@@ -195,6 +195,7 @@ Le fichier [`src/data/profiles.json`](file:///c:/Users/egagnon/Personnel/Dev/COF
 | `startingWeaponsDesc` | `string` | ✅ | Description textuelle de l'équipement d'armes initial. |
 | `startingArmorDesc` | `string` | ✅ | Description textuelle de l'armure initiale. |
 | `paths` | `string[]` | ✅ | Tableau contenant **exactement 5 identifiants** de voies de profil présentes dans `paths.json`. |
+| `optionalPaths` | `string[]` | ❌ | Voies supplémentaires (Atlas) pouvant remplacer une des 5 voies habituelles dès le niveau 1 (ex: `magicien`, `sorcier`, `pretre` maléfique). |
 | `equipmentRules` | `ProfileEquipmentRule` | ✅ | Règles déclaratives de maîtrise d'armures, de boucliers, de magie en armure et d'armes. |
 | `defaultEquipment` | `ProfileDefaultEquipment` | ✅ | Équipement attribué automatiquement à la sélection du profil. |
 
@@ -242,7 +243,7 @@ Le fichier [`src/data/profiles.json`](file:///c:/Users/egagnon/Personnel/Dev/COF
 
 ## 4. 🌟 `src/data/paths.json`
 
-Le fichier [`src/data/paths.json`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/data/paths.json) regroupe les **209 voies** du jeu sous forme d'un tableau `PathData[]`.
+Le fichier [`src/data/paths.json`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/data/paths.json) regroupe les **214 voies** du jeu sous forme d'un tableau `PathData[]`.
 
 ### 4.1. En-tête d'une Voie (`PathData`)
 
@@ -569,7 +570,7 @@ Lorsque vous ajoutez ou vérifiez une capacité dans `paths.json`, suivez cet ar
 
 1. **Unicité des `id`** : Tous les `id` doivent être en `kebab-case`, sans caractères accentués ni espaces.
 2. **Cohérence des clés étrangères** :
-   - Chaque ID dans `profile.paths` et `people.racialPathId` doit exister dans `paths.json`.
+   - Chaque ID dans `profile.paths`, `profile.optionalPaths` et `people.racialPathId` doit exister dans `paths.json`.
    - Chaque ID d'arme dans `defaultWeaponIds`, `explicitAllowedWeaponIds`, `sacredWeaponIds` ou `weaponModifiers.weaponIds` doit exister dans `equipment.json`.
 3. **Exécution des tests unitaires et du build** :
    ```bash

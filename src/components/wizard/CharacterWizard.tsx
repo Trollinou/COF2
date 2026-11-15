@@ -20,6 +20,7 @@ import {
   getDefaultEquipmentForProfile,
   sanitizeCharacterEquipment,
   detectCharacteristicArrayPreset,
+  getProfileAllPoolPathIds,
 } from '../../engine/rulesEngine';
 import tablesData from '../../data/tables.json';
 import { ChevronRight, ChevronLeft, CheckCircle2, Lock } from 'lucide-react';
@@ -449,7 +450,10 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
     const secProf = character.isHybrid && character.secondaryProfileId
       ? PROFILES.find(p => p.id === character.secondaryProfileId)
       : undefined;
-    const allProfilePathIds = [...selectedProfile.paths, ...(secProf ? secProf.paths : [])];
+    const allProfilePathIds = [
+      ...getProfileAllPoolPathIds(selectedProfile),
+      ...getProfileAllPoolPathIds(secProf),
+    ];
 
     const currentProfilePaths = character.selectedPathIds.filter(id => allProfilePathIds.includes(id));
     const existingThirdPath = character.selectedPathIds.find(id => !allProfilePathIds.includes(id)) || '';

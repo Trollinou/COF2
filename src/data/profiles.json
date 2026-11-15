@@ -459,6 +459,11 @@
       "voie-de-la-magie-protectrice",
       "voie-de-la-magie-universelle"
     ],
+    "optionalPaths": [
+      "voie-des-arcanes-exhumes",
+      "voie-des-arcanes-oublies",
+      "voie-des-arcanes-perdus"
+    ],
     "equipmentRules": {
       "maxArmorId": null,
       "shieldPermission": "none",
@@ -509,6 +514,9 @@
       "voie-de-l-outre-tombe",
       "voie-du-sang",
       "voie-de-la-sombre-magie"
+    ],
+    "optionalPaths": [
+      "voie-des-arcanes-obscurs"
     ],
     "equipmentRules": {
       "maxArmorId": null,
@@ -661,6 +669,15 @@
       "voie-de-la-priere",
       "voie-des-soins",
       "voie-de-la-spiritualite"
+    ],
+    "optionalPaths": [
+      "voie-de-la-corruption",
+      "voie-du-demon",
+      "voie-de-la-mort",
+      "voie-de-l-outre-tombe",
+      "voie-du-sang",
+      "voie-de-la-sombre-magie",
+      "voie-des-arcanes-obscurs"
     ],
     "equipmentRules": {
       "maxArmorId": "chemise-mailles",

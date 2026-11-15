@@ -13,6 +13,8 @@ import {
   canCharacterAdoptHybridPath,
   getNonRacialActivePathsCount,
   calculateLevelUpHpGain,
+  isPathInProfilePool,
+  getProfileAllPoolPathIds,
 } from '../../engine/rulesEngine';
 import {
   TrendingUp,
@@ -259,7 +261,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
 
     const hasHybridAbility = acquired.some(a => {
       const pth = getPathById(a.pathId);
-      return pth && pth.type === 'profile' && !profile.paths.includes(a.pathId);
+      return pth && pth.type === 'profile' && !isPathInProfilePool(profile, a.pathId);
     });
 
     const step = {
@@ -358,7 +360,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
   // Candidate paths for the chosen hybrid profile
   const hybridProfileData = selectedHybridProfileId ? getProfileById(selectedHybridProfileId) : undefined;
   const availableHybridPaths = hybridProfileData
-    ? hybridProfileData.paths
+    ? getProfileAllPoolPathIds(hybridProfileData)
         .map(pid => getPathById(pid))
         .filter((p): p is PathData => Boolean(p) && !modalPathIds.includes((p as PathData).id))
     : [];
@@ -550,7 +552,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
                   !character.selectedPathIds.includes(pathId) &&
                   !acquired.some(a => a.pathId === pathId);
 
-                const isHybrid = pathData.type === 'profile' && !profile.paths.includes(pathId);
+                const isHybrid = pathData.type === 'profile' && !isPathInProfilePool(profile, pathId);
                 const canRemoveHybrid =
                   isHybrid &&
                   !character.selectedPathIds.includes(pathId) &&
