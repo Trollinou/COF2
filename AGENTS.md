@@ -105,8 +105,12 @@ COF2/
 ### C. Persistance Locale & Sécurité I/O (`crates/cof2-storage`)
 
 1. **Sauvegardes Atomiques (Zéro Corruption)** :
-   - Lors de la sauvegarde d'un fichier `.cof2`, écrire d'abord dans un fichier temporaire (`.tmp_${timestamp}`), forcer la synchronisation disque (`sync_all()`), puis effectuer un renommage atomique (`fs::rename`).
-2. **Aucune Dépendance Réseau** :
+   - Lors de la sauvegarde d'un fichier `.cof2`, écrire dans un fichier temporaire unique (`tempfile::NamedTempFile::new_in` avec `O_EXCL` et nettoyage RAII en cas d'erreur), forcer la synchronisation disque (`sync_all()`), puis persister atomiquement (`persist()`).
+   - Lors d'un écrasement depuis l'application desktop (`save_atomic_with_backup`), créer une copie de secours `<nom>.cof2.bak` avant d'écrire la nouvelle version.
+2. **Sécurité I/O & Validation** :
+   - Validation d'extension (`.cof2` / `.json`) côté Rust (`validate_character_extension`) avant toute opération disque dans `src-tauri/src/commands.rs`.
+   - Plafonnement de lecture à **10 Mo** (`MAX_CHARACTER_FILE_BYTES`) et ouverture directe sans check TOCTOU (`exists()`).
+3. **Aucune Dépendance Réseau** :
    - La persistance s'effectue exclusivement sur le système de fichiers local.
 
 ---

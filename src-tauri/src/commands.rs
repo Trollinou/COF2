@@ -45,7 +45,8 @@ pub fn save_character_file(
     record: CharacterRecord,
     file_path: String,
 ) -> Result<(), String> {
-    CharacterStorage::save_atomic(file_path, &record).map_err(|e| e.to_string())
+    CharacterStorage::validate_character_extension(&file_path).map_err(|e| e.to_string())?;
+    CharacterStorage::save_atomic_with_backup(file_path, &record).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -60,6 +61,7 @@ pub fn load_character_file(
     file_path: String,
     state: State<'_, AppState>,
 ) -> Result<ComputedCharacterSheet, String> {
+    CharacterStorage::validate_character_extension(&file_path).map_err(|e| e.to_string())?;
     let record = CharacterStorage::load(file_path).map_err(|e| e.to_string())?;
     RulesEngine::compute_sheet(&record, &state.rules).map_err(|e| e.to_string())
 }

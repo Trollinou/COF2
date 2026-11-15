@@ -74,3 +74,17 @@ Le serveur de développement autonome du Data Editor (`vite.config.mts` sur le p
 3. **Sauvegardes Atomiques & Rotation Automatique** :
    - Sauvegarde dans un fichier temporaire (`${targetPath}.tmp`) puis renommage atomique pour éviter tout fichier corrompu en cas d'interruption.
    - Rotation automatique des backups (`.bak`) limitée à 15 versions par fichier source.
+
+---
+
+## 5. 💾 Persistance Locale & Sécurité I/O (`crates/cof2-storage` & `src-tauri`)
+
+1. **Écriture Atomique & Résilience aux Collisions (`save_atomic` / `save_atomic_with_backup`)** :
+   - Création d'un fichier temporaire unique dans le répertoire cible via `tempfile::NamedTempFile::new_in` (`O_EXCL`), évitant les collisions en écriture concurrente et garantissant la suppression automatique en cas d'erreur.
+   - Synchronisation disque (`sync_all()`), persistance atomique (`persist()`), et création d'une copie de secours `.bak` avant écrasement dans `save_character_file`.
+2. **Protection Anti-DoS & Suppression du TOCTOU (`load`)** :
+   - Ouverture directe du fichier sans pré-vérification `exists()`.
+   - Plafonnement strict à **10 Mo** (`MAX_CHARACTER_FILE_BYTES`) via contrôle des métadonnées et `Read::take(MAX_CHARACTER_FILE_BYTES + 1)`.
+   - Validation post-désérialisation (`validate_loaded_record`) vérifiant l'intégrité minimale (`id` non vide, `level >= 1`).
+3. **Validation des Extensions IPC (`commands.rs`)** :
+   - Les commandes `save_character_file` et `load_character_file` valident que le chemin cible possède une extension `.cof2` ou `.json` (`validate_character_extension`) avant tout accès au système de fichiers.
