@@ -96,29 +96,33 @@ pub fn rollback_character_level(
 /// Ouvre le dialogue natif d'enregistrement côté Rust et sauvegarde atomiquement la fiche avec copie `.bak`.
 #[tauri::command]
 #[specta::specta]
-pub fn save_character_file(
+pub async fn save_character_file(
     app: tauri::AppHandle,
     record: CharacterRecord,
     default_filename: String,
 ) -> Result<String, IpcError> {
-    let safe_name = sanitize_default_filename(&default_filename);
-    let selected = app
-        .dialog()
-        .file()
-        .set_title("Sauvegarder le personnage COF2")
-        .add_filter("Personnage COF2 (*.cof2, *.json)", &["cof2", "json"])
-        .set_file_name(&safe_name)
-        .blocking_save_file();
+    tauri::async_runtime::spawn_blocking(move || {
+        let safe_name = sanitize_default_filename(&default_filename);
+        let selected = app
+            .dialog()
+            .file()
+            .set_title("Sauvegarder le personnage COF2")
+            .add_filter("Personnage COF2 (*.cof2, *.json)", &["cof2", "json"])
+            .set_file_name(&safe_name)
+            .blocking_save_file();
 
-    let file_path = selected.ok_or(IpcError::Cancelled)?;
-    let path = file_path
-        .into_path()
-        .map_err(|e| IpcError::Io(e.to_string()))?;
+        let file_path = selected.ok_or(IpcError::Cancelled)?;
+        let path = file_path
+            .into_path()
+            .map_err(|e| IpcError::Io(e.to_string()))?;
 
-    let path_str = path.to_string_lossy().into_owned();
-    CharacterStorage::validate_character_extension(&path_str)?;
-    CharacterStorage::save_atomic_with_backup(&path, &record)?;
-    Ok(path_str)
+        let path_str = path.to_string_lossy().into_owned();
+        CharacterStorage::validate_character_extension(&path_str)?;
+        CharacterStorage::save_atomic_with_backup(&path, &record)?;
+        Ok(path_str)
+    })
+    .await
+    .map_err(|e| IpcError::Io(e.to_string()))?
 }
 
 #[tauri::command]
@@ -130,16 +134,19 @@ pub fn print_character_sheet(window: tauri::WebviewWindow) -> Result<(), IpcErro
 /// Ouvre le dialogue natif de sélection côté Rust, charge la fiche `.cof2`/`.json` et calcule ses statistiques.
 #[tauri::command]
 #[specta::specta]
-pub fn load_character_file(
+pub async fn load_character_file(
     app: tauri::AppHandle,
     state: State<'_, AppState>,
 ) -> Result<ComputedCharacterSheet, IpcError> {
-    let selected = app
-        .dialog()
-        .file()
-        .set_title("Ouvrir un personnage COF2")
-        .add_filter("Personnage COF2 (*.cof2, *.json)", &["cof2", "json"])
-        .blocking_pick_file();
+    let selected = tauri::async_runtime::spawn_blocking(move || {
+        app.dialog()
+            .file()
+            .set_title("Ouvrir un personnage COF2")
+            .add_filter("Personnage COF2 (*.cof2, *.json)", &["cof2", "json"])
+            .blocking_pick_file()
+    })
+    .await
+    .map_err(|e| IpcError::Io(e.to_string()))?;
 
     let file_path = selected.ok_or(IpcError::Cancelled)?;
     let path = file_path

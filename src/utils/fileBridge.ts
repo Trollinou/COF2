@@ -1,12 +1,17 @@
 import { CharacterSheet } from '../types/cof2';
 import { validateAndMigrateCharacter } from './characterValidation';
-import { commands, CharacterRecord, IpcError } from '../bindings';
+import { commands, IpcError } from '../bindings';
+import { toCharacterRecord } from '../engine/rustBridge';
 
 function formatIpcError(error: IpcError, fallback: string): string {
   if (error.kind === 'Cancelled') {
     return 'Annulé';
   }
   return error.message || fallback;
+}
+
+function getErrorMessage(err: unknown, fallback: string): string {
+  return err instanceof Error && err.message ? err.message : fallback;
 }
 
 export const isTauri = typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window);
@@ -43,13 +48,13 @@ export async function saveCharacterFile(char: CharacterSheet): Promise<{ success
 
   if (isTauri) {
     try {
-      const res = await commands.saveCharacterFile(char as unknown as CharacterRecord, filename);
+      const res = await commands.saveCharacterFile(toCharacterRecord(char), filename);
       if (res.status === 'error') {
         return { success: false, message: formatIpcError(res.error, 'Erreur lors de la sauvegarde') };
       }
       return { success: true, message: `Sauvegardé avec succès dans ${res.data}` };
-    } catch (err: any) {
-      return { success: false, message: err?.message || 'Erreur lors de la sauvegarde' };
+    } catch (err: unknown) {
+      return { success: false, message: getErrorMessage(err, 'Erreur lors de la sauvegarde') };
     }
   }
 
@@ -65,8 +70,8 @@ export async function saveCharacterFile(char: CharacterSheet): Promise<{ success
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     return { success: true, message: `Fichier ${filename} téléchargé` };
-  } catch (err: any) {
-    return { success: false, message: err?.message || 'Erreur de téléchargement' };
+  } catch (err: unknown) {
+    return { success: false, message: getErrorMessage(err, 'Erreur de téléchargement') };
   }
 }
 
@@ -79,8 +84,8 @@ export async function loadCharacterFile(): Promise<{ success: boolean; character
       }
       const validated = validateAndMigrateCharacter(res.data.record);
       return { success: true, character: validated.character };
-    } catch (err: any) {
-      return { success: false, message: err?.message || 'Erreur lors du chargement' };
+    } catch (err: unknown) {
+      return { success: false, message: getErrorMessage(err, 'Erreur lors du chargement') };
     }
   }
 

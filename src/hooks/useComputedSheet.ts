@@ -11,12 +11,12 @@ import { isTauri } from "../utils/fileBridge";
 export function useComputedSheet(
   character: CharacterSheet,
 ): ComputedCharacterStats {
-  const fallbackStats = useMemo(
-    () => computeCharacterStats(character),
-    [character],
-  );
   const [rustStats, setRustStats] = useState<ComputedCharacterStats | null>(
     null,
+  );
+  const fallbackStats = useMemo(
+    () => (isTauri && rustStats ? rustStats : computeCharacterStats(character)),
+    [character, rustStats],
   );
 
   useEffect(() => {

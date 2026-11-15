@@ -1,7 +1,17 @@
-import { CharacterSheet, HumanDiversityChoice, StatCode } from '../types/cof2';
+import {
+  CharacterSheet,
+  HumanDiversityChoice,
+  LevelProgressionStep,
+  ProfileFamily,
+  StatCode,
+} from '../types/cof2';
 import { createDefaultCharacter, computeRacialStatModifiers } from '../engine/rulesEngine';
 
 const VALID_STATS: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
 
 export interface ValidationResult {
   isValid: boolean;
@@ -17,7 +27,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
   const defaultChar = createDefaultCharacter();
   const warnings: string[] = [];
 
-  if (!data || typeof data !== 'object') {
+  if (!isRecord(data)) {
     return {
       isValid: false,
       character: defaultChar,
@@ -25,7 +35,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     };
   }
 
-  const raw = data as Record<string, any>;
+  const raw = data;
 
   // Check critical identifiers
   const id = typeof raw.id === 'string' && raw.id.trim() ? raw.id : defaultChar.id;
@@ -35,13 +45,14 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
   const peopleId = typeof raw.peopleId === 'string' ? raw.peopleId : defaultChar.peopleId;
   const profileId = typeof raw.profileId === 'string' ? raw.profileId : defaultChar.profileId;
   const secondaryProfileId = typeof raw.secondaryProfileId === 'string' ? raw.secondaryProfileId : undefined;
-  const level = Number.isInteger(raw.level) && raw.level >= 1 && raw.level <= 20 ? raw.level : 1;
+  const level = typeof raw.level === 'number' && Number.isInteger(raw.level) && raw.level >= 1 && raw.level <= 20 ? raw.level : 1;
 
   // Validate Base Stats
   const baseStats: Record<StatCode, number> = { ...defaultChar.baseStats };
-  if (raw.baseStats && typeof raw.baseStats === 'object') {
+  if (isRecord(raw.baseStats)) {
+    const rawBaseStats = raw.baseStats;
     VALID_STATS.forEach(stat => {
-      const val = Number(raw.baseStats[stat]);
+      const val = Number(rawBaseStats[stat]);
       if (!Number.isNaN(val) && Number.isFinite(val)) {
         baseStats[stat] = val;
       } else {
@@ -61,8 +72,10 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
 
   const acquiredAbilities: Array<{ pathId: string; rank: number }> = Array.isArray(raw.acquiredAbilities)
     ? raw.acquiredAbilities
-        .filter((a: any) => a && typeof a.pathId === 'string' && Number.isInteger(a.rank) && a.rank >= 1 && a.rank <= 8)
-        .map((a: any) => ({ pathId: a.pathId, rank: a.rank }))
+        .filter((a): a is { pathId: string; rank: number } =>
+          isRecord(a) && typeof a.pathId === 'string' && typeof a.rank === 'number' && Number.isInteger(a.rank) && a.rank >= 1 && a.rank <= 8
+        )
+        .map(a => ({ pathId: a.pathId, rank: a.rank }))
     : defaultChar.acquiredAbilities;
 
   // Validate path choices keys if applicable
@@ -78,21 +91,20 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
   }
 
   let externalAbilityChoices: Record<string, { pathId: string; rank: number }> | undefined = undefined;
-  if (raw.externalAbilityChoices && typeof raw.externalAbilityChoices === 'object') {
+  if (isRecord(raw.externalAbilityChoices)) {
     externalAbilityChoices = {};
     for (const [key, val] of Object.entries(raw.externalAbilityChoices)) {
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
-      const v = val as any;
-      if (v && typeof v.pathId === 'string' && Number.isInteger(v.rank) && v.rank >= 1 && v.rank <= 8) {
-        externalAbilityChoices[key] = { pathId: v.pathId, rank: v.rank };
+      if (isRecord(val) && typeof val.pathId === 'string' && typeof val.rank === 'number' && Number.isInteger(val.rank) && val.rank >= 1 && val.rank <= 8) {
+        externalAbilityChoices[key] = { pathId: val.pathId, rank: val.rank };
       }
     }
   }
 
   let humanDiversity: HumanDiversityChoice | undefined = undefined;
-  if (raw.humanDiversity && typeof raw.humanDiversity === 'object' && typeof raw.humanDiversity.originId === 'string') {
+  if (isRecord(raw.humanDiversity) && typeof raw.humanDiversity.originId === 'string') {
     const hd = raw.humanDiversity;
-    const originId = hd.originId.trim();
+    const originId = raw.humanDiversity.originId.trim();
     if (/^[a-z0-9_-]+$/i.test(originId)) {
       humanDiversity = {
         originId,
@@ -107,7 +119,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
 
   // Validate Weapons
   const weapons = Array.isArray(raw.weapons)
-    ? raw.weapons.map((w: any, idx: number) => ({
+    ? raw.weapons.filter(isRecord).map((w, idx) => ({
         id: typeof w.id === 'string' ? w.id : `w_${idx + 1}`,
         weaponRefId: typeof w.weaponRefId === 'string' ? w.weaponRefId : 'mains-nues',
         name: typeof w.name === 'string' ? w.name : 'Arme inconnue',
@@ -124,7 +136,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
 
   // Validate Inventory
   const inventory = Array.isArray(raw.inventory)
-    ? raw.inventory.map((item: any, idx: number) => ({
+    ? raw.inventory.filter(isRecord).map((item, idx) => ({
         id: typeof item.id === 'string' ? item.id : `inv_${idx}`,
         name: typeof item.name === 'string' ? item.name : 'Objet',
         quantity: typeof item.quantity === 'number' && Number.isFinite(item.quantity) && item.quantity >= 0 ? item.quantity : 1,
@@ -133,10 +145,11 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     : defaultChar.inventory;
 
   // Validate Coins
+  const rawCoins = isRecord(raw.coins) ? raw.coins : undefined;
   const coins = {
-    pa: typeof raw.coins?.pa === 'number' && Number.isFinite(raw.coins.pa) ? raw.coins.pa : 0,
-    pc: typeof raw.coins?.pc === 'number' && Number.isFinite(raw.coins.pc) ? raw.coins.pc : 0,
-    po: typeof raw.coins?.po === 'number' && Number.isFinite(raw.coins.po) ? raw.coins.po : 0,
+    pa: typeof rawCoins?.pa === 'number' && Number.isFinite(rawCoins.pa) ? rawCoins.pa : 0,
+    pc: typeof rawCoins?.pc === 'number' && Number.isFinite(rawCoins.pc) ? rawCoins.pc : 0,
+    po: typeof rawCoins?.po === 'number' && Number.isFinite(rawCoins.po) ? rawCoins.po : 0,
   };
 
   const racialStatChoices = Array.isArray(raw.racialStatChoices)
@@ -146,7 +159,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
   const racialStatModifiers = computeRacialStatModifiers(
     peopleId,
     racialStatChoices,
-    raw.racialStatModifiers && typeof raw.racialStatModifiers === 'object' ? raw.racialStatModifiers : undefined,
+    isRecord(raw.racialStatModifiers) ? (raw.racialStatModifiers as Partial<Record<StatCode, number>>) : undefined,
   );
 
   const migratedChar: CharacterSheet = {
@@ -174,7 +187,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     deity: typeof raw.deity === 'string' ? raw.deity : undefined,
     peopleId,
     profileId,
-    profileFamily: raw.profileFamily,
+    profileFamily: typeof raw.profileFamily === 'string' ? (raw.profileFamily as ProfileFamily) : undefined,
     isHybrid: typeof raw.isHybrid === 'boolean' ? raw.isHybrid : undefined,
     secondaryProfileId,
     level,
@@ -184,7 +197,7 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     racialStatModifiers,
     manualStatBonuses: (() => {
       const safe: Partial<Record<StatCode, number>> = {};
-      if (raw.manualStatBonuses && typeof raw.manualStatBonuses === 'object') {
+      if (isRecord(raw.manualStatBonuses)) {
         for (const stat of VALID_STATS) {
           const val = Number(raw.manualStatBonuses[stat]);
           if (Number.isFinite(val) && val !== 0) {
@@ -202,10 +215,12 @@ export function validateAndMigrateCharacter(data: unknown): ValidationResult {
     currentHp: typeof raw.currentHp === 'number' && Number.isFinite(raw.currentHp) ? raw.currentHp : defaultChar.currentHp,
     maxHpBonus: typeof raw.maxHpBonus === 'number' && Number.isFinite(raw.maxHpBonus) ? raw.maxHpBonus : 0,
     levelUpHpGains: Array.isArray(raw.levelUpHpGains)
-      ? raw.levelUpHpGains.filter((n: any) => typeof n === 'number' && Number.isInteger(n))
+      ? raw.levelUpHpGains.filter((n): n is number => typeof n === 'number' && Number.isInteger(n))
       : undefined,
     progressionHistory: Array.isArray(raw.progressionHistory)
-      ? raw.progressionHistory.filter((s: any) => s && typeof s.level === 'number' && Number.isInteger(s.level))
+      ? raw.progressionHistory.filter(
+          (s): s is LevelProgressionStep => isRecord(s) && typeof s.level === 'number' && Number.isInteger(s.level),
+        )
       : undefined,
     halfHpPending: typeof raw.halfHpPending === 'boolean' ? raw.halfHpPending : undefined,
     currentDr: typeof raw.currentDr === 'number' && Number.isFinite(raw.currentDr) ? raw.currentDr : defaultChar.currentDr,

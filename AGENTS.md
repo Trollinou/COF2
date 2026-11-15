@@ -39,9 +39,9 @@ COF2/
 ├── src/
 │   ├── bindings.ts            # Définitions TypeScript et fonctions IPC générées par tauri-specta
 │   ├── data/                  # Données statiques JSON (peoples, profiles, paths, equipment, tables)
-│   ├── engine/                # Pont Rust/Tauri (rustBridge.ts), helpers et référentiels de compendium
-│   ├── hooks/                 # Hooks React (useComputedSheet.ts -> commands.computeCharacter)
-│   ├── types/                 # Définitions des types TypeScript (cof2.ts)
+│   ├── engine/                # Pont Rust/Tauri (rustBridge.ts), compendium, règles & repli TS (rulesEngine.ts barrel)
+│   ├── hooks/                 # Hooks React (useComputedSheet.ts, useWizardState.ts)
+│   ├── types/                 # Définitions TypeScript (cof2.ts -> rules.ts, compendium.ts, character.ts)
 │   ├── utils/                 # Utilitaires (fileBridge Tauri v2, validation, formatage)
 │   ├── components/            # Composants React 19
 │   │   ├── Navbar.tsx         # Barre supérieure d'actions
@@ -55,6 +55,7 @@ COF2/
 │   └── index.css              # Styles Tailwind CSS et directives @media print
 ├── .gitattributes             # Normalisation des fins de ligne (LF) & binaires cross-platform
 ├── .gitignore                 # Exclusion des builds, caches et fichiers système
+├── biome.json                 # Configuration du linter et formateur Biome
 └── vite.config.mts            # Configuration du bundler Vite (port 1420 déterministe pour Tauri)
 ```
 
@@ -149,6 +150,7 @@ COF2/
 - Toute modification de règle ou de modèle doit être validée par les suites de tests automatisés :
   - **Tests Rust** : `cargo test --workspace` (moteur de calcul, montée de niveau réversible, persistance atomique, export des bindings).
   - **Tests Frontend Vitest** : `npm test` (validation et migration de fiches, historique UI, helpers).
+  - **Linting Frontend Biome** : `npm run lint` (`biome lint src`).
   - **Validation de typage et compilation** : `npm run build` (`tsc && vite build`).
 
 ---
@@ -160,6 +162,7 @@ COF2/
 | `npm run tauri:dev` | Lance l'application desktop Tauri v2 en mode développement |
 | `cargo test --workspace` | Exécute l'intégralité des tests unitaires et d'intégration Rust |
 | `npm test` | Exécute la suite de tests unitaires Vitest |
+| `npm run lint` | Vérifie la qualité et les règles React/TS via Biome |
 | `npm run build` | Vérifie les types (`tsc`) et génère le bundle de production Vite |
 | `npm run tauri:build` | Génère les installateurs et paquets natifs de production (macOS / Windows / Linux) |
 | `npm run dev` | Lance le serveur Vite en mode développement web autonome |

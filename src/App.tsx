@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { CharacterSheet } from './types/cof2';
 import { createDefaultCharacter, createBlankWizardCharacter } from './engine/rulesEngine';
@@ -61,20 +61,40 @@ export function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const isCreationCompleted = character.creationCompleted !== false;
-  const isDirty = JSON.stringify(character) !== savedSnapshot;
+  const serializedCharacter = useMemo(() => JSON.stringify(character), [character]);
+  const isDirty = serializedCharacter !== savedSnapshot;
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Auto-save to localStorage
+  // Debounced auto-save to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(character));
-    } catch (e) {
-      console.warn('LocalStorage save failed', e);
-    }
-  }, [character]);
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, serializedCharacter);
+      } catch (e) {
+        console.warn('LocalStorage save failed', e);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [serializedCharacter]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current !== null) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
 
   const showToast = (msg: string) => {
+    if (toastTimerRef.current !== null) {
+      clearTimeout(toastTimerRef.current);
+    }
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    toastTimerRef.current = setTimeout(() => {
+      setToastMessage(null);
+      toastTimerRef.current = null;
+    }, 3500);
   };
 
   const executeNewCharacter = () => {

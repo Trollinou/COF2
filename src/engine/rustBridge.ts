@@ -2,16 +2,37 @@ import {
   commands,
   type CharacterRecord,
   type ComputedCharacterSheet,
+  type IpcError,
+  type LevelProgressionStep as BindingLevelProgressionStep,
   type StatCode as BindingStatCode,
 } from "../bindings";
 import type {
   CharacterSheet,
   ComputedCharacterStats,
+  LevelProgressionStep,
   StatCode,
   WeaponModifierRule,
 } from "../types/cof2";
+import { validateAndMigrateCharacter } from "../utils/characterValidation";
 import { isTauri } from "../utils/fileBridge";
 import { computeCharacterStats } from "./rulesEngine";
+
+/**
+ * Formate une erreur IPC structurée (`IpcError`) en message lisible.
+ */
+export function formatIpcError(err: IpcError): string {
+  if (err.kind === "Cancelled") {
+    return "Annulé";
+  }
+  return err.message;
+}
+
+/**
+ * Reconvertit un `CharacterRecord` retourné par Rust en `CharacterSheet` frontend.
+ */
+export function fromCharacterRecord(record: CharacterRecord): CharacterSheet {
+  return validateAndMigrateCharacter(record).character;
+}
 
 const ALL_STATS: StatCode[] = ["FOR", "AGI", "CON", "PER", "INT", "VOL", "CHA"];
 
@@ -170,9 +191,77 @@ export async function computeSheetAsync(
     if (res.status === "ok") {
       return fromComputedSheet(res.data);
     }
-  } catch {
-    // Repli silencieux sur le moteur TS si l'IPC n'est pas disponible
+    if (import.meta.env.DEV) {
+      console.warn("[rustBridge] computeCharacter IPC error, fallback TS:", formatIpcError(res.error));
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[rustBridge] computeCharacter exception, fallback TS:", err);
+    }
   }
 
   return computeCharacterStats(char);
+}
+
+/**
+ * Applique une montée de niveau via le moteur Rust sous Tauri,
+ * avec repli sur le callback TypeScript en mode Web autonome.
+ */
+export async function applyLevelUpAsync(
+  char: CharacterSheet,
+  step: LevelProgressionStep,
+  fallback: () => Promise<CharacterSheet>,
+): Promise<CharacterSheet> {
+  if (!isTauri) {
+    return fallback();
+  }
+
+  try {
+    const res = await commands.applyLevelUpCharacter(
+      toCharacterRecord(char),
+      step as BindingLevelProgressionStep,
+    );
+    if (res.status === "ok") {
+      return fromCharacterRecord(res.data.record);
+    }
+    if (import.meta.env.DEV) {
+      console.warn("[rustBridge] applyLevelUpCharacter IPC error, fallback TS:", formatIpcError(res.error));
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[rustBridge] applyLevelUpCharacter exception, fallback TS:", err);
+    }
+  }
+
+  return fallback();
+}
+
+/**
+ * Rétrograde un personnage à un niveau antérieur via le moteur Rust sous Tauri,
+ * avec repli sur le callback TypeScript en mode Web autonome.
+ */
+export async function rollbackLevelAsync(
+  char: CharacterSheet,
+  targetLevel: number,
+  fallback: () => CharacterSheet,
+): Promise<CharacterSheet> {
+  if (!isTauri) {
+    return fallback();
+  }
+
+  try {
+    const res = await commands.rollbackCharacterLevel(toCharacterRecord(char), targetLevel);
+    if (res.status === "ok") {
+      return fromCharacterRecord(res.data.record);
+    }
+    if (import.meta.env.DEV) {
+      console.warn("[rustBridge] rollbackCharacterLevel IPC error, fallback TS:", formatIpcError(res.error));
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[rustBridge] rollbackCharacterLevel exception, fallback TS:", err);
+    }
+  }
+
+  return fallback();
 }

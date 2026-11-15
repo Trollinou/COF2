@@ -1,5 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { CharacterSheet, ProfileFamily, PathData, AbilityRef } from '../../types/cof2';
+import {
+  CharacterSheet,
+  LevelProgressionStep,
+  ProfileFamily,
+  PathData,
+  AbilityRef,
+} from '../../types/cof2';
 import {
   getProfileById,
   getPathById,
@@ -15,7 +21,11 @@ import {
   isPathInProfilePool,
   getProfileAllPoolPathIds,
 } from '../../engine/rulesEngine';
-import { computeSheetAsync } from '../../engine/rustBridge';
+import {
+  applyLevelUpAsync,
+  computeSheetAsync,
+  rollbackLevelAsync,
+} from '../../engine/rustBridge';
 import { useComputedSheet } from '../../hooks/useComputedSheet';
 import {
   TrendingUp,
@@ -31,6 +41,7 @@ import {
 } from 'lucide-react';
 import { LevelUpPathCard } from './LevelUpPathCard';
 import { PrestigePathSelector } from './PrestigePathSelector';
+import { LevelUpHybridSection } from './LevelUpHybridSection';
 import { LanguageSelectorPanel } from '../shared/LanguageSelectorPanel';
 
 interface LevelUpModalProps {
@@ -46,8 +57,6 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
   onClose,
   onApply,
 }) => {
-  if (!isOpen) return null;
-
   const profile = useMemo(
     () => getProfileById(character.profileId) || PROFILES[0],
     [character.profileId]
@@ -140,6 +149,8 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
   const nonRacialCount = useMemo(() => {
     return getNonRacialActivePathsCount(character);
   }, [character]);
+
+  if (!isOpen) return null;
 
   const toggleExpand = (pathId: string) => {
     setExpandedPaths(prev => ({
@@ -263,92 +274,101 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       return pth && pth.type === 'profile' && !isPathInProfilePool(profile, a.pathId);
     });
 
-    const step = {
+    const step: LevelProgressionStep = {
       level: newLevel,
       hpGain: levelUpHpResult.hpGain,
       abilitiesLearned: newlyAcquired,
       selectedPathIds: nextSelectedPathIds,
+      pathRankChoices: draftPathRankChoices,
       languagesLearned,
       secondaryTalentsLearned: talentsLearned,
       timestamp: new Date().toISOString(),
     };
 
-    const nextLanguages = Array.from(new Set([...(character.languages || []), ...languagesLearned]));
-    const nextTalents = Array.from(new Set([...(character.secondaryTalents || []), ...talentsLearned]));
-
-    const draftUpdated: CharacterSheet = {
+    const baseCharForRust: CharacterSheet = {
       ...character,
-      level: newLevel,
       isHybrid: character.isHybrid || hasHybridAbility,
-      levelUpHpGains: [
-        ...(character.levelUpHpGains || [oldStats.maxHp - ((character.level || 1) * oldStats.finalStats.CON)]),
-        levelUpHpResult.baseHp,
-      ],
       halfHpPending: levelUpHpResult.newHalfHpPending,
-      selectedPathIds: nextSelectedPathIds,
-      acquiredAbilities: acquired,
-      pathRankChoices: draftPathRankChoices,
       externalAbilityChoices: draftExternalChoices,
-      languages: nextLanguages,
-      secondaryTalents: nextTalents,
-      progressionHistory: [...(character.progressionHistory || []), step],
       updatedAt: new Date().toISOString(),
     };
 
-    const newStats = await computeSheetAsync(draftUpdated);
-    const hpDelta = Math.max(0, newStats.maxHp - oldStats.maxHp);
-    const drDelta = Math.max(0, newStats.maxDr - oldStats.maxDr);
-    const pcDelta = Math.max(0, newStats.maxPc - oldStats.maxPc);
-    const pmDelta = Math.max(0, newStats.maxPm - oldStats.maxPm);
+    const nextLanguages = Array.from(new Set([...(character.languages || []), ...languagesLearned]));
+    const nextTalents = Array.from(new Set([...(character.secondaryTalents || []), ...talentsLearned]));
 
-    const updated: CharacterSheet = {
-      ...draftUpdated,
-      currentHp: Math.min(newStats.maxHp, (character.currentHp ?? oldStats.maxHp) + hpDelta),
-      currentDr: Math.min(newStats.maxDr, (character.currentDr ?? oldStats.maxDr) + drDelta),
-      currentPc: Math.min(newStats.maxPc, (character.currentPc ?? oldStats.maxPc) + pcDelta),
-      currentPm: Math.min(newStats.maxPm, (character.currentPm ?? oldStats.maxPm) + pmDelta),
-    };
+    const updated = await applyLevelUpAsync(baseCharForRust, step, async () => {
+      const draftUpdated: CharacterSheet = {
+        ...baseCharForRust,
+        level: newLevel,
+        levelUpHpGains: [
+          ...(character.levelUpHpGains || [oldStats.maxHp - ((character.level || 1) * oldStats.finalStats.CON)]),
+          levelUpHpResult.baseHp,
+        ],
+        selectedPathIds: nextSelectedPathIds,
+        acquiredAbilities: acquired,
+        pathRankChoices: draftPathRankChoices,
+        languages: nextLanguages,
+        secondaryTalents: nextTalents,
+        progressionHistory: [...(character.progressionHistory || []), step],
+      };
+
+      const newStats = await computeSheetAsync(draftUpdated);
+      const hpDelta = Math.max(0, newStats.maxHp - oldStats.maxHp);
+      const drDelta = Math.max(0, newStats.maxDr - oldStats.maxDr);
+      const pcDelta = Math.max(0, newStats.maxPc - oldStats.maxPc);
+      const pmDelta = Math.max(0, newStats.maxPm - oldStats.maxPm);
+
+      return {
+        ...draftUpdated,
+        currentHp: Math.min(newStats.maxHp, (character.currentHp ?? oldStats.maxHp) + hpDelta),
+        currentDr: Math.min(newStats.maxDr, (character.currentDr ?? oldStats.maxDr) + drDelta),
+        currentPc: Math.min(newStats.maxPc, (character.currentPc ?? oldStats.maxPc) + pcDelta),
+        currentPm: Math.min(newStats.maxPm, (character.currentPm ?? oldStats.maxPm) + pmDelta),
+      };
+    });
 
     onApply(updated);
     onClose();
   };
 
-  const handleRollback = () => {
+  const handleRollback = async () => {
     if (character.level <= 1) return;
     const targetLevel = character.level - 1;
     if (!window.confirm(`Voulez-vous vraiment revenir en arrière et rétrograder ce personnage au niveau ${targetLevel} ? Les capacités et gains du niveau ${character.level} seront révoqués.`)) {
       return;
     }
 
-    const history = character.progressionHistory || [];
-    const stepToRevert = history.find(s => s.level === character.level);
+    const updated = await rollbackLevelAsync(character, targetLevel, () => {
+      const history = character.progressionHistory || [];
+      const stepToRevert = history.find(s => s.level === character.level);
 
-    let updatedAcquired = [...character.acquiredAbilities];
-    if (stepToRevert?.abilitiesLearned) {
-      updatedAcquired = updatedAcquired.filter(
-        a => !stepToRevert.abilitiesLearned?.some(rem => rem.pathId === a.pathId && rem.rank === a.rank)
-      );
-    }
+      let updatedAcquired = [...character.acquiredAbilities];
+      if (stepToRevert?.abilitiesLearned) {
+        updatedAcquired = updatedAcquired.filter(
+          a => !stepToRevert.abilitiesLearned?.some(rem => rem.pathId === a.pathId && rem.rank === a.rank)
+        );
+      }
 
-    const updatedHpGains = (character.levelUpHpGains || []).slice(0, targetLevel);
-    const updatedHistory = history.filter(s => s.level <= targetLevel);
-    const languagesToRevert = stepToRevert?.languagesLearned || [];
-    const talentsToRevert = stepToRevert?.secondaryTalentsLearned || [];
+      const updatedHpGains = (character.levelUpHpGains || []).slice(0, targetLevel);
+      const updatedHistory = history.filter(s => s.level <= targetLevel);
+      const languagesToRevert = stepToRevert?.languagesLearned || [];
+      const talentsToRevert = stepToRevert?.secondaryTalentsLearned || [];
 
-    const updated: CharacterSheet = {
-      ...character,
-      level: targetLevel,
-      levelUpHpGains: updatedHpGains,
-      acquiredAbilities: updatedAcquired,
-      languages: (character.languages || []).filter(
-        l => !languagesToRevert.some(rem => rem.toLowerCase() === l.toLowerCase())
-      ),
-      secondaryTalents: (character.secondaryTalents || []).filter(
-        t => !talentsToRevert.some(rem => rem.toLowerCase() === t.toLowerCase())
-      ),
-      progressionHistory: updatedHistory,
-      updatedAt: new Date().toISOString(),
-    };
+      return {
+        ...character,
+        level: targetLevel,
+        levelUpHpGains: updatedHpGains,
+        acquiredAbilities: updatedAcquired,
+        languages: (character.languages || []).filter(
+          l => !languagesToRevert.some(rem => rem.toLowerCase() === l.toLowerCase())
+        ),
+        secondaryTalents: (character.secondaryTalents || []).filter(
+          t => !talentsToRevert.some(rem => rem.toLowerCase() === t.toLowerCase())
+        ),
+        progressionHistory: updatedHistory,
+        updatedAt: new Date().toISOString(),
+      };
+    });
 
     onApply(updated);
     onClose();
@@ -439,75 +459,19 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
             />
           )}
 
+
           {/* Hybrid Path Option (COF2 chap. 9) */}
-          <div className="bg-gradient-to-r from-indigo-950/40 via-stone-950 to-indigo-950/40 border border-indigo-800/60 rounded-xl p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Shuffle className="w-4 h-4 text-indigo-400" />
-                <h4 className="font-serif font-bold text-sm text-indigo-200">
-                  Option Hybridation : Ouvrir une Voie d'un Autre Profil
-                </h4>
-              </div>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-900/60 text-indigo-300 border border-indigo-700/50 uppercase font-semibold">
-                {nonRacialCount} / 6 voies max
-              </span>
-            </div>
-
-            {!hybridEligibility.eligible ? (
-              <div className="flex items-start space-x-2 p-2.5 rounded bg-stone-900/80 border border-stone-800 text-xs text-amber-300">
-                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>{hybridEligibility.reason}</span>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <p className="text-xs text-stone-300">
-                  Tant qu'au moins une des 5 voies de votre profil principal n'a aucun rang investi, vous pouvez adopter une voie d'un autre profil.
-                </p>
-
-                <div className="flex flex-wrap sm:flex-nowrap gap-2">
-                  <select
-                    value={selectedHybridProfileId}
-                    onChange={e => {
-                      setSelectedHybridProfileId(e.target.value);
-                      setSelectedHybridPathId('');
-                    }}
-                    className="w-full sm:w-1/2 bg-stone-900 border border-indigo-700/60 rounded-lg px-3 py-1.5 text-xs text-indigo-100 focus:outline-none focus:border-indigo-400"
-                  >
-                    <option value="">-- Choisir un profil --</option>
-                    {PROFILES.filter(p => p.id !== character.profileId).map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.family})
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    value={selectedHybridPathId}
-                    onChange={e => setSelectedHybridPathId(e.target.value)}
-                    disabled={!selectedHybridProfileId}
-                    className="w-full sm:w-1/2 bg-stone-900 border border-indigo-700/60 rounded-lg px-3 py-1.5 text-xs text-indigo-100 focus:outline-none focus:border-indigo-400 disabled:opacity-50"
-                  >
-                    <option value="">-- Choisir une voie --</option>
-                    {availableHybridPaths.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  <button
-                    type="button"
-                    disabled={!selectedHybridPathId}
-                    onClick={handleAddHybridPath}
-                    className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold transition flex items-center space-x-1 shrink-0"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Ajouter</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <LevelUpHybridSection
+            character={character}
+            nonRacialCount={nonRacialCount}
+            hybridEligibility={hybridEligibility}
+            selectedHybridProfileId={selectedHybridProfileId}
+            setSelectedHybridProfileId={setSelectedHybridProfileId}
+            selectedHybridPathId={selectedHybridPathId}
+            setSelectedHybridPathId={setSelectedHybridPathId}
+            availableHybridPaths={availableHybridPaths}
+            handleAddHybridPath={handleAddHybridPath}
+          />
 
           {/* Paths & Rank Selection */}
           <div className="space-y-4">

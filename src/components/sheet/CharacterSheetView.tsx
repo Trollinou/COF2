@@ -21,7 +21,7 @@ import { BioTab } from './tabs/BioTab';
 
 interface CharacterSheetViewProps {
   character: CharacterSheet;
-  onChange: (updated: CharacterSheet) => void;
+  onChange: (updated: CharacterSheet, record?: boolean) => void;
 }
 
 export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
@@ -67,16 +67,19 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
       needsUpdate = true;
     }
     if (needsUpdate) {
-      updateCharacter(patch);
+      updateCharacter(patch, false);
     }
   }, [stats.maxDr, stats.maxHp, stats.maxPc, stats.maxPm]);
 
-  const updateCharacter = (partial: Partial<CharacterSheet>) => {
-    onChange({
-      ...character,
-      ...partial,
-      updatedAt: new Date().toISOString(),
-    });
+  const updateCharacter = (partial: Partial<CharacterSheet>, record = true) => {
+    onChange(
+      {
+        ...character,
+        ...partial,
+        updatedAt: new Date().toISOString(),
+      },
+      record,
+    );
   };
 
   // Live resource adjustments

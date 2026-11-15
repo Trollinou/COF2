@@ -28,6 +28,10 @@ coverage/
 *.lcov
 .nyc_output/
 
+# macOS Finder metadata
+.DS_Store
+**/.DS_Store
+
 # Cache & build metadata
 .eslintcache
 *.tsbuildinfo
