@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { listen } from '@tauri-apps/api/event';
+import { commands } from './bindings';
+import { fromCharacterRecord } from './engine/rustBridge';
 import { CharacterSheet } from './types/cof2';
-import { createDefaultCharacter, createBlankWizardCharacter } from './engine/rulesEngine';
-import { validateAndMigrateCharacter } from './utils/characterValidation';
 import { useCharacterHistory } from './utils/useCharacterHistory';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Navbar } from './components/Navbar';
 import { CharacterSheetView } from './components/sheet/CharacterSheetView';
 import { UnsavedChangesModal } from './components/modals/UnsavedChangesModal';
 import {
-  isTauri,
   saveCharacterFile,
   loadCharacterFile,
   triggerPrintOrExportPdf,
@@ -27,19 +26,42 @@ const LevelUpModal = lazy(() =>
 
 const STORAGE_KEY = 'cof2_active_character';
 
-function getInitialCharacter(): CharacterSheet {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      const validated = validateAndMigrateCharacter(parsed);
-      return validated.character;
-    }
-  } catch {
-    // fallback
-  }
-  return createDefaultCharacter();
-}
+const PLACEHOLDER_CHARACTER: CharacterSheet = {
+  id: 'init',
+  version: '1.0.0',
+  updatedAt: '',
+  creationCompleted: true,
+  name: '',
+  playerName: '',
+  sex: '',
+  age: '',
+  height: '',
+  weight: '',
+  physicalTraits: '',
+  languages: [],
+  secondaryTalents: [],
+  background: '',
+  ideal: '',
+  flaw: '',
+  notes: '',
+  peopleId: 'humain',
+  profileId: 'arquebusier',
+  level: 1,
+  baseStats: { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 },
+  racialStatChoices: [],
+  racialStatModifiers: { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 },
+  manualStatBonuses: {},
+  selectedPathIds: [],
+  acquiredAbilities: [],
+  currentHp: 0,
+  maxHpBonus: 0,
+  currentDr: 0,
+  currentPc: 0,
+  currentPm: 0,
+  weapons: [],
+  inventory: [],
+  coins: { pa: 0, pc: 0, po: 0 },
+};
 
 export function App() {
   const {
@@ -50,15 +72,46 @@ export function App() {
     redo,
     canUndo,
     canRedo,
-  } = useCharacterHistory(getInitialCharacter());
+  } = useCharacterHistory(PLACEHOLDER_CHARACTER);
 
-  const [activeTab, setActiveTab] = useState<'sheet' | 'wizard' | 'pdf'>(() =>
-    character.creationCompleted === false ? 'wizard' : 'sheet'
-  );
-  const [savedSnapshot, setSavedSnapshot] = useState<string>(() => JSON.stringify(character));
+  const [isHydrated, setIsHydrated] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'sheet' | 'wizard' | 'pdf'>('sheet');
+  const [savedSnapshot, setSavedSnapshot] = useState<string>('');
   const [pendingAction, setPendingAction] = useState<'new' | 'load' | null>(null);
   const [isLevelUpOpen, setIsLevelUpOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function hydrate() {
+      let initial: CharacterSheet | null = null;
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const res = await commands.validateCharacter(saved);
+          if (res.status === 'ok') {
+            initial = fromCharacterRecord(res.data.character);
+          }
+        }
+      } catch {
+        // fallback below
+      }
+      if (!initial) {
+        const record = await commands.createDefaultCharacter();
+        initial = fromCharacterRecord(record);
+      }
+      if (!cancelled) {
+        resetCharacter(initial);
+        setSavedSnapshot(JSON.stringify(initial));
+        setActiveTab(initial.creationCompleted === false ? 'wizard' : 'sheet');
+        setIsHydrated(true);
+      }
+    }
+    hydrate();
+    return () => {
+      cancelled = true;
+    };
+  }, [resetCharacter]);
 
   const isCreationCompleted = character.creationCompleted !== false;
   const serializedCharacter = useMemo(() => JSON.stringify(character), [character]);
@@ -67,6 +120,7 @@ export function App() {
 
   // Debounced auto-save to localStorage
   useEffect(() => {
+    if (!isHydrated) return;
     const timer = setTimeout(() => {
       try {
         localStorage.setItem(STORAGE_KEY, serializedCharacter);
@@ -76,7 +130,7 @@ export function App() {
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [serializedCharacter]);
+  }, [isHydrated, serializedCharacter]);
 
   useEffect(() => {
     return () => {
@@ -97,8 +151,9 @@ export function App() {
     }, 3500);
   };
 
-  const executeNewCharacter = () => {
-    const fresh = createBlankWizardCharacter();
+  const executeNewCharacter = async () => {
+    const record = await commands.createBlankWizardCharacter();
+    const fresh = fromCharacterRecord(record);
     resetCharacter(fresh);
     setSavedSnapshot(JSON.stringify(fresh));
     setActiveTab('wizard');
@@ -183,8 +238,6 @@ export function App() {
 
   // Listen to native Tauri menu bar events (Nouveau, Charger, Sauvegarder, Imprimer)
   useEffect(() => {
-    if (!isTauri) return;
-
     let unlisten: (() => void) | undefined;
     let disposed = false;
 
@@ -205,31 +258,13 @@ export function App() {
     };
   }, []);
 
-  // Register keyboard shortcuts in Web mode (Tauri uses native menu accelerators)
-  useEffect(() => {
-    if (isTauri) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey) {
-        if (e.key === 'n' || e.key === 'N') {
-          e.preventDefault();
-          menuHandlersRef.current.new();
-        } else if (e.key === 's' || e.key === 'S') {
-          e.preventDefault();
-          menuHandlersRef.current.save();
-        } else if (e.key === 'o' || e.key === 'O') {
-          e.preventDefault();
-          menuHandlersRef.current.load();
-        } else if (e.key === 'p' || e.key === 'P') {
-          e.preventDefault();
-          menuHandlersRef.current.print();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-stone-950 text-stone-300 flex items-center justify-center font-sans">
+        Chargement du Grimoire d'Osgild...
+      </div>
+    );
+  }
 
   return (
     <ErrorBoundary>

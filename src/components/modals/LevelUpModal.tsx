@@ -1,30 +1,29 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { commands, type LevelUpContext, type LevelUpHpGainResult } from '../../bindings';
 import {
   CharacterSheet,
   LevelProgressionStep,
-  ProfileFamily,
   PathData,
+  ProfileFamily,
   AbilityRef,
 } from '../../types/cof2';
 import {
   getProfileById,
   getPathById,
   PROFILES,
-  getAccessiblePathsForLevelUp,
   getReplacedRacialPath,
   isRacialReplacementPath,
-  getRankLevelRequirement,
-  getRankPointCost,
-  canCharacterAdoptHybridPath,
-  getNonRacialActivePathsCount,
-  calculateLevelUpHpGain,
   isPathInProfilePool,
   getProfileAllPoolPathIds,
-} from '../../engine/rulesEngine';
+} from '../../engine/compendium';
+import {
+  getRankLevelRequirement,
+  getRankPointCost,
+} from '../../utils/uiConstants';
 import {
   applyLevelUpAsync,
-  computeSheetAsync,
   rollbackLevelAsync,
+  toCharacterRecord,
 } from '../../engine/rustBridge';
 import { useComputedSheet } from '../../hooks/useComputedSheet';
 import {
@@ -90,22 +89,35 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
   const projectedStats = useComputedSheet(draftCharacter);
 
   const showLanguageSection =
-    projectedStats.languagesInfo.bonusLanguageSlots > projectedStats.languagesInfo.usedBonusSlots ||
-    projectedStats.languagesInfo.automaticLanguages.length > oldStats.languagesInfo.automaticLanguages.length ||
-    projectedStats.languagesInfo.literacy !== oldStats.languagesInfo.literacy ||
+    Boolean(
+      projectedStats &&
+        oldStats &&
+        (projectedStats.languagesInfo.bonusLanguageSlots > projectedStats.languagesInfo.usedBonusSlots ||
+          projectedStats.languagesInfo.automaticLanguages.length > oldStats.languagesInfo.automaticLanguages.length ||
+          projectedStats.languagesInfo.literacy !== oldStats.languagesInfo.literacy),
+    ) ||
     languagesLearned.length > 0 ||
     talentsLearned.length > 0;
 
-  // Available accessible paths: all 5 profile paths + racial/domain/prestige
-  const initialAccessiblePaths = useMemo(() => {
-    return getAccessiblePathsForLevelUp(character);
-  }, [character]);
+  const [levelUpContext, setLevelUpContext] = useState<LevelUpContext | null>(null);
+  const [modalPathIds, setModalPathIds] = useState<string[]>(() => character.selectedPathIds);
 
-  // Working copy of selected/accessible path IDs in modal
-  const [modalPathIds, setModalPathIds] = useState<string[]>(() => {
-    const ids = initialAccessiblePaths.map(p => p.id);
-    return Array.from(new Set([...character.selectedPathIds, ...ids]));
-  });
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    commands
+      .getLevelUpContextCharacter(toCharacterRecord(character), newLevel)
+      .then((ctx) => {
+        if (cancelled) return;
+        setLevelUpContext(ctx);
+        setModalPathIds((prev) =>
+          Array.from(new Set([...character.selectedPathIds, ...ctx.accessiblePathIds, ...prev])),
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [character, isOpen, newLevel]);
 
   // Selected prestige path dropdown value for consultation/preview
   const [selectedPrestigeId, setSelectedPrestigeId] = useState<string>('');
@@ -136,19 +148,40 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     );
   }, [acquired, character.acquiredAbilities]);
 
-  // Dynamic Level-up HP calculation
-  const levelUpHpResult = useMemo(() => {
-    return calculateLevelUpHpGain(character, newlyAcquired, character.halfHpPending);
-  }, [character, newlyAcquired]);
+  const [levelUpHpResult, setLevelUpHpResult] = useState<LevelUpHpGainResult>({
+    hpGain: profile.hpPerLevel,
+    baseHp: profile.hpPerLevel,
+    conBonus: 0,
+    newHalfHpPending: Boolean(character.halfHpPending),
+    details: '',
+  });
 
-  // Hybrid eligibility & active paths count
-  const hybridEligibility = useMemo(() => {
-    return canCharacterAdoptHybridPath(character);
-  }, [character]);
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    commands
+      .calculateLevelUpHpGainCharacter(
+        toCharacterRecord(character),
+        newlyAcquired,
+        Boolean(character.halfHpPending),
+      )
+      .then((res) => {
+        if (!cancelled && res.status === 'ok') {
+          setLevelUpHpResult(res.data);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [character, isOpen, newlyAcquired]);
 
-  const nonRacialCount = useMemo(() => {
-    return getNonRacialActivePathsCount(character);
-  }, [character]);
+  const hybridEligibility = levelUpContext?.hybridEligibility
+    ? {
+        eligible: levelUpContext.hybridEligibility.eligible,
+        reason: levelUpContext.hybridEligibility.reason ?? undefined,
+      }
+    : { eligible: true };
+  const nonRacialCount = levelUpContext?.nonRacialActivePathsCount ?? 0;
 
   if (!isOpen) return null;
 
@@ -187,13 +220,16 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     setModalPathIds(prev => prev.filter(id => id !== pid));
   };
 
-  const handleAddHybridPath = () => {
+  const handleAddHybridPath = async () => {
     if (!selectedHybridPathId) return;
     if (modalPathIds.includes(selectedHybridPathId)) return;
 
-    const check = canCharacterAdoptHybridPath(character, selectedHybridPathId);
+    const check = await commands.checkHybridPathEligibility(
+      toCharacterRecord(character),
+      selectedHybridPathId,
+    );
     if (!check.eligible) {
-      alert(check.reason);
+      alert(check.reason ?? 'Hybridation non autorisée.');
       return;
     }
 
@@ -293,39 +329,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       updatedAt: new Date().toISOString(),
     };
 
-    const nextLanguages = Array.from(new Set([...(character.languages || []), ...languagesLearned]));
-    const nextTalents = Array.from(new Set([...(character.secondaryTalents || []), ...talentsLearned]));
-
-    const updated = await applyLevelUpAsync(baseCharForRust, step, async () => {
-      const draftUpdated: CharacterSheet = {
-        ...baseCharForRust,
-        level: newLevel,
-        levelUpHpGains: [
-          ...(character.levelUpHpGains || [oldStats.maxHp - ((character.level || 1) * oldStats.finalStats.CON)]),
-          levelUpHpResult.baseHp,
-        ],
-        selectedPathIds: nextSelectedPathIds,
-        acquiredAbilities: acquired,
-        pathRankChoices: draftPathRankChoices,
-        languages: nextLanguages,
-        secondaryTalents: nextTalents,
-        progressionHistory: [...(character.progressionHistory || []), step],
-      };
-
-      const newStats = await computeSheetAsync(draftUpdated);
-      const hpDelta = Math.max(0, newStats.maxHp - oldStats.maxHp);
-      const drDelta = Math.max(0, newStats.maxDr - oldStats.maxDr);
-      const pcDelta = Math.max(0, newStats.maxPc - oldStats.maxPc);
-      const pmDelta = Math.max(0, newStats.maxPm - oldStats.maxPm);
-
-      return {
-        ...draftUpdated,
-        currentHp: Math.min(newStats.maxHp, (character.currentHp ?? oldStats.maxHp) + hpDelta),
-        currentDr: Math.min(newStats.maxDr, (character.currentDr ?? oldStats.maxDr) + drDelta),
-        currentPc: Math.min(newStats.maxPc, (character.currentPc ?? oldStats.maxPc) + pcDelta),
-        currentPm: Math.min(newStats.maxPm, (character.currentPm ?? oldStats.maxPm) + pmDelta),
-      };
-    });
+    const updated = await applyLevelUpAsync(baseCharForRust, step);
 
     onApply(updated);
     onClose();
@@ -338,37 +342,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
       return;
     }
 
-    const updated = await rollbackLevelAsync(character, targetLevel, () => {
-      const history = character.progressionHistory || [];
-      const stepToRevert = history.find(s => s.level === character.level);
-
-      let updatedAcquired = [...character.acquiredAbilities];
-      if (stepToRevert?.abilitiesLearned) {
-        updatedAcquired = updatedAcquired.filter(
-          a => !stepToRevert.abilitiesLearned?.some(rem => rem.pathId === a.pathId && rem.rank === a.rank)
-        );
-      }
-
-      const updatedHpGains = (character.levelUpHpGains || []).slice(0, targetLevel);
-      const updatedHistory = history.filter(s => s.level <= targetLevel);
-      const languagesToRevert = stepToRevert?.languagesLearned || [];
-      const talentsToRevert = stepToRevert?.secondaryTalentsLearned || [];
-
-      return {
-        ...character,
-        level: targetLevel,
-        levelUpHpGains: updatedHpGains,
-        acquiredAbilities: updatedAcquired,
-        languages: (character.languages || []).filter(
-          l => !languagesToRevert.some(rem => rem.toLowerCase() === l.toLowerCase())
-        ),
-        secondaryTalents: (character.secondaryTalents || []).filter(
-          t => !talentsToRevert.some(rem => rem.toLowerCase() === t.toLowerCase())
-        ),
-        progressionHistory: updatedHistory,
-        updatedAt: new Date().toISOString(),
-      };
-    });
+    const updated = await rollbackLevelAsync(character, targetLevel);
 
     onApply(updated);
     onClose();
@@ -558,7 +532,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
             </div>
           </div>
 
-          {showLanguageSection && (
+          {showLanguageSection && projectedStats && (
             <LanguageSelectorPanel
               compact
               automaticLanguages={projectedStats.languagesInfo.automaticLanguages}

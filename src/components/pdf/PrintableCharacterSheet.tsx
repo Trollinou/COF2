@@ -8,7 +8,7 @@ import {
   isRacialReplacementPath,
   getReplacedRacialPath,
   getRacialPathId,
-} from '../../engine/rulesEngine';
+} from '../../engine/compendium';
 import { useComputedSheet } from '../../hooks/useComputedSheet';
 import { Printer } from 'lucide-react';
 import { PrintablePage1 } from './PrintablePage1';
@@ -108,6 +108,8 @@ export const PrintableCharacterSheet: React.FC<PrintableCharacterSheetProps> = (
   const emptyWeaponsCount = Math.max(0, 2 - filledWeapons.length);
   const TOTAL_SLOTS = 6;
   const emptySlotsCount = Math.max(0, TOTAL_SLOTS - learnedPaths.length);
+
+  if (!stats) return null;
 
   return (
     <div className="print-wrapper w-full max-w-[210mm] mx-auto py-2 print:py-0 print:my-0 print:max-w-none">

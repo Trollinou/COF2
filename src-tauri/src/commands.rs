@@ -1,6 +1,24 @@
-use cof2_core::{
-    CharacterRecord, ComputedCharacterSheet, LevelProgressionStep, RulesDatabase, RulesEngine,
+use cof2_core::engine::creation::{
+    apply_racial_defaults, blank_wizard_character_record, default_character_record,
+    detect_characteristic_array_preset, evaluate_point_buy_stats, PointBuyEvaluation,
 };
+use cof2_core::engine::diversity::{resolve_human_diversity, ResolvedHumanDiversity};
+use cof2_core::engine::equipment::{
+    get_default_equipment_for_profile, get_equipment_options, sanitize_character_equipment,
+    DefaultEquipmentResult, EquipmentOptionsResult,
+};
+use cof2_core::engine::grants::{resolve_external_grants, ResolvedExternalGrant};
+use cof2_core::engine::progression::{
+    calculate_armor_spell_mana_cost, calculate_level_up_hp_gain, can_character_adopt_hybrid_path,
+    get_level_up_context, EligibilityCheck, LevelUpContext, LevelUpHpGainResult,
+};
+use cof2_core::engine::wizard::{validate_wizard_state, WizardValidationState};
+use cof2_core::{
+    validate_and_migrate_record, AcquiredAbility, CharacterRecord, ComputedCharacterSheet,
+    HumanDiversityChoice, LevelProgressionStep, RulesDatabase, RulesEngine, StatCode,
+    ValidationResult,
+};
+use std::collections::HashMap;
 use cof2_storage::{CharacterStorage, StorageError};
 use std::path::Path;
 use tauri::State;
@@ -60,6 +78,160 @@ pub(crate) fn sanitize_default_filename(raw: &str) -> String {
         .filter(|name| !name.is_empty() && *name != "." && *name != "..")
         .map(ToString::to_string)
         .unwrap_or_else(|| "personnage.cof2".to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn create_default_character(state: State<'_, AppState>) -> CharacterRecord {
+    default_character_record(&state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn create_blank_wizard_character(state: State<'_, AppState>) -> CharacterRecord {
+    blank_wizard_character_record(&state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn apply_racial_defaults_character(
+    record: CharacterRecord,
+    people_id: String,
+    chosen_racial_path_id: Option<String>,
+    preserve_empty_choices: bool,
+    state: State<'_, AppState>,
+) -> CharacterRecord {
+    apply_racial_defaults(
+        &record,
+        &people_id,
+        chosen_racial_path_id.as_deref(),
+        preserve_empty_choices,
+        &state.rules,
+    )
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn evaluate_point_buy(base_stats: HashMap<StatCode, i32>) -> PointBuyEvaluation {
+    evaluate_point_buy_stats(&base_stats)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn detect_stat_array_preset(
+    base_stats: HashMap<StatCode, i32>,
+    state: State<'_, AppState>,
+) -> String {
+    detect_characteristic_array_preset(&base_stats, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn resolve_human_diversity_choice(
+    choice: Option<HumanDiversityChoice>,
+) -> Option<ResolvedHumanDiversity> {
+    resolve_human_diversity(choice.as_ref())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_equipment_options_character(
+    record: CharacterRecord,
+    state: State<'_, AppState>,
+) -> EquipmentOptionsResult {
+    get_equipment_options(&record, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_default_equipment_character(
+    profile_id: String,
+    people_id: String,
+    state: State<'_, AppState>,
+) -> DefaultEquipmentResult {
+    get_default_equipment_for_profile(&profile_id, &people_id, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn sanitize_equipment_character(
+    record: CharacterRecord,
+    state: State<'_, AppState>,
+) -> CharacterRecord {
+    sanitize_character_equipment(&record, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_level_up_context_character(
+    record: CharacterRecord,
+    target_level: u8,
+    state: State<'_, AppState>,
+) -> LevelUpContext {
+    get_level_up_context(&record, target_level, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn calculate_level_up_hp_gain_character(
+    record: CharacterRecord,
+    newly_acquired_ranks: Vec<AcquiredAbility>,
+    pending_half_hp: bool,
+    state: State<'_, AppState>,
+) -> Result<LevelUpHpGainResult, IpcError> {
+    calculate_level_up_hp_gain(&record, &newly_acquired_ranks, pending_half_hp, &state.rules)
+        .map_err(|e| IpcError::Rules(e.to_string()))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn calculate_armor_spell_mana_cost_character(
+    record: CharacterRecord,
+    path_id: String,
+    rank: u8,
+    state: State<'_, AppState>,
+) -> i32 {
+    calculate_armor_spell_mana_cost(&record, &path_id, rank, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn check_hybrid_path_eligibility(
+    record: CharacterRecord,
+    candidate_path_id: Option<String>,
+    state: State<'_, AppState>,
+) -> EligibilityCheck {
+    can_character_adopt_hybrid_path(&record, candidate_path_id.as_deref(), &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn validate_wizard_state_character(
+    record: CharacterRecord,
+    step: u8,
+    state: State<'_, AppState>,
+) -> WizardValidationState {
+    validate_wizard_state(&record, step, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn resolve_external_grants_character(
+    record: CharacterRecord,
+    state: State<'_, AppState>,
+) -> Vec<ResolvedExternalGrant> {
+    resolve_external_grants(&record, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn validate_character(
+    raw_json: String,
+    state: State<'_, AppState>,
+) -> Result<ValidationResult, IpcError> {
+    let value: serde_json::Value =
+        serde_json::from_str(&raw_json).map_err(|e| IpcError::InvalidFormat(e.to_string()))?;
+    Ok(validate_and_migrate_record(value, &state.rules))
 }
 
 #[tauri::command]
@@ -155,8 +327,10 @@ pub async fn load_character_file(
 
     let path_str = path.to_string_lossy().into_owned();
     CharacterStorage::validate_character_extension(&path_str)?;
-    let record = CharacterStorage::load(&path)?;
-    RulesEngine::compute_sheet(&record, &state.rules).map_err(|e| IpcError::Rules(e.to_string()))
+    let raw = CharacterStorage::load_raw_json(&path)?;
+    let validated = validate_and_migrate_record(raw, &state.rules);
+    RulesEngine::compute_sheet(&validated.character, &state.rules)
+        .map_err(|e| IpcError::Rules(e.to_string()))
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 import React from 'react';
 import { CharacterSheet, ComputedCharacterStats, PeopleData, ProfileData } from '../../types/cof2';
-import { getProfileById } from '../../engine/rulesEngine';
+import { getProfileById } from '../../engine/compendium';
 import { Heart, Dices, Sparkles, Zap } from 'lucide-react';
 
 interface HeroBannerProps {

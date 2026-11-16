@@ -1,11 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { commands, type PointBuyEvaluation } from '../../../bindings';
 import { CharacterSheet, StatCode, ProfileData, PeopleData, ComputedCharacterStats } from '../../../types/cof2';
-import {
-  STAT_NAMES,
-  POINT_BUY_COSTS,
-  POINT_BUY_MAX_WEAK_STATS,
-  evaluatePointBuyStats,
-} from '../../../engine/rulesEngine';
+import { STAT_NAMES } from '../../../engine/compendium';
+import { POINT_BUY_COSTS, POINT_BUY_MAX_WEAK_STATS } from '../../../utils/uiConstants';
 import tablesData from '../../../data/tables.json';
 import { Target, Wand, RotateCcw } from 'lucide-react';
 
@@ -35,9 +32,21 @@ export const Step4Stats: React.FC<Step4StatsProps> = ({
   handleResetPointBuy,
 }) => {
   const isPointBuy = arrayPreset === 'achat' || arrayPreset === 'libre';
-  const pointBuy = isPointBuy
-    ? evaluatePointBuyStats(computed.baseStats ?? character.baseStats)
-    : null;
+  const [pointBuy, setPointBuy] = useState<PointBuyEvaluation | null>(null);
+
+  useEffect(() => {
+    if (!isPointBuy) {
+      setPointBuy(null);
+      return;
+    }
+    let cancelled = false;
+    commands.evaluatePointBuy(computed.baseStats ?? character.baseStats).then((res) => {
+      if (!cancelled) setPointBuy(res);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isPointBuy, computed.baseStats, character.baseStats]);
 
   const formatPointBuyOptionLabel = (v: number): string => {
     const valStr = v >= 0 ? `+${v}` : `${v}`;

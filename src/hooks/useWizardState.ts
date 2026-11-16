@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { commands, type StepValidationResult } from '../bindings';
 import type {
   CharacterSheet,
   CharacterWeaponInstance,
@@ -9,35 +10,63 @@ import {
   PEOPLES,
   PROFILES,
   WEAPONS,
-  applyRacialDefaults,
   getRacialPathId,
   isDomainPath,
-  canUseVoieDuMage,
-  hasMageCreationBonus,
   isRacialReplacementPath,
-  checkWeaponProficiency,
-  getDefaultEquipmentForProfile,
-  sanitizeCharacterEquipment,
-  detectCharacteristicArrayPreset,
   getProfileAllPoolPathIds,
-} from '../engine/rulesEngine';
-import { computeSheetAsync } from '../engine/rustBridge';
+} from '../engine/compendium';
+import {
+  computeSheetAsync,
+  fromCharacterRecord,
+  toCharacterRecord,
+} from '../engine/rustBridge';
 import { useComputedSheet } from './useComputedSheet';
 import tablesData from '../data/tables.json';
-import {
-  validateWizardStep,
-  getMaxUnlockedWizardStep,
-} from '../components/wizard/wizardValidation';
+
+function isMageProfileId(profileId: string): boolean {
+  return ['ensorceleur', 'forgesort', 'magicien', 'sorcier'].includes(profileId);
+}
+
+function checkHasMageBonus(char: CharacterSheet): boolean {
+  const profile = PROFILES.find(p => p.id === char.profileId);
+  const secProfile =
+    char.isHybrid && char.secondaryProfileId
+      ? PROFILES.find(p => p.id === char.secondaryProfileId)
+      : undefined;
+  const isPsionicMage =
+    (char.profileId === 'psionique' ||
+      (Boolean(char.isHybrid) && char.secondaryProfileId === 'psionique')) &&
+    char.profileFamily === 'Mages';
+  return Boolean(profile?.hasMageBonus || secProfile?.hasMageBonus || isPsionicMage);
+}
+
+function checkCanUseVoieDuMage(char: CharacterSheet): boolean {
+  const isPsionicMage =
+    (char.profileId === 'psionique' ||
+      (Boolean(char.isHybrid) && char.secondaryProfileId === 'psionique')) &&
+    char.profileFamily === 'Mages';
+  return (
+    isMageProfileId(char.profileId) ||
+    Boolean(char.isHybrid && char.secondaryProfileId && isMageProfileId(char.secondaryProfileId)) ||
+    isPsionicMage
+  );
+}
 
 export function useWizardState(
   character: CharacterSheet,
   onChange: (updated: CharacterSheet) => void,
   onFinish: () => void,
 ) {
-  const [currentStep, setCurrentStep] = useState<number>(() =>
-    character.creationCompleted === false ? Math.min(6, getMaxUnlockedWizardStep(character)) : 1
-  );
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const totalSteps = 7;
+
+  useEffect(() => {
+    if (character.creationCompleted === false) {
+      commands.validateWizardStateCharacter(toCharacterRecord(character), 1).then((res) => {
+        setCurrentStep(Math.min(6, res.maxUnlockedStep));
+      });
+    }
+  }, []);
 
   // Selected array mode in Step 3 ('polyvalent' | 'expert' | 'specialiste' | 'achat' | '')
   const initialPreset = useMemo(() => {
@@ -55,7 +84,17 @@ export function useWizardState(
       return;
     }
     const rawPreset = character.statArrayPreset === 'libre' ? 'achat' : character.statArrayPreset;
-    setArrayPreset(rawPreset || detectCharacteristicArrayPreset(character.baseStats));
+    if (rawPreset) {
+      setArrayPreset(rawPreset);
+      return;
+    }
+    let cancelled = false;
+    commands.detectStatArrayPreset(character.baseStats).then((detected) => {
+      if (!cancelled) setArrayPreset(detected);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [character.statArrayPreset, character.baseStats]);
 
   // Track expanded path previews in Step 5
@@ -169,10 +208,10 @@ export function useWizardState(
       : undefined;
     const allProfilePaths = [...selectedProfile.paths, ...(secProf ? secProf.paths : [])];
 
-    const hasIneligibleRank2 = !hasMageCreationBonus(character) && character.acquiredAbilities.some(a => a.rank === 2);
+    const hasIneligibleRank2 = !checkHasMageBonus(character) && character.acquiredAbilities.some(a => a.rank === 2);
     const existingThirdPath = character.selectedPathIds.find(id => !allProfilePaths.includes(id));
     const isPriest = character.profileId === 'pretre' || character.secondaryProfileId === 'pretre';
-    const isMage = canUseVoieDuMage(character);
+    const isMage = checkCanUseVoieDuMage(character);
     const isValidReplacement = Boolean(
       existingThirdPath && (
         (isDomainPath(existingThirdPath) && isPriest) ||
@@ -211,7 +250,7 @@ export function useWizardState(
       };
     }
 
-    if (!hasMageCreationBonus(updated) && updated.acquiredAbilities.some(a => a.rank === 2)) {
+    if (!checkHasMageBonus(updated) && updated.acquiredAbilities.some(a => a.rank === 2)) {
       updated = {
         ...updated,
         acquiredAbilities: updated.acquiredAbilities.filter(a => a.rank !== 2),
@@ -239,7 +278,7 @@ export function useWizardState(
       profileId,
       profileFamily: undefined,
     };
-    const isMage = canUseVoieDuMage(tempChar);
+    const isMage = checkCanUseVoieDuMage(tempChar);
 
     // Keep racial path only if not Priest/Mage, or if already explicitly chosen
     let nextSelectedPaths: string[] = [];
@@ -255,7 +294,7 @@ export function useWizardState(
     }
 
     // Equip default starting equipment matching new profile & race
-    const defaultEq = getDefaultEquipmentForProfile(profileId, character.peopleId || 'humain');
+    const defaultEq = await commands.getDefaultEquipmentCharacter(profileId, character.peopleId || 'humain');
 
     const updatedChar: CharacterSheet = {
       ...character,
@@ -265,12 +304,18 @@ export function useWizardState(
       selectedPathIds: nextSelectedPaths,
       acquiredAbilities: nextAcquired,
       pathRankChoices: {},
-      equippedArmorId: defaultEq.armorId,
-      equippedShieldId: defaultEq.shieldId,
-      weapons: defaultEq.weapons,
+      equippedArmorId: defaultEq.armorId ?? undefined,
+      equippedShieldId: defaultEq.shieldId ?? undefined,
+      weapons: defaultEq.weapons.map(w => ({
+        ...w,
+        category: w.category === 'distance' ? 'distance' : 'contact',
+        attackStatUsed: w.attackStatUsed ?? undefined,
+        attackStatSource: w.attackStatSource ?? undefined,
+      })),
     };
 
-    const sanitized = sanitizeCharacterEquipment(updatedChar);
+    const sanitizedRecord = await commands.sanitizeEquipmentCharacter(toCharacterRecord(updatedChar));
+    const sanitized = fromCharacterRecord(sanitizedRecord);
     const computedStats = await computeSheetAsync(sanitized);
     sanitized.currentHp = computedStats.maxHp;
     sanitized.currentDr = computedStats.maxDr;
@@ -294,11 +339,12 @@ export function useWizardState(
     onFinish();
   };
 
-  const handleAddWeapon = (weaponRefId: string) => {
+  const handleAddWeapon = async (weaponRefId: string) => {
     const w = WEAPONS.find(item => item.id === weaponRefId);
     if (!w) return;
-    const check = checkWeaponProficiency(w.id, character.profileId, character.peopleId);
-    if (!check.allowed) return;
+    const eqOpts = await commands.getEquipmentOptionsCharacter(toCharacterRecord(character));
+    const allowedOption = eqOpts.allowedWeapons.find(item => item.weaponId === w.id);
+    if (!allowedOption) return;
 
     const newWeapon: CharacterWeaponInstance = {
       id: 'w_' + Date.now(),
@@ -309,7 +355,7 @@ export function useWizardState(
       category: w.category,
       bonusAttack: 0,
       bonusDamage: 0,
-      requiresTwoHands: check.requiresTwoHands,
+      requiresTwoHands: allowedOption.requiresTwoHands,
     };
 
     update({
@@ -324,11 +370,14 @@ export function useWizardState(
   };
 
   // Handle People Selection without pre-selecting stat choices or Demi-elfe cultural path
-  const handleSelectPeople = (peopleId: string) => {
-    const updated = applyRacialDefaults(character, peopleId, undefined, {
-      preserveEmptyChoices: true,
-    });
-    onChange(updated);
+  const handleSelectPeople = async (peopleId: string) => {
+    const updatedRecord = await commands.applyRacialDefaultsCharacter(
+      toCharacterRecord(character),
+      peopleId,
+      null,
+      true,
+    );
+    onChange(fromCharacterRecord(updatedRecord));
   };
 
   const createZeroStats = (): Record<StatCode, number> => ({
@@ -481,11 +530,26 @@ export function useWizardState(
     });
   };
 
-  const maxUnlockedStep = useMemo(() => getMaxUnlockedWizardStep(character), [character]);
-  const currentStepValidation = useMemo(
-    () => validateWizardStep(currentStep, character),
-    [currentStep, character],
-  );
+  const [maxUnlockedStep, setMaxUnlockedStep] = useState<number>(1);
+  const [currentStepValidation, setCurrentStepValidation] = useState<StepValidationResult>({
+    valid: false,
+    reason: null,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    commands
+      .validateWizardStateCharacter(toCharacterRecord(character), currentStep)
+      .then((res) => {
+        if (!cancelled) {
+          setMaxUnlockedStep(res.maxUnlockedStep);
+          setCurrentStepValidation(res.stepResult);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [character, currentStep]);
 
 
   return {

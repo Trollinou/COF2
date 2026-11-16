@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.9.5
+
+### Ajouté
+
+- **Portage intégral de la logique métier COF2 vers Rust (`crates/cof2-core`)** :
+  - Validation et migration de fiches (`validation.rs` : `validate_and_migrate_record`, `ValidationResult`), avec migration automatique des fichiers `.cof2`/`.json` chargés via `CharacterStorage::load_raw_json` (`crates/cof2-storage`).
+  - Création de personnage, point-buy et détection de tableaux de caractéristiques (`engine/creation.rs` : `default_character_record`, `blank_wizard_character_record`, `apply_racial_defaults`, `evaluate_point_buy_stats`, `detect_characteristic_array_preset`).
+  - Diversité Humaine (`engine/diversity.rs` : `resolve_human_diversity`, `is_human_diversity_valid`, `has_human_diversity_rank1`, `format_human_diversity_note`).
+  - Équipement, maîtrises, dotation par défaut et calcul des armes équipées (`engine/equipment.rs` : `get_equipment_options`, `get_default_equipment_for_profile`, `sanitize_character_equipment`, `compute_weapons_info`).
+  - Résolution des statistiques de compagnons (`engine/companion.rs`) intégrée directement dans `ComputedCharacterSheet.companions`.
+  - Règles de progression, prérequis de prestige, hybridation, calcul des PV de montée de niveau, coût en PM d'incantation en armure et dons externes (`engine/progression.rs`, `engine/paths.rs`, `engine/grants.rs`).
+  - Validation métier de l'Assistant de Création (`engine/wizard.rs` : `validate_wizard_step`, `get_max_unlocked_wizard_step`, `validate_wizard_state`).
+- **Commandes IPC Tauri (`src-tauri/src/commands.rs`, `src/bindings.ts`)** : exposition via `tauri-specta` de toutes les nouvelles commandes métier et régénération automatique des bindings TypeScript.
+- **Tests d'intégration Rust (`crates/cof2-core/tests/suite/migrated_rules_test.rs`)** : couverture des modules migrés (35 tests Rust passants).
+
+### Modifié
+
+- **Architecture « Pure Dumb UI » & Shell Tauri exclusif** :
+  - `useComputedSheet.ts`, `rustBridge.ts`, `fileBridge.ts`, `App.tsx`, `useWizardState.ts`, `LevelUpModal.tsx` et les composants de fiche/wizard consomment exclusivement les commandes IPC Rust.
+  - `src/engine/compendium.ts` est conservé en lecture seule statique sur `src/data/*.json` pour un affichage synchrone de l'interface (Option A), accompagné des constantes UI dans `src/utils/uiConstants.ts`.
+  - Mise à jour de `AGENTS.md` et `docs/DATA_MODELS.md`.
+
+### Supprimé
+
+- **Suppression complète du repli Web et des modules métier TypeScript dupliqués** :
+  - Suppression de `statsFallback.ts`, `characterFactory.ts`, `equipmentRules.ts`, `progressionRules.ts`, `pathHelpers.ts`, `rulesEngine.ts`, `characterValidation.ts`, `humanDiversity.ts`, `languageUtils.ts`, `wizardValidation.ts` et des 6 suites Vitest correspondantes migrées vers Rust.
+
 ## 0.9.0
 
 ### Ajouté

@@ -3,7 +3,6 @@ import { CharacterSheet, HumanDiversityChoice, ProfileData, PeopleData } from '.
 import {
   getPathById,
   getRacialPathId,
-  applyRacialDefaults,
   PRIEST_DEITIES,
   isDomainPath,
   canUseVoieDuMage,
@@ -13,7 +12,7 @@ import {
   getDeityByDomainPathId,
   getProfileById,
   getProfileAllPoolPathIds,
-} from '../../../engine/rulesEngine';
+} from '../../../engine/compendium';
 import { ChevronDown, ChevronUp, Sparkles, Shield, BookOpen, Shuffle } from 'lucide-react';
 import { ActionBadges } from '../../sheet/ActionBadges';
 import { CompanionCard } from '../../sheet/CompanionCard';

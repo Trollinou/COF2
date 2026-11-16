@@ -139,10 +139,56 @@ fn collect_modifiers_from_block(
     }
 }
 
+/// Calcule les modificateurs de caractéristiques raciaux d'un peuple selon les choix sélectionnés.
+pub fn compute_racial_stat_modifiers(
+    people_id: &str,
+    racial_stat_choices: &[StatCode],
+    fallback_modifiers: Option<&HashMap<StatCode, i32>>,
+    rules: &RulesDatabase,
+) -> HashMap<StatCode, i32> {
+    let mut mods = empty_stat_map();
+    let Some(people) = rules.peoples.get(people_id) else {
+        if let Some(fb) = fallback_modifiers {
+            for (stat, val) in fb {
+                mods.insert(*stat, *val);
+            }
+        }
+        return mods;
+    };
+
+    if let Some(ref racial_mods) = people.stats {
+        for (stat, modif) in racial_mods {
+            *mods.entry(*stat).or_insert(0) += modif;
+        }
+    }
+    if let Some(ref choices) = people.stat_choices {
+        for (idx, choice) in choices.iter().enumerate() {
+            if let Some(chosen_stat) = racial_stat_choices.get(idx) {
+                *mods.entry(*chosen_stat).or_insert(0) += choice.value;
+            } else if let Some(first_opt) = choice.options.first() {
+                if let Ok(st) = parse_stat(first_opt) {
+                    *mods.entry(st).or_insert(0) += choice.value;
+                }
+            }
+        }
+    }
+    if mods.values().all(|&v| v == 0)
+        && people.stats.is_none()
+        && people.stat_choices.is_none()
+    {
+        if let Some(fb) = fallback_modifiers {
+            for (stat, modif) in fb {
+                mods.insert(*stat, *modif);
+            }
+        }
+    }
+    mods
+}
+
 /// Calcule la décomposition unitaire des 7 caractéristiques et collecte les modificateurs de Passe 1.
 pub(crate) fn compute_stats(
     record: &CharacterRecord,
-    people: &PeopleStatic,
+    _people: &PeopleStatic,
     effective_abilities: &[AcquiredAbility],
     rules: &RulesDatabase,
 ) -> StatDecomposition {
@@ -151,32 +197,12 @@ pub(crate) fn compute_stats(
         base_stats.insert(*stat, *val);
     }
 
-    let mut racial_bonus_stats = empty_stat_map();
-    if let Some(ref racial_mods) = people.stats {
-        for (stat, modif) in racial_mods {
-            *racial_bonus_stats.entry(*stat).or_insert(0) += modif;
-        }
-    }
-    if let Some(ref choices) = people.stat_choices {
-        for (idx, choice) in choices.iter().enumerate() {
-            if let Some(chosen_stat) = record.racial_stat_choices.get(idx) {
-                *racial_bonus_stats.entry(*chosen_stat).or_insert(0) += choice.value;
-            } else if let Some(first_opt) = choice.options.first() {
-                if let Ok(st) = parse_stat(first_opt) {
-                    *racial_bonus_stats.entry(st).or_insert(0) += choice.value;
-                }
-            }
-        }
-    }
-    if racial_bonus_stats.values().all(|&v| v == 0)
-        && !record.racial_stat_modifiers.is_empty()
-        && people.stats.is_none()
-        && people.stat_choices.is_none()
-    {
-        for (stat, modif) in &record.racial_stat_modifiers {
-            racial_bonus_stats.insert(*stat, *modif);
-        }
-    }
+    let racial_bonus_stats = compute_racial_stat_modifiers(
+        &record.people_id,
+        &record.racial_stat_choices,
+        Some(&record.racial_stat_modifiers),
+        rules,
+    );
 
     let mut path_bonus_stats = empty_stat_map();
     let mut collected_bonuses = Vec::new();

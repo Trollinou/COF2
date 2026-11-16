@@ -9,7 +9,7 @@ import { Step4Stats } from './steps/Step4Stats';
 import { Step5Paths } from './steps/Step5Paths';
 import { Step6Equipment } from './steps/Step6Equipment';
 import { Step7Summary } from './steps/Step7Summary';
-import { WIZARD_STEPS } from './wizardValidation';
+import { WIZARD_STEPS } from '../../utils/uiConstants';
 
 interface CharacterWizardProps {
   character: CharacterSheet;
@@ -139,7 +139,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       )}
 
       {/* Step 3: Stats */}
-      {currentStep === 3 && selectedPeople && selectedProfile && (
+      {currentStep === 3 && selectedPeople && selectedProfile && computed && (
         <Step4Stats
           character={character}
           selectedProfile={selectedProfile}
@@ -181,7 +181,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       )}
 
       {/* Step 6: Identity & Languages */}
-      {currentStep === 6 && selectedPeople && (
+      {currentStep === 6 && selectedPeople && computed && (
         <Step2Identity
           character={character}
           computed={computed}
@@ -194,7 +194,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       )}
 
       {/* Step 7: Summary (Read-only) */}
-      {currentStep === 7 && (
+      {currentStep === 7 && computed && (
         <Step7Summary
           character={character}
           computed={computed}
@@ -227,7 +227,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
               disabled={!currentStepValidation.valid}
               onClick={() => setCurrentStep(prev => Math.min(totalSteps, prev + 1))}
               className="flex items-center space-x-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed text-stone-950 px-4 py-2 rounded-lg text-sm font-bold transition shadow"
-              title={currentStepValidation.reason}
+              title={currentStepValidation.reason ?? undefined}
             >
               <span>Suivant</span>
               <ChevronRight className="w-4 h-4" />

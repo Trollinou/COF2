@@ -5,6 +5,64 @@
 
 
 export const commands = {
+async createDefaultCharacter() : Promise<CharacterRecord> {
+    return await TAURI_INVOKE("create_default_character");
+},
+async createBlankWizardCharacter() : Promise<CharacterRecord> {
+    return await TAURI_INVOKE("create_blank_wizard_character");
+},
+async applyRacialDefaultsCharacter(record: CharacterRecord, peopleId: string, chosenRacialPathId: string | null, preserveEmptyChoices: boolean) : Promise<CharacterRecord> {
+    return await TAURI_INVOKE("apply_racial_defaults_character", { record, peopleId, chosenRacialPathId, preserveEmptyChoices });
+},
+async evaluatePointBuy(baseStats: Partial<{ [key in StatCode]: number }>) : Promise<PointBuyEvaluation> {
+    return await TAURI_INVOKE("evaluate_point_buy", { baseStats });
+},
+async detectStatArrayPreset(baseStats: Partial<{ [key in StatCode]: number }>) : Promise<string> {
+    return await TAURI_INVOKE("detect_stat_array_preset", { baseStats });
+},
+async resolveHumanDiversityChoice(choice: HumanDiversityChoice | null) : Promise<ResolvedHumanDiversity | null> {
+    return await TAURI_INVOKE("resolve_human_diversity_choice", { choice });
+},
+async getEquipmentOptionsCharacter(record: CharacterRecord) : Promise<EquipmentOptionsResult> {
+    return await TAURI_INVOKE("get_equipment_options_character", { record });
+},
+async getDefaultEquipmentCharacter(profileId: string, peopleId: string) : Promise<DefaultEquipmentResult> {
+    return await TAURI_INVOKE("get_default_equipment_character", { profileId, peopleId });
+},
+async sanitizeEquipmentCharacter(record: CharacterRecord) : Promise<CharacterRecord> {
+    return await TAURI_INVOKE("sanitize_equipment_character", { record });
+},
+async getLevelUpContextCharacter(record: CharacterRecord, targetLevel: number) : Promise<LevelUpContext> {
+    return await TAURI_INVOKE("get_level_up_context_character", { record, targetLevel });
+},
+async calculateLevelUpHpGainCharacter(record: CharacterRecord, newlyAcquiredRanks: AcquiredAbility[], pendingHalfHp: boolean) : Promise<Result<LevelUpHpGainResult, IpcError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("calculate_level_up_hp_gain_character", { record, newlyAcquiredRanks, pendingHalfHp }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async calculateArmorSpellManaCostCharacter(record: CharacterRecord, pathId: string, rank: number) : Promise<number> {
+    return await TAURI_INVOKE("calculate_armor_spell_mana_cost_character", { record, pathId, rank });
+},
+async checkHybridPathEligibility(record: CharacterRecord, candidatePathId: string | null) : Promise<EligibilityCheck> {
+    return await TAURI_INVOKE("check_hybrid_path_eligibility", { record, candidatePathId });
+},
+async validateWizardStateCharacter(record: CharacterRecord, step: number) : Promise<WizardValidationState> {
+    return await TAURI_INVOKE("validate_wizard_state_character", { record, step });
+},
+async resolveExternalGrantsCharacter(record: CharacterRecord) : Promise<ResolvedExternalGrant[]> {
+    return await TAURI_INVOKE("resolve_external_grants_character", { record });
+},
+async validateCharacter(rawJson: string) : Promise<Result<ValidationResult, IpcError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("validate_character", { rawJson }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async computeCharacter(record: CharacterRecord) : Promise<Result<ComputedCharacterSheet, IpcError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("compute_character", { record }) };
@@ -72,7 +130,9 @@ async printCharacterSheet() : Promise<Result<null, IpcError>> {
 /** user-defined types **/
 
 export type AcquiredAbility = { pathId: string; rank: number }
+export type AllowedWeaponOption = { weaponId: string; requiresTwoHands: boolean }
 export type AttackBonuses = { contact: number; distance: number; magique: number }
+export type CapabilityPointsSummary = { totalEarned: number; spent: number; available: number }
 /**
  * Modèle persistant officiel d'un personnage COF2 (compatible avec les fichiers .cof2)
  */
@@ -83,10 +143,14 @@ export type CharacterRecord = { id: string; version?: string; updatedAt?: string
 progressionHistory?: LevelProgressionStep[]; currentHp: number; maxHpBonus?: number; levelUpHpGains?: number[]; halfHpPending?: boolean | null; currentDr: number; currentPc: number; currentPm: number; equippedArmorId?: string | null; equippedShieldId?: string | null; weapons?: CharacterWeaponInstance[]; inventory?: InventoryItem[]; coins?: Coins }
 export type CharacterWeaponInstance = { id: string; weaponRefId: string; name: string; damage: string; range: string; category: string; bonusAttack?: number; bonusDamage?: number; requiresTwoHands?: boolean; attackStatUsed?: StatCode | null; attackStatSource?: string | null }
 export type Coins = { pa: number; pc: number; po: number }
+export type ComputedCharacterSheet = { record: CharacterRecord; baseStats: Partial<{ [key in StatCode]: number }>; racialBonusStats: Partial<{ [key in StatCode]: number }>; pathBonusStats: Partial<{ [key in StatCode]: number }>; manualBonusStats: Partial<{ [key in StatCode]: number }>; otherBonusStats: Partial<{ [key in StatCode]: number }>; finalStats: Partial<{ [key in StatCode]: number }>; bab: number; defense: number; defenseStat: StatCode; defenseStatSource: string | null; effectiveAgi: number; armorDefense: number; shieldDefense: number; initiative: number; maxHp: number; maxDr: number; drDice: string; maxPc: number; maxPm: number; energyType: string; effectiveFamily: ProfileFamily; isHybrid: boolean; secondaryProfileName: string | null; attacks: AttackBonuses; contactAttackStat: StatCode; contactAttackStatSource: string | null; distanceAttackStat: StatCode; distanceAttackStatSource: string | null; pathBonusDefense: number; pathBonusInitiative: number; pathBonusHp: number; pathBonusAttacks: AttackBonuses; pathBonusDamage: AttackBonuses; pathCritRangeBonus: number; pathBonusPc: number; pathBonusDr: number; pathBonusPm: number; activeWeaponModifiers: WeaponModifierRule[]; situationalNotes: string[]; languagesInfo: LanguageSummary; companions?: ResolvedCompanionStats[]; computedWeapons?: ComputedWeaponInfo[] }
 /**
  * Fiche de statistiques dérivées calculée à la volée par le moteur Rust
  */
-export type ComputedCharacterSheet = { record: CharacterRecord; baseStats: Partial<{ [key in StatCode]: number }>; racialBonusStats: Partial<{ [key in StatCode]: number }>; pathBonusStats: Partial<{ [key in StatCode]: number }>; manualBonusStats: Partial<{ [key in StatCode]: number }>; otherBonusStats: Partial<{ [key in StatCode]: number }>; finalStats: Partial<{ [key in StatCode]: number }>; bab: number; defense: number; defenseStat: StatCode; defenseStatSource: string | null; effectiveAgi: number; armorDefense: number; shieldDefense: number; initiative: number; maxHp: number; maxDr: number; drDice: string; maxPc: number; maxPm: number; energyType: string; effectiveFamily: ProfileFamily; isHybrid: boolean; secondaryProfileName: string | null; attacks: AttackBonuses; contactAttackStat: StatCode; contactAttackStatSource: string | null; distanceAttackStat: StatCode; distanceAttackStatSource: string | null; pathBonusDefense: number; pathBonusInitiative: number; pathBonusHp: number; pathBonusAttacks: AttackBonuses; pathBonusDamage: AttackBonuses; pathCritRangeBonus: number; pathBonusPc: number; pathBonusDr: number; pathBonusPm: number; activeWeaponModifiers: WeaponModifierRule[]; situationalNotes: string[]; languagesInfo: LanguageSummary }
+export type ComputedWeaponInfo = { weaponId: string; atkBonus: number; statUsed: StatCode; sourceName?: string | null; isSubstituted: boolean; dmBonus: string; critMin: number; critRange: string }
+export type DefaultEquipmentResult = { armorId?: string | null; shieldId?: string | null; weapons: CharacterWeaponInstance[] }
+export type EligibilityCheck = { eligible: boolean; reason?: string | null }
+export type EquipmentOptionsResult = { allowedArmorIds: string[]; allowedShieldIds: string[]; allowedWeapons: AllowedWeaponOption[] }
 /**
  * Choix structuré pour la capacité « Diversité » (Voie de l'humain, Rang 1)
  */
@@ -101,10 +165,21 @@ export type LanguageSummary = { automaticLanguages: string[]; bonusLanguageSlots
  * Mémorisation détaillée des apprentissages et choix effectués à un niveau précis
  */
 export type LevelProgressionStep = { level: number; hpGain: number; abilitiesLearned?: AcquiredAbility[]; selectedPathIds?: string[]; pathRankChoices?: Partial<{ [key in string]: string }>; manualStatBonuses?: Partial<{ [key in StatCode]: number }>; languagesLearned?: string[]; secondaryTalentsLearned?: string[]; timestamp?: string }
+export type LevelUpContext = { capabilityPoints: CapabilityPointsSummary; accessiblePathIds: string[]; prestigePaths: PrestigePathEligibility[]; masteredProfileIds: string[]; nonRacialActivePathsCount: number; hybridEligibility: EligibilityCheck }
+export type LevelUpHpGainResult = { hpGain: number; baseHp: number; conBonus: number; newHalfHpPending: boolean; details: string }
 export type LiteracyStatus = "illiterate" | "hesitant" | "literate"
+export type PointBuyEvaluation = { baseBudget: number; weakCount: number; bonusBudget: number; totalBudget: number; spent: number; remaining: number; tooManyWeakStats: boolean; hasOutOfRangeValues: boolean; isValid: boolean; isComplete: boolean }
+export type PrestigePathEligibility = { pathId: string; eligible: boolean; reason?: string | null }
 export type ProfileFamily = "Aventuriers" | "Combattants" | "Mages" | "Mystiques"
+export type ResolvedCompanionAttack = { name: string; attackBonus?: string | null; damage: string }
+export type ResolvedCompanionStats = { pathId: string; rank: number; name: string; defense?: string | null; hp?: string | null; initiative?: string | null; attacks: ResolvedCompanionAttack[] }
+export type ResolvedExternalGrant = { sourceKey: string; ability?: AcquiredAbility | null; availableOptions: AcquiredAbility[]; isAutoGranted: boolean }
+export type ResolvedHumanDiversity = { originId: string; originLabel: string; baseDomains: [string, string]; effectiveDomains: [string, string]; replacedDomainIndex?: number | null; replacementTrade?: string | null }
 export type StatCode = "FOR" | "AGI" | "CON" | "PER" | "INT" | "VOL" | "CHA"
+export type StepValidationResult = { valid: boolean; reason?: string | null }
+export type ValidationResult = { isValid: boolean; character: CharacterRecord; warnings: string[] }
 export type WeaponModifierRule = { tags?: string[] | null; weaponIds?: string[] | null; category?: string | null; grantProficiency?: boolean | null; attackBonus?: number | null; damageBonus?: number | null; damageStatBonus?: StatCode | null; critRangeBonus?: number | null; sourceName?: string | null; note?: string | null }
+export type WizardValidationState = { stepResult: StepValidationResult; maxUnlockedStep: number }
 
 /** tauri-specta globals **/
 

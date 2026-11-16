@@ -1,11 +1,12 @@
-import React, { useMemo } from 'react';
-import { CharacterSheet, ProfileFamily } from '../../types/cof2';
+import React, { useEffect, useMemo, useState } from 'react';
+import { commands } from '../../bindings';
+import { CharacterSheet, PathData, ProfileFamily } from '../../types/cof2';
 import {
-  getEligiblePrestigePaths,
   getPathById,
   getProfileById,
   PROFILES,
-} from '../../engine/rulesEngine';
+} from '../../engine/compendium';
+import { toCharacterRecord } from '../../engine/rustBridge';
 import {
   Sparkles,
   Plus,
@@ -38,8 +39,38 @@ export const PrestigePathSelector: React.FC<PrestigePathSelectorProps> = ({
     ? character.profileFamily
     : profile.family;
 
-  const prestigeCandidates = useMemo(() => {
-    return getEligiblePrestigePaths(character, newLevel, acquired);
+  const [prestigeCandidates, setPrestigeCandidates] = useState<
+    Array<{ path: PathData; eligible: boolean; reason?: string }>
+  >([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    commands
+      .getLevelUpContextCharacter(
+        toCharacterRecord({ ...character, acquiredAbilities: acquired }),
+        newLevel,
+      )
+      .then((ctx) => {
+        if (cancelled) return;
+        const mapped = ctx.prestigePaths
+          .map((item) => {
+            const path = getPathById(item.pathId);
+            if (!path) return null;
+            return {
+              path,
+              eligible: item.eligible,
+              reason: item.reason ?? undefined,
+            };
+          })
+          .filter(
+            (x): x is { path: PathData; eligible: boolean; reason: string | undefined } =>
+              x !== null,
+          );
+        setPrestigeCandidates(mapped);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [character, newLevel, acquired]);
 
   const selectedCandidate = useMemo(() => {

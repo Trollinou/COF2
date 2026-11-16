@@ -1,6 +1,6 @@
 import React from 'react';
 import { CharacterSheet, ComputedCharacterStats, StatCode } from '../../types/cof2';
-import { STAT_NAMES } from '../../engine/rulesEngine';
+import { STAT_NAMES } from '../../engine/compendium';
 
 interface CharacteristicsCardProps {
   character: CharacterSheet;

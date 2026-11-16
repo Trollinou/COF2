@@ -10,7 +10,7 @@ import {
   getRacialPathId,
   isDomainPath,
   getDeityByDomainPathId,
-} from '../../../engine/rulesEngine';
+} from '../../../engine/compendium';
 import { Sparkles } from 'lucide-react';
 
 interface BioTabProps {

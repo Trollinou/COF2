@@ -1,18 +1,20 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { commands, type EquipmentOptionsResult } from '../../../bindings';
 import {
+  ArmorItem,
   CharacterSheet,
   ComputedCharacterStats,
   PeopleData,
   ProfileData,
+  StatCode,
+  WeaponItem,
 } from '../../../types/cof2';
 import {
-  PROFILE_EQUIPMENT_RULES,
-  getAllowedArmors,
-  getAllowedShields,
-  getAllowedWeapons,
-  getWeaponAttackInfo,
+  ARMORS_MAP,
   WEAPONS,
-} from '../../../engine/rulesEngine';
+  WEAPONS_MAP,
+} from '../../../engine/compendium';
+import { toCharacterRecord } from '../../../engine/rustBridge';
 import {
   AlertTriangle,
   Swords,
@@ -39,30 +41,53 @@ export const CombatTab: React.FC<CombatTabProps> = ({
   addWeapon,
   removeWeapon,
 }) => {
-  const profileRule = PROFILE_EQUIPMENT_RULES[character.profileId] || {
+  const [equipmentOptions, setEquipmentOptions] = useState<EquipmentOptionsResult | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    commands
+      .getEquipmentOptionsCharacter(toCharacterRecord(character))
+      .then((res) => {
+        if (!cancelled) setEquipmentOptions(res);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [character]);
+
+  const profileRule = profile?.equipmentRules || {
     maxArmorId: 'chemise-mailles',
     shieldPermission: 'any',
     summaryArmor: 'Armure standard',
     summaryShield: 'Boucliers autorisés',
     summaryWeapons: 'Armes courantes',
   };
-  const allowedArmors = getAllowedArmors(
-    character.profileId,
-    character.secondaryProfileId,
-    character.peopleId,
+  const allowedArmors = useMemo(
+    () =>
+      (equipmentOptions?.allowedArmorIds ?? [])
+        .map(id => ARMORS_MAP.get(id))
+        .filter((a): a is ArmorItem => Boolean(a)),
+    [equipmentOptions],
   );
   const equippedArmor = allowedArmors.find(
     a => a.id === character.equippedArmorId,
   );
-  const allowedShields = getAllowedShields(
-    character.profileId,
-    character.secondaryProfileId,
+  const allowedShields = useMemo(
+    () =>
+      (equipmentOptions?.allowedShieldIds ?? [])
+        .map(id => ARMORS_MAP.get(id))
+        .filter((s): s is ArmorItem => Boolean(s)),
+    [equipmentOptions],
   );
-  const allowedWeapons = getAllowedWeapons(
-    character.profileId,
-    character.peopleId,
-    character.secondaryProfileId,
-    character.acquiredAbilities,
+  const allowedWeapons = useMemo(
+    () =>
+      (equipmentOptions?.allowedWeapons ?? [])
+        .map(opt => {
+          const w = WEAPONS_MAP.get(opt.weaponId);
+          return w ? { ...w, requiresTwoHands: opt.requiresTwoHands } : null;
+        })
+        .filter((w): w is WeaponItem & { requiresTwoHands: boolean } => Boolean(w)),
+    [equipmentOptions],
   );
   const hasTwoHandedWeapon = character.weapons.some(w => w.requiresTwoHands);
   const hasShield = !!character.equippedShieldId;
@@ -216,7 +241,15 @@ export const CombatTab: React.FC<CombatTabProps> = ({
           ) : (
             character.weapons.map(w => {
               const isContact = w.category === 'contact';
-              const atkInfo = getWeaponAttackInfo(w, stats);
+              const atkInfo = stats.computedWeapons?.find(cw => cw.weaponId === w.id) ?? {
+                atkBonus: isContact ? stats.attacks.contact : stats.attacks.distance,
+                statUsed: (isContact ? 'FOR' : 'AGI') as StatCode,
+                sourceName: undefined,
+                isSubstituted: false,
+                dmBonus: '',
+                critMin: 20,
+                critRange: '20',
+              };
               const baseW = WEAPONS.find(item => item.id === w.weaponRefId);
               const isRacial2H = !!people?.equipmentRules?.twoHandedMinDamageDice && w.requiresTwoHands && baseW?.hands === 1;
 

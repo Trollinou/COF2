@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { commands, type EquipmentOptionsResult } from '../../bindings';
 import {
   CharacterSheet,
   CharacterWeaponInstance,
@@ -7,9 +8,8 @@ import {
   getPeopleById,
   getProfileById,
   WEAPONS,
-  calculateCapabilityPoints,
-  checkWeaponProficiency,
-} from '../../engine/rulesEngine';
+} from '../../engine/compendium';
+import { toCharacterRecord } from '../../engine/rustBridge';
 import { useComputedSheet } from '../../hooks/useComputedSheet';
 import { HeroBanner } from './HeroBanner';
 import { CharacteristicsCard } from './CharacteristicsCard';
@@ -31,7 +31,25 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
   const stats = useComputedSheet(character);
   const people = useMemo(() => getPeopleById(character.peopleId), [character.peopleId]);
   const profile = useMemo(() => getProfileById(character.profileId), [character.profileId]);
-  const capabilityBudget = useMemo(() => calculateCapabilityPoints(character), [character]);
+  const [capabilityBudget, setCapabilityBudget] = useState({ totalEarned: 0, spent: 0, available: 0 });
+  const [equipmentOptions, setEquipmentOptions] = useState<EquipmentOptionsResult | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const rec = toCharacterRecord(character);
+    Promise.all([
+      commands.getLevelUpContextCharacter(rec, character.level),
+      commands.getEquipmentOptionsCharacter(rec),
+    ]).then(([ctx, eq]) => {
+      if (!cancelled) {
+        setCapabilityBudget(ctx.capabilityPoints);
+        setEquipmentOptions(eq);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [character]);
 
   const [expandedPaths, setExpandedPaths] = useState<Record<string, boolean>>({
     [character.selectedPathIds[0] || '']: true,
@@ -48,6 +66,7 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
 
   // Auto-clamp resources if max changed or invalid
   React.useEffect(() => {
+    if (!stats) return;
     let needsUpdate = false;
     const patch: Partial<CharacterSheet> = {};
     if (character.currentDr !== undefined && character.currentDr > stats.maxDr) {
@@ -69,7 +88,15 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
     if (needsUpdate) {
       updateCharacter(patch, false);
     }
-  }, [stats.maxDr, stats.maxHp, stats.maxPc, stats.maxPm]);
+  }, [stats?.maxDr, stats?.maxHp, stats?.maxPc, stats?.maxPm]);
+
+  if (!stats) {
+    return (
+      <div className="p-8 text-center text-stone-400 text-sm">
+        Calcul de la fiche...
+      </div>
+    );
+  }
 
   const updateCharacter = (partial: Partial<CharacterSheet>, record = true) => {
     onChange(
@@ -111,8 +138,8 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
   const addWeapon = (weaponRefId: string) => {
     const ref = WEAPONS.find(w => w.id === weaponRefId);
     if (!ref) return;
-    const check = checkWeaponProficiency(ref.id, character.profileId, character.peopleId);
-    if (!check.allowed) return;
+    const allowedOption = equipmentOptions?.allowedWeapons.find(w => w.weaponId === ref.id);
+    if (!allowedOption) return;
 
     const newW: CharacterWeaponInstance = {
       id: 'w_' + Date.now(),
@@ -123,7 +150,7 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
       category: ref.category as 'contact' | 'distance',
       bonusAttack: 0,
       bonusDamage: 0,
-      requiresTwoHands: check.requiresTwoHands,
+      requiresTwoHands: allowedOption.requiresTwoHands,
     };
     updateCharacter({ weapons: [...character.weapons, newW] });
   };

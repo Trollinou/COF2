@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sparkles } from 'lucide-react';
+import { commands, type ResolvedHumanDiversity } from '../../bindings';
 import { CharacterSheet, HumanDiversityChoice } from '../../types/cof2';
 import {
   HUMAN_DIVERSITY_PATH_ID,
   HUMAN_ORIGINS,
   HUMAN_TRADE_SUGGESTIONS,
-  resolveHumanDiversity,
-} from '../../utils/humanDiversity';
+} from '../../utils/uiConstants';
 
 interface HumanDiversitySelectorProps {
   character: CharacterSheet;
@@ -25,10 +25,22 @@ export const HumanDiversitySelector: React.FC<HumanDiversitySelectorProps> = ({
   readOnly = false,
   variant = 'amber',
 }) => {
+  const choice = character.humanDiversity;
+  const [resolved, setResolved] = useState<ResolvedHumanDiversity | null>(null);
+
+  useEffect(() => {
+    if (pathId !== HUMAN_DIVERSITY_PATH_ID || rankNumber !== 1) return;
+    let cancelled = false;
+    commands.resolveHumanDiversityChoice(choice ?? null).then((res) => {
+      if (!cancelled) setResolved(res);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [choice, pathId, rankNumber]);
+
   if (pathId !== HUMAN_DIVERSITY_PATH_ID || rankNumber !== 1) return null;
 
-  const choice = character.humanDiversity;
-  const resolved = resolveHumanDiversity(choice);
   const isEmerald = variant === 'emerald';
 
   const containerClass = isEmerald

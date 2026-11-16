@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { commands } from '../../../bindings';
 import {
   CharacterSheet,
   ComputedCharacterStats,
@@ -9,8 +10,8 @@ import {
   isRacialReplacementPath,
   getReplacedRacialPath,
   getProfileById,
-  calculateArmorSpellManaCost,
-} from '../../../engine/rulesEngine';
+} from '../../../engine/compendium';
+import { toCharacterRecord } from '../../../engine/rustBridge';
 import {
   ChevronDown,
   ChevronRight,
@@ -120,6 +121,40 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
   expandedPaths,
   togglePathExpand,
 }) => {
+  const [armorSpellCosts, setArmorSpellCosts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    const rec = toCharacterRecord(character);
+    const spellPairs: Array<{ key: string; pathId: string; rank: number }> = [];
+    for (const pathId of character.selectedPathIds) {
+      const pth = getPathById(pathId);
+      if (!pth) continue;
+      for (const r of pth.ranks) {
+        if (r.isSpell) {
+          spellPairs.push({ key: `${pathId}_${r.rank}`, pathId, rank: r.rank });
+        }
+      }
+    }
+    if (spellPairs.length === 0) {
+      setArmorSpellCosts({});
+      return;
+    }
+    Promise.all(
+      spellPairs.map(async ({ key, pathId, rank }) => {
+        const cost = await commands.calculateArmorSpellManaCostCharacter(rec, pathId, rank);
+        return [key, cost] as const;
+      }),
+    ).then((entries) => {
+      if (!cancelled) {
+        setArmorSpellCosts(Object.fromEntries(entries));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [character.equippedArmorId, character.selectedPathIds]);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between bg-stone-900/60 p-3 rounded-lg border border-stone-800">
@@ -254,7 +289,7 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
                           <ActionBadges rank={rank} />
 
                           {rank.isSpell && (() => {
-                            const armorMalus = calculateArmorSpellManaCost(character, pathId, rank.rank);
+                            const armorMalus = armorSpellCosts[`${pathId}_${rank.rank}`] ?? 0;
                             if (armorMalus > 0) {
                               return (
                                 <span

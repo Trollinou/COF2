@@ -1,3 +1,4 @@
+use crate::engine::companion::ResolvedCompanionStats;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::collections::HashMap;
@@ -265,6 +266,20 @@ pub struct WeaponModifierRule {
 }
 
 /// Fiche de statistiques dérivées calculée à la volée par le moteur Rust
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct ComputedWeaponInfo {
+    pub weapon_id: String,
+    pub atk_bonus: i32,
+    pub stat_used: StatCode,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_name: Option<String>,
+    pub is_substituted: bool,
+    pub dm_bonus: String,
+    pub crit_min: i32,
+    pub crit_range: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct ComputedCharacterSheet {
@@ -309,4 +324,8 @@ pub struct ComputedCharacterSheet {
     pub active_weapon_modifiers: Vec<WeaponModifierRule>,
     pub situational_notes: Vec<String>,
     pub languages_info: LanguageSummary,
+    #[serde(default)]
+    pub companions: Vec<ResolvedCompanionStats>,
+    #[serde(default)]
+    pub computed_weapons: Vec<ComputedWeaponInfo>,
 }

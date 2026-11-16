@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CharacterSheet, PathData } from '../../types/cof2';
-import { PROFILES } from '../../engine/rulesEngine';
+import { PROFILES } from '../../engine/compendium';
 import { AlertCircle, Plus, Shuffle } from 'lucide-react';
 
 interface LevelUpHybridSectionProps {

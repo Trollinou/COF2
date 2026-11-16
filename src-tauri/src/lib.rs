@@ -7,6 +7,22 @@ use tauri::Emitter;
 
 fn specta_builder() -> tauri_specta::Builder<tauri::Wry> {
     tauri_specta::Builder::<tauri::Wry>::new().commands(tauri_specta::collect_commands![
+        create_default_character,
+        create_blank_wizard_character,
+        apply_racial_defaults_character,
+        evaluate_point_buy,
+        detect_stat_array_preset,
+        resolve_human_diversity_choice,
+        get_equipment_options_character,
+        get_default_equipment_character,
+        sanitize_equipment_character,
+        get_level_up_context_character,
+        calculate_level_up_hp_gain_character,
+        calculate_armor_spell_mana_cost_character,
+        check_hybrid_path_eligibility,
+        validate_wizard_state_character,
+        resolve_external_grants_character,
+        validate_character,
         compute_character,
         apply_level_up_character,
         rollback_character_level,

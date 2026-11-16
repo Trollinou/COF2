@@ -1,6 +1,8 @@
 import React from 'react';
+import { commands } from '../../../bindings';
 import { CharacterSheet, StatCode, PeopleData } from '../../../types/cof2';
-import { PEOPLES, STAT_NAMES, getPathById, applyRacialDefaults, computeRacialStatModifiers } from '../../../engine/rulesEngine';
+import { PEOPLES, STAT_NAMES, getPathById } from '../../../engine/compendium';
+import { fromCharacterRecord, toCharacterRecord } from '../../../engine/rustBridge';
 import { Search, CheckCircle2, ChevronRight, AlertTriangle } from 'lucide-react';
 
 interface Step1PeoplesProps {
@@ -291,16 +293,16 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                         <button
                           key={pathId}
                           type="button"
-                          onClick={() => {
-                            const updated = applyRacialDefaults(character, 'demi-elfe', pathId, {
-                              preserveEmptyChoices: true,
-                            });
+                          onClick={async () => {
+                            const rec = await commands.applyRacialDefaultsCharacter(
+                              toCharacterRecord(character),
+                              'demi-elfe',
+                              pathId,
+                              true,
+                            );
+                            const updated = fromCharacterRecord(rec);
                             if (character.racialStatChoices?.length) {
                               updated.racialStatChoices = character.racialStatChoices;
-                              updated.racialStatModifiers = computeRacialStatModifiers(
-                                'demi-elfe',
-                                character.racialStatChoices,
-                              );
                             }
                             onChange(updated);
                           }}
@@ -355,7 +357,6 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                             });
                             update({
                               racialStatChoices: nextChoices,
-                              racialStatModifiers: computeRacialStatModifiers(selectedPeople.id, nextChoices),
                             });
                           }}
                           className={`w-full bg-stone-900 border rounded px-2.5 py-1.5 text-xs text-stone-200 ${
@@ -415,7 +416,6 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                             });
                             update({
                               racialStatChoices: nextChoices,
-                              racialStatModifiers: computeRacialStatModifiers(selectedPeople.id, nextChoices),
                             });
                           }}
                           className={`w-full bg-stone-900 border rounded px-2.5 py-1.5 text-xs text-stone-200 ${

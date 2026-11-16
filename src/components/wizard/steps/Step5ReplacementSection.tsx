@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CharacterSheet, HumanDiversityChoice, PathData, PeopleData, PriestDeity } from '../../../types/cof2';
-import { PRIEST_DEITIES } from '../../../engine/rulesEngine';
+import { PRIEST_DEITIES } from '../../../engine/compendium';
 import { ChevronDown, ChevronUp, Sparkles, Shield, BookOpen, Shuffle } from 'lucide-react';
 import { ActionBadges } from '../../sheet/ActionBadges';
 import { CompanionCard } from '../../sheet/CompanionCard';

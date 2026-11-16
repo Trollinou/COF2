@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BookOpen, AlertTriangle } from 'lucide-react';
+import { commands, type ResolvedExternalGrant } from '../../bindings';
 import { CharacterSheet, ActionRank, AbilityRef } from '../../types/cof2';
-import {
-  getPathById,
-  resolveExternalGrants,
-  PROFILES,
-} from '../../engine/rulesEngine';
+import { getPathById, PROFILES } from '../../engine/compendium';
+import { toCharacterRecord } from '../../engine/rustBridge';
 import { ActionBadges } from '../sheet/ActionBadges';
 
 interface ExternalAbilitySelectorProps {
@@ -32,11 +30,25 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
   readOnly = false,
 }) => {
   const grantRule = rank.modifiers?.grantExternalAbility;
-  if (!grantRule) return null;
-
   const choiceKey = `${pathId}_${rank.rank}`;
-  const resolved = resolveExternalGrants(character).find(g => g.sourceKey === choiceKey);
-  if (!resolved) return null;
+  const [resolved, setResolved] = useState<ResolvedExternalGrant | null>(null);
+
+  useEffect(() => {
+    if (!grantRule) return;
+    let cancelled = false;
+    commands
+      .resolveExternalGrantsCharacter(toCharacterRecord(character))
+      .then((grants) => {
+        if (!cancelled) {
+          setResolved(grants.find((g) => g.sourceKey === choiceKey) ?? null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [character, choiceKey, grantRule]);
+
+  if (!grantRule || !resolved) return null;
 
   const currentChoice = character.externalAbilityChoices?.[choiceKey];
   const setChoice = (value?: AbilityRef) => {
@@ -118,13 +130,13 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
         <select
           value={resolved.ability ? refKey(resolved.ability) : ''}
           onChange={e => {
-            const picked = resolved.options.find(o => refKey(o) === e.target.value);
+            const picked = resolved.availableOptions.find(o => refKey(o) === e.target.value);
             setChoice(picked);
           }}
           className={selectClass}
         >
           <option value="">— Choisir la capacité de remplacement —</option>
-          {resolved.options.map(o => {
+          {resolved.availableOptions.map(o => {
             const p = getPathById(o.pathId);
             const r = p?.ranks.find(x => x.rank === o.rank);
             return (
@@ -137,6 +149,13 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
       </div>
     );
   };
+
+  const mode = resolved.isAutoGranted
+    ? 'default'
+    : grantRule.defaultAbility
+      ? 'replacement'
+      : 'free';
+  const needsChoice = !resolved.ability;
 
   function defaultAbilityLabel(): string {
     const d = grantRule!.defaultAbility;
@@ -153,9 +172,9 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
         <span>{grantRule.label || 'Capacité externe choisie :'}</span>
       </div>
 
-      {!readOnly && resolved.mode === 'free' && renderFreeSelectors()}
-      {!readOnly && resolved.mode === 'replacement' && renderReplacementSelector()}
-      {resolved.mode === 'default' && (
+      {!readOnly && mode === 'free' && renderFreeSelectors()}
+      {!readOnly && mode === 'replacement' && renderReplacementSelector()}
+      {mode === 'default' && (
         <div className="text-[11px] text-stone-400">
           Capacité obtenue automatiquement (non encore possédée).
         </div>
@@ -167,7 +186,7 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
         </div>
       )}
 
-      {!readOnly && resolved.mode === 'replacement' && resolved.needsChoice && currentChoice && (
+      {!readOnly && mode === 'replacement' && needsChoice && currentChoice && (
         <div className="text-[11px] text-red-300">
           Le choix précédent n&apos;est plus valide, veuillez en sélectionner un nouveau.
         </div>

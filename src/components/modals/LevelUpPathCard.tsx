@@ -3,7 +3,7 @@ import { PathData, CharacterSheet, ActionRank } from '../../types/cof2';
 import {
   getRankLevelRequirement,
   getRankPointCost,
-} from '../../engine/rulesEngine';
+} from '../../utils/uiConstants';
 import {
   ChevronDown,
   ChevronUp,

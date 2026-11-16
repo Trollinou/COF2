@@ -128,6 +128,143 @@ export const ALL_STAT_CODES: StatCode[] = [
   "CHA",
 ];
 
+export function getRacialPathId(
+  peopleId: string,
+  chosenPathId?: string,
+): string {
+  if (chosenPathId) return chosenPathId;
+  const people = getPeopleById(peopleId);
+  if (people?.racialPathId) return people.racialPathId;
+  if (people?.selectableRacialPaths && people.selectableRacialPaths.length > 0) {
+    return people.selectableRacialPaths[0];
+  }
+  return peopleId === "humain" ? "voie-de-l-humain" : `voie-du-${peopleId}`;
+}
+
+export function isRacialReplacementPath(pathId: string): boolean {
+  return isDomainPath(pathId) || pathId === "voie-du-mage";
+}
+
+export function getReplacedRacialPath(char: {
+  peopleId: string;
+  selectedPathIds?: string[];
+  acquiredAbilities?: Array<{ pathId: string; rank: number }>;
+}) {
+  const replacementPathId = char.selectedPathIds?.find((id) =>
+    isRacialReplacementPath(id),
+  );
+  if (!replacementPathId) return null;
+
+  const racialAcq = char.acquiredAbilities?.find((a) => {
+    const p = getPathById(a.pathId);
+    return p?.type === "racial" && a.rank === 1;
+  });
+
+  const racialPathId = racialAcq?.pathId || getRacialPathId(char.peopleId);
+  const path = getPathById(racialPathId);
+  if (!path || !path.ranks || path.ranks.length === 0) return null;
+
+  return {
+    path,
+    rank1: path.ranks[0],
+  };
+}
+
+export function getProfileAllPoolPathIds(profile?: ProfileData): string[] {
+  if (!profile) return [];
+  return Array.from(
+    new Set([...profile.paths, ...(profile.optionalPaths || [])]),
+  );
+}
+
+export function isPathInProfilePool(
+  profile: ProfileData | undefined,
+  pathId: string,
+): boolean {
+  if (!profile) return false;
+  return (
+    profile.paths.includes(pathId) ||
+    Boolean(profile.optionalPaths?.includes(pathId))
+  );
+}
+
+export function isMageProfile(profileId: string): boolean {
+  return ["ensorceleur", "forgesort", "magicien", "sorcier"].includes(profileId);
+}
+
+export function hasMageCreationBonus(char: {
+  profileId: string;
+  isHybrid?: boolean;
+  secondaryProfileId?: string;
+  profileFamily?: string;
+}): boolean {
+  const profile = getProfileById(char.profileId);
+  const secondaryProfile =
+    char.isHybrid && char.secondaryProfileId
+      ? getProfileById(char.secondaryProfileId)
+      : undefined;
+  const isPsionicMage =
+    (char.profileId === "psionique" ||
+      (Boolean(char.isHybrid) && char.secondaryProfileId === "psionique")) &&
+    char.profileFamily === "Mages";
+  return Boolean(
+    profile?.hasMageBonus || secondaryProfile?.hasMageBonus || isPsionicMage,
+  );
+}
+
+export function canUseVoieDuMage(char: {
+  profileId: string;
+  isHybrid?: boolean;
+  secondaryProfileId?: string;
+  profileFamily?: string;
+}): boolean {
+  const isPsionicMage =
+    (char.profileId === "psionique" ||
+      (Boolean(char.isHybrid) && char.secondaryProfileId === "psionique")) &&
+    char.profileFamily === "Mages";
+  return (
+    isMageProfile(char.profileId) ||
+    Boolean(
+      char.isHybrid &&
+        char.secondaryProfileId &&
+        isMageProfile(char.secondaryProfileId),
+    ) ||
+    isPsionicMage
+  );
+}
+
+export function getMageCreationRank2Ability(char: {
+  profileId: string;
+  isHybrid?: boolean;
+  secondaryProfileId?: string;
+  profileFamily?: string;
+  selectedPathIds?: string[];
+  acquiredAbilities?: Array<{ pathId: string; rank: number }>;
+}): { pathId: string; rank: number } | null {
+  if (!hasMageCreationBonus(char)) return null;
+  const profile = getProfileById(char.profileId);
+  const secondaryProfile =
+    char.isHybrid && char.secondaryProfileId
+      ? getProfileById(char.secondaryProfileId)
+      : undefined;
+  const allProfilePathIds = [
+    ...getProfileAllPoolPathIds(profile),
+    ...getProfileAllPoolPathIds(secondaryProfile),
+  ];
+  const eligiblePathIds = new Set(
+    (char.selectedPathIds || []).filter(
+      (id) =>
+        allProfilePathIds.includes(id) ||
+        (id === "voie-du-mage" && canUseVoieDuMage(char)),
+    ),
+  );
+  return (
+    (char.acquiredAbilities || []).find(
+      (a) => a.rank === 2 && eligiblePathIds.has(a.pathId),
+    ) || null
+  );
+}
+
 function createEmptyStatRecord(): Record<StatCode, number> {
   return {
     FOR: 0,

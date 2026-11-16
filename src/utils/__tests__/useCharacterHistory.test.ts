@@ -1,6 +1,45 @@
 import { describe, it, expect } from 'vitest';
 import { characterHistoryReducer, HistoryState } from '../useCharacterHistory';
-import { createDefaultCharacter } from '../../engine/rulesEngine';
+import type { CharacterSheet } from '../../types/cof2';
+
+function createDefaultCharacter(): CharacterSheet {
+  return {
+    id: 'char_hist_1',
+    version: '1.0.0',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+    creationCompleted: true,
+    name: 'Nouveau Héros',
+    playerName: '',
+    sex: 'Masculin',
+    age: '25',
+    height: '1m75',
+    weight: '70kg',
+    physicalTraits: '',
+    languages: [],
+    secondaryTalents: [],
+    background: '',
+    ideal: 'Courage',
+    flaw: 'Impulsif',
+    notes: '',
+    peopleId: 'humain',
+    profileId: 'guerrier',
+    level: 1,
+    baseStats: { FOR: 2, AGI: 1, CON: 1, PER: 0, INT: 0, VOL: 0, CHA: -1 },
+    racialStatChoices: ['FOR'],
+    racialStatModifiers: { FOR: 1, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 },
+    manualStatBonuses: {},
+    selectedPathIds: [],
+    acquiredAbilities: [],
+    currentHp: 10,
+    maxHpBonus: 0,
+    currentDr: 3,
+    currentPc: 2,
+    currentPm: 0,
+    weapons: [],
+    inventory: [],
+    coins: { pa: 0, pc: 0, po: 0 },
+  };
+}
 
 describe('characterHistoryReducer', () => {
   it('applies SET action and adds previous state to past', () => {

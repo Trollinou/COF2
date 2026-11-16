@@ -58,6 +58,20 @@ impl CharacterStorage {
 
     /// Charge un personnage depuis un fichier `.cof2` ou `.json` avec contrôle de taille et validation.
     pub fn load<P: AsRef<Path>>(path: P) -> Result<CharacterRecord, StorageError> {
+        let content = Self::read_checked_string(path)?;
+        let record: CharacterRecord = serde_json::from_str(&content)?;
+        validate_loaded_record(&record)?;
+        Ok(record)
+    }
+
+    /// Charge le JSON brut d'un fichier `.cof2` ou `.json` avec contrôle de taille (pour migration/validation).
+    pub fn load_raw_json<P: AsRef<Path>>(path: P) -> Result<serde_json::Value, StorageError> {
+        let content = Self::read_checked_string(path)?;
+        let value: serde_json::Value = serde_json::from_str(&content)?;
+        Ok(value)
+    }
+
+    fn read_checked_string<P: AsRef<Path>>(path: P) -> Result<String, StorageError> {
         let target_path = path.as_ref();
         let file = fs::File::open(target_path).map_err(|err| {
             if err.kind() == ErrorKind::NotFound {
@@ -87,9 +101,7 @@ impl CharacterStorage {
             });
         }
 
-        let record: CharacterRecord = serde_json::from_str(&content)?;
-        validate_loaded_record(&record)?;
-        Ok(record)
+        Ok(content)
     }
 
     /// Vérifie que le chemin pointe vers un fichier `.cof2` ou `.json`.

@@ -1,6 +1,6 @@
 # 📚 Documentation des Modèles de Données JSON (Schéma V2 — Le Grimoire d'Osgild / COF2)
 
-Ce guide documente de manière exhaustive la structure des **5 fichiers de données statiques** situés dans [`src/data/`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/data) (Version 2 déclarative) afin d'en faciliter l'édition, la maintenance et l'extension sans jamais avoir à coder de cas particuliers dans [`src/engine/rulesEngine.ts`](file:///c:/Users/egagnon/Personnel/Dev/COF2/src/engine/rulesEngine.ts).
+Ce guide documente de manière exhaustive la structure des **5 fichiers de données statiques** situés dans `src/data/` (Version 2 déclarative) afin d'en faciliter l'édition, la maintenance et l'extension sans jamais avoir à coder de cas particuliers dans le moteur Rust (`crates/cof2-core`).
 
 ---
 
@@ -446,7 +446,7 @@ Le rang 1 de `voie-de-l-humain` (**Diversité**) utilise un champ structuré dé
 
 ### 4.4. Compagnons, Familiers & Invocations (`companions: CompanionStatBlock[]`)
 
-Chaque compagnon peut inclure des formules déclaratives (`defenseFormula`, `hpFormula`, `initiativeFormula`, `attacks[].attackFormula`) évaluées dynamiquement par `resolveCompanionStats()` dans [`rulesEngine.ts`](file:///Users/etienne/Developments/COF2/src/engine/rulesEngine.ts) et affichées via [`CompanionCard.tsx`](file:///Users/etienne/Developments/COF2/src/components/sheet/CompanionCard.tsx).
+Chaque compagnon peut inclure des formules déclaratives (`defenseFormula`, `hpFormula`, `initiativeFormula`, `attacks[].attackFormula`) évaluées dynamiquement par le moteur Rust (`crates/cof2-core/src/engine/companion.rs`) et affichées via [`CompanionCard.tsx`](file:///Users/etienne/Developments/COF2/src/components/sheet/CompanionCard.tsx).
 
 **Champs reconnus pour `CompanionFormula` :**
 - `base?: number` — Valeur fixe de base.

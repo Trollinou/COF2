@@ -1,10 +1,16 @@
 mod bonuses;
 mod combat;
-mod grants;
+pub mod companion;
+pub mod creation;
+pub mod diversity;
+pub mod equipment;
+pub mod grants;
 mod languages;
-mod progression;
+pub mod paths;
+pub mod progression;
 mod resources;
-mod stats;
+pub(crate) mod stats;
+pub mod wizard;
 
 use crate::models::{
     AttackBonuses, CharacterRecord, ComputedCharacterSheet, LevelProgressionStep, StatCode,
@@ -88,7 +94,7 @@ impl RulesEngine {
         let mut updated_record = record.clone();
         updated_record.weapons = combat_summary.updated_weapons;
 
-        Ok(ComputedCharacterSheet {
+        let mut sheet = ComputedCharacterSheet {
             record: updated_record,
             base_stats: stat_decomp.base_stats,
             racial_bonus_stats: stat_decomp.racial_bonus_stats,
@@ -138,7 +144,12 @@ impl RulesEngine {
             active_weapon_modifiers: stat_decomp.active_weapon_modifiers,
             situational_notes: combat_summary.situational_notes,
             languages_info,
-        })
+            companions: Vec::new(),
+            computed_weapons: Vec::new(),
+        };
+        sheet.companions = companion::resolve_character_companions(record, &sheet, rules);
+        sheet.computed_weapons = equipment::compute_weapons_info(&sheet, rules);
+        Ok(sheet)
     }
 
     /// Applique une montée de niveau avec validation des capacités et historisation complète.

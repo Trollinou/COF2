@@ -1,6 +1,6 @@
 import React from 'react';
 import { CharacterSheet } from '../../../types/cof2';
-import { getMageCreationRank2Ability, getPathById } from '../../../engine/rulesEngine';
+import { getMageCreationRank2Ability, getPathById } from '../../../engine/compendium';
 import { Sparkles, Check } from 'lucide-react';
 import { ActionBadges } from '../../sheet/ActionBadges';
 

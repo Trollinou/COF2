@@ -1,6 +1,6 @@
 import React from 'react';
 import { CharacterSheet, ProfileData, ProfileFamily } from '../../../types/cof2';
-import { PROFILES, STAT_NAMES, getPathById, getProfileById } from '../../../engine/rulesEngine';
+import { PROFILES, STAT_NAMES, getPathById, getProfileById } from '../../../engine/compendium';
 import { Search, CheckCircle2, ChevronRight, Sparkles, Target, Shuffle, Heart, Shield } from 'lucide-react';
 
 interface Step3ProfilesProps {

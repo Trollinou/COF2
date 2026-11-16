@@ -1,4 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  commands,
+  type ResolvedExternalGrant,
+  type ResolvedHumanDiversity,
+} from '../../../bindings';
 import {
   CharacterSheet,
   ComputedCharacterStats,
@@ -14,10 +19,10 @@ import {
   getArmorById,
   getDeityByDomainPathId,
   isDomainPath,
-  resolveExternalGrants,
-} from '../../../engine/rulesEngine';
+} from '../../../engine/compendium';
+import { toCharacterRecord } from '../../../engine/rustBridge';
 import { CheckCircle2, Shield, Swords, Sparkles, User, Coins, BookOpen } from 'lucide-react';
-import { HUMAN_DIVERSITY_PATH_ID, resolveHumanDiversity } from '../../../utils/humanDiversity';
+import { HUMAN_DIVERSITY_PATH_ID } from '../../../utils/uiConstants';
 
 interface Step7SummaryProps {
   character: CharacterSheet;
@@ -119,7 +124,24 @@ export const Step7Summary: React.FC<Step7SummaryProps> = ({
       ...character.acquiredAbilities.map(a => a.pathId),
     ]),
   );
-  const externalGrants = resolveExternalGrants(character);
+  const [externalGrants, setExternalGrants] = useState<ResolvedExternalGrant[]>([]);
+  const [resolvedDiversity, setResolvedDiversity] = useState<ResolvedHumanDiversity | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([
+      commands.resolveExternalGrantsCharacter(toCharacterRecord(character)),
+      commands.resolveHumanDiversityChoice(character.humanDiversity ?? null),
+    ]).then(([grants, div]) => {
+      if (!cancelled) {
+        setExternalGrants(grants);
+        setResolvedDiversity(div);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [character]);
 
   return (
     <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 shadow space-y-6">
@@ -331,7 +353,7 @@ export const Step7Summary: React.FC<Step7SummaryProps> = ({
                     const extRank = extPath?.ranks.find(r => r.rank === extGrant?.ability?.rank);
                     const diversityResolved =
                       pid === HUMAN_DIVERSITY_PATH_ID && acq.rank === 1
-                        ? resolveHumanDiversity(character.humanDiversity)
+                        ? resolvedDiversity
                         : null;
 
                     return (

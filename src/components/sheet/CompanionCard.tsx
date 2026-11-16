@@ -5,7 +5,6 @@ import {
   ComputedCharacterStats,
   StatCode,
 } from '../../types/cof2';
-import { resolveCompanionStats } from '../../engine/rulesEngine';
 import { PawPrint, Shield, Heart, Zap, Swords, Sparkles } from 'lucide-react';
 
 interface CompanionCardProps {
@@ -20,14 +19,12 @@ const STAT_ORDER: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA']
 
 export const CompanionCard: React.FC<CompanionCardProps> = ({
   companion,
-  character,
   stats,
   pathId,
 }) => {
-  const resolved =
-    character && stats
-      ? resolveCompanionStats(companion, character, stats, pathId)
-      : null;
+  const resolved = stats?.companions?.find(
+    (c) => (!pathId || c.pathId === pathId) && c.name === companion.name,
+  ) ?? null;
 
   const displayHp = resolved
     ? resolved.hp !== companion.hp

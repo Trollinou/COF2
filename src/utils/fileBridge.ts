@@ -1,11 +1,10 @@
-import { CharacterSheet } from '../types/cof2';
-import { validateAndMigrateCharacter } from './characterValidation';
-import { commands, IpcError } from '../bindings';
-import { toCharacterRecord } from '../engine/rustBridge';
+import { commands, type IpcError } from "../bindings";
+import { fromCharacterRecord, toCharacterRecord } from "../engine/rustBridge";
+import type { CharacterSheet } from "../types/cof2";
 
 function formatIpcError(error: IpcError, fallback: string): string {
-  if (error.kind === 'Cancelled') {
-    return 'Annulé';
+  if (error.kind === "Cancelled") {
+    return "Annulé";
   }
   return error.message || fallback;
 }
@@ -14,122 +13,99 @@ function getErrorMessage(err: unknown, fallback: string): string {
   return err instanceof Error && err.message ? err.message : fallback;
 }
 
-export const isTauri = typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window);
-
 /**
  * Supprime les accents d'une chaîne sans remplacer les lettres accentuées par des caractères spéciaux.
  * Ex: "Éléonore" -> "Eleonore"
  */
 export function removeDiacritics(str: string): string {
-  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 /**
  * Nettoie une chaîne pour l'utiliser comme nom de fichier valide,
  * tout en conservant scrupuleusement les caractères accentués UTF-8,
  * les espaces, tirets et apostrophes.
- * Ne remplace que les caractères strictement interdits par les systèmes de fichiers (Windows / macOS / Linux).
  */
-export function sanitizeFilename(name?: string, fallback = 'personnage'): string {
+export function sanitizeFilename(
+  name?: string,
+  fallback = "personnage",
+): string {
   if (!name || !name.trim()) return fallback;
 
   const cleaned = name
     .trim()
-    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
-    .replace(/_+/g, '_')
-    .replace(/[. ]+$/, '');
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/[. ]+$/, "");
 
   return cleaned || fallback;
 }
 
-export async function saveCharacterFile(char: CharacterSheet): Promise<{ success: boolean; message?: string }> {
-  const cleanName = sanitizeFilename(char.name, 'personnage');
+export async function saveCharacterFile(
+  char: CharacterSheet,
+): Promise<{ success: boolean; message?: string }> {
+  const cleanName = sanitizeFilename(char.name, "personnage");
   const filename = `${cleanName}_niv${char.level || 1}.cof2`;
 
-  if (isTauri) {
-    try {
-      const res = await commands.saveCharacterFile(toCharacterRecord(char), filename);
-      if (res.status === 'error') {
-        return { success: false, message: formatIpcError(res.error, 'Erreur lors de la sauvegarde') };
-      }
-      return { success: true, message: `Sauvegardé avec succès dans ${res.data}` };
-    } catch (err: unknown) {
-      return { success: false, message: getErrorMessage(err, 'Erreur lors de la sauvegarde') };
-    }
-  }
-
-  // Web Browser fallback
   try {
-    const blob = new Blob([JSON.stringify(char, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    return { success: true, message: `Fichier ${filename} téléchargé` };
-  } catch (err: unknown) {
-    return { success: false, message: getErrorMessage(err, 'Erreur de téléchargement') };
-  }
-}
-
-export async function loadCharacterFile(): Promise<{ success: boolean; character?: CharacterSheet; message?: string }> {
-  if (isTauri) {
-    try {
-      const res = await commands.loadCharacterFile();
-      if (res.status === 'error') {
-        return { success: false, message: formatIpcError(res.error, 'Erreur lors du chargement') };
-      }
-      const validated = validateAndMigrateCharacter(res.data.record);
-      return { success: true, character: validated.character };
-    } catch (err: unknown) {
-      return { success: false, message: getErrorMessage(err, 'Erreur lors du chargement') };
+    const res = await commands.saveCharacterFile(
+      toCharacterRecord(char),
+      filename,
+    );
+    if (res.status === "error") {
+      return {
+        success: false,
+        message: formatIpcError(res.error, "Erreur lors de la sauvegarde"),
+      };
     }
-  }
-
-  // Web Browser fallback
-  return new Promise((resolve) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.cof2,.json';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) {
-        resolve({ success: false, message: 'Aucun fichier sélectionné' });
-        return;
-      }
-      try {
-        const text = await file.text();
-        const raw = JSON.parse(text);
-        const validated = validateAndMigrateCharacter(raw);
-        resolve({ success: true, character: validated.character });
-      } catch {
-        resolve({ success: false, message: 'Fichier invalide ou corrompu' });
-      }
+    return {
+      success: true,
+      message: `Sauvegardé avec succès dans ${res.data}`,
     };
-    input.click();
-  });
+  } catch (err: unknown) {
+    return {
+      success: false,
+      message: getErrorMessage(err, "Erreur lors de la sauvegarde"),
+    };
+  }
 }
 
-export async function triggerPrintOrExportPdf(_char: CharacterSheet): Promise<{ success: boolean; message?: string }> {
-  if (isTauri) {
-    try {
-      const res = await commands.printCharacterSheet();
-      if (res.status === 'error') {
-        console.error('Erreur printCharacterSheet Tauri :', res.error);
-        window.print();
-      }
-      return { success: true, message: 'Boîte de dialogue d\'impression ouverte' };
-    } catch (err) {
-      console.warn('Fallback vers window.print() :', err);
-      window.print();
-      return { success: true, message: 'Impression lancée' };
+export async function loadCharacterFile(): Promise<{
+  success: boolean;
+  character?: CharacterSheet;
+  message?: string;
+}> {
+  try {
+    const res = await commands.loadCharacterFile();
+    if (res.status === "error") {
+      return {
+        success: false,
+        message: formatIpcError(res.error, "Erreur lors du chargement"),
+      };
     }
+    return { success: true, character: fromCharacterRecord(res.data.record) };
+  } catch (err: unknown) {
+    return {
+      success: false,
+      message: getErrorMessage(err, "Erreur lors du chargement"),
+    };
   }
+}
 
-  // Navigateur standard
-  window.print();
-  return { success: true, message: 'Impression lancée' };
+export async function triggerPrintOrExportPdf(
+  _char: CharacterSheet,
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const res = await commands.printCharacterSheet();
+    if (res.status === "error") {
+      window.print();
+    }
+    return {
+      success: true,
+      message: "Boîte de dialogue d'impression ouverte",
+    };
+  } catch {
+    window.print();
+    return { success: true, message: "Impression lancée" };
+  }
 }

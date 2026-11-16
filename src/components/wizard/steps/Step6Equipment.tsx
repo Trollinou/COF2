@@ -1,12 +1,8 @@
-import React from 'react';
-import { CharacterSheet, ProfileData, PeopleData } from '../../../types/cof2';
-import {
-  PROFILE_EQUIPMENT_RULES,
-  getAllowedArmors,
-  getAllowedShields,
-  getAllowedWeapons,
-  WEAPONS,
-} from '../../../engine/rulesEngine';
+import React, { useEffect, useMemo, useState } from 'react';
+import { commands, type EquipmentOptionsResult } from '../../../bindings';
+import { ArmorItem, CharacterSheet, ProfileData, PeopleData, WeaponItem } from '../../../types/cof2';
+import { ARMORS_MAP, WEAPONS, WEAPONS_MAP } from '../../../engine/compendium';
+import { toCharacterRecord } from '../../../engine/rustBridge';
 import { Shield, Swords, Crosshair, AlertTriangle, Trash2, Dices } from 'lucide-react';
 
 interface Step6EquipmentProps {
@@ -28,23 +24,54 @@ export const Step6Equipment: React.FC<Step6EquipmentProps> = ({
   handleRemoveWeapon,
   rollPurse,
 }) => {
-  const profileRule = PROFILE_EQUIPMENT_RULES[character.profileId] || {
+  const [equipmentOptions, setEquipmentOptions] = useState<EquipmentOptionsResult | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    commands
+      .getEquipmentOptionsCharacter(toCharacterRecord(character))
+      .then((res) => {
+        if (!cancelled) setEquipmentOptions(res);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [character]);
+
+  const profileRule = selectedProfile.equipmentRules || {
     maxArmorId: 'chemise-mailles',
     shieldPermission: 'any',
     summaryArmor: 'Armure standard',
     summaryShield: 'Boucliers autorisés',
     summaryWeapons: 'Armes courantes',
   };
-  const allowedArmors = getAllowedArmors(
-    character.profileId,
-    character.secondaryProfileId,
-    character.peopleId,
+  const allowedArmors = useMemo(
+    () =>
+      (equipmentOptions?.allowedArmorIds ?? [])
+        .map(id => ARMORS_MAP.get(id))
+        .filter((a): a is ArmorItem => Boolean(a)),
+    [equipmentOptions],
   );
   const equippedArmor = allowedArmors.find(
     a => a.id === character.equippedArmorId,
   );
-  const allowedShields = getAllowedShields(character.profileId, character.secondaryProfileId);
-  const allowedWeapons = getAllowedWeapons(character.profileId, character.peopleId, character.secondaryProfileId);
+  const allowedShields = useMemo(
+    () =>
+      (equipmentOptions?.allowedShieldIds ?? [])
+        .map(id => ARMORS_MAP.get(id))
+        .filter((s): s is ArmorItem => Boolean(s)),
+    [equipmentOptions],
+  );
+  const allowedWeapons = useMemo(
+    () =>
+      (equipmentOptions?.allowedWeapons ?? [])
+        .map(opt => {
+          const w = WEAPONS_MAP.get(opt.weaponId);
+          return w ? { ...w, requiresTwoHands: opt.requiresTwoHands } : null;
+        })
+        .filter((w): w is WeaponItem & { requiresTwoHands: boolean } => Boolean(w)),
+    [equipmentOptions],
+  );
   const hasTwoHandedWeapon = character.weapons.some(w => w.requiresTwoHands);
   const hasShield = !!character.equippedShieldId;
 

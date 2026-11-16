@@ -39,7 +39,7 @@ COF2/
 ├── src/
 │   ├── bindings.ts            # Définitions TypeScript et fonctions IPC générées par tauri-specta
 │   ├── data/                  # Données statiques JSON (peoples, profiles, paths, equipment, tables)
-│   ├── engine/                # Pont Rust/Tauri (rustBridge.ts), compendium, règles & repli TS (rulesEngine.ts barrel)
+│   ├── engine/                # Pont Rust/Tauri (rustBridge.ts) et lecture statique du compendium (compendium.ts)
 │   ├── hooks/                 # Hooks React (useComputedSheet.ts, useWizardState.ts)
 │   ├── types/                 # Définitions TypeScript (cof2.ts -> rules.ts, compendium.ts, character.ts)
 │   ├── utils/                 # Utilitaires (fileBridge Tauri v2, validation, formatage)
@@ -134,7 +134,7 @@ COF2/
 ### E. Frontend React 19 ("Dumb UI")
 
 1. **Interface Déclarative Pure** :
-   - Le frontend consomme `ComputedCharacterSheet` retourné par le moteur Rust (`commands.computeCharacter`) via `useComputedSheet` (`src/hooks/useComputedSheet.ts`) et `rustBridge.ts` (`src/engine/rustBridge.ts`), avec repli TypeScript en mode Web autonome (`!isTauri`).
+   - Le frontend consomme exclusivement `ComputedCharacterSheet` et les commandes métier retournées par le moteur Rust (`cof2-core`) via `useComputedSheet` (`src/hooks/useComputedSheet.ts`), `rustBridge.ts` (`src/engine/rustBridge.ts`) et `src/bindings.ts` (application Desktop Tauri standalone exclusive, sans repli Web TS).
 2. **Modularité & Mémoïsation** :
    - Fichiers sous **300 à 400 lignes maximum**.
    - Découpage par étape de wizard (`Step1Peoples.tsx`, etc.) et par onglet de fiche (`CombatTab.tsx`, `AbilitiesTab.tsx`, etc.).

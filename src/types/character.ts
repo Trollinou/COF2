@@ -1,4 +1,8 @@
 import type {
+  ComputedWeaponInfo,
+  ResolvedCompanionStats,
+} from '../bindings';
+import type {
   ProfileFamily,
   StatCode,
   StatSubstitutionRule,
@@ -187,4 +191,6 @@ export interface ComputedCharacterStats {
   pathBonusPm: number;
   pathSituationalNotes: string[];
   languagesInfo: LanguageSummary;
+  companions?: ResolvedCompanionStats[];
+  computedWeapons?: ComputedWeaponInfo[];
 }

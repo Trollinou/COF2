@@ -5,7 +5,7 @@ import {
   OFFICIAL_LANGUAGES,
   SECONDARY_TALENT_EXAMPLES,
   getLiteracyLabel,
-} from '../../utils/languageUtils';
+} from '../../utils/uiConstants';
 
 interface LanguageSelectorPanelProps {
   automaticLanguages: string[];

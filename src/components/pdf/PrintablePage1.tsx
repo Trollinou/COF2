@@ -1,6 +1,6 @@
-import React from 'react';
-import { getAllKnownLanguages } from '../../utils/languageUtils';
-import { HUMAN_DIVERSITY_PATH_ID, resolveHumanDiversity } from '../../utils/humanDiversity';
+import React, { useEffect, useState } from 'react';
+import { commands, type ResolvedHumanDiversity } from '../../bindings';
+import { HUMAN_DIVERSITY_PATH_ID } from '../../utils/uiConstants';
 import type {
   ActionRank,
   ArmorItem,
@@ -12,7 +12,7 @@ import type {
   ProfileData,
   StatCode,
 } from '../../types/cof2';
-import { STAT_NAMES, getWeaponAttackInfo } from '../../engine/rulesEngine';
+import { STAT_NAMES } from '../../engine/compendium';
 import { ActionBadges } from '../sheet/ActionBadges';
 import { PrintableVitalsColumn } from './PrintableVitalsColumn';
 
@@ -45,6 +45,23 @@ export const PrintablePage1: React.FC<PrintablePage1Props> = ({
   filledWeapons,
   emptyWeaponsCount,
 }) => {
+  const [resolvedDiversity, setResolvedDiversity] = useState<ResolvedHumanDiversity | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    commands
+      .resolveHumanDiversityChoice(character.humanDiversity ?? null)
+      .then((res) => {
+        if (!cancelled) setResolvedDiversity(res);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [character.humanDiversity]);
+
+  const allKnownLanguages = Array.from(
+    new Set([...stats.languagesInfo.automaticLanguages, ...(character.languages || [])]),
+  );
   return (
       <div className="print-page flex flex-col justify-start font-sans select-text">
         <div className="w-full h-[288mm] max-h-[288mm] border-2 border-amber-800 p-1.5 flex flex-col justify-between bg-white overflow-hidden">
@@ -256,15 +273,11 @@ export const PrintablePage1: React.FC<PrintablePage1Props> = ({
                             </strong>{' '}
                             <ActionBadges rank={r} variant="print" />
                             <span className="text-stone-700"> : {r.description}</span>
-                            {racialPath.id === HUMAN_DIVERSITY_PATH_ID && r.rank === 1 && (() => {
-                              const div = resolveHumanDiversity(character.humanDiversity);
-                              if (!div) return null;
-                              return (
-                                <span className="text-amber-900 font-semibold">
-                                  {' '}[{div.originLabel} : {div.effectiveDomains.filter(Boolean).join(', ')} (+3)]
-                                </span>
-                              );
-                            })()}
+                            {racialPath.id === HUMAN_DIVERSITY_PATH_ID && r.rank === 1 && resolvedDiversity && (
+                              <span className="text-amber-900 font-semibold">
+                                {' '}[{resolvedDiversity.originLabel} : {resolvedDiversity.effectiveDomains.filter(Boolean).join(', ')} (+3)]
+                              </span>
+                            )}
                             {r.companions && r.companions.length > 0 && (
                               <div className="mt-0.5 text-[6.5px] text-amber-950 font-mono bg-amber-50/70 p-0.5 rounded border border-amber-200">
                                 {r.companions.map((comp, cIdx) => (
@@ -284,15 +297,11 @@ export const PrintablePage1: React.FC<PrintablePage1Props> = ({
                                   Capacité ({replacedRacial.path.name} • {replacedRacial.rank1.title}) :{' '}
                                 </strong>
                                 {replacedRacial.rank1.description}
-                                {replacedRacial.path.id === HUMAN_DIVERSITY_PATH_ID && (() => {
-                                  const div = resolveHumanDiversity(character.humanDiversity);
-                                  if (!div) return null;
-                                  return (
-                                    <span className="text-emerald-900 font-semibold">
-                                      {' '}[{div.originLabel} : {div.effectiveDomains.filter(Boolean).join(', ')} (+3)]
-                                    </span>
-                                  );
-                                })()}
+                                {replacedRacial.path.id === HUMAN_DIVERSITY_PATH_ID && resolvedDiversity && (
+                                  <span className="text-emerald-900 font-semibold">
+                                    {' '}[{resolvedDiversity.originLabel} : {resolvedDiversity.effectiveDomains.filter(Boolean).join(', ')} (+3)]
+                                  </span>
+                                )}
                               </div>
                             )}
                           </div>
@@ -371,7 +380,12 @@ export const PrintablePage1: React.FC<PrintablePage1Props> = ({
                     </thead>
                     <tbody className="divide-y divide-stone-200">
                       {filledWeapons.map(w => {
-                        const atkInfo = getWeaponAttackInfo(w, stats);
+                        const atkInfo = stats.computedWeapons?.find(cw => cw.weaponId === w.id) ?? {
+                          atkBonus: w.category === 'contact' ? stats.attacks.contact : stats.attacks.distance,
+                          statUsed: (w.category === 'contact' ? 'FOR' : 'AGI') as StatCode,
+                          isSubstituted: false,
+                          dmBonus: '',
+                        };
                         return (
                           <tr key={w.id} className="text-stone-900">
                             <td className="py-0.5 px-1 font-semibold text-left">
@@ -427,7 +441,7 @@ export const PrintablePage1: React.FC<PrintablePage1Props> = ({
                     <span><strong>Sexe :</strong> {character.sex || '—'}</span>
                     <span>
                       <strong>Langues :</strong>{' '}
-                      {getAllKnownLanguages(character, stats.languagesInfo).join(', ') || 'Commun'}
+                      {allKnownLanguages.join(', ') || 'Commun'}
                       {stats.languagesInfo.literacy === 'illiterate' && ' (illettré)'}
                     </span>
                     {(character.secondaryTalents?.length || 0) > 0 && (
