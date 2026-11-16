@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-config-schema/schemas/config.v2.json",
-  "productName": "Le Grimoire d'Osgild",
+  "productName": "Le Grimoire d’Osgild",
   "version": "0.8.6",
   "identifier": "eu.gagnon.OsgildApp",
   "build": {

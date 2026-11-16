@@ -38,6 +38,7 @@ fn export_bindings_if_changed(builder: &tauri_specta::Builder<tauri::Wry>, targe
 }
 
 fn build_app_menu(app: &tauri::AppHandle) -> tauri::Result<tauri::menu::Menu<tauri::Wry>> {
+    #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut menu_builder = MenuBuilder::new(app);
 
     #[cfg(target_os = "macos")]

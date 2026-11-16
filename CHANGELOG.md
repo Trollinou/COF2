@@ -18,6 +18,12 @@
   - Mise à jour du titre HTML dans `index.html` et du nom affiché dans la barre de navigation (`src/components/Navbar.tsx`).
   - Mise à jour de la documentation (`README.md`, `AGENTS.md`, `docs/SECURITY.md`, `docs/DATA_MODELS.md`).
 
+### Corrigé
+
+- **Compilation et packaging Windows (`src-tauri/src/lib.rs`, `src-tauri/tauri.conf.json`)** :
+  - Ajout de `#[cfg_attr(not(target_os = "macos"), allow(unused_mut))]` sur `menu_builder` dans `build_app_menu` (`src-tauri/src/lib.rs`) pour supprimer l'avertissement `unused_mut` hors macOS.
+  - Remplacement de l'apostrophe ASCII (`'`) par l'apostrophe typographique (`’`) dans `productName` (`"Le Grimoire d’Osgild"`, `src-tauri/tauri.conf.json`) afin d'éviter le cassage des macros NSIS (`IsShortcutTarget` / `NSISCOMCALL`) lors de `npm run tauri:build`.
+
 ## 0.8.6
 
 ### Ajouté
