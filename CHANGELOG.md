@@ -1,6 +1,6 @@
 # Changelog
 
-## [Non publié]
+## 0.9.0
 
 ### Ajouté
 
