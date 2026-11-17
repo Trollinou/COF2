@@ -2,7 +2,6 @@ import React from 'react';
 import { commands } from '../../../bindings';
 import { CharacterSheet, StatCode, PeopleData } from '../../../types/cof2';
 import { PEOPLES, STAT_NAMES, getPathById } from '../../../engine/compendium';
-import { fromCharacterRecord, toCharacterRecord } from '../../../engine/rustBridge';
 import { Search, CheckCircle2, ChevronRight, AlertTriangle } from 'lucide-react';
 
 interface Step1PeoplesProps {
@@ -295,12 +294,12 @@ export const Step1Peoples: React.FC<Step1PeoplesProps> = ({
                           type="button"
                           onClick={async () => {
                             const rec = await commands.applyRacialDefaultsCharacter(
-                              toCharacterRecord(character),
+                              character,
                               'demi-elfe',
                               pathId,
                               true,
                             );
-                            const updated = fromCharacterRecord(rec);
+                            const updated = rec;
                             if (character.racialStatChoices?.length) {
                               updated.racialStatChoices = character.racialStatChoices;
                             }

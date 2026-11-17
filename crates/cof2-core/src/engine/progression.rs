@@ -65,7 +65,7 @@ pub(crate) fn apply_level_up(
     }
 
     for (stat, bonus) in &step.manual_stat_bonuses {
-        *record.manual_stat_bonuses.entry(*stat).or_insert(0) += bonus;
+        record.manual_stat_bonuses.add(*stat, *bonus);
     }
 
     for lang in &step.languages_learned {
@@ -189,14 +189,9 @@ pub(crate) fn rollback_to_level(
         !in_reverted || in_kept || still_has_ability
     });
 
-    // Déduction des bonus manuels et suppression des entrées à 0
+    // Déduction des bonus manuels
     for (stat, bonus) in stat_bonuses_to_revert {
-        if let Some(cur) = record.manual_stat_bonuses.get_mut(&stat) {
-            *cur -= bonus;
-            if *cur == 0 {
-                record.manual_stat_bonuses.remove(&stat);
-            }
-        }
+        record.manual_stat_bonuses.add(stat, -bonus);
     }
 
     if record.level_up_hp_gains.len() > target_level as usize {
@@ -698,7 +693,7 @@ pub fn calculate_level_up_hp_gain(
         .ok_or_else(|| RuleError::ProfileNotFound(record.profile_id.clone()))?;
 
     let computed = RulesEngine::compute_sheet(record, rules)?;
-    let con_bonus = *computed.final_stats.get(&StatCode::CON).unwrap_or(&0);
+    let con_bonus = computed.final_stats.get(StatCode::CON);
 
     let get_path_hp = |path_id: &str| -> (i32, &'static str) {
         if is_racial_or_replacement_path(path_id, &record.people_id, rules) {

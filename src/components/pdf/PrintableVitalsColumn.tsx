@@ -119,13 +119,13 @@ export const PrintableVitalsColumn: React.FC<PrintableVitalsColumnProps> = ({
                 </div>
 
                 {/* Tactical notes */}
-                {stats.pathSituationalNotes.length > 0 && (
+                {stats.situationalNotes.length > 0 && (
                   <div className="border border-stone-700 rounded overflow-hidden bg-stone-50 flex-1 flex flex-col">
                     <div className="bg-stone-200 text-stone-800 font-serif font-bold text-[8px] tracking-wider px-1.5 py-0.5 uppercase">
                       RAPPELS TACTIQUES
                     </div>
                     <div className="p-1 space-y-0.5 text-[7px] text-stone-700 leading-tight flex-1">
-                      {stats.pathSituationalNotes.map((note, idx) => (
+                      {stats.situationalNotes.map((note, idx) => (
                         <div key={idx} className="flex items-start gap-1">
                           <span className="font-bold text-amber-800">•</span>
                           <span>{note}</span>

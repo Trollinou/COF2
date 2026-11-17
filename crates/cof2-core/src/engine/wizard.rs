@@ -151,7 +151,7 @@ pub fn validate_wizard_step(
 
             let mut current_sorted: Vec<i32> = ALL_STAT_CODES
                 .iter()
-                .map(|code| *record.base_stats.get(code).unwrap_or(&0))
+                .map(|code| record.base_stats.get(*code))
                 .collect();
             current_sorted.sort_by(|a, b| b.cmp(a));
             let mut target_sorted = arr.values.clone();

@@ -14,10 +14,10 @@ async createBlankWizardCharacter() : Promise<CharacterRecord> {
 async applyRacialDefaultsCharacter(record: CharacterRecord, peopleId: string, chosenRacialPathId: string | null, preserveEmptyChoices: boolean) : Promise<CharacterRecord> {
     return await TAURI_INVOKE("apply_racial_defaults_character", { record, peopleId, chosenRacialPathId, preserveEmptyChoices });
 },
-async evaluatePointBuy(baseStats: Partial<{ [key in StatCode]: number }>) : Promise<PointBuyEvaluation> {
+async evaluatePointBuy(baseStats: StatBlock) : Promise<PointBuyEvaluation> {
     return await TAURI_INVOKE("evaluate_point_buy", { baseStats });
 },
-async detectStatArrayPreset(baseStats: Partial<{ [key in StatCode]: number }>) : Promise<string> {
+async detectStatArrayPreset(baseStats: StatBlock) : Promise<string> {
     return await TAURI_INVOKE("detect_stat_array_preset", { baseStats });
 },
 async resolveHumanDiversityChoice(choice: HumanDiversityChoice | null) : Promise<ResolvedHumanDiversity | null> {
@@ -31,6 +31,18 @@ async getDefaultEquipmentCharacter(profileId: string, peopleId: string) : Promis
 },
 async sanitizeEquipmentCharacter(record: CharacterRecord) : Promise<CharacterRecord> {
     return await TAURI_INVOKE("sanitize_equipment_character", { record });
+},
+async sanitizeWizardPathsCharacter(record: CharacterRecord) : Promise<CharacterRecord> {
+    return await TAURI_INVOKE("sanitize_wizard_paths_character", { record });
+},
+async selectProfileWithDefaultsCharacter(record: CharacterRecord, profileId: string) : Promise<CharacterRecord> {
+    return await TAURI_INVOKE("select_profile_with_defaults_character", { record, profileId });
+},
+async toggleWizardProfilePathCharacter(record: CharacterRecord, pathId: string) : Promise<CharacterRecord> {
+    return await TAURI_INVOKE("toggle_wizard_profile_path_character", { record, pathId });
+},
+async autoAssignStatArrayCharacter(record: CharacterRecord, presetId: string) : Promise<CharacterRecord> {
+    return await TAURI_INVOKE("auto_assign_stat_array_character", { record, presetId });
 },
 async getLevelUpContextCharacter(record: CharacterRecord, targetLevel: number) : Promise<LevelUpContext> {
     return await TAURI_INVOKE("get_level_up_context_character", { record, targetLevel });
@@ -136,20 +148,21 @@ export type CapabilityPointsSummary = { totalEarned: number; spent: number; avai
 /**
  * Modèle persistant officiel d'un personnage COF2 (compatible avec les fichiers .cof2)
  */
-export type CharacterRecord = { id: string; version?: string; updatedAt?: string; creationCompleted?: boolean | null; name: string; playerName?: string; sex?: string; age?: string; height?: string; weight?: string; physicalTraits?: string; languages?: string[]; secondaryTalents?: string[]; background?: string; ideal?: string; flaw?: string; notes?: string; deity?: string | null; peopleId: string; profileId: string; profileFamily?: ProfileFamily | null; isHybrid?: boolean | null; secondaryProfileId?: string | null; level: number; baseStats: Partial<{ [key in StatCode]: number }>; statArrayPreset?: string | null; racialStatChoices?: StatCode[]; racialStatModifiers?: Partial<{ [key in StatCode]: number }>; manualStatBonuses?: Partial<{ [key in StatCode]: number }>; selectedPathIds?: string[]; acquiredAbilities?: AcquiredAbility[]; pathRankChoices?: Partial<{ [key in string]: string }>; externalAbilityChoices?: Partial<{ [key in string]: AcquiredAbility }>; humanDiversity?: HumanDiversityChoice | null; 
+export type CharacterRecord = { id: string; version?: string; updatedAt: string; creationCompleted?: boolean | null; name: string; playerName: string; sex: string; age: string; height: string; weight: string; physicalTraits: string; languages: string[]; secondaryTalents: string[]; background: string; ideal: string; flaw: string; notes: string; deity?: string | null; peopleId: string; profileId: string; profileFamily?: ProfileFamily | null; isHybrid?: boolean | null; secondaryProfileId?: string | null; level: number; baseStats: StatBlock; statArrayPreset?: string | null; racialStatChoices: StatCode[]; racialStatModifiers: StatBlock; manualStatBonuses: StatBlock; selectedPathIds: string[]; acquiredAbilities: AcquiredAbility[]; pathRankChoices: Partial<{ [key in string]: string }>; externalAbilityChoices: Partial<{ [key in string]: AcquiredAbility }>; humanDiversity?: HumanDiversityChoice | null; 
 /**
  * Historique des apprentissages niveau par niveau (permet de tracer et de revenir en arrière)
  */
-progressionHistory?: LevelProgressionStep[]; currentHp: number; maxHpBonus?: number; levelUpHpGains?: number[]; halfHpPending?: boolean | null; currentDr: number; currentPc: number; currentPm: number; equippedArmorId?: string | null; equippedShieldId?: string | null; weapons?: CharacterWeaponInstance[]; inventory?: InventoryItem[]; coins?: Coins }
-export type CharacterWeaponInstance = { id: string; weaponRefId: string; name: string; damage: string; range: string; category: string; bonusAttack?: number; bonusDamage?: number; requiresTwoHands?: boolean; attackStatUsed?: StatCode | null; attackStatSource?: string | null }
+progressionHistory: LevelProgressionStep[]; currentHp: number; maxHpBonus: number; levelUpHpGains: number[]; halfHpPending?: boolean | null; currentDr: number; currentPc: number; currentPm: number; equippedArmorId?: string | null; equippedShieldId?: string | null; weapons: CharacterWeaponInstance[]; inventory: InventoryItem[]; coins: Coins }
+export type CharacterWeaponInstance = { id: string; weaponRefId: string; name: string; damage: string; range: string; category: WeaponCategory; bonusAttack?: number; bonusDamage?: number; requiresTwoHands?: boolean; attackStatUsed?: StatCode | null; attackStatSource?: string | null }
 export type Coins = { pa: number; pc: number; po: number }
-export type ComputedCharacterSheet = { record: CharacterRecord; baseStats: Partial<{ [key in StatCode]: number }>; racialBonusStats: Partial<{ [key in StatCode]: number }>; pathBonusStats: Partial<{ [key in StatCode]: number }>; manualBonusStats: Partial<{ [key in StatCode]: number }>; otherBonusStats: Partial<{ [key in StatCode]: number }>; finalStats: Partial<{ [key in StatCode]: number }>; bab: number; defense: number; defenseStat: StatCode; defenseStatSource: string | null; effectiveAgi: number; armorDefense: number; shieldDefense: number; initiative: number; maxHp: number; maxDr: number; drDice: string; maxPc: number; maxPm: number; energyType: string; effectiveFamily: ProfileFamily; isHybrid: boolean; secondaryProfileName: string | null; attacks: AttackBonuses; contactAttackStat: StatCode; contactAttackStatSource: string | null; distanceAttackStat: StatCode; distanceAttackStatSource: string | null; pathBonusDefense: number; pathBonusInitiative: number; pathBonusHp: number; pathBonusAttacks: AttackBonuses; pathBonusDamage: AttackBonuses; pathCritRangeBonus: number; pathBonusPc: number; pathBonusDr: number; pathBonusPm: number; activeWeaponModifiers: WeaponModifierRule[]; situationalNotes: string[]; languagesInfo: LanguageSummary; companions?: ResolvedCompanionStats[]; computedWeapons?: ComputedWeaponInfo[] }
+export type ComputedCharacterSheet = { record: CharacterRecord; baseStats: StatBlock; racialBonusStats: StatBlock; pathBonusStats: StatBlock; manualBonusStats: StatBlock; otherBonusStats: StatBlock; finalStats: StatBlock; bab: number; defense: number; defenseStat: StatCode; defenseStatSource: string | null; effectiveAgi: number; armorDefense: number; shieldDefense: number; initiative: number; maxHp: number; maxDr: number; drDice: string; maxPc: number; maxPm: number; energyType: EnergyType; effectiveFamily: ProfileFamily; isHybrid: boolean; secondaryProfileName: string | null; attacks: AttackBonuses; contactAttackStat: StatCode; contactAttackStatSource: string | null; distanceAttackStat: StatCode; distanceAttackStatSource: string | null; pathBonusDefense: number; pathBonusInitiative: number; pathBonusHp: number; pathBonusAttacks: AttackBonuses; pathBonusDamage: AttackBonuses; pathCritRangeBonus: number; pathBonusPc: number; pathBonusDr: number; pathBonusPm: number; activeWeaponModifiers: WeaponModifierRule[]; situationalNotes: string[]; languagesInfo: LanguageSummary; companions?: ResolvedCompanionStats[]; computedWeapons?: ComputedWeaponInfo[] }
 /**
  * Fiche de statistiques dérivées calculée à la volée par le moteur Rust
  */
 export type ComputedWeaponInfo = { weaponId: string; atkBonus: number; statUsed: StatCode; sourceName?: string | null; isSubstituted: boolean; dmBonus: string; critMin: number; critRange: string }
 export type DefaultEquipmentResult = { armorId?: string | null; shieldId?: string | null; weapons: CharacterWeaponInstance[] }
 export type EligibilityCheck = { eligible: boolean; reason?: string | null }
+export type EnergyType = "PM" | "PE"
 export type EquipmentOptionsResult = { allowedArmorIds: string[]; allowedShieldIds: string[]; allowedWeapons: AllowedWeaponOption[] }
 /**
  * Choix structuré pour la capacité « Diversité » (Voie de l'humain, Rang 1)
@@ -175,10 +188,15 @@ export type ResolvedCompanionAttack = { name: string; attackBonus?: string | nul
 export type ResolvedCompanionStats = { pathId: string; rank: number; name: string; defense?: string | null; hp?: string | null; initiative?: string | null; attacks: ResolvedCompanionAttack[] }
 export type ResolvedExternalGrant = { sourceKey: string; ability?: AcquiredAbility | null; availableOptions: AcquiredAbility[]; isAutoGranted: boolean }
 export type ResolvedHumanDiversity = { originId: string; originLabel: string; baseDomains: [string, string]; effectiveDomains: [string, string]; replacedDomainIndex?: number | null; replacementTrade?: string | null }
+/**
+ * Bloc complet des 7 caractéristiques COF2 (garantit toutes les clés côté TypeScript).
+ */
+export type StatBlock = { FOR: number; AGI: number; CON: number; PER: number; INT: number; VOL: number; CHA: number }
 export type StatCode = "FOR" | "AGI" | "CON" | "PER" | "INT" | "VOL" | "CHA"
 export type StepValidationResult = { valid: boolean; reason?: string | null }
 export type ValidationResult = { isValid: boolean; character: CharacterRecord; warnings: string[] }
-export type WeaponModifierRule = { tags?: string[] | null; weaponIds?: string[] | null; category?: string | null; grantProficiency?: boolean | null; attackBonus?: number | null; damageBonus?: number | null; damageStatBonus?: StatCode | null; critRangeBonus?: number | null; sourceName?: string | null; note?: string | null }
+export type WeaponCategory = "contact" | "distance"
+export type WeaponModifierRule = { tags?: string[] | null; weaponIds?: string[] | null; category?: WeaponCategory | null; grantProficiency?: boolean | null; attackBonus?: number | null; damageBonus?: number | null; damageStatBonus?: StatCode | null; critRangeBonus?: number | null; sourceName?: string | null; note?: string | null }
 export type WizardValidationState = { stepResult: StepValidationResult; maxUnlockedStep: number }
 
 /** tauri-specta globals **/

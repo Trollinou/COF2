@@ -6,7 +6,6 @@ import {
   getProfileById,
   PROFILES,
 } from '../../engine/compendium';
-import { toCharacterRecord } from '../../engine/rustBridge';
 import {
   Sparkles,
   Plus,
@@ -47,7 +46,7 @@ export const PrestigePathSelector: React.FC<PrestigePathSelectorProps> = ({
     let cancelled = false;
     commands
       .getLevelUpContextCharacter(
-        toCharacterRecord({ ...character, acquiredAbilities: acquired }),
+        { ...character, acquiredAbilities: acquired },
         newLevel,
       )
       .then((ctx) => {

@@ -3,7 +3,6 @@ import { BookOpen, AlertTriangle } from 'lucide-react';
 import { commands, type ResolvedExternalGrant } from '../../bindings';
 import { CharacterSheet, ActionRank, AbilityRef } from '../../types/cof2';
 import { getPathById, PROFILES } from '../../engine/compendium';
-import { toCharacterRecord } from '../../engine/rustBridge';
 import { ActionBadges } from '../sheet/ActionBadges';
 
 interface ExternalAbilitySelectorProps {
@@ -37,7 +36,7 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
     if (!grantRule) return;
     let cancelled = false;
     commands
-      .resolveExternalGrantsCharacter(toCharacterRecord(character))
+      .resolveExternalGrantsCharacter(character)
       .then((grants) => {
         if (!cancelled) {
           setResolved(grants.find((g) => g.sourceKey === choiceKey) ?? null);

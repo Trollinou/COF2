@@ -9,7 +9,6 @@ import {
   getProfileById,
   WEAPONS,
 } from '../../engine/compendium';
-import { toCharacterRecord } from '../../engine/rustBridge';
 import { useComputedSheet } from '../../hooks/useComputedSheet';
 import { HeroBanner } from './HeroBanner';
 import { CharacteristicsCard } from './CharacteristicsCard';
@@ -36,7 +35,7 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
 
   useEffect(() => {
     let cancelled = false;
-    const rec = toCharacterRecord(character);
+    const rec = character;
     Promise.all([
       commands.getLevelUpContextCharacter(rec, character.level),
       commands.getEquipmentOptionsCharacter(rec),

@@ -2,7 +2,7 @@ use crate::engine::creation::{default_character_record, generate_character_id_an
 use crate::engine::stats::{compute_racial_stat_modifiers, parse_stat, ALL_STAT_CODES};
 use crate::models::{
     AcquiredAbility, CharacterRecord, CharacterWeaponInstance, Coins, HumanDiversityChoice,
-    InventoryItem, LevelProgressionStep, ProfileFamily, StatCode,
+    InventoryItem, LevelProgressionStep, ProfileFamily, StatBlock, StatCode, WeaponCategory,
 };
 use crate::rules::RulesDatabase;
 use serde::{Deserialize, Serialize};
@@ -127,14 +127,14 @@ pub fn validate_and_migrate_record(data: Value, rules: &RulesDatabase) -> Valida
         .map(ToString::to_string);
     let level = as_int_in_range(raw.get("level"), 1, 20).unwrap_or(1);
 
-    let mut base_stats = default_char.base_stats.clone();
+    let mut base_stats = default_char.base_stats;
     if let Some(raw_base) = raw.get("baseStats").and_then(|v| v.as_object()) {
         for stat in ALL_STAT_CODES {
             let key = stat_code_key(stat);
             if let Some(val) = as_finite_i32(raw_base.get(key)) {
-                base_stats.insert(stat, val);
+                base_stats.set(stat, val);
             } else {
-                let fallback = *base_stats.get(&stat).unwrap_or(&0);
+                let fallback = base_stats.get(stat);
                 warnings.push(format!(
                     "Statistique {key} invalide ou manquante, réinitialisée à {fallback}."
                 ));
@@ -250,9 +250,9 @@ pub fn validate_and_migrate_record(data: Value, rules: &RulesDatabase) -> Valida
                 .filter_map(|(idx, item)| {
                     let w = item.as_object()?;
                     let category = if w.get("category").and_then(|v| v.as_str()) == Some("distance") {
-                        "distance".to_string()
+                        WeaponCategory::Distance
                     } else {
-                        "contact".to_string()
+                        WeaponCategory::Contact
                     };
                     let attack_stat_used = w
                         .get("attackStatUsed")
@@ -322,11 +322,11 @@ pub fn validate_and_migrate_record(data: Value, rules: &RulesDatabase) -> Valida
         })
         .unwrap_or_else(|| default_char.racial_stat_choices.clone());
 
-    let mut fallback_racial_mods: HashMap<StatCode, i32> = HashMap::new();
+    let mut fallback_racial_mods = StatBlock::default();
     if let Some(obj) = raw.get("racialStatModifiers").and_then(|v| v.as_object()) {
         for stat in ALL_STAT_CODES {
             if let Some(val) = as_finite_i32(obj.get(stat_code_key(stat))) {
-                fallback_racial_mods.insert(stat, val);
+                fallback_racial_mods.set(stat, val);
             }
         }
     }
@@ -337,12 +337,12 @@ pub fn validate_and_migrate_record(data: Value, rules: &RulesDatabase) -> Valida
         rules,
     );
 
-    let mut manual_stat_bonuses: HashMap<StatCode, i32> = HashMap::new();
+    let mut manual_stat_bonuses = StatBlock::default();
     if let Some(obj) = raw.get("manualStatBonuses").and_then(|v| v.as_object()) {
         for stat in ALL_STAT_CODES {
             if let Some(val) = as_finite_i32(obj.get(stat_code_key(stat))) {
                 if val != 0 {
-                    manual_stat_bonuses.insert(stat, val);
+                    manual_stat_bonuses.set(stat, val);
                 }
             }
         }

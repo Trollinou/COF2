@@ -88,7 +88,7 @@ impl RulesEngine {
             rules,
         );
 
-        let stat_int = *stat_decomp.final_stats.get(&StatCode::INT).unwrap_or(&0);
+        let stat_int = stat_decomp.final_stats.get(StatCode::INT);
         let languages_info = languages::compute_languages_info(record, people, stat_int);
 
         let mut updated_record = record.clone();

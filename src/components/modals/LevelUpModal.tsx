@@ -23,7 +23,6 @@ import {
 import {
   applyLevelUpAsync,
   rollbackLevelAsync,
-  toCharacterRecord,
 } from '../../engine/rustBridge';
 import { useComputedSheet } from '../../hooks/useComputedSheet';
 import {
@@ -67,10 +66,10 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
   const [acquired, setAcquired] = useState<Array<{ pathId: string; rank: number }>>(
     character.acquiredAbilities || []
   );
-  const [draftPathRankChoices, setDraftPathRankChoices] = useState<Record<string, string>>(
+  const [draftPathRankChoices, setDraftPathRankChoices] = useState<Partial<Record<string, string>>>(
     character.pathRankChoices || {}
   );
-  const [draftExternalChoices, setDraftExternalChoices] = useState<Record<string, AbilityRef>>(
+  const [draftExternalChoices, setDraftExternalChoices] = useState<Partial<Record<string, AbilityRef>>>(
     character.externalAbilityChoices || {}
   );
   const [languagesLearned, setLanguagesLearned] = useState<string[]>([]);
@@ -106,7 +105,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     if (!isOpen) return;
     let cancelled = false;
     commands
-      .getLevelUpContextCharacter(toCharacterRecord(character), newLevel)
+      .getLevelUpContextCharacter(character, newLevel)
       .then((ctx) => {
         if (cancelled) return;
         setLevelUpContext(ctx);
@@ -161,7 +160,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     let cancelled = false;
     commands
       .calculateLevelUpHpGainCharacter(
-        toCharacterRecord(character),
+        character,
         newlyAcquired,
         Boolean(character.halfHpPending),
       )
@@ -225,7 +224,7 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     if (modalPathIds.includes(selectedHybridPathId)) return;
 
     const check = await commands.checkHybridPathEligibility(
-      toCharacterRecord(character),
+      character,
       selectedHybridPathId,
     );
     if (!check.eligible) {

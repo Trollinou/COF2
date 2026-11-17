@@ -10,47 +10,12 @@ import {
   PEOPLES,
   PROFILES,
   WEAPONS,
-  getRacialPathId,
-  isDomainPath,
-  isRacialReplacementPath,
-  getProfileAllPoolPathIds,
 } from '../engine/compendium';
 import {
   computeSheetAsync,
-  fromCharacterRecord,
-  toCharacterRecord,
 } from '../engine/rustBridge';
 import { useComputedSheet } from './useComputedSheet';
 import tablesData from '../data/tables.json';
-
-function isMageProfileId(profileId: string): boolean {
-  return ['ensorceleur', 'forgesort', 'magicien', 'sorcier'].includes(profileId);
-}
-
-function checkHasMageBonus(char: CharacterSheet): boolean {
-  const profile = PROFILES.find(p => p.id === char.profileId);
-  const secProfile =
-    char.isHybrid && char.secondaryProfileId
-      ? PROFILES.find(p => p.id === char.secondaryProfileId)
-      : undefined;
-  const isPsionicMage =
-    (char.profileId === 'psionique' ||
-      (Boolean(char.isHybrid) && char.secondaryProfileId === 'psionique')) &&
-    char.profileFamily === 'Mages';
-  return Boolean(profile?.hasMageBonus || secProfile?.hasMageBonus || isPsionicMage);
-}
-
-function checkCanUseVoieDuMage(char: CharacterSheet): boolean {
-  const isPsionicMage =
-    (char.profileId === 'psionique' ||
-      (Boolean(char.isHybrid) && char.secondaryProfileId === 'psionique')) &&
-    char.profileFamily === 'Mages';
-  return (
-    isMageProfileId(char.profileId) ||
-    Boolean(char.isHybrid && char.secondaryProfileId && isMageProfileId(char.secondaryProfileId)) ||
-    isPsionicMage
-  );
-}
 
 export function useWizardState(
   character: CharacterSheet,
@@ -62,7 +27,7 @@ export function useWizardState(
 
   useEffect(() => {
     if (character.creationCompleted === false) {
-      commands.validateWizardStateCharacter(toCharacterRecord(character), 1).then((res) => {
+      commands.validateWizardStateCharacter(character, 1).then((res) => {
         setCurrentStep(Math.min(6, res.maxUnlockedStep));
       });
     }
@@ -70,7 +35,7 @@ export function useWizardState(
 
   // Selected array mode in Step 3 ('polyvalent' | 'expert' | 'specialiste' | 'achat' | '')
   const initialPreset = useMemo(() => {
-    if (character.statArrayPreset === undefined || character.statArrayPreset === '') {
+    if (!character.statArrayPreset) {
       return '';
     }
     return character.statArrayPreset === 'libre' ? 'achat' : character.statArrayPreset;
@@ -198,130 +163,29 @@ export function useWizardState(
     update({ coins: { ...character.coins, pa: d1 + d2 } });
   };
 
-  // Ensure character.selectedPathIds stays coherent with people/profile,
-  // without auto-selecting a 3rd path when Priest or Mage options are available.
+  // Maintain coherence of paths & rank-2 abilities via Rust engine
   useEffect(() => {
     if (!selectedProfile || !selectedPeople) return;
-
-    const secProf = character.isHybrid && character.secondaryProfileId
-      ? PROFILES.find(p => p.id === character.secondaryProfileId)
-      : undefined;
-    const allProfilePaths = [...selectedProfile.paths, ...(secProf ? secProf.paths : [])];
-
-    const hasIneligibleRank2 = !checkHasMageBonus(character) && character.acquiredAbilities.some(a => a.rank === 2);
-    const existingThirdPath = character.selectedPathIds.find(id => !allProfilePaths.includes(id));
-    const isPriest = character.profileId === 'pretre' || character.secondaryProfileId === 'pretre';
-    const isMage = checkCanUseVoieDuMage(character);
-    const isValidReplacement = Boolean(
-      existingThirdPath && (
-        (isDomainPath(existingThirdPath) && isPriest) ||
-        (existingThirdPath === 'voie-du-mage' && isMage)
-      )
-    );
-
-    if (isValidReplacement && !hasIneligibleRank2) {
-      return;
-    }
-
-    let updated = character;
-
-    // Only auto-apply racial path if no Priest/Mage replacement choice is pending
-    // and the people doesn't have selectable cultural paths left unchosen.
-    const hasSelectableCultural = Boolean(selectedPeople.selectableRacialPaths?.length);
-    if (!existingThirdPath && !isPriest && !isMage && !hasSelectableCultural) {
-      const expectedRacial = getRacialPathId(character.peopleId);
-      if (expectedRacial) {
-        updated = {
-          ...updated,
-          selectedPathIds: [...updated.selectedPathIds, expectedRacial],
-          acquiredAbilities: updated.acquiredAbilities.some(a => a.pathId === expectedRacial && a.rank === 1)
-            ? updated.acquiredAbilities
-            : [...updated.acquiredAbilities, { pathId: expectedRacial, rank: 1 }],
-        };
+    let cancelled = false;
+    commands.sanitizeWizardPathsCharacter(character).then((sanitized) => {
+      if (cancelled) return;
+      const changed =
+        JSON.stringify(sanitized.selectedPathIds) !== JSON.stringify(character.selectedPathIds) ||
+        JSON.stringify(sanitized.acquiredAbilities) !== JSON.stringify(character.acquiredAbilities) ||
+        sanitized.deity !== character.deity;
+      if (changed) {
+        onChange(sanitized);
       }
-    } else if (existingThirdPath && !isValidReplacement && (isDomainPath(existingThirdPath) || existingThirdPath === 'voie-du-mage')) {
-      // Remove invalid replacement path
-      const keptPaths = updated.selectedPathIds.filter(id => id !== existingThirdPath);
-      updated = {
-        ...updated,
-        deity: isDomainPath(existingThirdPath) ? undefined : updated.deity,
-        selectedPathIds: keptPaths,
-        acquiredAbilities: updated.acquiredAbilities.filter(a => a.pathId !== existingThirdPath),
-      };
-    }
-
-    if (!checkHasMageBonus(updated) && updated.acquiredAbilities.some(a => a.rank === 2)) {
-      updated = {
-        ...updated,
-        acquiredAbilities: updated.acquiredAbilities.filter(a => a.rank !== 2),
-      };
-    }
-    if (updated !== character) {
-      onChange(updated);
-    }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [character.peopleId, character.profileId, character.profileFamily, character.secondaryProfileId, character.isHybrid, selectedProfile, selectedPeople]);
 
-  // Handle Profile Selection (without pre-selecting profile paths or Psionique family)
+  // Handle Profile Selection via Rust engine
   const handleSelectProfile = async (profileId: string) => {
-    const prof = PROFILES.find(p => p.id === profileId);
-    if (!prof) return;
-
-    const secProf = character.isHybrid && character.secondaryProfileId
-      ? PROFILES.find(p => p.id === character.secondaryProfileId)
-      : undefined;
-    const allProfilePathIds = [...prof.paths, ...(secProf ? secProf.paths : [])];
-
-    const existingThird = character.selectedPathIds.find(id => !allProfilePathIds.includes(id));
-    const isPriest = profileId === 'pretre' || character.secondaryProfileId === 'pretre';
-    const tempChar: CharacterSheet = {
-      ...character,
-      profileId,
-      profileFamily: undefined,
-    };
-    const isMage = checkCanUseVoieDuMage(tempChar);
-
-    // Keep racial path only if not Priest/Mage, or if already explicitly chosen
-    let nextSelectedPaths: string[] = [];
-    let nextAcquired: CharacterSheet['acquiredAbilities'] = [];
-
-    if (!isPriest && !isMage) {
-      const hasSelectableCultural = Boolean(selectedPeople?.selectableRacialPaths?.length);
-      const racialPathId = existingThird || (!hasSelectableCultural && character.peopleId ? getRacialPathId(character.peopleId) : '');
-      if (racialPathId) {
-        nextSelectedPaths = [racialPathId];
-        nextAcquired = [{ pathId: racialPathId, rank: 1 }];
-      }
-    }
-
-    // Equip default starting equipment matching new profile & race
-    const defaultEq = await commands.getDefaultEquipmentCharacter(profileId, character.peopleId || 'humain');
-
-    const updatedChar: CharacterSheet = {
-      ...character,
-      profileId,
-      profileFamily: undefined,
-      deity: undefined,
-      selectedPathIds: nextSelectedPaths,
-      acquiredAbilities: nextAcquired,
-      pathRankChoices: {},
-      equippedArmorId: defaultEq.armorId ?? undefined,
-      equippedShieldId: defaultEq.shieldId ?? undefined,
-      weapons: defaultEq.weapons.map(w => ({
-        ...w,
-        category: w.category === 'distance' ? 'distance' : 'contact',
-        attackStatUsed: w.attackStatUsed ?? undefined,
-        attackStatSource: w.attackStatSource ?? undefined,
-      })),
-    };
-
-    const sanitizedRecord = await commands.sanitizeEquipmentCharacter(toCharacterRecord(updatedChar));
-    const sanitized = fromCharacterRecord(sanitizedRecord);
-    const computedStats = await computeSheetAsync(sanitized);
-    sanitized.currentHp = computedStats.maxHp;
-    sanitized.currentDr = computedStats.maxDr;
-    sanitized.currentPc = computedStats.maxPc;
-    sanitized.currentPm = computedStats.maxPm;
-    update(sanitized);
+    const updated = await commands.selectProfileWithDefaultsCharacter(character, profileId);
+    onChange(updated);
   };
 
   const handleFinishWizard = async () => {
@@ -342,7 +206,7 @@ export function useWizardState(
   const handleAddWeapon = async (weaponRefId: string) => {
     const w = WEAPONS.find(item => item.id === weaponRefId);
     if (!w) return;
-    const eqOpts = await commands.getEquipmentOptionsCharacter(toCharacterRecord(character));
+    const eqOpts = await commands.getEquipmentOptionsCharacter(character);
     const allowedOption = eqOpts.allowedWeapons.find(item => item.weaponId === w.id);
     if (!allowedOption) return;
 
@@ -359,25 +223,25 @@ export function useWizardState(
     };
 
     update({
-      weapons: [...character.weapons, newWeapon],
+      weapons: [...(character.weapons ?? []), newWeapon],
     });
   };
 
   const handleRemoveWeapon = (weaponId: string) => {
     update({
-      weapons: character.weapons.filter(w => w.id !== weaponId),
+      weapons: (character.weapons ?? []).filter(w => w.id !== weaponId),
     });
   };
 
   // Handle People Selection without pre-selecting stat choices or Demi-elfe cultural path
   const handleSelectPeople = async (peopleId: string) => {
     const updatedRecord = await commands.applyRacialDefaultsCharacter(
-      toCharacterRecord(character),
+      character,
       peopleId,
       null,
       true,
     );
-    onChange(fromCharacterRecord(updatedRecord));
+    onChange(updatedRecord);
   };
 
   const createZeroStats = (): Record<StatCode, number> => ({
@@ -390,44 +254,12 @@ export function useWizardState(
     CHA: 0,
   });
 
-  // Auto assign characteristics based on array preset & profile's primary stats
-  const handleAutoAssignStats = (presetId: string = arrayPreset) => {
+  // Auto assign characteristics based on array preset & profile's primary stats via Rust engine
+  const handleAutoAssignStats = async (presetId: string = arrayPreset) => {
     if (!presetId) return;
-    const primary = selectedProfile?.primaryStats || ['FOR', 'AGI', 'CON'];
-    const allStats: StatCode[] = ['FOR', 'AGI', 'CON', 'PER', 'INT', 'VOL', 'CHA'];
-
-    if (presetId === 'achat') {
-      // Distribute 7 points optimally across primary stats: +3 (4 pts), +2 (2 pts), +1 (1 pt), rest 0
-      const newBase = createZeroStats();
-      const pointBuySpread = [3, 2, 1];
-      primary.forEach((stat, idx) => {
-        if (idx < pointBuySpread.length) {
-          newBase[stat] = pointBuySpread[idx];
-        }
-      });
-      setArrayPreset('achat');
-      update({ baseStats: newBase, statArrayPreset: 'achat' });
-      return;
-    }
-
-    const arr = tablesData.characteristicArrays.find(a => a.id === presetId);
-    if (!arr) return;
-
-    const sortedValues = [...arr.values].sort((a, b) => b - a);
-    const secondary = allStats.filter(s => !primary.includes(s));
-
-    const newBase: Record<StatCode, number> = { ...character.baseStats };
-
-    primary.forEach((stat, idx) => {
-      newBase[stat] = sortedValues[idx];
-    });
-
-    secondary.forEach((stat, idx) => {
-      newBase[stat] = sortedValues[primary.length + idx];
-    });
-
     setArrayPreset(presetId);
-    update({ baseStats: newBase, statArrayPreset: presetId });
+    const updated = await commands.autoAssignStatArrayCharacter(character, presetId);
+    onChange(updated);
   };
 
   const handleSelectArrayPreset = (presetId: string) => {
@@ -476,58 +308,10 @@ export function useWizardState(
     });
   };
 
-  // Toggle selection of a profile path in Step 4
-  const toggleProfilePath = (pathId: string) => {
-    if (!selectedProfile) return;
-    const secProf = character.isHybrid && character.secondaryProfileId
-      ? PROFILES.find(p => p.id === character.secondaryProfileId)
-      : undefined;
-    const allProfilePathIds = [
-      ...getProfileAllPoolPathIds(selectedProfile),
-      ...getProfileAllPoolPathIds(secProf),
-    ];
-
-    const currentProfilePaths = character.selectedPathIds.filter(id => allProfilePathIds.includes(id));
-    const existingThirdPath = character.selectedPathIds.find(id => !allProfilePathIds.includes(id)) || '';
-    const isSpecialThird = existingThirdPath ? isRacialReplacementPath(existingThirdPath) : false;
-    const racialPath = getRacialPathId(character.peopleId);
-    const thirdPath = existingThirdPath
-      ? (isSpecialThird ? existingThirdPath : getRacialPathId(character.peopleId, existingThirdPath))
-      : '';
-
-    let newProfilePaths: string[];
-    if (currentProfilePaths.includes(pathId)) {
-      newProfilePaths = currentProfilePaths.filter(id => id !== pathId);
-    } else {
-      if (currentProfilePaths.length >= 2) {
-        newProfilePaths = [currentProfilePaths[0], pathId];
-      } else {
-        newProfilePaths = [...currentProfilePaths, pathId];
-      }
-    }
-
-    const nextSelected = thirdPath ? [...newProfilePaths, thirdPath] : [...newProfilePaths];
-    const nextAcquired = character.acquiredAbilities.filter(
-      a =>
-        (thirdPath && (a.pathId === thirdPath || (isSpecialThird && a.pathId === racialPath))) ||
-        newProfilePaths.includes(a.pathId)
-    );
-    newProfilePaths.forEach(pid => {
-      if (!nextAcquired.some(a => a.pathId === pid && a.rank === 1)) {
-        nextAcquired.push({ pathId: pid, rank: 1 });
-      }
-    });
-    if (thirdPath && !nextAcquired.some(a => a.pathId === thirdPath && a.rank === 1)) {
-      nextAcquired.push({ pathId: thirdPath, rank: 1 });
-    }
-    if (isSpecialThird && racialPath && !nextAcquired.some(a => a.pathId === racialPath && a.rank === 1)) {
-      nextAcquired.push({ pathId: racialPath, rank: 1 });
-    }
-
-    update({
-      selectedPathIds: nextSelected,
-      acquiredAbilities: nextAcquired,
-    });
+  // Toggle selection of a profile path via Rust engine
+  const toggleProfilePath = async (pathId: string) => {
+    const updated = await commands.toggleWizardProfilePathCharacter(character, pathId);
+    onChange(updated);
   };
 
   const [maxUnlockedStep, setMaxUnlockedStep] = useState<number>(1);
@@ -539,7 +323,7 @@ export function useWizardState(
   useEffect(() => {
     let cancelled = false;
     commands
-      .validateWizardStateCharacter(toCharacterRecord(character), currentStep)
+      .validateWizardStateCharacter(character, currentStep)
       .then((res) => {
         if (!cancelled) {
           setMaxUnlockedStep(res.maxUnlockedStep);

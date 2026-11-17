@@ -2,7 +2,6 @@ import React from 'react';
 import { commands } from '../../../bindings';
 import type { CharacterSheet, HumanDiversityChoice, PeopleData, PathData } from '../../../types/cof2';
 import { getPathById } from '../../../engine/compendium';
-import { fromCharacterRecord, toCharacterRecord } from '../../../engine/rustBridge';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { ActionBadges } from '../../sheet/ActionBadges';
 import { CompanionCard } from '../../sheet/CompanionCard';
@@ -80,12 +79,12 @@ export const Step5RacialSection: React.FC<Step5RacialSectionProps> = ({
                       type="button"
                       onClick={async () => {
                         const rec = await commands.applyRacialDefaultsCharacter(
-                          toCharacterRecord(character),
+                          character,
                           'demi-elfe',
                           pid,
                           false,
                         );
-                        onChange(fromCharacterRecord(rec));
+                        onChange(rec);
                       }}
                       className={`p-3.5 rounded-xl border text-left text-xs transition relative flex flex-col justify-between ${
                         isChosen

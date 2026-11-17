@@ -1,4 +1,4 @@
-use cof2_core::{CharacterRecord, Coins, StatCode};
+use cof2_core::{CharacterRecord, Coins, StatBlock, StatCode};
 use cof2_storage::{CharacterStorage, StorageError, MAX_CHARACTER_FILE_BYTES};
 use std::collections::HashMap;
 use std::fs;
@@ -8,14 +8,14 @@ use std::thread;
 use tempfile::tempdir;
 
 fn sample_character(id: &str, name: &str, level: u8) -> CharacterRecord {
-    let mut base_stats = HashMap::new();
-    base_stats.insert(StatCode::FOR, 2);
-    base_stats.insert(StatCode::AGI, 3);
-    base_stats.insert(StatCode::CON, 1);
-    base_stats.insert(StatCode::PER, 2);
-    base_stats.insert(StatCode::INT, 0);
-    base_stats.insert(StatCode::VOL, 1);
-    base_stats.insert(StatCode::CHA, 0);
+    let mut base_stats = StatBlock::default();
+    base_stats.set(StatCode::FOR, 2);
+    base_stats.set(StatCode::AGI, 3);
+    base_stats.set(StatCode::CON, 1);
+    base_stats.set(StatCode::PER, 2);
+    base_stats.set(StatCode::INT, 0);
+    base_stats.set(StatCode::VOL, 1);
+    base_stats.set(StatCode::CHA, 0);
 
     CharacterRecord {
         id: id.into(),
@@ -45,8 +45,8 @@ fn sample_character(id: &str, name: &str, level: u8) -> CharacterRecord {
         base_stats,
         stat_array_preset: None,
         racial_stat_choices: vec![],
-        racial_stat_modifiers: HashMap::new(),
-        manual_stat_bonuses: HashMap::new(),
+        racial_stat_modifiers: StatBlock::default(),
+        manual_stat_bonuses: StatBlock::default(),
         selected_path_ids: vec![],
         acquired_abilities: vec![],
         path_rank_choices: HashMap::new(),
@@ -89,7 +89,7 @@ fn test_atomic_save_and_load() {
     assert_eq!(loaded.name, original.name);
     assert_eq!(loaded.level, original.level);
     assert_eq!(loaded.coins.pa, 25);
-    assert_eq!(loaded.base_stats.get(&StatCode::AGI), Some(&3));
+    assert_eq!(loaded.base_stats.get(StatCode::AGI), 3);
 }
 
 #[test]

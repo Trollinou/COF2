@@ -14,7 +14,6 @@ import {
   WEAPONS,
   WEAPONS_MAP,
 } from '../../../engine/compendium';
-import { toCharacterRecord } from '../../../engine/rustBridge';
 import {
   AlertTriangle,
   Swords,
@@ -46,7 +45,7 @@ export const CombatTab: React.FC<CombatTabProps> = ({
   useEffect(() => {
     let cancelled = false;
     commands
-      .getEquipmentOptionsCharacter(toCharacterRecord(character))
+      .getEquipmentOptionsCharacter(character)
       .then((res) => {
         if (!cancelled) setEquipmentOptions(res);
       });

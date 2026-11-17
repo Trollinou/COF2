@@ -11,7 +11,6 @@ import {
   getReplacedRacialPath,
   getProfileById,
 } from '../../../engine/compendium';
-import { toCharacterRecord } from '../../../engine/rustBridge';
 import {
   ChevronDown,
   ChevronRight,
@@ -125,7 +124,7 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
 
   useEffect(() => {
     let cancelled = false;
-    const rec = toCharacterRecord(character);
+    const rec = character;
     const spellPairs: Array<{ key: string; pathId: string; rank: number }> = [];
     for (const pathId of character.selectedPathIds) {
       const pth = getPathById(pathId);
@@ -436,14 +435,14 @@ export const AbilitiesTab: React.FC<AbilitiesTabProps> = ({
       })}
 
       {/* Active Situational Notes & Reminders */}
-      {stats.pathSituationalNotes.length > 0 && (
+      {stats.situationalNotes.length > 0 && (
         <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 shadow space-y-2.5">
           <div className="flex items-center space-x-2 text-xs font-bold text-amber-300 uppercase tracking-wide border-b border-stone-800 pb-2">
             <Shield className="w-4 h-4 text-amber-400" />
-            <span>Rappels tactiques & Capacités passives actives ({stats.pathSituationalNotes.length})</span>
+            <span>Rappels tactiques & Capacités passives actives ({stats.situationalNotes.length})</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-            {stats.pathSituationalNotes.map((note, idx) => (
+            {stats.situationalNotes.map((note, idx) => (
               <div
                 key={idx}
                 className="flex items-start space-x-2 bg-stone-950/60 border border-stone-800/80 rounded-lg p-2.5 text-xs text-stone-300"

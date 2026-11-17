@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { commands } from './bindings';
-import { fromCharacterRecord } from './engine/rustBridge';
 import { CharacterSheet } from './types/cof2';
 import { useCharacterHistory } from './utils/useCharacterHistory';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -50,11 +49,15 @@ const PLACEHOLDER_CHARACTER: CharacterSheet = {
   baseStats: { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 },
   racialStatChoices: [],
   racialStatModifiers: { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 },
-  manualStatBonuses: {},
+  manualStatBonuses: { FOR: 0, AGI: 0, CON: 0, PER: 0, INT: 0, VOL: 0, CHA: 0 },
   selectedPathIds: [],
   acquiredAbilities: [],
+  pathRankChoices: {},
+  externalAbilityChoices: {},
+  progressionHistory: [],
   currentHp: 0,
   maxHpBonus: 0,
+  levelUpHpGains: [],
   currentDr: 0,
   currentPc: 0,
   currentPm: 0,
@@ -90,17 +93,16 @@ export function App() {
         if (saved) {
           const res = await commands.validateCharacter(saved);
           if (res.status === 'ok') {
-            initial = fromCharacterRecord(res.data.character);
+            initial = res.data.character;
           }
         }
       } catch {
         // fallback below
       }
       if (!initial) {
-        const record = await commands.createDefaultCharacter();
-        initial = fromCharacterRecord(record);
+        initial = await commands.createDefaultCharacter();
       }
-      if (!cancelled) {
+      if (!cancelled && initial) {
         resetCharacter(initial);
         setSavedSnapshot(JSON.stringify(initial));
         setActiveTab(initial.creationCompleted === false ? 'wizard' : 'sheet');
@@ -152,8 +154,7 @@ export function App() {
   };
 
   const executeNewCharacter = async () => {
-    const record = await commands.createBlankWizardCharacter();
-    const fresh = fromCharacterRecord(record);
+    const fresh = await commands.createBlankWizardCharacter();
     resetCharacter(fresh);
     setSavedSnapshot(JSON.stringify(fresh));
     setActiveTab('wizard');

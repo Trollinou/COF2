@@ -1,6 +1,6 @@
 use crate::models::{
     AcquiredAbility, CharacterRecord, CharacterWeaponInstance, ComputedCharacterSheet,
-    ComputedWeaponInfo, StatCode, WeaponModifierRule,
+    ComputedWeaponInfo, StatCode, WeaponCategory, WeaponModifierRule,
 };
 use crate::rules::{PathStatic, RulesDatabase, WeaponStatic};
 use serde::{Deserialize, Serialize};
@@ -45,7 +45,7 @@ pub(crate) fn does_weapon_match_modifier_rule(
     rule: &WeaponModifierRule,
 ) -> bool {
     if let Some(ref cat) = rule.category {
-        if &weapon.category != cat {
+        if weapon.category != cat.as_str() {
             return false;
         }
     }
@@ -603,7 +603,7 @@ pub fn get_default_equipment_for_profile(
                     name: w.name.clone(),
                     damage: w.damage.clone(),
                     range: w.range.clone(),
-                    category: w.category.clone(),
+                    category: WeaponCategory::from_str_lossy(&w.category),
                     bonus_attack: 0,
                     bonus_damage: 0,
                     requires_two_hands: check.requires_two_hands,
@@ -727,7 +727,7 @@ pub(crate) fn compute_weapons_info(
         .iter()
         .map(|w| {
             let base_w = rules.weapons.get(&w.weapon_ref_id);
-            let is_contact = w.category == "contact";
+            let is_contact = w.category == WeaponCategory::Contact;
             let default_stat = if is_contact {
                 StatCode::FOR
             } else {
@@ -762,7 +762,7 @@ pub(crate) fn compute_weapons_info(
                 .map(|r| {
                     r.damage_bonus.unwrap_or(0)
                         + r.damage_stat_bonus
-                            .and_then(|st| sheet.final_stats.get(&st).copied())
+                            .map(|st| sheet.final_stats.get(st))
                             .unwrap_or(0)
                 })
                 .sum();
@@ -771,7 +771,7 @@ pub(crate) fn compute_weapons_info(
                 .filter_map(|r| r.crit_range_bonus)
                 .sum();
 
-            let stat_mod = *sheet.final_stats.get(&stat_used).unwrap_or(&0);
+            let stat_mod = sheet.final_stats.get(stat_used);
             let path_bonus = if is_contact {
                 sheet.path_bonus_attacks.contact
             } else {
@@ -786,11 +786,11 @@ pub(crate) fn compute_weapons_info(
             };
             let extra_dm = w.bonus_damage + weapon_dm_bonus + path_dm_bonus;
             let base_dm_stat_mod = match base_w.and_then(|bw| bw.damage_stat) {
-                Some(Some(st)) => *sheet.final_stats.get(&st).unwrap_or(&0),
+                Some(Some(st)) => sheet.final_stats.get(st),
                 Some(None) => 0,
                 None => {
                     if is_contact {
-                        *sheet.final_stats.get(&StatCode::FOR).unwrap_or(&0)
+                        sheet.final_stats.get(StatCode::FOR)
                     } else {
                         0
                     }

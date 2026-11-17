@@ -1,6 +1,7 @@
 use cof2_core::engine::creation::{
-    apply_racial_defaults, blank_wizard_character_record, default_character_record,
-    detect_characteristic_array_preset, evaluate_point_buy_stats,
+    apply_racial_defaults, auto_assign_characteristic_array, blank_wizard_character_record,
+    default_character_record, detect_characteristic_array_preset, evaluate_point_buy_stats,
+    sanitize_wizard_paths, select_profile_with_defaults, toggle_wizard_profile_path,
 };
 use cof2_core::engine::diversity::{
     format_human_diversity_note, has_human_diversity_rank1, is_human_diversity_valid,
@@ -16,10 +17,9 @@ use cof2_core::engine::progression::{
     can_character_adopt_hybrid_path, check_prestige_path_prerequisites, get_level_up_context,
 };
 use cof2_core::engine::wizard::{get_max_unlocked_wizard_step, validate_wizard_step};
-use cof2_core::models::{AcquiredAbility, HumanDiversityChoice, StatCode};
+use cof2_core::models::{AcquiredAbility, HumanDiversityChoice, StatBlock, StatCode};
 use cof2_core::{validate_and_migrate_record, RulesDatabase, RulesEngine};
 use serde_json::json;
-use std::collections::HashMap;
 
 #[test]
 fn test_validation_and_migration_repairs_corrupted_and_legacy_records() {
@@ -67,28 +67,28 @@ fn test_creation_point_buy_and_array_presets() {
     assert_eq!(blank.creation_completed, Some(false));
     assert!(blank.people_id.is_empty());
 
-    let mut stats = HashMap::new();
-    stats.insert(StatCode::FOR, 3); // 4
-    stats.insert(StatCode::AGI, 2); // 2
-    stats.insert(StatCode::CON, 1); // 1
-    stats.insert(StatCode::PER, 1); // 1
-    stats.insert(StatCode::INT, 0); // 0
-    stats.insert(StatCode::VOL, 0); // 0
-    stats.insert(StatCode::CHA, -1); // +1 budget -> total 8, spent 8
+    let mut stats = StatBlock::default();
+    stats.set(StatCode::FOR, 3); // 4
+    stats.set(StatCode::AGI, 2); // 2
+    stats.set(StatCode::CON, 1); // 1
+    stats.set(StatCode::PER, 1); // 1
+    stats.set(StatCode::INT, 0); // 0
+    stats.set(StatCode::VOL, 0); // 0
+    stats.set(StatCode::CHA, -1); // +1 budget -> total 8, spent 8
     let pb = evaluate_point_buy_stats(&stats);
     assert!(pb.is_valid);
     assert!(pb.is_complete);
     assert_eq!(pb.remaining, 0);
 
-    let mut poly_stats = def.base_stats.clone();
-    poly_stats.insert(StatCode::VOL, 2); // [2, 2, 2, 1, 1, 0, -1]
+    let mut poly_stats = def.base_stats;
+    poly_stats.set(StatCode::VOL, 2); // [2, 2, 2, 1, 1, 0, -1]
     let preset = detect_characteristic_array_preset(&poly_stats, &rules);
     assert_eq!(preset, "polyvalent");
 
     let elf = apply_racial_defaults(&def, "elfe-haut", None, false, &rules);
     assert_eq!(elf.people_id, "elfe-haut");
-    assert_eq!(elf.racial_stat_modifiers.get(&StatCode::FOR), Some(&-1));
-    assert_eq!(elf.racial_stat_modifiers.get(&StatCode::INT), Some(&1));
+    assert_eq!(elf.racial_stat_modifiers.get(StatCode::FOR), -1);
+    assert_eq!(elf.racial_stat_modifiers.get(StatCode::INT), 1);
 }
 
 #[test]
@@ -194,7 +194,7 @@ fn test_wizard_validation_and_companions_in_computed_sheet() {
     assert_eq!(get_max_unlocked_wizard_step(&blank, &rules), 1);
 
     let mut def = default_character_record(&rules);
-    def.base_stats.insert(StatCode::VOL, 2);
+    def.base_stats.set(StatCode::VOL, 2);
     def.player_name = "Alice".to_string();
     def.languages = vec!["Elfe".to_string()];
     def.human_diversity = Some(HumanDiversityChoice {
@@ -210,4 +210,48 @@ fn test_wizard_validation_and_companions_in_computed_sheet() {
     let _grants = resolve_external_grants(&def, &rules);
     let sheet = RulesEngine::compute_sheet(&def, &rules).unwrap();
     assert_eq!(sheet.record.id, def.id);
+}
+
+#[test]
+fn test_wizard_coherence_functions() {
+    let rules = RulesDatabase::load_embedded().unwrap();
+    let mut blank = blank_wizard_character_record(&rules);
+    blank = apply_racial_defaults(&blank, "humain", None, true, &rules);
+
+    // Sélection du profil magicien -> voie raciale non auto-sélectionnée (mage peut choisir voie-du-mage)
+    let mut mage = select_profile_with_defaults(&blank, "magicien", &rules);
+    assert_eq!(mage.profile_id, "magicien");
+    assert!(mage.selected_path_ids.is_empty());
+
+    // Ajout de deux voies de profil + voie-du-mage + rang 2 bonus
+    let mage_paths = rules.profiles.get("magicien").unwrap().paths.clone();
+    mage = toggle_wizard_profile_path(&mage, &mage_paths[0], &rules);
+    mage = toggle_wizard_profile_path(&mage, &mage_paths[1], &rules);
+    assert_eq!(mage.selected_path_ids.len(), 2);
+
+    // Toggling a 3rd profile path replaces the 2nd profile path
+    mage = toggle_wizard_profile_path(&mage, &mage_paths[2], &rules);
+    assert_eq!(mage.selected_path_ids, vec![mage_paths[0].clone(), mage_paths[2].clone()]);
+
+    mage.selected_path_ids.push("voie-du-mage".to_string());
+    mage.acquired_abilities.push(AcquiredAbility {
+        path_id: mage_paths[0].clone(),
+        rank: 2,
+    });
+    assert!(sanitize_wizard_paths(&mage, &rules)
+        .acquired_abilities
+        .iter()
+        .any(|a| a.rank == 2));
+
+    // Changement vers guerrier : sanitize_wizard_paths doit retirer voie-du-mage et le rang 2
+    mage.profile_id = "guerrier".to_string();
+    let sanitized = sanitize_wizard_paths(&mage, &rules);
+    assert!(!sanitized.selected_path_ids.contains(&"voie-du-mage".to_string()));
+    assert!(!sanitized.acquired_abilities.iter().any(|a| a.rank == 2));
+
+    // Auto-assignation du tableau de caractéristiques selon le profil
+    let warrior = select_profile_with_defaults(&blank, "guerrier", &rules);
+    let assigned = auto_assign_characteristic_array(&warrior, "polyvalent", &rules);
+    assert_eq!(assigned.stat_array_preset.as_deref(), Some("polyvalent"));
+    assert_eq!(detect_characteristic_array_preset(&assigned.base_stats, &rules), "polyvalent");
 }

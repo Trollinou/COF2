@@ -1,4 +1,4 @@
-use crate::models::{AcquiredAbility, StatCode};
+use crate::models::{AcquiredAbility, StatBlock};
 use crate::rules::{ArmorStatic, CapRule, RulesDatabase, ScalingBonusRuleStatic};
 use std::collections::HashMap;
 
@@ -37,7 +37,7 @@ pub(crate) fn evaluate_single_bonus(
     level: i32,
     armor: Option<&ArmorStatic>,
     shield: Option<&ArmorStatic>,
-    final_stats: &HashMap<StatCode, i32>,
+    final_stats: &StatBlock,
     effective_abilities: &[AcquiredAbility],
     rules: &RulesDatabase,
     non_stacking_best: &mut HashMap<String, i32>,
@@ -104,7 +104,7 @@ pub(crate) fn evaluate_single_bonus(
     }
 
     if let Some(stat) = b.stat {
-        let stat_val = *final_stats.get(&stat).unwrap_or(&0);
+        let stat_val = final_stats.get(stat);
         val += if b.target == "defense" {
             stat_val.max(0)
         } else {
@@ -176,7 +176,7 @@ pub(crate) fn evaluate_bonuses(
     level: i32,
     armor: Option<&ArmorStatic>,
     shield: Option<&ArmorStatic>,
-    final_stats: &HashMap<StatCode, i32>,
+    final_stats: &StatBlock,
     effective_abilities: &[AcquiredAbility],
     rules: &RulesDatabase,
     non_stacking_best: &mut HashMap<String, i32>,

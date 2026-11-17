@@ -1,5 +1,5 @@
 use crate::engine::bonuses::CollectedBonus;
-use crate::models::{AcquiredAbility, CharacterRecord, StatCode, WeaponModifierRule};
+use crate::models::{AcquiredAbility, CharacterRecord, StatBlock, StatCode, WeaponModifierRule};
 use crate::rules::{PeopleStatic, RankModifiersStatic, RulesDatabase, StatSubstitutionRuleStatic};
 use std::collections::HashMap;
 
@@ -21,12 +21,12 @@ pub(crate) struct CollectedSubstitution {
 }
 
 pub(crate) struct StatDecomposition {
-    pub base_stats: HashMap<StatCode, i32>,
-    pub racial_bonus_stats: HashMap<StatCode, i32>,
-    pub path_bonus_stats: HashMap<StatCode, i32>,
-    pub manual_bonus_stats: HashMap<StatCode, i32>,
-    pub other_bonus_stats: HashMap<StatCode, i32>,
-    pub final_stats: HashMap<StatCode, i32>,
+    pub base_stats: StatBlock,
+    pub racial_bonus_stats: StatBlock,
+    pub path_bonus_stats: StatBlock,
+    pub manual_bonus_stats: StatBlock,
+    pub other_bonus_stats: StatBlock,
+    pub final_stats: StatBlock,
     pub collected_bonuses: Vec<CollectedBonus>,
     pub stat_substitutions: Vec<CollectedSubstitution>,
     pub active_weapon_modifiers: Vec<WeaponModifierRule>,
@@ -35,8 +35,8 @@ pub(crate) struct StatDecomposition {
     pub path_situational_notes: Vec<String>,
 }
 
-pub(crate) fn empty_stat_map() -> HashMap<StatCode, i32> {
-    ALL_STAT_CODES.iter().map(|&s| (s, 0)).collect()
+pub(crate) fn empty_stat_map() -> StatBlock {
+    StatBlock::default()
 }
 
 pub(crate) fn parse_stat(s: &str) -> Result<StatCode, ()> {
@@ -59,7 +59,7 @@ fn collect_modifiers_from_block(
     path_id: &str,
     rank: u8,
     path_rank_choices: &HashMap<String, String>,
-    path_bonus_stats: &mut HashMap<StatCode, i32>,
+    path_bonus_stats: &mut StatBlock,
     collected_bonuses: &mut Vec<CollectedBonus>,
     stat_substitutions: &mut Vec<CollectedSubstitution>,
     active_weapon_modifiers: &mut Vec<WeaponModifierRule>,
@@ -95,7 +95,7 @@ fn collect_modifiers_from_block(
 
     if let Some(ref stats) = modifiers.stats {
         for (stat, val) in stats {
-            *path_bonus_stats.entry(*stat).or_insert(0) += val;
+            path_bonus_stats.add(*stat, *val);
         }
     }
 
@@ -143,43 +143,39 @@ fn collect_modifiers_from_block(
 pub fn compute_racial_stat_modifiers(
     people_id: &str,
     racial_stat_choices: &[StatCode],
-    fallback_modifiers: Option<&HashMap<StatCode, i32>>,
+    fallback_modifiers: Option<&StatBlock>,
     rules: &RulesDatabase,
-) -> HashMap<StatCode, i32> {
+) -> StatBlock {
     let mut mods = empty_stat_map();
     let Some(people) = rules.peoples.get(people_id) else {
         if let Some(fb) = fallback_modifiers {
-            for (stat, val) in fb {
-                mods.insert(*stat, *val);
-            }
+            mods = *fb;
         }
         return mods;
     };
 
     if let Some(ref racial_mods) = people.stats {
         for (stat, modif) in racial_mods {
-            *mods.entry(*stat).or_insert(0) += modif;
+            mods.add(*stat, *modif);
         }
     }
     if let Some(ref choices) = people.stat_choices {
         for (idx, choice) in choices.iter().enumerate() {
             if let Some(chosen_stat) = racial_stat_choices.get(idx) {
-                *mods.entry(*chosen_stat).or_insert(0) += choice.value;
+                mods.add(*chosen_stat, choice.value);
             } else if let Some(first_opt) = choice.options.first() {
                 if let Ok(st) = parse_stat(first_opt) {
-                    *mods.entry(st).or_insert(0) += choice.value;
+                    mods.add(st, choice.value);
                 }
             }
         }
     }
-    if mods.values().all(|&v| v == 0)
+    if ALL_STAT_CODES.iter().all(|&s| mods.get(s) == 0)
         && people.stats.is_none()
         && people.stat_choices.is_none()
     {
         if let Some(fb) = fallback_modifiers {
-            for (stat, modif) in fb {
-                mods.insert(*stat, *modif);
-            }
+            mods = *fb;
         }
     }
     mods
@@ -192,10 +188,7 @@ pub(crate) fn compute_stats(
     effective_abilities: &[AcquiredAbility],
     rules: &RulesDatabase,
 ) -> StatDecomposition {
-    let mut base_stats = empty_stat_map();
-    for (stat, val) in &record.base_stats {
-        base_stats.insert(*stat, *val);
-    }
+    let base_stats = record.base_stats;
 
     let racial_bonus_stats = compute_racial_stat_modifiers(
         &record.people_id,
@@ -234,21 +227,18 @@ pub(crate) fn compute_stats(
         }
     }
 
-    let mut manual_bonus_stats = empty_stat_map();
-    for (stat, bonus) in &record.manual_stat_bonuses {
-        *manual_bonus_stats.entry(*stat).or_insert(0) += bonus;
-    }
+    let manual_bonus_stats = record.manual_stat_bonuses;
 
     let mut other_bonus_stats = empty_stat_map();
     let mut final_stats = empty_stat_map();
     for stat in ALL_STAT_CODES {
-        let base = *base_stats.get(&stat).unwrap_or(&0);
-        let racial = *racial_bonus_stats.get(&stat).unwrap_or(&0);
-        let path = *path_bonus_stats.get(&stat).unwrap_or(&0);
-        let manual = *manual_bonus_stats.get(&stat).unwrap_or(&0);
+        let base = base_stats.get(stat);
+        let racial = racial_bonus_stats.get(stat);
+        let path = path_bonus_stats.get(stat);
+        let manual = manual_bonus_stats.get(stat);
         let other = path + manual;
-        other_bonus_stats.insert(stat, other);
-        final_stats.insert(stat, base + racial + other);
+        other_bonus_stats.set(stat, other);
+        final_stats.set(stat, base + racial + other);
     }
 
     StatDecomposition {

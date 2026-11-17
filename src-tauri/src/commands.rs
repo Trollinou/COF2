@@ -1,6 +1,8 @@
 use cof2_core::engine::creation::{
-    apply_racial_defaults, blank_wizard_character_record, default_character_record,
-    detect_characteristic_array_preset, evaluate_point_buy_stats, PointBuyEvaluation,
+    apply_racial_defaults, auto_assign_characteristic_array, blank_wizard_character_record,
+    default_character_record, detect_characteristic_array_preset, evaluate_point_buy_stats,
+    sanitize_wizard_paths, select_profile_with_defaults, toggle_wizard_profile_path,
+    PointBuyEvaluation,
 };
 use cof2_core::engine::diversity::{resolve_human_diversity, ResolvedHumanDiversity};
 use cof2_core::engine::equipment::{
@@ -15,10 +17,9 @@ use cof2_core::engine::progression::{
 use cof2_core::engine::wizard::{validate_wizard_state, WizardValidationState};
 use cof2_core::{
     validate_and_migrate_record, AcquiredAbility, CharacterRecord, ComputedCharacterSheet,
-    HumanDiversityChoice, LevelProgressionStep, RulesDatabase, RulesEngine, StatCode,
+    HumanDiversityChoice, LevelProgressionStep, RulesDatabase, RulesEngine, StatBlock,
     ValidationResult,
 };
-use std::collections::HashMap;
 use cof2_storage::{CharacterStorage, StorageError};
 use std::path::Path;
 use tauri::State;
@@ -112,14 +113,14 @@ pub fn apply_racial_defaults_character(
 
 #[tauri::command]
 #[specta::specta]
-pub fn evaluate_point_buy(base_stats: HashMap<StatCode, i32>) -> PointBuyEvaluation {
+pub fn evaluate_point_buy(base_stats: StatBlock) -> PointBuyEvaluation {
     evaluate_point_buy_stats(&base_stats)
 }
 
 #[tauri::command]
 #[specta::specta]
 pub fn detect_stat_array_preset(
-    base_stats: HashMap<StatCode, i32>,
+    base_stats: StatBlock,
     state: State<'_, AppState>,
 ) -> String {
     detect_characteristic_array_preset(&base_stats, &state.rules)
@@ -159,6 +160,45 @@ pub fn sanitize_equipment_character(
     state: State<'_, AppState>,
 ) -> CharacterRecord {
     sanitize_character_equipment(&record, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn sanitize_wizard_paths_character(
+    record: CharacterRecord,
+    state: State<'_, AppState>,
+) -> CharacterRecord {
+    sanitize_wizard_paths(&record, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn select_profile_with_defaults_character(
+    record: CharacterRecord,
+    profile_id: String,
+    state: State<'_, AppState>,
+) -> CharacterRecord {
+    select_profile_with_defaults(&record, &profile_id, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn toggle_wizard_profile_path_character(
+    record: CharacterRecord,
+    path_id: String,
+    state: State<'_, AppState>,
+) -> CharacterRecord {
+    toggle_wizard_profile_path(&record, &path_id, &state.rules)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn auto_assign_stat_array_character(
+    record: CharacterRecord,
+    preset_id: String,
+    state: State<'_, AppState>,
+) -> CharacterRecord {
+    auto_assign_characteristic_array(&record, &preset_id, &state.rules)
 }
 
 #[tauri::command]

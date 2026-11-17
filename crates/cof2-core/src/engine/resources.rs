@@ -1,7 +1,6 @@
 use crate::engine::bonuses::EvaluatedBonuses;
-use crate::models::{AcquiredAbility, CharacterRecord, ProfileFamily, StatCode};
+use crate::models::{AcquiredAbility, CharacterRecord, EnergyType, ProfileFamily, StatBlock, StatCode};
 use crate::rules::{ProfileStatic, RulesDatabase};
-use std::collections::HashMap;
 
 pub(crate) struct ResourcesSummary {
     pub max_hp: i32,
@@ -9,7 +8,7 @@ pub(crate) struct ResourcesSummary {
     pub dr_dice: String,
     pub max_pc: i32,
     pub max_pm: i32,
-    pub energy_type: String,
+    pub energy_type: EnergyType,
     pub effective_family: ProfileFamily,
     pub is_hybrid: bool,
     pub secondary_profile_name: Option<String>,
@@ -20,7 +19,7 @@ pub(crate) struct ResourcesSummary {
 pub(crate) fn compute_resources(
     record: &CharacterRecord,
     profile: &ProfileStatic,
-    final_stats: &HashMap<StatCode, i32>,
+    final_stats: &StatBlock,
     bonuses: &EvaluatedBonuses,
     luck_stat_replacement: Option<StatCode>,
     mana_stat_replacement: Option<StatCode>,
@@ -28,9 +27,9 @@ pub(crate) fn compute_resources(
     rules: &RulesDatabase,
 ) -> ResourcesSummary {
     let level = record.level as i32;
-    let stat_con = *final_stats.get(&StatCode::CON).unwrap_or(&0);
-    let stat_cha = *final_stats.get(&StatCode::CHA).unwrap_or(&0);
-    let stat_vol = *final_stats.get(&StatCode::VOL).unwrap_or(&0);
+    let stat_con = final_stats.get(StatCode::CON);
+    let stat_cha = final_stats.get(StatCode::CHA);
+    let stat_vol = final_stats.get(StatCode::VOL);
 
     let is_hybrid_lvl1 = level == 1
         && (record.is_hybrid == Some(true)
@@ -101,7 +100,7 @@ pub(crate) fn compute_resources(
     let max_dr = (2 + stat_con + bonus_dr + bonuses.dr).max(0);
 
     let luck_stat_val = luck_stat_replacement
-        .and_then(|s| final_stats.get(&s).copied())
+        .map(|s| final_stats.get(s))
         .unwrap_or(stat_cha);
     let max_pc = (2 + luck_stat_val + bonus_pc + bonuses.pc).max(0);
 
@@ -117,7 +116,7 @@ pub(crate) fn compute_resources(
         .count() as i32;
 
     let mana_base_stat = mana_stat_replacement
-        .and_then(|s| final_stats.get(&s).copied())
+        .map(|s| final_stats.get(s))
         .unwrap_or(stat_vol);
 
     let max_pm = if spell_count > 0 {
@@ -128,7 +127,11 @@ pub(crate) fn compute_resources(
         0
     };
 
-    let energy_type = if is_psionic { "PE" } else { "PM" }.to_string();
+    let energy_type = if is_psionic {
+        EnergyType::PE
+    } else {
+        EnergyType::PM
+    };
 
     let is_hybrid = record.is_hybrid == Some(true)
         || record

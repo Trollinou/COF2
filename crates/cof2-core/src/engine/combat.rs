@@ -2,7 +2,7 @@ use crate::engine::bonuses::{evaluate_single_bonus, EvaluatedBonuses};
 use crate::engine::stats::CollectedSubstitution;
 use crate::models::{
     AcquiredAbility, AttackBonuses, CharacterRecord, CharacterWeaponInstance, HumanDiversityChoice,
-    StatCode,
+    StatBlock, StatCode, WeaponCategory,
 };
 use crate::rules::{ArmorStatic, PeopleStatic, RulesDatabase, ScalingBonusRuleStatic};
 use std::collections::HashMap;
@@ -73,7 +73,7 @@ fn is_weapon_eligible_for_filter(
 pub(crate) fn compute_combat(
     record: &CharacterRecord,
     people: &PeopleStatic,
-    final_stats: &HashMap<StatCode, i32>,
+    final_stats: &StatBlock,
     armor: Option<&ArmorStatic>,
     shield: Option<&ArmorStatic>,
     bonuses: &mut EvaluatedBonuses,
@@ -115,7 +115,7 @@ pub(crate) fn compute_combat(
     let mut defense_stat = StatCode::AGI;
     let mut defense_stat_source: Option<String> = None;
 
-    let raw_agi = *final_stats.get(&StatCode::AGI).unwrap_or(&0);
+    let raw_agi = final_stats.get(StatCode::AGI);
     let mut effective_agi = armor.and_then(|a| a.max_agi).map_or(raw_agi, |cap| raw_agi.min(cap));
 
     let def_subs: Vec<&CollectedSubstitution> = substitutions
@@ -124,7 +124,7 @@ pub(crate) fn compute_combat(
         .collect();
 
     for sub in &def_subs {
-        let rep_val = *final_stats.get(&sub.rule.replacement_stat).unwrap_or(&0);
+        let rep_val = final_stats.get(sub.rule.replacement_stat);
         let capped_rep = armor
             .and_then(|a| a.max_agi)
             .map_or(rep_val, |cap| rep_val.min(cap));
@@ -213,8 +213,8 @@ pub(crate) fn compute_combat(
                 .as_deref()
                 .is_none_or(|f| f == "any")
     }) {
-        let rep_val = *final_stats.get(&sub.rule.replacement_stat).unwrap_or(&0);
-        let cur_val = *final_stats.get(&contact_attack_stat).unwrap_or(&0);
+        let rep_val = final_stats.get(sub.rule.replacement_stat);
+        let cur_val = final_stats.get(contact_attack_stat);
         if rep_val > cur_val {
             contact_attack_stat = sub.rule.replacement_stat;
             contact_attack_stat_source = sub.rule.source_name.clone();
@@ -228,18 +228,18 @@ pub(crate) fn compute_combat(
                 .as_deref()
                 .is_none_or(|f| f == "any")
     }) {
-        let rep_val = *final_stats.get(&sub.rule.replacement_stat).unwrap_or(&0);
-        let cur_val = *final_stats.get(&distance_attack_stat).unwrap_or(&0);
+        let rep_val = final_stats.get(sub.rule.replacement_stat);
+        let cur_val = final_stats.get(distance_attack_stat);
         if rep_val > cur_val {
             distance_attack_stat = sub.rule.replacement_stat;
             distance_attack_stat_source = sub.rule.source_name.clone();
         }
     }
 
-    let stat_contact = *final_stats.get(&contact_attack_stat).unwrap_or(&0);
-    let stat_distance = *final_stats.get(&distance_attack_stat).unwrap_or(&0);
-    let stat_vol = *final_stats.get(&StatCode::VOL).unwrap_or(&0);
-    let stat_per = *final_stats.get(&StatCode::PER).unwrap_or(&0);
+    let stat_contact = final_stats.get(contact_attack_stat);
+    let stat_distance = final_stats.get(distance_attack_stat);
+    let stat_vol = final_stats.get(StatCode::VOL);
+    let stat_per = final_stats.get(StatCode::PER);
 
     let attacks = AttackBonuses {
         contact: bab + stat_contact + bonuses.atk_contact,
@@ -254,7 +254,7 @@ pub(crate) fn compute_combat(
         .cloned()
         .map(|mut w| {
             let base_w = rules.weapons.get(&w.weapon_ref_id);
-            let is_contact = w.category == "contact";
+            let is_contact = w.category == WeaponCategory::Contact;
             let default_stat = base_w
                 .and_then(|bw| bw.attack_stat)
                 .unwrap_or(if is_contact { StatCode::FOR } else { StatCode::AGI });
@@ -262,7 +262,7 @@ pub(crate) fn compute_combat(
             let mut best_source = base_w
                 .filter(|bw| bw.attack_stat.is_some())
                 .map(|bw| bw.name.clone());
-            let mut best_mod = *final_stats.get(&default_stat).unwrap_or(&0);
+            let mut best_mod = final_stats.get(default_stat);
 
             let target = if is_contact {
                 "attackContact"
@@ -272,7 +272,7 @@ pub(crate) fn compute_combat(
 
             for sub in substitutions.iter().filter(|s| s.rule.target == target) {
                 if is_weapon_eligible_for_filter(&w, sub.rule.weapon_filter.as_deref(), rules) {
-                    let rep_mod = *final_stats.get(&sub.rule.replacement_stat).unwrap_or(&0);
+                    let rep_mod = final_stats.get(sub.rule.replacement_stat);
                     if rep_mod > best_mod {
                         best_stat = sub.rule.replacement_stat;
                         best_source = sub.rule.source_name.clone();

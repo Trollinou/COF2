@@ -153,6 +153,8 @@ pub struct ProfileStatic {
     #[serde(default)]
     pub is_family_selectable: bool,
     #[serde(default)]
+    pub primary_stats: Vec<StatCode>,
+    #[serde(default)]
     pub equipment_rules: Option<ProfileEquipmentRulesStatic>,
     #[serde(default)]
     pub default_equipment: Option<ProfileDefaultEquipmentStatic>,

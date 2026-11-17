@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { commands, type EquipmentOptionsResult } from '../../../bindings';
 import { ArmorItem, CharacterSheet, ProfileData, PeopleData, WeaponItem } from '../../../types/cof2';
 import { ARMORS_MAP, WEAPONS, WEAPONS_MAP } from '../../../engine/compendium';
-import { toCharacterRecord } from '../../../engine/rustBridge';
 import { Shield, Swords, Crosshair, AlertTriangle, Trash2, Dices } from 'lucide-react';
 
 interface Step6EquipmentProps {
@@ -29,7 +28,7 @@ export const Step6Equipment: React.FC<Step6EquipmentProps> = ({
   useEffect(() => {
     let cancelled = false;
     commands
-      .getEquipmentOptionsCharacter(toCharacterRecord(character))
+      .getEquipmentOptionsCharacter(character)
       .then((res) => {
         if (!cancelled) setEquipmentOptions(res);
       });

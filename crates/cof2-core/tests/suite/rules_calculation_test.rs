@@ -1,18 +1,18 @@
 use cof2_core::{
     AcquiredAbility, CharacterRecord, CharacterWeaponInstance, Coins, HumanDiversityChoice,
-    LevelProgressionStep, ProfileFamily, RuleError, RulesDatabase, RulesEngine, StatCode,
+    LevelProgressionStep, EnergyType, ProfileFamily, RuleError, RulesDatabase, RulesEngine, StatBlock, StatCode, WeaponCategory,
 };
 use std::collections::HashMap;
 
 fn create_test_record(profile_id: &str, people_id: &str, level: u8) -> CharacterRecord {
-    let mut base_stats = HashMap::new();
-    base_stats.insert(StatCode::FOR, 3);
-    base_stats.insert(StatCode::AGI, 2);
-    base_stats.insert(StatCode::CON, 2);
-    base_stats.insert(StatCode::PER, 1);
-    base_stats.insert(StatCode::INT, 0);
-    base_stats.insert(StatCode::VOL, 0);
-    base_stats.insert(StatCode::CHA, -1);
+    let mut base_stats = StatBlock::default();
+    base_stats.set(StatCode::FOR, 3);
+    base_stats.set(StatCode::AGI, 2);
+    base_stats.set(StatCode::CON, 2);
+    base_stats.set(StatCode::PER, 1);
+    base_stats.set(StatCode::INT, 0);
+    base_stats.set(StatCode::VOL, 0);
+    base_stats.set(StatCode::CHA, -1);
 
     CharacterRecord {
         id: "char-test-1".into(),
@@ -42,8 +42,8 @@ fn create_test_record(profile_id: &str, people_id: &str, level: u8) -> Character
         base_stats,
         stat_array_preset: None,
         racial_stat_choices: vec![],
-        racial_stat_modifiers: HashMap::new(),
-        manual_stat_bonuses: HashMap::new(),
+        racial_stat_modifiers: StatBlock::default(),
+        manual_stat_bonuses: StatBlock::default(),
         selected_path_ids: vec!["voie-du-bouclier".into()],
         acquired_abilities: vec![AcquiredAbility {
             path_id: "voie-du-bouclier".into(),
@@ -211,38 +211,38 @@ fn test_unitary_stat_decomposition_and_reconstruction() {
         rank: 5,
     });
     // Bonus/malus manuel: +1 AGI, -1 CON
-    record.manual_stat_bonuses.insert(StatCode::AGI, 1);
-    record.manual_stat_bonuses.insert(StatCode::CON, -1);
+    record.manual_stat_bonuses.set(StatCode::AGI, 1);
+    record.manual_stat_bonuses.set(StatCode::CON, -1);
 
     let sheet = RulesEngine::compute_sheet(&record, &rules).expect("Calcul valide");
 
     // Base stats
-    assert_eq!(sheet.base_stats.get(&StatCode::FOR), Some(&3));
-    assert_eq!(sheet.base_stats.get(&StatCode::AGI), Some(&2));
-    assert_eq!(sheet.base_stats.get(&StatCode::CON), Some(&2));
-    assert_eq!(sheet.base_stats.get(&StatCode::INT), Some(&0));
+    assert_eq!(sheet.base_stats.get(StatCode::FOR), 3);
+    assert_eq!(sheet.base_stats.get(StatCode::AGI), 2);
+    assert_eq!(sheet.base_stats.get(StatCode::CON), 2);
+    assert_eq!(sheet.base_stats.get(StatCode::INT), 0);
 
     // Racial bonus stats
-    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::FOR), Some(&2));
-    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::INT), Some(&-2));
-    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::VOL), Some(&1));
-    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::CHA), Some(&-2));
-    assert_eq!(sheet.racial_bonus_stats.get(&StatCode::AGI), Some(&0));
+    assert_eq!(sheet.racial_bonus_stats.get(StatCode::FOR), 2);
+    assert_eq!(sheet.racial_bonus_stats.get(StatCode::INT), -2);
+    assert_eq!(sheet.racial_bonus_stats.get(StatCode::VOL), 1);
+    assert_eq!(sheet.racial_bonus_stats.get(StatCode::CHA), -2);
+    assert_eq!(sheet.racial_bonus_stats.get(StatCode::AGI), 0);
 
     // Path bonus stats
-    assert_eq!(sheet.path_bonus_stats.get(&StatCode::FOR), Some(&1));
-    assert_eq!(sheet.path_bonus_stats.get(&StatCode::CON), Some(&1));
-    assert_eq!(sheet.path_bonus_stats.get(&StatCode::AGI), Some(&0));
+    assert_eq!(sheet.path_bonus_stats.get(StatCode::FOR), 1);
+    assert_eq!(sheet.path_bonus_stats.get(StatCode::CON), 1);
+    assert_eq!(sheet.path_bonus_stats.get(StatCode::AGI), 0);
 
     // Manual bonus stats
-    assert_eq!(sheet.manual_bonus_stats.get(&StatCode::AGI), Some(&1));
-    assert_eq!(sheet.manual_bonus_stats.get(&StatCode::CON), Some(&-1));
-    assert_eq!(sheet.manual_bonus_stats.get(&StatCode::FOR), Some(&0));
+    assert_eq!(sheet.manual_bonus_stats.get(StatCode::AGI), 1);
+    assert_eq!(sheet.manual_bonus_stats.get(StatCode::CON), -1);
+    assert_eq!(sheet.manual_bonus_stats.get(StatCode::FOR), 0);
 
     // Other bonus stats = path + manual
-    assert_eq!(sheet.other_bonus_stats.get(&StatCode::FOR), Some(&1));
-    assert_eq!(sheet.other_bonus_stats.get(&StatCode::AGI), Some(&1));
-    assert_eq!(sheet.other_bonus_stats.get(&StatCode::CON), Some(&0));
+    assert_eq!(sheet.other_bonus_stats.get(StatCode::FOR), 1);
+    assert_eq!(sheet.other_bonus_stats.get(StatCode::AGI), 1);
+    assert_eq!(sheet.other_bonus_stats.get(StatCode::CON), 0);
 
     // Reconstruction invariant for all 7 stats: final = base + racial + other
     for stat in [
@@ -254,17 +254,17 @@ fn test_unitary_stat_decomposition_and_reconstruction() {
         StatCode::VOL,
         StatCode::CHA,
     ] {
-        let base = sheet.base_stats.get(&stat).copied().unwrap_or(0);
-        let racial = sheet.racial_bonus_stats.get(&stat).copied().unwrap_or(0);
-        let other = sheet.other_bonus_stats.get(&stat).copied().unwrap_or(0);
-        let final_val = sheet.final_stats.get(&stat).copied().unwrap_or(0);
+        let base = sheet.base_stats.get(stat);
+        let racial = sheet.racial_bonus_stats.get(stat);
+        let other = sheet.other_bonus_stats.get(stat);
+        let final_val = sheet.final_stats.get(stat);
         assert_eq!(final_val, base + racial + other);
     }
 
-    assert_eq!(sheet.final_stats.get(&StatCode::FOR), Some(&6));
-    assert_eq!(sheet.final_stats.get(&StatCode::AGI), Some(&3));
-    assert_eq!(sheet.final_stats.get(&StatCode::CON), Some(&2));
-    assert_eq!(sheet.final_stats.get(&StatCode::INT), Some(&-2));
+    assert_eq!(sheet.final_stats.get(StatCode::FOR), 6);
+    assert_eq!(sheet.final_stats.get(StatCode::AGI), 3);
+    assert_eq!(sheet.final_stats.get(StatCode::CON), 2);
+    assert_eq!(sheet.final_stats.get(StatCode::INT), -2);
 }
 
 #[test]
@@ -275,7 +275,7 @@ fn test_languages_rules_int_paths_and_rollback() {
 
     // 1. Farfadet (Commun, Sylvestre) avec INT -2 : ne parle que Sylvestre, illettré, 0 bonus
     let mut record = create_test_record("guerrier", "farfadet", 1);
-    record.base_stats.insert(StatCode::INT, -2);
+    record.base_stats.set(StatCode::INT, -2);
     let sheet = RulesEngine::compute_sheet(&record, &rules).unwrap();
     assert_eq!(sheet.languages_info.automatic_languages, vec!["Sylvestre"]);
     assert_eq!(sheet.languages_info.bonus_language_slots, 0);
@@ -283,7 +283,7 @@ fn test_languages_rules_int_paths_and_rollback() {
     assert!(sheet.languages_info.int_note.is_some());
 
     // 2. INT 0 : Commun + Sylvestre, déchiffrement hésitant
-    record.base_stats.insert(StatCode::INT, 0);
+    record.base_stats.set(StatCode::INT, 0);
     let sheet = RulesEngine::compute_sheet(&record, &rules).unwrap();
     assert_eq!(
         sheet.languages_info.automatic_languages,
@@ -292,7 +292,7 @@ fn test_languages_rules_int_paths_and_rollback() {
     assert_eq!(sheet.languages_info.literacy, LiteracyStatus::Hesitant);
 
     // 3. Guerrier avec Argotien choisi en bonus : coûte 2 emplacements ; INT +2 -> 2/2 utilisés
-    record.base_stats.insert(StatCode::INT, 2);
+    record.base_stats.set(StatCode::INT, 2);
     record.languages = vec!["Argotien".into()];
     let sheet = RulesEngine::compute_sheet(&record, &rules).unwrap();
     assert_eq!(sheet.languages_info.argotien_slot_cost, 2);
@@ -302,7 +302,7 @@ fn test_languages_rules_int_paths_and_rollback() {
 
     // 4. Chevalier Voie de la noblesse R1 avec INT -1 : alphabétisé et +1 slot
     let mut knight = create_test_record("chevalier", "humain", 1);
-    knight.base_stats.insert(StatCode::INT, -1);
+    knight.base_stats.set(StatCode::INT, -1);
     knight.acquired_abilities = vec![AcquiredAbility {
         path_id: "voie-de-la-noblesse".into(),
         rank: 1,
@@ -326,7 +326,7 @@ fn test_languages_rules_int_paths_and_rollback() {
 
     // 6. Caravanier Voie du diplomate (Polyglotte R2 & R3) : montée de niveau + rollback
     let mut carav = create_test_record("caravanier", "humain", 1);
-    carav.base_stats.insert(StatCode::INT, 1);
+    carav.base_stats.set(StatCode::INT, 1);
     let step2 = LevelProgressionStep {
         level: 2,
         hp_gain: 5,
@@ -401,7 +401,7 @@ fn test_armor_max_agi_shield_size_and_unknown_equipment() {
 
     // Farfadet (+2 DEF taille) avec AGI 4, armure de plaques (DEF +6, maxAgi 2) et petit bouclier
     let mut record = create_test_record("guerrier", "farfadet", 1);
-    record.base_stats.insert(StatCode::AGI, 4);
+    record.base_stats.set(StatCode::AGI, 4);
     record.equipped_armor_id = Some("plaques".into());
     record.equipped_shield_id = Some("petit-bouclier".into());
 
@@ -413,7 +413,7 @@ fn test_armor_max_agi_shield_size_and_unknown_equipment() {
     // Defense = 10 + 2 (effective_agi) + 6 (plaques) + shield_defense + 2 (size_defense_bonus)
     assert_eq!(sheet.defense, 10 + 2 + 6 + sheet.shield_defense + 2);
     // Attaque à distance utilise AGI non plafonnée (4 base + 1 Farfadet = 5) + BAB (1) = 6
-    let final_agi = sheet.final_stats.get(&StatCode::AGI).copied().unwrap_or(0);
+    let final_agi = sheet.final_stats.get(StatCode::AGI);
     assert_eq!(sheet.attacks.distance, 1 + final_agi);
     assert!(sheet
         .situational_notes
@@ -443,7 +443,7 @@ fn test_profile_families_and_psionic_variants() {
     // Mage : energy_type = PM, pas de bonus DR/PC famille
     let mage = create_test_record("magicien", "humain", 1);
     let mage_sheet = RulesEngine::compute_sheet(&mage, &rules).unwrap();
-    assert_eq!(mage_sheet.energy_type, "PM");
+    assert_eq!(mage_sheet.energy_type, EnergyType::PM);
     assert_eq!(mage_sheet.max_dr, 4); // 2 + 2 CON
     assert_eq!(mage_sheet.max_pc, 1); // 2 - 1 CHA
 
@@ -467,7 +467,7 @@ fn test_profile_families_and_psionic_variants() {
     ] {
         psion.profile_family = Some(family);
         let sheet = RulesEngine::compute_sheet(&psion, &rules).unwrap();
-        assert_eq!(sheet.energy_type, "PE");
+        assert_eq!(sheet.energy_type, EnergyType::PE);
         assert_eq!(sheet.dr_dice, expected_dice);
         assert_eq!(sheet.max_dr, expected_dr);
         assert_eq!(sheet.max_pc, expected_pc);
@@ -486,32 +486,17 @@ fn test_dynamic_racial_and_path_rank_choices() {
 
     // Sans choix enregistré dans path_rank_choices : aucun bonus silencieux appliqué
     let sheet_no_choice = RulesEngine::compute_sheet(&record, &rules).unwrap();
-    assert_eq!(
-        sheet_no_choice.racial_bonus_stats.get(&StatCode::PER),
-        Some(&1)
-    );
-    assert_eq!(
-        sheet_no_choice.path_bonus_stats.get(&StatCode::INT),
-        Some(&0)
-    );
-    assert_eq!(
-        sheet_no_choice.path_bonus_stats.get(&StatCode::CHA),
-        Some(&0)
-    );
+    assert_eq!(sheet_no_choice.racial_bonus_stats.get(StatCode::PER), 1);
+    assert_eq!(sheet_no_choice.path_bonus_stats.get(StatCode::INT), 0);
+    assert_eq!(sheet_no_choice.path_bonus_stats.get(StatCode::CHA), 0);
 
     // Avec choix explicite opt_int -> INT +1
     record
         .path_rank_choices
         .insert("voie-de-l-elfe-haut_5".into(), "opt_int".into());
     let sheet_with_choice = RulesEngine::compute_sheet(&record, &rules).unwrap();
-    assert_eq!(
-        sheet_with_choice.path_bonus_stats.get(&StatCode::INT),
-        Some(&1)
-    );
-    assert_eq!(
-        sheet_with_choice.path_bonus_stats.get(&StatCode::CHA),
-        Some(&0)
-    );
+    assert_eq!(sheet_with_choice.path_bonus_stats.get(StatCode::INT), 1);
+    assert_eq!(sheet_with_choice.path_bonus_stats.get(StatCode::CHA), 0);
 }
 
 #[test]
@@ -609,7 +594,7 @@ fn test_validation_errors_and_advanced_rollback() {
     assert!(record
         .selected_path_ids
         .contains(&"voie-de-la-resistance".to_string()));
-    assert_eq!(record.manual_stat_bonuses.get(&StatCode::FOR), Some(&1));
+    assert_eq!(record.manual_stat_bonuses.get(StatCode::FOR), 1);
 
     RulesEngine::rollback_to_level(&mut record, 1, &rules).unwrap();
     assert!(
@@ -619,7 +604,7 @@ fn test_validation_errors_and_advanced_rollback() {
         "La voie ajoutée au niveau 2 doit être retirée lors du rollback au niveau 1"
     );
     assert!(
-        !record.manual_stat_bonuses.contains_key(&StatCode::FOR),
+        record.manual_stat_bonuses.get(StatCode::FOR) == 0,
         "Un bonus manuel retombé à 0 doit être supprimé de la HashMap"
     );
 }
@@ -643,12 +628,12 @@ fn test_external_ability_grants_and_stats() {
         },
     );
     let sheet_orc = RulesEngine::compute_sheet(&orc, &rules).unwrap();
-    assert_eq!(sheet_orc.path_bonus_stats.get(&StatCode::FOR), Some(&1));
-    assert_eq!(sheet_orc.path_bonus_stats.get(&StatCode::CON), Some(&1));
+    assert_eq!(sheet_orc.path_bonus_stats.get(StatCode::FOR), 1);
+    assert_eq!(sheet_orc.path_bonus_stats.get(StatCode::CON), 1);
 
     // 2. Mode défaut + remplacement (voie-du-farfadet R3 accorde Invisibilité R3 -> +1 sort)
     let mut farfadet = create_test_record("voleur", "farfadet", 1);
-    farfadet.base_stats.insert(StatCode::VOL, 2);
+    farfadet.base_stats.set(StatCode::VOL, 2);
     farfadet.acquired_abilities = vec![AcquiredAbility {
         path_id: "voie-du-farfadet".into(),
         rank: 3,
@@ -706,8 +691,8 @@ fn test_stat_substitutions_defense_attack_and_weapons() {
 
     // 1. Substitution de défense : voie-du-pagne R2 (CON remplace AGI si CON > AGI, sinon fallback +1)
     let mut record = create_test_record("barbare", "humain", 1);
-    record.base_stats.insert(StatCode::AGI, 1);
-    record.base_stats.insert(StatCode::CON, 4);
+    record.base_stats.set(StatCode::AGI, 1);
+    record.base_stats.set(StatCode::CON, 4);
     record.acquired_abilities = vec![AcquiredAbility {
         path_id: "voie-du-pagne".into(),
         rank: 2,
@@ -718,16 +703,16 @@ fn test_stat_substitutions_defense_attack_and_weapons() {
     assert_eq!(sheet_con_def.defense, 14); // 10 + 4 CON
 
     // Si AGI >= CON, fallbackDefenseBonus (+1) s'applique
-    record.base_stats.insert(StatCode::AGI, 4);
-    record.base_stats.insert(StatCode::CON, 2);
+    record.base_stats.set(StatCode::AGI, 4);
+    record.base_stats.set(StatCode::CON, 2);
     let sheet_fallback = RulesEngine::compute_sheet(&record, &rules).unwrap();
     assert_eq!(sheet_fallback.defense_stat, StatCode::AGI);
     assert_eq!(sheet_fallback.defense, 15); // 10 + 4 AGI + 1 fallback
 
     // 2. Substitution d'attaque par arme : voie-de-l-escrime R1 (AGI pour lightWeapons)
     let mut escrimeur = create_test_record("voleur", "humain", 1);
-    escrimeur.base_stats.insert(StatCode::FOR, 0);
-    escrimeur.base_stats.insert(StatCode::AGI, 4);
+    escrimeur.base_stats.set(StatCode::FOR, 0);
+    escrimeur.base_stats.set(StatCode::AGI, 4);
     escrimeur.acquired_abilities = vec![AcquiredAbility {
         path_id: "voie-de-l-escrime".into(),
         rank: 1,
@@ -738,7 +723,7 @@ fn test_stat_substitutions_defense_attack_and_weapons() {
         name: "Dague".into(),
         damage: "1d4".into(),
         range: "Contact".into(),
-        category: "contact".into(),
+        category: WeaponCategory::Contact,
         bonus_attack: 0,
         bonus_damage: 0,
         requires_two_hands: false,
@@ -759,13 +744,13 @@ fn test_mana_with_spells_and_hybrid_level_1() {
 
     // 1. Guerrier sans sort : max_pm == 0 même avec VOL > 0
     let mut warrior = create_test_record("guerrier", "humain", 1);
-    warrior.base_stats.insert(StatCode::VOL, 3);
+    warrior.base_stats.set(StatCode::VOL, 3);
     let sheet_w = RulesEngine::compute_sheet(&warrior, &rules).unwrap();
     assert_eq!(sheet_w.max_pm, 0);
 
     // 2. Magicien avec 2 sorts appris (voie-du-feu R1 et R2 si sorts)
     let mut mage = create_test_record("magicien", "humain", 1);
-    mage.base_stats.insert(StatCode::VOL, 3);
+    mage.base_stats.set(StatCode::VOL, 3);
     mage.acquired_abilities = vec![
         AcquiredAbility {
             path_id: "voie-de-la-magie-universelle".into(),

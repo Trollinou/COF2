@@ -1,7 +1,13 @@
+use crate::engine::equipment::{get_default_equipment_for_profile, sanitize_character_equipment};
+use crate::engine::paths::{
+    can_use_voie_du_mage, get_profile_all_pool_path_ids, has_mage_creation_bonus, is_domain_path,
+    is_racial_replacement_path,
+};
 use crate::engine::stats::{compute_racial_stat_modifiers, empty_stat_map, parse_stat, ALL_STAT_CODES};
 use crate::engine::RulesEngine;
 use crate::models::{
-    AcquiredAbility, CharacterRecord, CharacterWeaponInstance, Coins, InventoryItem, StatCode,
+    AcquiredAbility, CharacterRecord, CharacterWeaponInstance, Coins, InventoryItem, StatBlock,
+    StatCode, WeaponCategory,
 };
 use crate::rules::RulesDatabase;
 use serde::{Deserialize, Serialize};
@@ -87,13 +93,13 @@ pub fn default_character_record(rules: &RulesDatabase) -> CharacterRecord {
     let profile = rules.profiles.get(&profile_id);
 
     let mut base_stats = empty_stat_map();
-    base_stats.insert(StatCode::FOR, 0);
-    base_stats.insert(StatCode::AGI, 2);
-    base_stats.insert(StatCode::CON, 1);
-    base_stats.insert(StatCode::PER, 2);
-    base_stats.insert(StatCode::INT, 1);
-    base_stats.insert(StatCode::VOL, 0);
-    base_stats.insert(StatCode::CHA, -1);
+    base_stats.set(StatCode::FOR, 0);
+    base_stats.set(StatCode::AGI, 2);
+    base_stats.set(StatCode::CON, 1);
+    base_stats.set(StatCode::PER, 2);
+    base_stats.set(StatCode::INT, 1);
+    base_stats.set(StatCode::VOL, 0);
+    base_stats.set(StatCode::CHA, -1);
 
     let racial_stat_choices = vec![StatCode::FOR];
     let racial_stat_modifiers =
@@ -158,7 +164,7 @@ pub fn default_character_record(rules: &RulesDatabase) -> CharacterRecord {
         stat_array_preset: Some("polyvalent".to_string()),
         racial_stat_choices,
         racial_stat_modifiers,
-        manual_stat_bonuses: HashMap::new(),
+        manual_stat_bonuses: StatBlock::default(),
         selected_path_ids,
         acquired_abilities,
         path_rank_choices: HashMap::new(),
@@ -181,7 +187,7 @@ pub fn default_character_record(rules: &RulesDatabase) -> CharacterRecord {
                 name: "Épée longue".to_string(),
                 damage: "1d8".to_string(),
                 range: "Contact".to_string(),
-                category: "contact".to_string(),
+                category: WeaponCategory::Contact,
                 bonus_attack: 0,
                 bonus_damage: 0,
                 requires_two_hands: false,
@@ -194,7 +200,7 @@ pub fn default_character_record(rules: &RulesDatabase) -> CharacterRecord {
                 name: "Dague".to_string(),
                 damage: "1d4".to_string(),
                 range: "Contact (ou 10 m)".to_string(),
-                category: "contact".to_string(),
+                category: WeaponCategory::Contact,
                 bonus_attack: 0,
                 bonus_damage: 0,
                 requires_two_hands: false,
@@ -264,7 +270,7 @@ pub fn blank_wizard_character_record(rules: &RulesDatabase) -> CharacterRecord {
         stat_array_preset: Some(String::new()),
         racial_stat_choices: Vec::new(),
         racial_stat_modifiers: empty_stat_map(),
-        manual_stat_bonuses: HashMap::new(),
+        manual_stat_bonuses: StatBlock::default(),
         selected_path_ids: Vec::new(),
         acquired_abilities: Vec::new(),
         path_rank_choices: HashMap::new(),
@@ -531,13 +537,13 @@ pub struct PointBuyEvaluation {
 }
 
 /// Évalue les caractéristiques de base selon la méthode par achat COF2 (budget 7 pts).
-pub fn evaluate_point_buy_stats(base_stats: &HashMap<StatCode, i32>) -> PointBuyEvaluation {
+pub fn evaluate_point_buy_stats(base_stats: &StatBlock) -> PointBuyEvaluation {
     let mut weak_count = 0;
     let mut spent = 0;
     let mut has_out_of_range_values = false;
 
     for code in ALL_STAT_CODES {
-        let val = *base_stats.get(&code).unwrap_or(&0);
+        let val = base_stats.get(code);
         if !(POINT_BUY_MIN_VALUE..=POINT_BUY_MAX_VALUE).contains(&val) {
             has_out_of_range_values = true;
         } else if val == -1 {
@@ -570,12 +576,12 @@ pub fn evaluate_point_buy_stats(base_stats: &HashMap<StatCode, i32>) -> PointBuy
 
 /// Détecte le tableau de caractéristiques prédéfini correspondant, ou `"achat"`.
 pub fn detect_characteristic_array_preset(
-    base_stats: &HashMap<StatCode, i32>,
+    base_stats: &StatBlock,
     rules: &RulesDatabase,
 ) -> String {
     let mut current: Vec<i32> = ALL_STAT_CODES
         .iter()
-        .map(|code| *base_stats.get(code).unwrap_or(&0))
+        .map(|code| base_stats.get(*code))
         .collect();
     current.sort_by(|a, b| b.cmp(a));
 
@@ -588,4 +594,332 @@ pub fn detect_characteristic_array_preset(
     }
 
     "achat".to_string()
+}
+
+fn collect_profile_and_secondary_paths(
+    record: &CharacterRecord,
+    rules: &RulesDatabase,
+    include_optional: bool,
+) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut push_profile = |pid: &str| {
+        if let Some(p) = rules.profiles.get(pid) {
+            if include_optional {
+                out.extend(get_profile_all_pool_path_ids(p));
+            } else {
+                out.extend(p.paths.iter().cloned());
+            }
+        }
+    };
+    push_profile(&record.profile_id);
+    if record.is_hybrid.unwrap_or(false) {
+        if let Some(ref sec_id) = record.secondary_profile_id {
+            push_profile(sec_id);
+        }
+    }
+    out
+}
+
+/// Maintient la cohérence des voies et des rangs 2 gratuits lors de la création.
+pub fn sanitize_wizard_paths(record: &CharacterRecord, rules: &RulesDatabase) -> CharacterRecord {
+    let Some(_profile) = rules.profiles.get(&record.profile_id) else {
+        return record.clone();
+    };
+    let Some(people) = rules.peoples.get(&record.people_id) else {
+        return record.clone();
+    };
+
+    let all_profile_paths = collect_profile_and_secondary_paths(record, rules, true);
+    let is_priest =
+        record.profile_id == "pretre" || record.secondary_profile_id.as_deref() == Some("pretre");
+    let is_mage = can_use_voie_du_mage(record);
+
+    let mut updated = record.clone();
+
+    // 1. Nettoyer toute voie de remplacement (domaine ou voie-du-mage) devenue invalide
+    let invalid_replacements: Vec<String> = updated
+        .selected_path_ids
+        .iter()
+        .filter(|id| {
+            (is_domain_path(id, rules) && !is_priest) || (id.as_str() == "voie-du-mage" && !is_mage)
+        })
+        .cloned()
+        .collect();
+
+    for invalid_id in &invalid_replacements {
+        updated.selected_path_ids.retain(|id| id != invalid_id);
+        if is_domain_path(invalid_id, rules) {
+            updated.deity = None;
+        }
+        updated.acquired_abilities.retain(|a| &a.path_id != invalid_id);
+    }
+
+    // 2. Auto-appliquer la voie raciale si aucune 3e voie n'est présente et que le profil ne la remplace pas
+    let existing_third_path = updated
+        .selected_path_ids
+        .iter()
+        .find(|id| !all_profile_paths.contains(id))
+        .cloned();
+    let has_selectable_cultural = people
+        .selectable_racial_paths
+        .as_ref()
+        .is_some_and(|v| !v.is_empty());
+
+    if existing_third_path.is_none() && !is_priest && !is_mage && !has_selectable_cultural {
+        let expected_racial = get_racial_path_id(&record.people_id, rules);
+        if !expected_racial.is_empty() {
+            updated.selected_path_ids.push(expected_racial.clone());
+            if !updated
+                .acquired_abilities
+                .iter()
+                .any(|a| a.path_id == expected_racial && a.rank == 1)
+            {
+                updated.acquired_abilities.push(AcquiredAbility {
+                    path_id: expected_racial,
+                    rank: 1,
+                });
+            }
+        }
+    }
+
+    // 3. Purger les rangs 2 acquis à la création sans bonus mage
+    if !has_mage_creation_bonus(&updated, rules) {
+        updated.acquired_abilities.retain(|a| a.rank != 2);
+    }
+
+    updated
+}
+
+/// Sélectionne un profil dans le wizard et réinitialise les voies, l'équipement et les ressources.
+pub fn select_profile_with_defaults(
+    record: &CharacterRecord,
+    profile_id: &str,
+    rules: &RulesDatabase,
+) -> CharacterRecord {
+    if !rules.profiles.contains_key(profile_id) {
+        return record.clone();
+    }
+
+    let mut temp = record.clone();
+    temp.profile_id = profile_id.to_string();
+    temp.profile_family = None;
+
+    let all_profile_paths = collect_profile_and_secondary_paths(&temp, rules, false);
+    let existing_third = record
+        .selected_path_ids
+        .iter()
+        .find(|id| !all_profile_paths.contains(id))
+        .cloned();
+
+    let is_priest =
+        profile_id == "pretre" || record.secondary_profile_id.as_deref() == Some("pretre");
+    let is_mage = can_use_voie_du_mage(&temp);
+
+    let mut next_selected_paths = Vec::new();
+    let mut next_acquired = Vec::new();
+
+    if !is_priest && !is_mage {
+        let has_selectable_cultural = rules
+            .peoples
+            .get(&record.people_id)
+            .and_then(|p| p.selectable_racial_paths.as_ref())
+            .is_some_and(|v| !v.is_empty());
+
+        let racial_path_id = existing_third.unwrap_or_else(|| {
+            if !has_selectable_cultural && !record.people_id.is_empty() {
+                get_racial_path_id(&record.people_id, rules)
+            } else {
+                String::new()
+            }
+        });
+
+        if !racial_path_id.is_empty() {
+            next_selected_paths.push(racial_path_id.clone());
+            next_acquired.push(AcquiredAbility {
+                path_id: racial_path_id,
+                rank: 1,
+            });
+        }
+    }
+
+    let effective_people = if record.people_id.is_empty() {
+        "humain"
+    } else {
+        &record.people_id
+    };
+    let default_eq = get_default_equipment_for_profile(profile_id, effective_people, rules);
+
+    let (_, updated_at) = generate_character_id_and_timestamp();
+    temp.deity = None;
+    temp.selected_path_ids = next_selected_paths;
+    temp.acquired_abilities = next_acquired;
+    temp.path_rank_choices = HashMap::new();
+    temp.equipped_armor_id = default_eq.armor_id;
+    temp.equipped_shield_id = default_eq.shield_id;
+    temp.weapons = default_eq.weapons;
+    temp.updated_at = updated_at;
+
+    let mut sanitized = sanitize_character_equipment(&temp, rules);
+    if let Ok(computed) = RulesEngine::compute_sheet(&sanitized, rules) {
+        sanitized.current_hp = computed.max_hp;
+        sanitized.current_dr = computed.max_dr;
+        sanitized.current_pc = computed.max_pc;
+        sanitized.current_pm = computed.max_pm;
+    }
+
+    sanitized
+}
+
+/// Active ou désactive une voie de profil dans le wizard (max 2 voies de profil + conservation 3e voie).
+pub fn toggle_wizard_profile_path(
+    record: &CharacterRecord,
+    path_id: &str,
+    rules: &RulesDatabase,
+) -> CharacterRecord {
+    if !rules.profiles.contains_key(&record.profile_id) {
+        return record.clone();
+    }
+
+    let all_profile_paths = collect_profile_and_secondary_paths(record, rules, true);
+    let current_profile_paths: Vec<String> = record
+        .selected_path_ids
+        .iter()
+        .filter(|id| all_profile_paths.contains(id))
+        .cloned()
+        .collect();
+
+    let existing_third = record
+        .selected_path_ids
+        .iter()
+        .find(|id| !all_profile_paths.contains(id))
+        .cloned();
+
+    let is_special_third = existing_third
+        .as_deref()
+        .is_some_and(|id| is_racial_replacement_path(id, rules));
+    let racial_path = get_racial_path_id(&record.people_id, rules);
+    let third_path = match existing_third.as_deref() {
+        Some(t) if is_special_third => t.to_string(),
+        Some(t) => get_racial_path_id_with_choice(&record.people_id, Some(t), rules),
+        None => String::new(),
+    };
+
+    let new_profile_paths: Vec<String> = if current_profile_paths.iter().any(|id| id == path_id) {
+        current_profile_paths
+            .into_iter()
+            .filter(|id| id != path_id)
+            .collect()
+    } else if current_profile_paths.len() >= 2 {
+        vec![current_profile_paths[0].clone(), path_id.to_string()]
+    } else {
+        let mut next = current_profile_paths;
+        next.push(path_id.to_string());
+        next
+    };
+
+    let mut next_selected = new_profile_paths.clone();
+    if !third_path.is_empty() {
+        next_selected.push(third_path.clone());
+    }
+
+    let mut next_acquired: Vec<AcquiredAbility> = record
+        .acquired_abilities
+        .iter()
+        .filter(|a| {
+            new_profile_paths.contains(&a.path_id)
+                || (!third_path.is_empty()
+                    && (a.path_id == third_path
+                        || (is_special_third && a.path_id == racial_path)))
+        })
+        .cloned()
+        .collect();
+
+    let ensure_rank1 = |acq: &mut Vec<AcquiredAbility>, pid: &str| {
+        if !pid.is_empty() && !acq.iter().any(|a| a.path_id == pid && a.rank == 1) {
+            acq.push(AcquiredAbility {
+                path_id: pid.to_string(),
+                rank: 1,
+            });
+        }
+    };
+
+    for pid in &new_profile_paths {
+        ensure_rank1(&mut next_acquired, pid);
+    }
+    ensure_rank1(&mut next_acquired, &third_path);
+    if is_special_third {
+        ensure_rank1(&mut next_acquired, &racial_path);
+    }
+
+    let (_, updated_at) = generate_character_id_and_timestamp();
+    let mut updated = record.clone();
+    updated.selected_path_ids = next_selected;
+    updated.acquired_abilities = next_acquired;
+    updated.updated_at = updated_at;
+    updated
+}
+
+/// Répartit automatiquement les valeurs d'un tableau de caractéristiques selon le profil.
+pub fn auto_assign_characteristic_array(
+    record: &CharacterRecord,
+    preset_id: &str,
+    rules: &RulesDatabase,
+) -> CharacterRecord {
+    if preset_id.is_empty() {
+        return record.clone();
+    }
+
+    let default_primary = [StatCode::FOR, StatCode::AGI, StatCode::CON];
+    let primary: &[StatCode] = rules
+        .profiles
+        .get(&record.profile_id)
+        .map(|p| p.primary_stats.as_slice())
+        .filter(|s| !s.is_empty())
+        .unwrap_or(&default_primary);
+
+    let mut new_base = empty_stat_map();
+
+    if preset_id == "achat" {
+        let point_buy_spread = [3, 2, 1];
+        for (idx, stat) in primary.iter().enumerate() {
+            if idx < point_buy_spread.len() {
+                new_base.set(*stat, point_buy_spread[idx]);
+            }
+        }
+    } else {
+        let Some(arr) = rules
+            .characteristic_arrays
+            .iter()
+            .find(|a| a.id == preset_id)
+        else {
+            return record.clone();
+        };
+
+        let mut sorted_values = arr.values.clone();
+        sorted_values.sort_by(|a, b| b.cmp(a));
+
+        let secondary: Vec<StatCode> = ALL_STAT_CODES
+            .iter()
+            .copied()
+            .filter(|s| !primary.contains(s))
+            .collect();
+
+        for (idx, stat) in primary.iter().enumerate() {
+            if let Some(&val) = sorted_values.get(idx) {
+                new_base.set(*stat, val);
+            }
+        }
+        for (idx, stat) in secondary.iter().enumerate() {
+            if let Some(&val) = sorted_values.get(primary.len() + idx) {
+                new_base.set(*stat, val);
+            }
+        }
+    }
+
+    let (_, updated_at) = generate_character_id_and_timestamp();
+    let mut updated = record.clone();
+    updated.base_stats = new_base;
+    updated.stat_array_preset = Some(preset_id.to_string());
+    updated.updated_at = updated_at;
+    updated
 }

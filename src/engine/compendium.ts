@@ -194,9 +194,9 @@ export function isMageProfile(profileId: string): boolean {
 
 export function hasMageCreationBonus(char: {
   profileId: string;
-  isHybrid?: boolean;
-  secondaryProfileId?: string;
-  profileFamily?: string;
+  isHybrid?: boolean | null;
+  secondaryProfileId?: string | null;
+  profileFamily?: string | null;
 }): boolean {
   const profile = getProfileById(char.profileId);
   const secondaryProfile =
@@ -214,9 +214,9 @@ export function hasMageCreationBonus(char: {
 
 export function canUseVoieDuMage(char: {
   profileId: string;
-  isHybrid?: boolean;
-  secondaryProfileId?: string;
-  profileFamily?: string;
+  isHybrid?: boolean | null;
+  secondaryProfileId?: string | null;
+  profileFamily?: string | null;
 }): boolean {
   const isPsionicMage =
     (char.profileId === "psionique" ||
@@ -235,9 +235,9 @@ export function canUseVoieDuMage(char: {
 
 export function getMageCreationRank2Ability(char: {
   profileId: string;
-  isHybrid?: boolean;
-  secondaryProfileId?: string;
-  profileFamily?: string;
+  isHybrid?: boolean | null;
+  secondaryProfileId?: string | null;
+  profileFamily?: string | null;
   selectedPathIds?: string[];
   acquiredAbilities?: Array<{ pathId: string; rank: number }>;
 }): { pathId: string; rank: number } | null {

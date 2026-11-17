@@ -16,6 +16,10 @@ fn specta_builder() -> tauri_specta::Builder<tauri::Wry> {
         get_equipment_options_character,
         get_default_equipment_character,
         sanitize_equipment_character,
+        sanitize_wizard_paths_character,
+        select_profile_with_defaults_character,
+        toggle_wizard_profile_path_character,
+        auto_assign_stat_array_character,
         get_level_up_context_character,
         calculate_level_up_hp_gain_character,
         calculate_armor_spell_mana_cost_character,
@@ -145,13 +149,17 @@ fn build_app_menu(app: &tauri::AppHandle) -> tauri::Result<tauri::menu::Menu<tau
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let rules = RulesDatabase::load_embedded().expect("Failed to load embedded rules compendium");
-    let app_state = AppState { rules };
-
     let builder = specta_builder();
 
     #[cfg(debug_assertions)]
     export_bindings_if_changed(&builder, "../src/bindings.ts");
+
+    if std::env::args().any(|arg| arg == "--export-bindings") {
+        return;
+    }
+
+    let rules = RulesDatabase::load_embedded().expect("Failed to load embedded rules compendium");
+    let app_state = AppState { rules };
 
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())

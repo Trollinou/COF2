@@ -1,5 +1,4 @@
 import { commands, type IpcError } from "../bindings";
-import { fromCharacterRecord, toCharacterRecord } from "../engine/rustBridge";
 import type { CharacterSheet } from "../types/cof2";
 
 function formatIpcError(error: IpcError, fallback: string): string {
@@ -48,10 +47,7 @@ export async function saveCharacterFile(
   const filename = `${cleanName}_niv${char.level || 1}.cof2`;
 
   try {
-    const res = await commands.saveCharacterFile(
-      toCharacterRecord(char),
-      filename,
-    );
+    const res = await commands.saveCharacterFile(char, filename);
     if (res.status === "error") {
       return {
         success: false,
@@ -83,7 +79,7 @@ export async function loadCharacterFile(): Promise<{
         message: formatIpcError(res.error, "Erreur lors du chargement"),
       };
     }
-    return { success: true, character: fromCharacterRecord(res.data.record) };
+    return { success: true, character: res.data.record };
   } catch (err: unknown) {
     return {
       success: false,

@@ -1,6 +1,20 @@
-export type StatCode = 'FOR' | 'AGI' | 'CON' | 'PER' | 'INT' | 'VOL' | 'CHA';
+import type {
+  AcquiredAbility,
+  ProfileFamily,
+  StatCode,
+  WeaponCategory,
+  WeaponModifierRule,
+} from '../bindings';
 
-export type ProfileFamily = 'Aventuriers' | 'Combattants' | 'Mages' | 'Mystiques';
+export type {
+  AcquiredAbility,
+  ProfileFamily,
+  StatCode,
+  WeaponCategory,
+  WeaponModifierRule,
+};
+
+export type AbilityRef = AcquiredAbility;
 
 export type BookSource = 'base' | 'compagnon';
 
@@ -81,24 +95,6 @@ export interface ScalingBonusRule {
   note?: string;
 }
 
-export interface WeaponModifierRule {
-  tags?: WeaponTag[];
-  weaponIds?: string[];
-  category?: 'contact' | 'distance';
-  grantProficiency?: boolean;
-  attackBonus?: number;
-  damageBonus?: number;
-  damageStatBonus?: StatCode;
-  critRangeBonus?: number;
-  sourceName?: string;
-  note?: string;
-}
-
-export interface AbilityRef {
-  pathId: string;
-  rank: number;
-}
-
 export interface ExternalAbilityGrantRule {
   allowedProfiles: string[] | 'any';
   maxRank: number;
@@ -107,11 +103,7 @@ export interface ExternalAbilityGrantRule {
   maxFreeSpellArmorId?: string;
   count?: number;
   label?: string;
-  // Replacement mode: ability automatically granted by this rank. When the character
-  // already owns it (acquired or borrowed elsewhere), the player must pick a replacement instead.
   defaultAbility?: AbilityRef;
-  // Replacement mode: explicit list of replacement abilities (takes precedence over
-  // allowedProfiles / maxRank when set).
   replacementAbilities?: AbilityRef[];
 }
 

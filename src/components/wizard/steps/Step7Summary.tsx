@@ -20,7 +20,6 @@ import {
   getDeityByDomainPathId,
   isDomainPath,
 } from '../../../engine/compendium';
-import { toCharacterRecord } from '../../../engine/rustBridge';
 import { CheckCircle2, Shield, Swords, Sparkles, User, Coins, BookOpen } from 'lucide-react';
 import { HUMAN_DIVERSITY_PATH_ID } from '../../../utils/uiConstants';
 
@@ -130,7 +129,7 @@ export const Step7Summary: React.FC<Step7SummaryProps> = ({
   useEffect(() => {
     let cancelled = false;
     Promise.all([
-      commands.resolveExternalGrantsCharacter(toCharacterRecord(character)),
+      commands.resolveExternalGrantsCharacter(character),
       commands.resolveHumanDiversityChoice(character.humanDiversity ?? null),
     ]).then(([grants, div]) => {
       if (!cancelled) {

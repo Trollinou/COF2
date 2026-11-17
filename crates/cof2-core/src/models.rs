@@ -14,6 +14,123 @@ pub enum StatCode {
     CHA,
 }
 
+/// Bloc complet des 7 caractéristiques COF2 (garantit toutes les clés côté TypeScript).
+#[allow(non_snake_case)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(default)]
+pub struct StatBlock {
+    pub FOR: i32,
+    pub AGI: i32,
+    pub CON: i32,
+    pub PER: i32,
+    pub INT: i32,
+    pub VOL: i32,
+    pub CHA: i32,
+}
+
+impl StatBlock {
+    pub fn get(&self, code: StatCode) -> i32 {
+        match code {
+            StatCode::FOR => self.FOR,
+            StatCode::AGI => self.AGI,
+            StatCode::CON => self.CON,
+            StatCode::PER => self.PER,
+            StatCode::INT => self.INT,
+            StatCode::VOL => self.VOL,
+            StatCode::CHA => self.CHA,
+        }
+    }
+
+    pub fn set(&mut self, code: StatCode, value: i32) {
+        match code {
+            StatCode::FOR => self.FOR = value,
+            StatCode::AGI => self.AGI = value,
+            StatCode::CON => self.CON = value,
+            StatCode::PER => self.PER = value,
+            StatCode::INT => self.INT = value,
+            StatCode::VOL => self.VOL = value,
+            StatCode::CHA => self.CHA = value,
+        }
+    }
+
+    pub fn add(&mut self, code: StatCode, delta: i32) {
+        let cur = self.get(code);
+        self.set(code, cur + delta);
+    }
+
+    pub fn iter(&self) -> [(StatCode, i32); 7] {
+        [
+            (StatCode::FOR, self.FOR),
+            (StatCode::AGI, self.AGI),
+            (StatCode::CON, self.CON),
+            (StatCode::PER, self.PER),
+            (StatCode::INT, self.INT),
+            (StatCode::VOL, self.VOL),
+            (StatCode::CHA, self.CHA),
+        ]
+    }
+}
+
+impl std::ops::Index<StatCode> for StatBlock {
+    type Output = i32;
+
+    fn index(&self, code: StatCode) -> &Self::Output {
+        match code {
+            StatCode::FOR => &self.FOR,
+            StatCode::AGI => &self.AGI,
+            StatCode::CON => &self.CON,
+            StatCode::PER => &self.PER,
+            StatCode::INT => &self.INT,
+            StatCode::VOL => &self.VOL,
+            StatCode::CHA => &self.CHA,
+        }
+    }
+}
+
+impl std::ops::IndexMut<StatCode> for StatBlock {
+    fn index_mut(&mut self, code: StatCode) -> &mut Self::Output {
+        match code {
+            StatCode::FOR => &mut self.FOR,
+            StatCode::AGI => &mut self.AGI,
+            StatCode::CON => &mut self.CON,
+            StatCode::PER => &mut self.PER,
+            StatCode::INT => &mut self.INT,
+            StatCode::VOL => &mut self.VOL,
+            StatCode::CHA => &mut self.CHA,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "lowercase")]
+pub enum WeaponCategory {
+    Contact,
+    Distance,
+}
+
+impl WeaponCategory {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Contact => "contact",
+            Self::Distance => "distance",
+        }
+    }
+
+    pub fn from_str_lossy(s: &str) -> Self {
+        if s.eq_ignore_ascii_case("distance") {
+            Self::Distance
+        } else {
+            Self::Contact
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+pub enum EnergyType {
+    PM,
+    PE,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub enum ProfileFamily {
     Aventuriers,
@@ -37,7 +154,7 @@ pub struct CharacterWeaponInstance {
     pub name: String,
     pub damage: String,
     pub range: String,
-    pub category: String,
+    pub category: WeaponCategory,
     #[serde(default)]
     pub bonus_attack: i32,
     #[serde(default)]
@@ -60,7 +177,7 @@ pub struct InventoryItem {
     pub notes: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct Coins {
     pub pa: i32,
@@ -108,40 +225,27 @@ pub struct LevelProgressionStep {
 }
 
 /// Modèle persistant officiel d'un personnage COF2 (compatible avec les fichiers .cof2)
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Type)]
+#[serde(default, rename_all = "camelCase")]
 pub struct CharacterRecord {
     pub id: String,
     #[serde(default = "default_version")]
     pub version: String,
-    #[serde(default)]
     pub updated_at: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub creation_completed: Option<bool>,
     pub name: String,
-    #[serde(default)]
     pub player_name: String,
-    #[serde(default)]
     pub sex: String,
-    #[serde(default)]
     pub age: String,
-    #[serde(default)]
     pub height: String,
-    #[serde(default)]
     pub weight: String,
-    #[serde(default)]
     pub physical_traits: String,
-    #[serde(default)]
     pub languages: Vec<String>,
-    #[serde(default)]
     pub secondary_talents: Vec<String>,
-    #[serde(default)]
     pub background: String,
-    #[serde(default)]
     pub ideal: String,
-    #[serde(default)]
     pub flaw: String,
-    #[serde(default)]
     pub notes: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deity: Option<String>,
@@ -156,35 +260,25 @@ pub struct CharacterRecord {
     pub secondary_profile_id: Option<String>,
     pub level: u8,
 
-    pub base_stats: HashMap<StatCode, i32>,
+    pub base_stats: StatBlock,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stat_array_preset: Option<String>,
-    #[serde(default)]
     pub racial_stat_choices: Vec<StatCode>,
-    #[serde(default)]
-    pub racial_stat_modifiers: HashMap<StatCode, i32>,
-    #[serde(default)]
-    pub manual_stat_bonuses: HashMap<StatCode, i32>,
+    pub racial_stat_modifiers: StatBlock,
+    pub manual_stat_bonuses: StatBlock,
 
-    #[serde(default)]
     pub selected_path_ids: Vec<String>,
-    #[serde(default)]
     pub acquired_abilities: Vec<AcquiredAbility>,
-    #[serde(default)]
     pub path_rank_choices: HashMap<String, String>,
-    #[serde(default)]
     pub external_ability_choices: HashMap<String, AcquiredAbility>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub human_diversity: Option<HumanDiversityChoice>,
 
     /// Historique des apprentissages niveau par niveau (permet de tracer et de revenir en arrière)
-    #[serde(default)]
     pub progression_history: Vec<LevelProgressionStep>,
 
     pub current_hp: i32,
-    #[serde(default)]
     pub max_hp_bonus: i32,
-    #[serde(default)]
     pub level_up_hp_gains: Vec<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub half_hp_pending: Option<bool>,
@@ -197,20 +291,13 @@ pub struct CharacterRecord {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub equipped_shield_id: Option<String>,
 
-    #[serde(default)]
     pub weapons: Vec<CharacterWeaponInstance>,
-    #[serde(default)]
     pub inventory: Vec<InventoryItem>,
-    #[serde(default = "default_coins")]
     pub coins: Coins,
 }
 
 fn default_version() -> String {
     "0.8.5".to_string()
-}
-
-fn default_coins() -> Coins {
-    Coins { pa: 0, pc: 0, po: 0 }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
@@ -248,7 +335,7 @@ pub struct WeaponModifierRule {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub weapon_ids: Option<Vec<String>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub category: Option<String>,
+    pub category: Option<WeaponCategory>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub grant_proficiency: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -284,12 +371,12 @@ pub struct ComputedWeaponInfo {
 #[serde(rename_all = "camelCase")]
 pub struct ComputedCharacterSheet {
     pub record: CharacterRecord,
-    pub base_stats: HashMap<StatCode, i32>,
-    pub racial_bonus_stats: HashMap<StatCode, i32>,
-    pub path_bonus_stats: HashMap<StatCode, i32>,
-    pub manual_bonus_stats: HashMap<StatCode, i32>,
-    pub other_bonus_stats: HashMap<StatCode, i32>,
-    pub final_stats: HashMap<StatCode, i32>,
+    pub base_stats: StatBlock,
+    pub racial_bonus_stats: StatBlock,
+    pub path_bonus_stats: StatBlock,
+    pub manual_bonus_stats: StatBlock,
+    pub other_bonus_stats: StatBlock,
+    pub final_stats: StatBlock,
     pub bab: i32,
     pub defense: i32,
     pub defense_stat: StatCode,
@@ -303,7 +390,7 @@ pub struct ComputedCharacterSheet {
     pub dr_dice: String,
     pub max_pc: i32,
     pub max_pm: i32,
-    pub energy_type: String,
+    pub energy_type: EnergyType,
     pub effective_family: ProfileFamily,
     pub is_hybrid: bool,
     pub secondary_profile_name: Option<String>,

@@ -46,9 +46,7 @@ pub fn evaluate_companion_formula(
         total += per_r5 * profile_rank5_count;
     }
     if let Some(stat) = formula.stat {
-        if let Some(val) = sheet.final_stats.get(&stat) {
-            total += *val;
-        }
+        total += sheet.final_stats.get(stat);
     }
     if let Some(ref hero_ref) = formula.hero_stat_ref {
         match hero_ref.as_str() {

@@ -106,7 +106,7 @@ COF2/
 ### C. Persistance Locale & Sécurité I/O (`crates/cof2-storage`)
 
 1. **Sauvegardes Atomiques (Zéro Corruption)** :
-   - Lors de la sauvegarde d'un fichier `.cof2`, écrire dans un fichier temporaire unique (`tempfile::NamedTempFile::new_in` avec `O_EXCL` et nettoyage RAII en cas d'erreur), forcer la synchronisation disque (`sync_all()`), puis persister atomiquement (`persist()`).
+   - Lors de la sauvegarde d'un fichier `.cof2`, écrire dans un fichier temporaire unique (`tempfile::NamedTempFile::new_in` avec `O_EXCL` et nettoyage RAII en cas d'erreur), forcer la synchronisation disque (`sync_all()`), puis persister atomiquement (`persist_with_retry` : jusqu'à 6 tentatives avec backoff exponentiel sur `ErrorKind::PermissionDenied` pour absorber les verrous transitoires NTFS sous Windows).
    - Lors d'un écrasement depuis l'application desktop (`save_atomic_with_backup`), créer une copie de secours `<nom>.cof2.bak` avant d'écrire la nouvelle version.
 2. **Sécurité I/O & Validation** :
    - Validation d'extension (`.cof2` / `.json`) côté Rust (`validate_character_extension`) avant toute opération disque dans `src-tauri/src/commands.rs`.
@@ -122,7 +122,8 @@ COF2/
    - Maintenir une politique CSP étanche : `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none';`.
    - Télémétrie désactivée, aucun updater réseau non sollicité.
 2. **Contrats Typés Stricts (`tauri-specta`) & Dialogues Côté Rust** :
-   - Toutes les commandes IPC Rust (`compute_character`, `apply_level_up_character`, `rollback_character_level`, `save_character_file`, `load_character_file`, `print_character_sheet`) doivent être annotées avec `#[specta::specta]` pour régénérer automatiquement `src/bindings.ts` et retourner des erreurs typées (`IpcError`).
+   - Toutes les commandes IPC Rust (`compute_character`, `apply_level_up_character`, `rollback_character_level`, `save_character_file`, `load_character_file`, `print_character_sheet`, commandes wizard) doivent être annotées avec `#[specta::specta]` pour régénérer automatiquement `src/bindings.ts` (ou via `cargo run -p cof2-desktop -- --export-bindings` depuis `src-tauri/`) et retourner des erreurs typées (`IpcError`).
+   - Les types partagés (`CharacterRecord`, `ComputedCharacterSheet`, `StatBlock`, `WeaponCategory`, `EnergyType`) sont ré-exportés directement depuis `src/bindings.ts` sans double définition ni couche de conversion manuelle.
    - Les dialogues de fichiers natifs (`save_character_file`, `load_character_file`) sont pilotés côté Rust via `tauri_plugin_dialog::DialogExt` afin que la WebView ne transmette jamais de chemins disque arbitraires.
 3. **Impression Native & Localisation OS (macOS & Windows)** :
    - L'impression délègue à la méthode native `window.print()` (`tauri::WebviewWindow`) avec la permission `"core:webview:allow-print"`.

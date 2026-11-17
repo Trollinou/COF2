@@ -38,7 +38,7 @@ impl CharacterStorage {
         tmp.write_all(json.as_bytes())?;
         tmp.as_file().sync_all()?;
 
-        tmp.persist(target_path).map_err(|e| e.error)?;
+        persist_with_retry(tmp, target_path)?;
         sync_parent_dir(parent);
         Ok(())
     }
@@ -147,6 +147,29 @@ fn validate_loaded_record(record: &CharacterRecord) -> Result<(), StorageError> 
         ));
     }
     Ok(())
+}
+
+/// Persiste atomiquement un fichier temporaire avec retry borné sur `PermissionDenied`
+/// (absorbe les verrous transitoires NTFS sous Windows lors de remplacements concurrents).
+fn persist_with_retry(mut tmp: NamedTempFile, target_path: &Path) -> Result<(), std::io::Error> {
+    const MAX_RETRIES: u32 = 6;
+    let mut backoff_ms = 5u64;
+
+    for attempt in 0..=MAX_RETRIES {
+        match tmp.persist(target_path) {
+            Ok(_) => return Ok(()),
+            Err(err) => {
+                if err.error.kind() == ErrorKind::PermissionDenied && attempt < MAX_RETRIES {
+                    tmp = err.file;
+                    std::thread::sleep(std::time::Duration::from_millis(backoff_ms));
+                    backoff_ms = (backoff_ms * 2).min(80);
+                } else {
+                    return Err(err.error);
+                }
+            }
+        }
+    }
+    unreachable!()
 }
 
 #[cfg(unix)]
