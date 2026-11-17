@@ -23,18 +23,26 @@ export const POINT_BUY_COSTS: Record<number, number> = {
 
 export const OFFICIAL_LANGUAGES: readonly string[] = [
   "Commun",
-  "Elfe",
-  "Nain",
-  "Gnome",
-  "Orc",
-  "Gobelin",
-  "Géant",
   "Sylvestre",
+  "Runique",
+  "Noir parlé",
   "Draconique",
-  "Démoniaque",
-  "Céleste",
+  "Abyssal",
+  "Célestien",
   "Argotien",
+  "Profond",
+  "Aquarien",
+  "Ophidien",
 ];
+
+export function isSameLanguage(a: string, b: string): boolean {
+  const aLower = a.trim().toLowerCase();
+  const bLower = b.trim().toLowerCase();
+  return (
+    aLower === bLower ||
+    (aLower.startsWith("noir parlé") && bLower.startsWith("noir parlé"))
+  );
+}
 
 export const SECONDARY_TALENT_EXAMPLES: readonly string[] = [
   "Forgeron",

@@ -1,7 +1,8 @@
 import React from 'react';
+import type { ResolvedExternalGrant } from '../../../bindings';
 import type { CharacterSheet, HumanDiversityChoice, PathData, PeopleData, PriestDeity } from '../../../types/cof2';
 import { PRIEST_DEITIES } from '../../../engine/compendium';
-import { ChevronDown, ChevronUp, Sparkles, Shield, BookOpen, Shuffle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { ActionBadges } from '../../sheet/ActionBadges';
 import { CompanionCard } from '../../sheet/CompanionCard';
 import { ExternalAbilitySelector } from '../../shared/ExternalAbilitySelector';
@@ -11,6 +12,7 @@ import { Step5RacialSection } from './Step5RacialSection';
 
 interface Step5ReplacementSectionProps {
   character: CharacterSheet;
+  externalGrants?: ResolvedExternalGrant[];
   onChange: (updated: CharacterSheet) => void;
   selectedPeople: PeopleData;
   isPriest: boolean;
@@ -21,8 +23,6 @@ interface Step5ReplacementSectionProps {
   isReplacementActive: boolean;
   domainPending: boolean;
   setDomainPending: (pending: boolean) => void;
-  domainFilter: string;
-  setDomainFilter: (filter: string) => void;
   currentThirdPath?: PathData;
   currentThirdPathId: string;
   defaultRacialPath?: PathData;
@@ -39,32 +39,12 @@ interface Step5ReplacementSectionProps {
 }
 
 export const Step5ReplacementSection: React.FC<Step5ReplacementSectionProps> = ({
-  character,
-  onChange,
-  selectedPeople,
-  isPriest,
-  isMage,
-  isRacialActive,
-  isDomainActive,
-  isVoieDuMageActive,
-  isReplacementActive,
-  domainPending,
-  setDomainPending,
-  domainFilter,
-  setDomainFilter,
-  currentThirdPath,
-  currentThirdPathId,
-  defaultRacialPath,
-  currentDeityInfo,
-  expandedPaths,
-  togglePathPreview,
-  handleSelectRacial,
-  handleSelectDomain,
-  handleSelectVoieDuMage,
-  handleRankChoice,
-  handleHumanDiversityChange,
-  selectedProfilePaths,
-  handleUpdatePartial,
+  character, externalGrants, onChange, selectedPeople, isPriest, isMage,
+  isRacialActive, isDomainActive, isVoieDuMageActive, isReplacementActive,
+  domainPending, setDomainPending, currentThirdPath, currentThirdPathId,
+  defaultRacialPath, currentDeityInfo, expandedPaths, togglePathPreview,
+  handleSelectRacial, handleSelectDomain, handleSelectVoieDuMage, handleRankChoice,
+  handleHumanDiversityChange, selectedProfilePaths, handleUpdatePartial,
 }) => {
   return (
       <div className="pt-4 border-t border-stone-800 space-y-4">
@@ -301,6 +281,7 @@ export const Step5ReplacementSection: React.FC<Step5ReplacementSectionProps> = (
                           character={character}
                           pathId={currentThirdPath.id}
                           rank={currentThirdPath.ranks[0]}
+                          externalGrants={externalGrants}
                           updateCharacter={handleUpdatePartial}
                         />
                         <RankChoiceSelector
@@ -389,13 +370,13 @@ export const Step5ReplacementSection: React.FC<Step5ReplacementSectionProps> = (
         ) : (
           <Step5RacialSection
             character={character}
+            externalGrants={externalGrants}
             onChange={onChange}
             selectedPeople={selectedPeople}
             currentThirdPath={currentThirdPath}
             currentThirdPathId={currentThirdPathId}
             expandedPaths={expandedPaths}
             togglePathPreview={togglePathPreview}
-            handleSelectRacial={handleSelectRacial}
             handleRankChoice={handleRankChoice}
             handleHumanDiversityChange={handleHumanDiversityChange}
             handleUpdatePartial={handleUpdatePartial}

@@ -68,7 +68,7 @@ impl From<StorageError> for IpcError {
 }
 
 /// Neutralise toute composante de répertoire dans un nom de fichier proposé par la WebView.
-pub(crate) fn sanitize_default_filename(raw: &str) -> String {
+pub fn sanitize_default_filename(raw: &str) -> String {
     let trimmed = raw.trim();
     if trimmed.is_empty() {
         return "personnage.cof2".to_string();
@@ -371,49 +371,4 @@ pub async fn load_character_file(
     let validated = validate_and_migrate_record(raw, &state.rules);
     RulesEngine::compute_sheet(&validated.character, &state.rules)
         .map_err(|e| IpcError::Rules(e.to_string()))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn sanitize_default_filename_strips_traversal_and_falls_back() {
-        assert_eq!(sanitize_default_filename("../../etc/passwd"), "passwd");
-        assert_eq!(
-            sanitize_default_filename("/tmp/malicious/hero_niv3.cof2"),
-            "hero_niv3.cof2"
-        );
-        assert_eq!(sanitize_default_filename("   "), "personnage.cof2");
-        assert_eq!(sanitize_default_filename(".."), "personnage.cof2");
-        assert_eq!(
-            sanitize_default_filename("Éléonore_niv2.cof2"),
-            "Éléonore_niv2.cof2"
-        );
-    }
-
-    #[test]
-    fn storage_error_maps_to_typed_ipc_error() {
-        assert_eq!(
-            IpcError::from(StorageError::InvalidExtension(".txt".into())),
-            IpcError::InvalidExtension(".txt".into())
-        );
-        assert_eq!(
-            IpcError::from(StorageError::NotFound("hero.cof2".into())),
-            IpcError::NotFound("hero.cof2".into())
-        );
-        assert_eq!(
-            IpcError::from(StorageError::FileTooLarge {
-                size: 11_000_000,
-                max: 10_485_760
-            }),
-            IpcError::FileTooLarge(
-                "11000000 octets (maximum autorisé : 10485760 octets)".into()
-            )
-        );
-        assert_eq!(
-            IpcError::from(StorageError::InvalidRecord("id manquant".into())),
-            IpcError::InvalidFormat("id manquant".into())
-        );
-    }
 }

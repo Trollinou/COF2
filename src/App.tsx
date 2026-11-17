@@ -25,6 +25,10 @@ const LevelUpModal = lazy(() =>
 
 const STORAGE_KEY = 'cof2_active_character';
 
+function serializeComparable(c: CharacterSheet): string {
+  return JSON.stringify({ ...c, updatedAt: '' });
+}
+
 const PLACEHOLDER_CHARACTER: CharacterSheet = {
   id: 'init',
   version: '1.0.0',
@@ -104,7 +108,7 @@ export function App() {
       }
       if (!cancelled && initial) {
         resetCharacter(initial);
-        setSavedSnapshot(JSON.stringify(initial));
+        setSavedSnapshot(serializeComparable(initial));
         setActiveTab(initial.creationCompleted === false ? 'wizard' : 'sheet');
         setIsHydrated(true);
       }
@@ -116,8 +120,8 @@ export function App() {
   }, [resetCharacter]);
 
   const isCreationCompleted = character.creationCompleted !== false;
-  const serializedCharacter = useMemo(() => JSON.stringify(character), [character]);
-  const isDirty = serializedCharacter !== savedSnapshot;
+  const comparableCharacter = useMemo(() => serializeComparable(character), [character]);
+  const isDirty = comparableCharacter !== savedSnapshot;
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Debounced auto-save to localStorage
@@ -125,14 +129,14 @@ export function App() {
     if (!isHydrated) return;
     const timer = setTimeout(() => {
       try {
-        localStorage.setItem(STORAGE_KEY, serializedCharacter);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(character));
       } catch (e) {
         console.warn('LocalStorage save failed', e);
       }
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [isHydrated, serializedCharacter]);
+  }, [isHydrated, character]);
 
   useEffect(() => {
     return () => {
@@ -156,7 +160,7 @@ export function App() {
   const executeNewCharacter = async () => {
     const fresh = await commands.createBlankWizardCharacter();
     resetCharacter(fresh);
-    setSavedSnapshot(JSON.stringify(fresh));
+    setSavedSnapshot(serializeComparable(fresh));
     setActiveTab('wizard');
     showToast('Nouveau personnage initialisé dans l\'Assistant !');
   };
@@ -165,7 +169,7 @@ export function App() {
     const res = await loadCharacterFile();
     if (res.character) {
       resetCharacter(res.character);
-      setSavedSnapshot(JSON.stringify(res.character));
+      setSavedSnapshot(serializeComparable(res.character));
       if (res.character.creationCompleted === false) {
         setActiveTab('wizard');
         showToast(`Personnage "${res.character.name || 'Sans nom'}" repris dans l'Assistant !`);
@@ -189,7 +193,7 @@ export function App() {
   const handleSave = async (): Promise<boolean> => {
     const res = await saveCharacterFile(character);
     if (res.success) {
-      setSavedSnapshot(JSON.stringify(character));
+      setSavedSnapshot(serializeComparable(character));
     }
     if (res.message) showToast(res.message);
     return res.success;

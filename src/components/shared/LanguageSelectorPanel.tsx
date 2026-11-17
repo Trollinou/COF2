@@ -5,6 +5,7 @@ import {
   OFFICIAL_LANGUAGES,
   SECONDARY_TALENT_EXAMPLES,
   getLiteracyLabel,
+  isSameLanguage,
 } from '../../utils/uiConstants';
 
 interface LanguageSelectorPanelProps {
@@ -156,8 +157,8 @@ export const LanguageSelectorPanel: React.FC<LanguageSelectorPanelProps> = ({
         </div>
         <div className="flex flex-wrap gap-1.5">
           {OFFICIAL_LANGUAGES.map(lang => {
-            const isAuto = automaticLanguages.some(l => l.toLowerCase() === lang.toLowerCase());
-            const isSelected = selectedLanguages.some(l => l.toLowerCase() === lang.toLowerCase());
+            const isAuto = automaticLanguages.some(l => isSameLanguage(l, lang));
+            const isSelected = selectedLanguages.some(l => isSameLanguage(l, lang));
             const cost = lang === 'Argotien' ? argotienSlotCost : 1;
             const insufficientSlots = enforceSlotLimit && remainingSlots < cost;
             const disabled = isAuto || isSelected || insufficientSlots;

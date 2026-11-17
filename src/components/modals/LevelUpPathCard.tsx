@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ResolvedExternalGrant } from '../../bindings';
 import { PathData, CharacterSheet, ActionRank } from '../../types/cof2';
 import {
   getRankLevelRequirement,
@@ -20,6 +21,7 @@ interface LevelUpPathCardProps {
   pathData: PathData;
   character: CharacterSheet;
   draftCharacter?: CharacterSheet;
+  externalGrants?: ResolvedExternalGrant[];
   acquired: Array<{ pathId: string; rank: number }>;
   newLevel: number;
   pointsToSpend: number;
@@ -41,6 +43,7 @@ export const LevelUpPathCard: React.FC<LevelUpPathCardProps> = ({
   pathData,
   character,
   draftCharacter,
+  externalGrants,
   acquired,
   newLevel,
   pointsToSpend,
@@ -146,23 +149,12 @@ export const LevelUpPathCard: React.FC<LevelUpPathCardProps> = ({
             </button>
           )}
 
-          {canRemovePrestige && onRemovePrestige && (
+          {((canRemovePrestige && onRemovePrestige) || (canRemoveHybrid && onRemoveHybrid)) && (
             <button
               type="button"
-              onClick={() => onRemovePrestige(pathData.id)}
+              onClick={() => (canRemovePrestige ? onRemovePrestige : onRemoveHybrid)?.(pathData.id)}
               className="text-stone-400 hover:text-rose-400 p-1.5 rounded hover:bg-stone-800 transition"
-              title="Retirer cette voie de prestige"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-
-          {canRemoveHybrid && onRemoveHybrid && (
-            <button
-              type="button"
-              onClick={() => onRemoveHybrid(pathData.id)}
-              className="text-stone-400 hover:text-rose-400 p-1.5 rounded hover:bg-stone-800 transition"
-              title="Retirer cette voie hybride"
+              title={canRemovePrestige ? 'Retirer cette voie de prestige' : 'Retirer cette voie hybride'}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -377,6 +369,7 @@ export const LevelUpPathCard: React.FC<LevelUpPathCardProps> = ({
                       character={draftCharacter || character}
                       pathId={pathData.id}
                       rank={r}
+                      externalGrants={externalGrants}
                       updateCharacter={onUpdateExternalChoices}
                     />
                     <RankChoiceSelector

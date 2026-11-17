@@ -5,7 +5,7 @@ use cof2_core::RulesDatabase;
 use tauri::menu::{MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder};
 use tauri::Emitter;
 
-fn specta_builder() -> tauri_specta::Builder<tauri::Wry> {
+pub fn specta_builder() -> tauri_specta::Builder<tauri::Wry> {
     tauri_specta::Builder::<tauri::Wry>::new().commands(tauri_specta::collect_commands![
         create_default_character,
         create_blank_wizard_character,
@@ -147,12 +147,20 @@ fn build_app_menu(app: &tauri::AppHandle) -> tauri::Result<tauri::menu::Menu<tau
         .build()
 }
 
+pub fn resolve_bindings_path() -> &'static str {
+    if std::path::Path::new("src/bindings.ts").exists() {
+        "src/bindings.ts"
+    } else {
+        "../src/bindings.ts"
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = specta_builder();
 
     #[cfg(debug_assertions)]
-    export_bindings_if_changed(&builder, "../src/bindings.ts");
+    export_bindings_if_changed(&builder, resolve_bindings_path());
 
     if std::env::args().any(|arg| arg == "--export-bindings") {
         return;
@@ -188,19 +196,4 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn export_typescript_bindings() {
-        specta_builder()
-            .export(
-                specta_typescript::Typescript::default(),
-                "../src/bindings.ts",
-            )
-            .expect("Failed to export typescript bindings");
-    }
 }

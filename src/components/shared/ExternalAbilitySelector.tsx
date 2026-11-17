@@ -9,6 +9,7 @@ interface ExternalAbilitySelectorProps {
   character: CharacterSheet;
   pathId: string;
   rank: ActionRank;
+  externalGrants?: ResolvedExternalGrant[];
   updateCharacter?: (partial: Partial<CharacterSheet>) => void;
   readOnly?: boolean;
 }
@@ -25,27 +26,33 @@ export const ExternalAbilitySelector: React.FC<ExternalAbilitySelectorProps> = (
   character,
   pathId,
   rank,
+  externalGrants,
   updateCharacter,
   readOnly = false,
 }) => {
   const grantRule = rank.modifiers?.grantExternalAbility;
   const choiceKey = `${pathId}_${rank.rank}`;
-  const [resolved, setResolved] = useState<ResolvedExternalGrant | null>(null);
+  const [fallbackResolved, setFallbackResolved] = useState<ResolvedExternalGrant | null>(null);
 
   useEffect(() => {
-    if (!grantRule) return;
+    if (!grantRule || externalGrants !== undefined) return;
     let cancelled = false;
     commands
       .resolveExternalGrantsCharacter(character)
       .then((grants) => {
         if (!cancelled) {
-          setResolved(grants.find((g) => g.sourceKey === choiceKey) ?? null);
+          setFallbackResolved(grants.find((g) => g.sourceKey === choiceKey) ?? null);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [character, choiceKey, grantRule]);
+  }, [character, choiceKey, grantRule, externalGrants]);
+
+  const resolved =
+    externalGrants !== undefined
+      ? (externalGrants.find((g) => g.sourceKey === choiceKey) ?? null)
+      : fallbackResolved;
 
   if (!grantRule || !resolved) return null;
 

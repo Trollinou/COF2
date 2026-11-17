@@ -327,8 +327,27 @@ pub fn validate_wizard_state(
     step: u8,
     rules: &RulesDatabase,
 ) -> WizardValidationState {
+    let mut max_unlocked_step = 7u8;
+    let mut target_step_result: Option<StepValidationResult> = None;
+
+    for s in 1..=6u8 {
+        let res = validate_wizard_step(s, record, rules);
+        let is_valid = res.valid;
+        if s == step {
+            target_step_result = Some(res);
+        }
+        if !is_valid && max_unlocked_step == 7 {
+            max_unlocked_step = s;
+            if target_step_result.is_some() || step < s {
+                break;
+            }
+        }
+    }
+
+    let step_result =
+        target_step_result.unwrap_or_else(|| validate_wizard_step(step, record, rules));
     WizardValidationState {
-        step_result: validate_wizard_step(step, record, rules),
-        max_unlocked_step: get_max_unlocked_wizard_step(record, rules),
+        step_result,
+        max_unlocked_step,
     }
 }

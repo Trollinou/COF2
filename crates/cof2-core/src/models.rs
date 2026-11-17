@@ -1,4 +1,8 @@
 use crate::engine::companion::ResolvedCompanionStats;
+use crate::engine::diversity::ResolvedHumanDiversity;
+use crate::engine::equipment::EquipmentOptionsResult;
+use crate::engine::grants::ResolvedExternalGrant;
+use crate::engine::progression::CapabilityPointsSummary;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::collections::HashMap;
@@ -415,4 +419,14 @@ pub struct ComputedCharacterSheet {
     pub companions: Vec<ResolvedCompanionStats>,
     #[serde(default)]
     pub computed_weapons: Vec<ComputedWeaponInfo>,
+    #[serde(default)]
+    pub capability_points: CapabilityPointsSummary,
+    #[serde(default)]
+    pub equipment_options: EquipmentOptionsResult,
+    #[serde(default)]
+    pub external_grants: Vec<ResolvedExternalGrant>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resolved_human_diversity: Option<ResolvedHumanDiversity>,
+    #[serde(default)]
+    pub armor_spell_costs: HashMap<String, i32>,
 }

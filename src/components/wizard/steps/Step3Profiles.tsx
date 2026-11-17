@@ -1,7 +1,7 @@
 import React from 'react';
 import { CharacterSheet, ProfileData, ProfileFamily } from '../../../types/cof2';
 import { PROFILES, STAT_NAMES, getPathById, getProfileById } from '../../../engine/compendium';
-import { Search, CheckCircle2, ChevronRight, Sparkles, Target, Shuffle, Heart, Shield } from 'lucide-react';
+import { Search, CheckCircle2, ChevronRight, Sparkles, Target, Shuffle, Heart } from 'lucide-react';
 
 interface Step3ProfilesProps {
   character: CharacterSheet;
@@ -16,33 +16,17 @@ interface Step3ProfilesProps {
 }
 
 export const Step3Profiles: React.FC<Step3ProfilesProps> = ({
-  character,
-  update,
-  selectedProfile,
-  handleSelectProfile,
-  profileFamilyFilter,
-  setProfileFamilyFilter,
-  profileSearch,
-  setProfileSearch,
-  filteredProfiles,
+  character, update, selectedProfile, handleSelectProfile, profileFamilyFilter,
+  setProfileFamilyFilter, profileSearch, setProfileSearch, filteredProfiles,
 }) => {
   const isHybrid = Boolean(character.isHybrid);
   const secondaryProfile = character.secondaryProfileId ? getProfileById(character.secondaryProfileId) : undefined;
 
   const handleToggleHybrid = (enable: boolean) => {
-    if (enable) {
-      // Pick a default secondary profile different from the primary profile
-      const defaultSec = PROFILES.find(p => p.id !== character.profileId)?.id || 'druide';
-      update({
-        isHybrid: true,
-        secondaryProfileId: character.secondaryProfileId || defaultSec,
-      });
-    } else {
-      update({
-        isHybrid: false,
-        secondaryProfileId: undefined,
-      });
-    }
+    const defaultSec = PROFILES.find(p => p.id !== character.profileId)?.id || 'druide';
+    update(enable
+      ? { isHybrid: true, secondaryProfileId: character.secondaryProfileId || defaultSec }
+      : { isHybrid: false, secondaryProfileId: undefined });
   };
 
   const handleSelectSecondaryProfile = (secId: string) => {

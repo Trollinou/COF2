@@ -1,8 +1,9 @@
 use crate::engine::bonuses::{evaluate_single_bonus, EvaluatedBonuses};
+use crate::engine::diversity::{format_human_diversity_note, has_human_diversity_rank1};
 use crate::engine::stats::CollectedSubstitution;
 use crate::models::{
-    AcquiredAbility, AttackBonuses, CharacterRecord, CharacterWeaponInstance, HumanDiversityChoice,
-    StatBlock, StatCode, WeaponCategory,
+    AcquiredAbility, AttackBonuses, CharacterRecord, CharacterWeaponInstance, StatBlock, StatCode,
+    WeaponCategory,
 };
 use crate::rules::{ArmorStatic, PeopleStatic, RulesDatabase, ScalingBonusRuleStatic};
 use std::collections::HashMap;
@@ -77,7 +78,7 @@ pub(crate) fn compute_combat(
     armor: Option<&ArmorStatic>,
     shield: Option<&ArmorStatic>,
     bonuses: &mut EvaluatedBonuses,
-    substitutions: &[CollectedSubstitution],
+    substitutions: &[CollectedSubstitution<'_>],
     path_situational_notes: &[String],
     effective_abilities: &[AcquiredAbility],
     rules: &RulesDatabase,
@@ -118,7 +119,7 @@ pub(crate) fn compute_combat(
     let raw_agi = final_stats.get(StatCode::AGI);
     let mut effective_agi = armor.and_then(|a| a.max_agi).map_or(raw_agi, |cap| raw_agi.min(cap));
 
-    let def_subs: Vec<&CollectedSubstitution> = substitutions
+    let def_subs: Vec<&CollectedSubstitution<'_>> = substitutions
         .iter()
         .filter(|s| s.rule.target == "defense")
         .collect();
@@ -155,7 +156,7 @@ pub(crate) fn compute_combat(
                 };
                 evaluate_single_bonus(
                     &fb_rule,
-                    &sub.path_id,
+                    sub.path_id,
                     sub.rank,
                     level,
                     armor,
@@ -192,8 +193,8 @@ pub(crate) fn compute_combat(
         }
     }
 
-    if let Some(ref div) = record.human_diversity {
-        if let Some(note) = format_human_diversity_note(div) {
+    if has_human_diversity_rank1(record) {
+        if let Some(note) = format_human_diversity_note(record.human_diversity.as_ref()) {
             push_unique_note(&mut situational_notes, note);
         }
     }
@@ -306,74 +307,4 @@ pub(crate) fn compute_combat(
         updated_weapons,
         situational_notes,
     }
-}
-
-fn format_human_diversity_note(choice: &HumanDiversityChoice) -> Option<String> {
-    let (origin_label, default_d1, default_d2) = match choice.origin_id.as_str() {
-        "montagnard" => ("Montagnard", "Escalade", "Résistance au froid"),
-        "citadin" => ("Citadin", "Commerce", "Résistance aux maladies"),
-        "campagnard" => ("Campagnard", "Météorologie", "Équitation"),
-        "riverain" => ("Riverain", "Natation", "Navigation"),
-        "sauvage" => ("Sauvage", "Chasser", "Pister"),
-        "nomade" => ("Nomade", "Orientation", "Résistance à la chaleur ou au froid"),
-        "custom" => {
-            let label = choice
-                .custom_origin_name
-                .as_deref()
-                .map(str::trim)
-                .filter(|s| !s.is_empty())
-                .unwrap_or("Origine personnalisée");
-            let d1 = choice
-                .custom_domain_1
-                .as_deref()
-                .map(str::trim)
-                .filter(|s| !s.is_empty())
-                .unwrap_or("");
-            let d2 = choice
-                .custom_domain_2
-                .as_deref()
-                .map(str::trim)
-                .filter(|s| !s.is_empty())
-                .unwrap_or("");
-            return format_diversity_domains(label, d1, d2, choice);
-        }
-        _ => return None,
-    };
-
-    format_diversity_domains(origin_label, default_d1, default_d2, choice)
-}
-
-fn format_diversity_domains(
-    origin_label: &str,
-    base_d1: &str,
-    base_d2: &str,
-    choice: &HumanDiversityChoice,
-) -> Option<String> {
-    let trade = choice
-        .replacement_trade
-        .as_deref()
-        .map(str::trim)
-        .filter(|s| !s.is_empty());
-
-    let (d1, d2) = match (choice.replaced_domain_index, trade) {
-        (Some(0), Some(t)) => (format!("{t} (gagne-pain)"), base_d2.to_string()),
-        (Some(1), Some(t)) => (base_d1.to_string(), format!("{t} (gagne-pain)")),
-        _ => (base_d1.to_string(), base_d2.to_string()),
-    };
-
-    let domains: Vec<String> = [d1, d2]
-        .into_iter()
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
-        .collect();
-
-    if domains.is_empty() {
-        return None;
-    }
-
-    Some(format!(
-        "Diversité ({}) : +3 aux tests de {}",
-        origin_label,
-        domains.join(" et ")
-    ))
 }

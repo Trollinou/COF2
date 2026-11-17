@@ -3,10 +3,10 @@ use crate::rules::{ArmorStatic, CapRule, RulesDatabase, ScalingBonusRuleStatic};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
-pub(crate) struct CollectedBonus {
-    pub path_id: String,
+pub(crate) struct CollectedBonus<'a> {
+    pub path_id: &'a str,
     pub rank: u8,
-    pub bonus: ScalingBonusRuleStatic,
+    pub bonus: &'a ScalingBonusRuleStatic,
 }
 
 #[derive(Debug, Default)]
@@ -172,7 +172,7 @@ pub(crate) fn evaluate_single_bonus(
 /// Évalue l'ensemble des règles de bonus collectées en Passe 1.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn evaluate_bonuses(
-    collected: &[CollectedBonus],
+    collected: &[CollectedBonus<'_>],
     level: i32,
     armor: Option<&ArmorStatic>,
     shield: Option<&ArmorStatic>,
@@ -184,8 +184,8 @@ pub(crate) fn evaluate_bonuses(
     let mut out = EvaluatedBonuses::default();
     for item in collected {
         evaluate_single_bonus(
-            &item.bonus,
-            &item.path_id,
+            item.bonus,
+            item.path_id,
             item.rank,
             level,
             armor,

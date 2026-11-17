@@ -158,6 +158,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       {currentStep === 4 && selectedPeople && selectedProfile && (
         <Step5Paths
           character={character}
+          computed={computed}
           onChange={onChange}
           selectedProfile={selectedProfile}
           selectedPeople={selectedPeople}
@@ -171,6 +172,7 @@ export const CharacterWizard: React.FC<CharacterWizardProps> = ({
       {currentStep === 5 && selectedPeople && selectedProfile && (
         <Step6Equipment
           character={character}
+          computed={computed}
           update={update}
           selectedProfile={selectedProfile}
           selectedPeople={selectedPeople}

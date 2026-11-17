@@ -1,5 +1,5 @@
 import React from 'react';
-import { commands } from '../../../bindings';
+import { commands, type ResolvedExternalGrant } from '../../../bindings';
 import type { CharacterSheet, HumanDiversityChoice, PeopleData, PathData } from '../../../types/cof2';
 import { getPathById } from '../../../engine/compendium';
 import { ChevronDown, ChevronUp } from 'lucide-react';
@@ -11,13 +11,13 @@ import { HumanDiversitySelector } from '../../shared/HumanDiversitySelector';
 
 interface Step5RacialSectionProps {
   character: CharacterSheet;
+  externalGrants?: ResolvedExternalGrant[];
   onChange: (updated: CharacterSheet) => void;
   selectedPeople: PeopleData;
   currentThirdPath?: PathData;
   currentThirdPathId: string;
   expandedPaths: Record<string, boolean>;
   togglePathPreview: (pathId: string) => void;
-  handleSelectRacial: (targetRacialId?: string) => void;
   handleRankChoice: (choiceKey: string, optionId: string) => void;
   handleHumanDiversityChange: (choice: HumanDiversityChoice) => void;
   handleUpdatePartial: (partial: Partial<CharacterSheet>) => void;
@@ -25,13 +25,13 @@ interface Step5RacialSectionProps {
 
 export const Step5RacialSection: React.FC<Step5RacialSectionProps> = ({
   character,
+  externalGrants,
   onChange,
   selectedPeople,
   currentThirdPath,
   currentThirdPathId,
   expandedPaths,
   togglePathPreview,
-  handleSelectRacial,
   handleRankChoice,
   handleHumanDiversityChange,
   handleUpdatePartial,
@@ -178,6 +178,7 @@ export const Step5RacialSection: React.FC<Step5RacialSectionProps> = ({
                           character={character}
                           pathId={currentThirdPath.id}
                           rank={currentThirdPath.ranks[0]}
+                          externalGrants={externalGrants}
                           updateCharacter={handleUpdatePartial}
                         />
                         <RankChoiceSelector

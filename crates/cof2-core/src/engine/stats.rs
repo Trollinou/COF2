@@ -14,21 +14,21 @@ pub(crate) const ALL_STAT_CODES: [StatCode; 7] = [
 ];
 
 #[derive(Debug, Clone)]
-pub(crate) struct CollectedSubstitution {
-    pub path_id: String,
+pub(crate) struct CollectedSubstitution<'a> {
+    pub path_id: &'a str,
     pub rank: u8,
-    pub rule: StatSubstitutionRuleStatic,
+    pub rule: &'a StatSubstitutionRuleStatic,
 }
 
-pub(crate) struct StatDecomposition {
+pub(crate) struct StatDecomposition<'a> {
     pub base_stats: StatBlock,
     pub racial_bonus_stats: StatBlock,
     pub path_bonus_stats: StatBlock,
     pub manual_bonus_stats: StatBlock,
     pub other_bonus_stats: StatBlock,
     pub final_stats: StatBlock,
-    pub collected_bonuses: Vec<CollectedBonus>,
-    pub stat_substitutions: Vec<CollectedSubstitution>,
+    pub collected_bonuses: Vec<CollectedBonus<'a>>,
+    pub stat_substitutions: Vec<CollectedSubstitution<'a>>,
     pub active_weapon_modifiers: Vec<WeaponModifierRule>,
     pub luck_stat_replacement: Option<StatCode>,
     pub mana_stat_replacement: Option<StatCode>,
@@ -54,14 +54,14 @@ pub(crate) fn parse_stat(s: &str) -> Result<StatCode, ()> {
 
 /// Collecte récursivement les modificateurs de rang (stats, bonus évolutifs, substitutions, notes).
 #[allow(clippy::too_many_arguments)]
-fn collect_modifiers_from_block(
-    modifiers: &RankModifiersStatic,
-    path_id: &str,
+fn collect_modifiers_from_block<'a>(
+    modifiers: &'a RankModifiersStatic,
+    path_id: &'a str,
     rank: u8,
     path_rank_choices: &HashMap<String, String>,
     path_bonus_stats: &mut StatBlock,
-    collected_bonuses: &mut Vec<CollectedBonus>,
-    stat_substitutions: &mut Vec<CollectedSubstitution>,
+    collected_bonuses: &mut Vec<CollectedBonus<'a>>,
+    stat_substitutions: &mut Vec<CollectedSubstitution<'a>>,
     active_weapon_modifiers: &mut Vec<WeaponModifierRule>,
     luck_stat_replacement: &mut Option<StatCode>,
     mana_stat_replacement: &mut Option<StatCode>,
@@ -102,9 +102,9 @@ fn collect_modifiers_from_block(
     if let Some(ref bonuses) = modifiers.bonuses {
         for b in bonuses {
             collected_bonuses.push(CollectedBonus {
-                path_id: path_id.to_string(),
+                path_id,
                 rank,
-                bonus: b.clone(),
+                bonus: b,
             });
         }
     }
@@ -112,9 +112,9 @@ fn collect_modifiers_from_block(
     if let Some(ref subs) = modifiers.stat_substitutions {
         for s in subs {
             stat_substitutions.push(CollectedSubstitution {
-                path_id: path_id.to_string(),
+                path_id,
                 rank,
-                rule: s.clone(),
+                rule: s,
             });
         }
     }
@@ -182,12 +182,12 @@ pub fn compute_racial_stat_modifiers(
 }
 
 /// Calcule la décomposition unitaire des 7 caractéristiques et collecte les modificateurs de Passe 1.
-pub(crate) fn compute_stats(
+pub(crate) fn compute_stats<'a>(
     record: &CharacterRecord,
     _people: &PeopleStatic,
     effective_abilities: &[AcquiredAbility],
-    rules: &RulesDatabase,
-) -> StatDecomposition {
+    rules: &'a RulesDatabase,
+) -> StatDecomposition<'a> {
     let base_stats = record.base_stats;
 
     let racial_bonus_stats = compute_racial_stat_modifiers(
@@ -211,7 +211,7 @@ pub(crate) fn compute_stats(
                 if let Some(ref mods) = rank_data.modifiers {
                     collect_modifiers_from_block(
                         mods,
-                        &acq.path_id,
+                        path.id.as_str(),
                         acq.rank,
                         &record.path_rank_choices,
                         &mut path_bonus_stats,

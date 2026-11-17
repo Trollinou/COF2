@@ -21,42 +21,36 @@ L'application web et desktop applique une Content Security Policy stricte via la
 
 ---
 
-## 2. 🖥️ Durcissement du Runtime Electron (`electron/main.ts`)
+## 2. 🖥️ Durcissement du Shell Desktop Tauri v2 (`src-tauri/`)
 
-Conformément au guide de sécurité officiel d'Electron :
+Conformément aux bonnes pratiques de sécurité Tauri v2 :
 
-1. **Isolation & Bac à Sable (Sandbox)** :
-   - `contextIsolation: true` : Le code JavaScript exécuté dans le renderer ne peut pas accéder aux prototypes ou aux variables du processus principal.
-   - `nodeIntegration: false` : Aucun module Node.js (`fs`, `child_process`, `crypto`) n'est accessible dans le renderer.
-   - `sandbox: true` : Activation explicite du bac à sable OS Chromium.
+1. **Isolation IPC & Bac à Sable (`src-tauri/tauri.conf.json`)** :
+   - `withGlobalTauri: false` : Aucune API globale Tauri n'est exposée sur `window` ; la WebView communique exclusivement via les imports explicites et typés (`src/bindings.ts` généré par `tauri-specta`).
+   - **Politique CSP stricte (Air-Gapped)** : `connect-src 'none'`, `img-src 'self' data:`, `font-src 'self'` — aucun trafic réseau sortant et aucune dépendance externe ne sont autorisés.
 
-2. **Verrouillage de la Navigation & Liens Externes** :
-   - Écoute de l'événement `will-navigate` sur `mainWindow.webContents` : Toute navigation hors de l'application locale (`file://` ou `http://localhost:5173` en dev) est interceptée et annulée (`event.preventDefault()`). Si l'URL est externe (`http:` / `https:`), elle est ouverte dans le navigateur par défaut de l'utilisateur via `shell.openExternal`.
-   - Contrôle d'ouverture de fenêtres (`setWindowOpenHandler`) : Renvoie systématiquement `{ action: 'deny' }` pour neutraliser toute création arbitraire de fenêtre fille non contrôlée.
+2. **Permissions Minimales (`src-tauri/capabilities/default.json`)** :
+   - Les capacités accordées à la fenêtre principale sont restreintes au strict nécessaire (`core:default`, `core:webview:allow-print`), sans accès direct au système de fichiers depuis le frontend JavaScript.
 
-3. **Protection des Noms de Fichiers (Path Traversal)** :
-   - Les paramètres `defaultFilename` reçus via les canaux IPC `save-character-file` et `export-character-pdf` sont systématiquement normalisés avec `path.basename()` afin d'éliminer toute tentative d'injection de chemins (`../`, chemins absolus).
-
-4. **Restriction des Outils de Débogage** :
-   - Le rôle de menu applicatif `{ role: 'toggleDevTools' }` est conditionné à l'environnement de développement (`isDev`), empêchant l'accès direct aux outils de développement dans les binaires packagés.
+3. **Dialogues Natifs & Protection des Chemins (`src-tauri/src/commands.rs`)** :
+   - Les opérations d'ouverture et de sauvegarde (`save_character_file`, `load_character_file`) ouvrent leurs sélecteurs de fichiers natifs côté Rust via `tauri_plugin_dialog::DialogExt` afin que la WebView ne transmette ni ne manipule jamais de chemins disque arbitraires.
+   - `sanitize_default_filename` et `validate_character_extension` neutralisent toute injection de chemin (`../`, chemins absolus) et vérifient l'extension (`.cof2` / `.json`) avant toute opération disque.
 
 ---
 
-## 3. 🧪 Validation & Assainissement des Données (`characterValidation.ts`)
+## 3. 🧪 Validation & Assainissement des Données (`crates/cof2-core/src/validation.rs`)
 
-La fonction `validateAndMigrateCharacter()` garantit l'intégrité et la résilience de l'application face à des fichiers `.cof2` malformés ou forgés :
+La fonction `validate_and_migrate_record()` garantit l'intégrité et la résilience du moteur Rust face à des fichiers `.cof2` malformés, tronqués ou forgés :
 
-1. **Protection contre la Pollution de Prototype (CWE-1321)** :
-   - Les clés réservées `__proto__`, `constructor` et `prototype` sont formellement ignorées lors de l'itération sur les dictionnaires dynamiques (`pathRankChoices`, `externalAbilityChoices`).
-   - Le dictionnaire `manualStatBonuses` n'accepte que les clés appartenant à la liste blanche `VALID_STATS` (`FOR`, `AGI`, `CON`, `PER`, `INT`, `VOL`, `CHA`) et des valeurs numériques finies.
+1. **Protection contre l'Injection de Clés Réservées (`is_safe_key`)** :
+   - Les clés réservées (`__proto__`, `constructor`, `prototype`) et les clés malformées sont formellement ignorées lors du traitement des dictionnaires dynamiques (`path_rank_choices`, `external_ability_choices`).
+   - Les bonus manuels de caractéristiques (`manual_stat_bonuses`) n'acceptent que les clés valides de `StatCode` (`FOR`, `AGI`, `CON`, `PER`, `INT`, `VOL`, `CHA`).
 
-2. **Validation Numérique Stricte (Anti-`NaN` / Anti-`Infinity`)** :
-   - Remplacement systématique de `typeof x === 'number'` par `typeof x === 'number' && Number.isFinite(x)` sur toutes les valeurs statistiques (PV, DR, PC, PM, pièces de monnaie, bonus).
-   - Les gains de PV par niveau (`levelUpHpGains`) et les rangs de capacités doivent être des entiers (`Number.isInteger()`).
+2. **Validation Numérique Stricte (`as_finite_i32`, `as_int_in_range`)** :
+   - Toutes les valeurs numériques (PV, DR, PC, PM, pièces de monnaie, bonus, gains de PV par niveau `level_up_hp_gains`, rangs de capacités) sont vérifiées côté Rust pour exclure les valeurs non entières, non finies ou hors bornes.
 
 3. **Validation par Liste Blanche (Whitelisting)** :
-   - `racialStatChoices` est filtré pour ne conserver que les valeurs valides de `StatCode`.
-   - `attackStatUsed` dans les armes est validé contre `VALID_STATS`.
+   - `racial_stat_choices` et `attack_stat_used` sur les armes sont validés contre les codes officiels `StatCode`.
 
 ---
 
@@ -81,7 +75,7 @@ Le serveur de développement autonome du Data Editor (`vite.config.mts` sur le p
 
 1. **Écriture Atomique & Résilience aux Collisions (`save_atomic` / `save_atomic_with_backup`)** :
    - Création d'un fichier temporaire unique dans le répertoire cible via `tempfile::NamedTempFile::new_in` (`O_EXCL`), évitant les collisions en écriture concurrente et garantissant la suppression automatique en cas d'erreur.
-   - Synchronisation disque (`sync_all()`), persistance atomique (`persist()`), et création d'une copie de secours `.bak` avant écrasement dans `save_character_file`.
+   - Synchronisation disque (`sync_all()`), persistance atomique (`persist_with_retry()` : jusqu'à 6 tentatives avec backoff exponentiel sur `ErrorKind::PermissionDenied` pour absorber les verrous transitoires NTFS sous Windows), et création d'une copie de secours `.bak` avant écrasement dans `save_character_file`.
 2. **Protection Anti-DoS & Suppression du TOCTOU (`load`)** :
    - Ouverture directe du fichier sans pré-vérification `exists()`.
    - Plafonnement strict à **10 Mo** (`MAX_CHARACTER_FILE_BYTES`) via contrôle des métadonnées et `Read::take(MAX_CHARACTER_FILE_BYTES + 1)`.

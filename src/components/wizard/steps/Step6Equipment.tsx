@@ -1,11 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { commands, type EquipmentOptionsResult } from '../../../bindings';
-import { ArmorItem, CharacterSheet, ProfileData, PeopleData, WeaponItem } from '../../../types/cof2';
+import {
+  ArmorItem,
+  CharacterSheet,
+  ComputedCharacterStats,
+  ProfileData,
+  PeopleData,
+  WeaponItem,
+} from '../../../types/cof2';
 import { ARMORS_MAP, WEAPONS, WEAPONS_MAP } from '../../../engine/compendium';
 import { Shield, Swords, Crosshair, AlertTriangle, Trash2, Dices } from 'lucide-react';
 
 interface Step6EquipmentProps {
   character: CharacterSheet;
+  computed?: ComputedCharacterStats | null;
   update: (partial: Partial<CharacterSheet>) => void;
   selectedProfile: ProfileData;
   selectedPeople: PeopleData;
@@ -16,6 +24,7 @@ interface Step6EquipmentProps {
 
 export const Step6Equipment: React.FC<Step6EquipmentProps> = ({
   character,
+  computed,
   update,
   selectedProfile,
   selectedPeople,
@@ -23,19 +32,22 @@ export const Step6Equipment: React.FC<Step6EquipmentProps> = ({
   handleRemoveWeapon,
   rollPurse,
 }) => {
-  const [equipmentOptions, setEquipmentOptions] = useState<EquipmentOptionsResult | null>(null);
+  const [fallbackOptions, setFallbackOptions] = useState<EquipmentOptionsResult | null>(null);
 
   useEffect(() => {
+    if (computed?.equipmentOptions) return;
     let cancelled = false;
     commands
       .getEquipmentOptionsCharacter(character)
       .then((res) => {
-        if (!cancelled) setEquipmentOptions(res);
+        if (!cancelled) setFallbackOptions(res);
       });
     return () => {
       cancelled = true;
     };
-  }, [character]);
+  }, [character, computed?.equipmentOptions]);
+
+  const equipmentOptions = computed?.equipmentOptions ?? fallbackOptions;
 
   const profileRule = selectedProfile.equipmentRules || {
     maxArmorId: 'chemise-mailles',

@@ -1,6 +1,13 @@
 use crate::models::{CharacterRecord, LanguageSummary, LiteracyStatus};
 use crate::rules::PeopleStatic;
 
+fn is_same_language(a: &str, b: &str) -> bool {
+    let a_lower = a.trim().to_lowercase();
+    let b_lower = b.trim().to_lowercase();
+    a_lower == b_lower
+        || (a_lower.starts_with("noir parlé") && b_lower.starts_with("noir parlé"))
+}
+
 /// Calcule les langues automatiques, emplacements bonus et niveau d'alphabétisation.
 pub(crate) fn compute_languages_info(
     record: &CharacterRecord,
@@ -46,7 +53,7 @@ pub(crate) fn compute_languages_info(
     if let Some(native_lang) = people.native_language() {
         if !automatic_languages
             .iter()
-            .any(|l| l.eq_ignore_ascii_case(&native_lang))
+            .any(|l| is_same_language(l, &native_lang))
         {
             automatic_languages.push(native_lang);
         }
@@ -54,7 +61,7 @@ pub(crate) fn compute_languages_info(
     if has_assassin_r1
         && !automatic_languages
             .iter()
-            .any(|l| l.eq_ignore_ascii_case("Argotien"))
+            .any(|l| is_same_language(l, "Argotien"))
     {
         automatic_languages.push("Argotien".to_string());
     }
@@ -68,7 +75,7 @@ pub(crate) fn compute_languages_info(
         .filter(|lang| {
             !automatic_languages
                 .iter()
-                .any(|auto| auto.eq_ignore_ascii_case(lang))
+                .any(|auto| is_same_language(auto, lang))
         })
         .map(|lang| {
             if lang.eq_ignore_ascii_case("Argotien") {

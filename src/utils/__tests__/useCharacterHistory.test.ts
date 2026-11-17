@@ -112,4 +112,29 @@ describe('characterHistoryReducer', () => {
     expect(resetState.past).toHaveLength(0);
     expect(resetState.future).toHaveLength(0);
   });
+
+  it('coalesces rapid non-structural edits (< 500 ms) into a single undo entry', () => {
+    const char1 = createDefaultCharacter();
+    const char2 = { ...char1, name: 'Ar' };
+    const char3 = { ...char1, name: 'Arag' };
+    const char4 = { ...char1, name: 'Aragorn' };
+
+    let state: HistoryState = { past: [], present: char1, future: [] };
+    state = characterHistoryReducer(state, { type: 'SET', payload: char2, timestamp: 1000 });
+    expect(state.past).toHaveLength(1);
+
+    state = characterHistoryReducer(state, { type: 'SET', payload: char3, timestamp: 1200 });
+    expect(state.past).toHaveLength(1);
+    expect(state.present.name).toBe('Arag');
+
+    state = characterHistoryReducer(state, { type: 'SET', payload: char4, timestamp: 1400 });
+    expect(state.past).toHaveLength(1);
+    expect(state.present.name).toBe('Aragorn');
+
+    // Structural change within 500ms must NOT coalesce
+    const leveled = { ...char4, level: 2 };
+    state = characterHistoryReducer(state, { type: 'SET', payload: leveled, timestamp: 1500 });
+    expect(state.past).toHaveLength(2);
+    expect(state.present.level).toBe(2);
+  });
 });

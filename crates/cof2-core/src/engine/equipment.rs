@@ -32,7 +32,7 @@ pub struct DefaultEquipmentResult {
     pub weapons: Vec<CharacterWeaponInstance>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct EquipmentOptionsResult {
     pub allowed_armor_ids: Vec<String>,

@@ -345,17 +345,17 @@ dependencies = [
 
 [[package]]
 name = "cof2-core"
-version = "0.9.5"
+version = "0.9.6"
 dependencies = [
  "serde",
  "serde_json",
  "specta",
- "thiserror 1.0.69",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
 name = "cof2-desktop"
-version = "0.9.5"
+version = "0.9.6"
 dependencies = [
  "cof2-core",
  "cof2-storage",
@@ -367,18 +367,18 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-dialog",
  "tauri-specta",
- "thiserror 1.0.69",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
 name = "cof2-storage"
-version = "0.9.5"
+version = "0.9.6"
 dependencies = [
  "cof2-core",
  "serde",
  "serde_json",
  "tempfile",
- "thiserror 1.0.69",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

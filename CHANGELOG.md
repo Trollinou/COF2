@@ -1,24 +1,55 @@
 # Changelog
 
-## [Non publié]
+## 0.9.6
 
 ### Ajouté
 
+- **Enrichissement du contrat `ComputedCharacterSheet` (`crates/cof2-core/src/models.rs`, `src/bindings.ts`)** :
+  - Calcul et exposition directe côté Rust de `capability_points`, `equipment_options`, `external_grants`, `resolved_human_diversity` et `armor_spell_costs` (`compute_armor_spell_costs`).
+- **Profil de production Rust (`Cargo.toml`)** :
+  - Ajout du bloc `[profile.release]` (`lto = true`, `codegen-units = 1`, `strip = true`, `panic = "abort"`) et mise à jour de `thiserror` vers `2.0`.
+- **Hooks & chargement de polices WOFF2 (`src/`)** :
+  - Ajout des hooks `useMediaQuery` (`src/hooks/useMediaQuery.ts`) et `useLevelUpState` (`src/hooks/useLevelUpState.ts`).
+  - Chargement exclusif des polices `.woff2` via `src/fonts.css` (`Cinzel` 500–800, `Inter` 400–700).
 - **Déport des dernières règles de cohérence du Wizard (`crates/cof2-core/src/engine/creation.rs`, `src-tauri/src/commands.rs`)** :
   - Ajout de `sanitize_wizard_paths`, `select_profile_with_defaults`, `toggle_wizard_profile_path` et `auto_assign_characteristic_array` côté Rust (avec test d'intégration `test_wizard_coherence_functions`), exposés via `tauri-specta`.
   - Ajout du flag CLI `--export-bindings` sur `cof2-desktop` (`src-tauri/src/lib.rs`) pour régénérer `src/bindings.ts` sans ouvrir de fenêtre graphique.
 
 ### Modifié
 
+- **Réduction des appels IPC React** :
+  - Filtrage de `useComputedSheet` (`src/hooks/useComputedSheet.ts`) par empreinte mécanique (`getMechanicalFingerprint`) afin d'éviter les recalculs Rust sur les éditions purement narratives.
+  - Suppression des `useEffect` IPC redondants dans `CharacterSheetView`, `CombatTab`, `AbilitiesTab`, `Step6Equipment`, `Step7Summary`, `PrintablePage1`, `ExternalAbilitySelector` et `HumanDiversitySelector` au profit de la lecture directe de `ComputedCharacterSheet`.
+- **Optimisation du moteur Rust (`crates/cof2-core`)** :
+  - Emprunts zéro-allocation (`'a`) sur `RulesDatabase` en Passe 1 (`bonuses.rs`, `stats.rs`).
+  - Validation de l'assistant de création en un seul passage dans `validate_wizard_state` (`wizard.rs`).
+  - Déduplication de `format_human_diversity_note` dans `combat.rs`.
+- **Historique, détection de modifications & langues COF2** :
+  - Coalescence des éditions rapides (< 500 ms) non structurelles dans `useCharacterHistory.ts` (`COALESCE_WINDOW_MS`), avec test dédié dans `useCharacterHistory.test.ts`.
+  - Comparaison `isDirty` ignorant `updatedAt` via `serializeComparable` et sérialisation `localStorage` différée dans `App.tsx`.
+  - Alignement de `OFFICIAL_LANGUAGES` sur les 11 langues officielles COF2 et normalisation de `"Noir parlé"` via `isSameLanguage` (`src/utils/uiConstants.ts`, `crates/cof2-core/src/engine/languages.rs`).
+- **Modularité UI (`<= 400` lignes) & montage responsive unique** :
+  - Montage conditionnel unique de `CombatDefensesCard` et `AbilitiesTab` selon `useMediaQuery('(min-width: 1536px)')` dans `CharacterSheetView.tsx`.
+  - Découpage des composants volumineux et extraction de `WizardProfilePathCard`, `Step7VitalsAndStats`, `Step7PathsSection`, `Step1PeopleDetailPanel`, `PrintableLeftColumn`, `PrintableCenterColumn` et `AbilityRankItem`.
 - **Unification complète des types Rust ↔ TypeScript (`src/bindings.ts`)** :
   - Introduction de `StatBlock` (struct à 7 champs garantis avec rétrocompatibilité JSON `.cof2`) et des enums typés `WeaponCategory` (`contact` | `distance`) et `EnergyType` (`PM` | `PE`) dans `crates/cof2-core/src/models.rs`.
-  - Ré-export direct des types générés dans `src/types/character.ts` et `src/types/rules.ts`, et suppression des couches de conversion `toCharacterRecord` / `fromCharacterRecord` / `fromComputedSheet` dans `src/engine/rustBridge.ts`.
-  - Nettoyage de `src/hooks/useWizardState.ts` (suppression des vérifications locales dupliquées).
+  - Ré-export direct des types générés dans `src/types/character.ts` et `src/types/rules.ts`, suppression des couches de conversion dans `src/engine/rustBridge.ts`, et nettoyage de `src/hooks/useWizardState.ts`.
+- **Documentation de sécurité (`docs/SECURITY.md`)** :
+  - Alignement complet sur l'architecture Tauri v2 (`src-tauri/`), la validation Rust (`crates/cof2-core/src/validation.rs`) et la persistance atomique (`persist_with_retry`).
 
 ### Corrigé
 
+- **Diversité humaine (`crates/cof2-core/src/engine/creation.rs`)** :
+  - Réinitialisation automatique de `human_diversity` lors d'un changement de peuple dans `apply_racial_defaults` lorsque le personnage ne possède pas le rang 1 requis.
+- **Tests unitaires `src-tauri` sous Windows (`src-tauri/Cargo.toml`, `src-tauri/src/main.rs`)** :
+  - Déplacement des tests unitaires vers la cible binaire `src-tauri/src/main.rs` (`[lib] test = false`) afin de lier le manifeste Windows ComCtl32 v6 généré par `tauri-build`.
 - **Persistance atomique sous Windows (`crates/cof2-storage/src/lib.rs`)** :
   - Ajout de `persist_with_retry` (jusqu'à 6 tentatives avec backoff exponentiel sur `ErrorKind::PermissionDenied`) pour absorber les verrous transitoires NTFS lors de remplacements concurrents (`test_concurrent_atomic_saves`).
+
+### Supprimé
+
+- **Allègement du bundle & des dépendances (`package.json`, `src/main.tsx`)** :
+  - Suppression des dépendances npm inutilisées (`@tauri-apps/plugin-dialog`, `@tauri-apps/plugin-fs`, `clsx`, `tailwind-merge`) et abandon du chargement des fichiers `.woff` hérités (-195 Ko sur les polices).
 
 ## 0.9.5
 

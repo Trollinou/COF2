@@ -431,7 +431,7 @@ pub fn apply_racial_defaults(
     };
 
     let mut next_armor_id = record.equipped_armor_id.clone();
-    if let Some(ref pref) = people
+    if let Some(pref) = people
         .equipment_rules
         .as_ref()
         .and_then(|er| er.preferred_armor_id.as_ref())
@@ -445,7 +445,7 @@ pub fn apply_racial_defaults(
                 rules,
             )
         {
-            next_armor_id = Some((*pref).clone());
+            next_armor_id = Some(pref.clone());
         }
     }
 
@@ -487,6 +487,9 @@ pub fn apply_racial_defaults(
     updated.racial_stat_modifiers = racial_stat_modifiers;
     updated.selected_path_ids = updated_paths;
     updated.acquired_abilities = updated_acquired;
+    if !crate::engine::diversity::has_human_diversity_rank1(&updated) {
+        updated.human_diversity = None;
+    }
     updated.updated_at = updated_at;
 
     let sanitized = if !updated.profile_id.is_empty() {

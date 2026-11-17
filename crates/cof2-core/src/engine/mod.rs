@@ -146,9 +146,23 @@ impl RulesEngine {
             languages_info,
             companions: Vec::new(),
             computed_weapons: Vec::new(),
+            capability_points: Default::default(),
+            equipment_options: Default::default(),
+            external_grants: Vec::new(),
+            resolved_human_diversity: None,
+            armor_spell_costs: HashMap::new(),
         };
         sheet.companions = companion::resolve_character_companions(record, &sheet, rules);
         sheet.computed_weapons = equipment::compute_weapons_info(&sheet, rules);
+        sheet.capability_points = progression::calculate_capability_points(&sheet.record, rules);
+        sheet.equipment_options = equipment::get_equipment_options(&sheet.record, rules);
+        sheet.external_grants = grants::resolve_external_grants(&sheet.record, rules);
+        sheet.resolved_human_diversity = if diversity::has_human_diversity_rank1(&sheet.record) {
+            diversity::resolve_human_diversity(sheet.record.human_diversity.as_ref())
+        } else {
+            None
+        };
+        sheet.armor_spell_costs = progression::compute_armor_spell_costs(&sheet.record, rules);
         Ok(sheet)
     }
 

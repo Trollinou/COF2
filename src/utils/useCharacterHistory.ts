@@ -2,18 +2,41 @@ import { useReducer, useCallback, useEffect } from 'react';
 import { CharacterSheet } from '../types/cof2';
 
 const MAX_HISTORY = 30;
+const COALESCE_WINDOW_MS = 500;
 
 export interface HistoryState {
   past: CharacterSheet[];
   present: CharacterSheet;
   future: CharacterSheet[];
+  lastEditTime?: number;
 }
 
 export type HistoryAction =
   | { type: 'UNDO' }
   | { type: 'REDO' }
-  | { type: 'SET'; payload: CharacterSheet; record?: boolean }
+  | { type: 'SET'; payload: CharacterSheet; record?: boolean; timestamp?: number }
   | { type: 'RESET'; payload: CharacterSheet };
+
+function isStructuralChange(prev: CharacterSheet, next: CharacterSheet): boolean {
+  return (
+    prev.id !== next.id ||
+    prev.level !== next.level ||
+    prev.peopleId !== next.peopleId ||
+    prev.profileId !== next.profileId ||
+    prev.secondaryProfileId !== next.secondaryProfileId ||
+    prev.isHybrid !== next.isHybrid ||
+    prev.profileFamily !== next.profileFamily ||
+    prev.statArrayPreset !== next.statArrayPreset ||
+    prev.equippedArmorId !== next.equippedArmorId ||
+    prev.equippedShieldId !== next.equippedShieldId ||
+    prev.weapons.length !== next.weapons.length ||
+    prev.selectedPathIds.length !== next.selectedPathIds.length ||
+    prev.acquiredAbilities.length !== next.acquiredAbilities.length ||
+    prev.languages.length !== next.languages.length ||
+    prev.secondaryTalents.length !== next.secondaryTalents.length ||
+    prev.inventory.length !== next.inventory.length
+  );
+}
 
 export function characterHistoryReducer(state: HistoryState, action: HistoryAction): HistoryState {
   switch (action.type) {
@@ -25,6 +48,7 @@ export function characterHistoryReducer(state: HistoryState, action: HistoryActi
         past: newPast,
         present: previous,
         future: [state.present, ...state.future],
+        lastEditTime: undefined,
       };
     }
     case 'REDO': {
@@ -35,6 +59,7 @@ export function characterHistoryReducer(state: HistoryState, action: HistoryActi
         past: [...state.past, state.present],
         present: next,
         future: newFuture,
+        lastEditTime: undefined,
       };
     }
     case 'SET': {
@@ -45,10 +70,25 @@ export function characterHistoryReducer(state: HistoryState, action: HistoryActi
           present: action.payload,
         };
       }
+      const canCoalesce =
+        action.timestamp !== undefined &&
+        state.lastEditTime !== undefined &&
+        action.timestamp - state.lastEditTime < COALESCE_WINDOW_MS &&
+        !isStructuralChange(state.present, action.payload) &&
+        state.past.length > 0;
+      if (canCoalesce) {
+        return {
+          ...state,
+          present: action.payload,
+          future: [],
+          lastEditTime: action.timestamp,
+        };
+      }
       return {
         past: [...state.past.slice(-MAX_HISTORY), state.present],
         present: action.payload,
         future: [],
+        lastEditTime: action.timestamp,
       };
     }
     case 'RESET': {
@@ -56,6 +96,7 @@ export function characterHistoryReducer(state: HistoryState, action: HistoryActi
         past: [],
         present: action.payload,
         future: [],
+        lastEditTime: undefined,
       };
     }
     default:
@@ -73,7 +114,7 @@ export function useCharacterHistory(initialCharacter: CharacterSheet) {
   const undo = useCallback(() => dispatch({ type: 'UNDO' }), []);
   const redo = useCallback(() => dispatch({ type: 'REDO' }), []);
   const setCharacter = useCallback((updated: CharacterSheet, record = true) => {
-    dispatch({ type: 'SET', payload: updated, record });
+    dispatch({ type: 'SET', payload: updated, record, timestamp: Date.now() });
   }, []);
   const resetCharacter = useCallback((fresh: CharacterSheet) => {
     dispatch({ type: 'RESET', payload: fresh });

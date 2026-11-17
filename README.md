@@ -78,7 +78,7 @@ Les installateurs natifs seront générés automatiquement :
 
 ## 📁 Architecture du Code (Cargo Workspace)
 
-- `Cargo.toml` : Workspace racine Cargo liant les crates Rust avec profils dev allégés (`debug = 0` pour les dépendances).
+- `Cargo.toml` : Workspace racine Cargo liant les crates Rust avec profils `dev` allégés (`debug = 0` pour les dépendances) et profil `release` optimisé (`lto = true`, `codegen-units = 1`, `strip = true`, `panic = "abort"`).
 - `crates/cof2-core/` : Moteur de règles pur en Rust (sans dépendance UI/OS/Tauri), embarquant statiquement le compendium JSON via `include_str!`.
 - `crates/cof2-storage/` : Bibliothèque de persistance locale atomique (fichiers `.cof2` / `.json`).
 - `src-tauri/` : Shell desktop Tauri v2 avec commandes IPC, bindings typés (`tauri-specta`), gestion d'impression native et localisation système (français).
@@ -97,11 +97,17 @@ Les installateurs natifs seront générés automatiquement :
 ## 🛠️ Assurance Qualité & Tests
 
 ```bash
+# Linter Rust (Clippy strict)
+cargo clippy --workspace --all-targets -- -D warnings
+
 # Exécution des tests unitaires et d'intégration Rust
 cargo test --workspace
 
 # Exécution des tests unitaires frontend Vitest
 npm test
+
+# Linter frontend Biome
+npm run lint
 
 # Vérification du typage TypeScript et bundle de production
 npm run build

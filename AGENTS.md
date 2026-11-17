@@ -40,7 +40,7 @@ COF2/
 │   ├── bindings.ts            # Définitions TypeScript et fonctions IPC générées par tauri-specta
 │   ├── data/                  # Données statiques JSON (peoples, profiles, paths, equipment, tables)
 │   ├── engine/                # Pont Rust/Tauri (rustBridge.ts) et lecture statique du compendium (compendium.ts)
-│   ├── hooks/                 # Hooks React (useComputedSheet.ts, useWizardState.ts)
+│   ├── hooks/                 # Hooks React (useComputedSheet.ts, useWizardState.ts, useLevelUpState.ts, useMediaQuery.ts)
 │   ├── types/                 # Définitions TypeScript (cof2.ts -> rules.ts, compendium.ts, character.ts)
 │   ├── utils/                 # Utilitaires (fileBridge Tauri v2, validation, formatage)
 │   ├── components/            # Composants React 19
@@ -52,6 +52,7 @@ COF2/
 │   │   └── pdf/               # Gabarit A4 imprimable et export PDF natif
 │   ├── App.tsx                # Composant racine orchestrateur
 │   ├── main.tsx               # Point d'entrée React 19
+│   ├── fonts.css              # Chargement WOFF2 exclusif des polices locales (Cinzel, Inter)
 │   └── index.css              # Styles Tailwind CSS et directives @media print
 ├── .gitattributes             # Normalisation des fins de ligne (LF) & binaires cross-platform
 ├── .gitignore                 # Exclusion des builds, caches et fichiers système
@@ -87,19 +88,26 @@ COF2/
 
 ### B. Directives d'Ingénierie Rust & Gestion de l'Empreinte Disque
 
-1. **Profils de Compilation Dev Légers** :
-   - Dans le `Cargo.toml` racine, désactiver systématiquement les symboles de débogage pour les dépendances externes afin d'éviter l'explosion de `target/debug/deps` :
+1. **Profils de Compilation (`dev` légers & `release` optimisé)** :
+   - Dans le `Cargo.toml` racine, désactiver systématiquement les symboles de débogage pour les dépendances externes en développement afin d'éviter l'explosion de `target/debug/deps`, et activer l'optimisation binaire maximale en release :
      ```toml
      [profile.dev.package."*"]
      debug = 0
 
      [profile.dev]
      debug = 1
+
+     [profile.release]
+     lto = true
+     codegen-units = 1
+     strip = true
+     panic = "abort"
      ```
 2. **Structuration Stricte des Tests d'Intégration (Monobinaire)** :
    - Ne **jamais** placer de fichiers `.rs` autonomes multiples directement à la racine de `tests/`.
    - Regrouper systématiquement les suites de tests d'intégration dans un sous-dossier (ex: `tests/suite/`) rattaché à un unique point d'entrée `tests/integration_tests.rs`.
    - Objectif : éviter la multiplication des binaires de tests liés et diviser par 5 à 10 le poids de compilation.
+   - Pour `src-tauri`, les tests unitaires sont rattachés à `src-tauri/src/main.rs` (`[lib] test = false`) afin de lier la ressource Windows ComCtl32 v6 générée par `tauri-build` sur la cible `--bin`.
 
 ---
 

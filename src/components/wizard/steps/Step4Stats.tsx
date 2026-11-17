@@ -20,32 +20,19 @@ interface Step4StatsProps {
 }
 
 export const Step4Stats: React.FC<Step4StatsProps> = ({
-  character,
-  selectedProfile,
-  selectedPeople,
-  computed,
-  arrayPreset,
-  setArrayPreset,
-  handleAutoAssignStats,
-  handleSetStatValue,
-  handleSelectArrayPreset,
-  handleResetPointBuy,
+  character, selectedProfile, selectedPeople, computed, arrayPreset, setArrayPreset,
+  handleAutoAssignStats, handleSetStatValue, handleSelectArrayPreset, handleResetPointBuy,
 }) => {
   const isPointBuy = arrayPreset === 'achat' || arrayPreset === 'libre';
   const [pointBuy, setPointBuy] = useState<PointBuyEvaluation | null>(null);
 
   useEffect(() => {
-    if (!isPointBuy) {
-      setPointBuy(null);
-      return;
-    }
+    if (!isPointBuy) { setPointBuy(null); return; }
     let cancelled = false;
     commands.evaluatePointBuy(computed.baseStats ?? character.baseStats).then((res) => {
       if (!cancelled) setPointBuy(res);
     });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [isPointBuy, computed.baseStats, character.baseStats]);
 
   const formatPointBuyOptionLabel = (v: number): string => {

@@ -12,6 +12,7 @@ interface HumanDiversitySelectorProps {
   character: CharacterSheet;
   pathId: string;
   rankNumber: number;
+  resolvedDiversity?: ResolvedHumanDiversity | null;
   onChange?: (choice: HumanDiversityChoice) => void;
   readOnly?: boolean;
   variant?: 'amber' | 'emerald';
@@ -21,23 +22,34 @@ export const HumanDiversitySelector: React.FC<HumanDiversitySelectorProps> = ({
   character,
   pathId,
   rankNumber,
+  resolvedDiversity,
   onChange,
   readOnly = false,
   variant = 'amber',
 }) => {
   const choice = character.humanDiversity;
-  const [resolved, setResolved] = useState<ResolvedHumanDiversity | null>(null);
+  const [fallbackResolved, setFallbackResolved] = useState<ResolvedHumanDiversity | null>(null);
 
   useEffect(() => {
-    if (pathId !== HUMAN_DIVERSITY_PATH_ID || rankNumber !== 1) return;
+    if (
+      !readOnly ||
+      pathId !== HUMAN_DIVERSITY_PATH_ID ||
+      rankNumber !== 1 ||
+      resolvedDiversity !== undefined
+    ) {
+      return;
+    }
     let cancelled = false;
     commands.resolveHumanDiversityChoice(choice ?? null).then((res) => {
-      if (!cancelled) setResolved(res);
+      if (!cancelled) setFallbackResolved(res);
     });
     return () => {
       cancelled = true;
     };
-  }, [choice, pathId, rankNumber]);
+  }, [choice, pathId, rankNumber, readOnly, resolvedDiversity]);
+
+  const resolved =
+    resolvedDiversity !== undefined ? resolvedDiversity : fallbackResolved;
 
   if (pathId !== HUMAN_DIVERSITY_PATH_ID || rankNumber !== 1) return null;
 

@@ -1,5 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { commands, type EquipmentOptionsResult } from '../../bindings';
+import React, { useState, useMemo } from 'react';
 import {
   CharacterSheet,
   CharacterWeaponInstance,
@@ -10,6 +9,7 @@ import {
   WEAPONS,
 } from '../../engine/compendium';
 import { useComputedSheet } from '../../hooks/useComputedSheet';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { HeroBanner } from './HeroBanner';
 import { CharacteristicsCard } from './CharacteristicsCard';
 import { CombatDefensesCard } from './CombatDefensesCard';
@@ -28,27 +28,11 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
   onChange,
 }) => {
   const stats = useComputedSheet(character);
+  const is2xl = useMediaQuery('(min-width: 1536px)');
   const people = useMemo(() => getPeopleById(character.peopleId), [character.peopleId]);
   const profile = useMemo(() => getProfileById(character.profileId), [character.profileId]);
-  const [capabilityBudget, setCapabilityBudget] = useState({ totalEarned: 0, spent: 0, available: 0 });
-  const [equipmentOptions, setEquipmentOptions] = useState<EquipmentOptionsResult | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const rec = character;
-    Promise.all([
-      commands.getLevelUpContextCharacter(rec, character.level),
-      commands.getEquipmentOptionsCharacter(rec),
-    ]).then(([ctx, eq]) => {
-      if (!cancelled) {
-        setCapabilityBudget(ctx.capabilityPoints);
-        setEquipmentOptions(eq);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [character]);
+  const capabilityBudget = stats?.capabilityPoints ?? { totalEarned: 0, spent: 0, available: 0 };
+  const equipmentOptions = stats?.equipmentOptions;
 
   const [expandedPaths, setExpandedPaths] = useState<Record<string, boolean>>({
     [character.selectedPathIds[0] || '']: true,
@@ -201,17 +185,13 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
           />
 
           {/* Combat & Defenses is here on screens < 2xl */}
-          <div className="2xl:hidden">
-            <CombatDefensesCard stats={stats} />
-          </div>
+          {!is2xl && <CombatDefensesCard stats={stats} />}
         </div>
 
         {/* COLUMN 2: Combat Defenses (on 2xl+) + Center Tabs */}
         <div className="lg:col-span-8 2xl:col-span-4 space-y-6">
           {/* Combat & Defenses is moved to Column 2 header on 2xl+ */}
-          <div className="hidden 2xl:block">
-            <CombatDefensesCard stats={stats} />
-          </div>
+          {is2xl && <CombatDefensesCard stats={stats} />}
 
           {/* Tab selector */}
           <div className="flex border-b border-stone-800 space-x-2">
@@ -223,19 +203,21 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
             </button>
 
             {/* Voies & Capacités tab button is only shown on screens < 2xl because on 2xl it is permanently in Column 3 */}
-            <button
-              onClick={() => handleSelectTab('abilities')}
-              className={`2xl:hidden px-4 py-2 text-sm font-medium border-b-2 transition flex items-center space-x-2 ${
-                activeTab === 'abilities'
-                  ? 'border-amber-500 text-amber-200'
-                  : 'border-transparent text-stone-400 hover:text-stone-200'
-              }`}
-            >
-              <span>Voies & Capacités</span>
-              <span className="bg-stone-800 text-amber-300 text-xs px-1.5 py-0.2 rounded font-mono">
-                {character.acquiredAbilities.length}
-              </span>
-            </button>
+            {!is2xl && (
+              <button
+                onClick={() => handleSelectTab('abilities')}
+                className={`px-4 py-2 text-sm font-medium border-b-2 transition flex items-center space-x-2 ${
+                  activeTab === 'abilities'
+                    ? 'border-amber-500 text-amber-200'
+                    : 'border-transparent text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                <span>Voies & Capacités</span>
+                <span className="bg-stone-800 text-amber-300 text-xs px-1.5 py-0.2 rounded font-mono">
+                  {character.acquiredAbilities.length}
+                </span>
+              </button>
+            )}
 
             <button
               onClick={() => handleSelectTab('inventory')}
@@ -254,17 +236,15 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
 
           {/* Active Tab rendering */}
           {/* On screens < 2xl, if activeTab is 'abilities', render AbilitiesTab here */}
-          <div className="2xl:hidden">
-            {activeTab === 'abilities' && (
-              <AbilitiesTab
-                character={character}
-                stats={stats}
-                capabilityBudget={capabilityBudget}
-                expandedPaths={expandedPaths}
-                togglePathExpand={togglePathExpand}
-              />
-            )}
-          </div>
+          {!is2xl && activeTab === 'abilities' && (
+            <AbilitiesTab
+              character={character}
+              stats={stats}
+              capabilityBudget={capabilityBudget}
+              expandedPaths={expandedPaths}
+              togglePathExpand={togglePathExpand}
+            />
+          )}
 
           {/* Tab 1: Combat (Armes & Armures) */}
           <div className={activeTab === 'combat' ? 'block' : centerTab === 'combat' ? 'hidden 2xl:block' : 'hidden'}>
@@ -299,27 +279,29 @@ export const CharacterSheetView: React.FC<CharacterSheetViewProps> = ({
         </div>
 
         {/* COLUMN 3: Voies & Capacités (Permanently displayed on 2xl+) */}
-        <div className="hidden 2xl:block 2xl:col-span-5 space-y-4">
-          <div className="bg-stone-900/60 border border-stone-800 rounded-xl p-3 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <h3 className="font-serif font-bold text-amber-200 text-sm">Voies & Capacités du Héros</h3>
-              <span className="bg-stone-800 text-amber-300 text-xs px-2 py-0.5 rounded font-mono">
-                {character.acquiredAbilities.length} acquise{character.acquiredAbilities.length > 1 ? 's' : ''}
-              </span>
+        {is2xl && (
+          <div className="2xl:col-span-5 space-y-4">
+            <div className="bg-stone-900/60 border border-stone-800 rounded-xl p-3 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <h3 className="font-serif font-bold text-amber-200 text-sm">Voies & Capacités du Héros</h3>
+                <span className="bg-stone-800 text-amber-300 text-xs px-2 py-0.5 rounded font-mono">
+                  {character.acquiredAbilities.length} acquise{character.acquiredAbilities.length > 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="text-xs text-stone-400">
+                Budget : <span className="font-mono text-amber-300 font-bold">{capabilityBudget.spent} / {capabilityBudget.totalEarned}</span>
+              </div>
             </div>
-            <div className="text-xs text-stone-400">
-              Budget : <span className="font-mono text-amber-300 font-bold">{capabilityBudget.spent} / {capabilityBudget.totalEarned}</span>
-            </div>
-          </div>
 
-          <AbilitiesTab
-            character={character}
-            stats={stats}
-            capabilityBudget={capabilityBudget}
-            expandedPaths={expandedPaths}
-            togglePathExpand={togglePathExpand}
-          />
-        </div>
+            <AbilitiesTab
+              character={character}
+              stats={stats}
+              capabilityBudget={capabilityBudget}
+              expandedPaths={expandedPaths}
+              togglePathExpand={togglePathExpand}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

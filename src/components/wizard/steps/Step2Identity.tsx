@@ -2,6 +2,7 @@ import React from 'react';
 import { CharacterSheet, PeopleData, ComputedCharacterStats } from '../../../types/cof2';
 import { User, Sparkles, Dices } from 'lucide-react';
 import { LanguageSelectorPanel } from '../../shared/LanguageSelectorPanel';
+import { isSameLanguage } from '../../../utils/uiConstants';
 
 interface Step2IdentityProps {
   character: CharacterSheet;
@@ -32,8 +33,8 @@ export const Step2Identity: React.FC<Step2IdentityProps> = ({
   const currentTalents = character.secondaryTalents || [];
 
   const handleAddLanguage = (lang: string) => {
-    if (currentLanguages.some(l => l.toLowerCase() === lang.toLowerCase())) return;
-    if (languagesInfo.automaticLanguages.some(l => l.toLowerCase() === lang.toLowerCase())) return;
+    if (currentLanguages.some(l => isSameLanguage(l, lang))) return;
+    if (languagesInfo.automaticLanguages.some(l => isSameLanguage(l, lang))) return;
     update({ languages: [...currentLanguages, lang] });
   };
 

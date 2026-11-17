@@ -12,6 +12,7 @@ import {
   getDeityByDomainPathId,
 } from '../../../engine/compendium';
 import { Sparkles } from 'lucide-react';
+import { isSameLanguage } from '../../../utils/uiConstants';
 
 interface BioTabProps {
   character: CharacterSheet;
@@ -253,8 +254,8 @@ export const BioTab: React.FC<BioTabProps> = ({
           intNote={stats.languagesInfo.intNote}
           onAddLanguage={lang => {
             const current = character.languages || [];
-            if (current.some(l => l.toLowerCase() === lang.toLowerCase())) return;
-            if (stats.languagesInfo.automaticLanguages.some(l => l.toLowerCase() === lang.toLowerCase())) return;
+            if (current.some(l => isSameLanguage(l, lang))) return;
+            if (stats.languagesInfo.automaticLanguages.some(l => isSameLanguage(l, lang))) return;
             updateCharacter({ languages: [...current, lang] });
           }}
           onRemoveLanguage={lang => {

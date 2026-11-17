@@ -214,7 +214,7 @@ pub(crate) fn rollback_to_level(
     Ok(computed)
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct CapabilityPointsSummary {
     pub total_earned: i32,
@@ -830,6 +830,37 @@ pub fn calculate_armor_spell_mana_cost(
     }
 
     armor.def
+}
+
+/// Calcule les surcoûts en PM liés à l'armure pour les sorts des voies du personnage.
+pub fn compute_armor_spell_costs(
+    record: &CharacterRecord,
+    rules: &RulesDatabase,
+) -> HashMap<String, i32> {
+    let mut path_ids: HashSet<&str> = record
+        .selected_path_ids
+        .iter()
+        .map(String::as_str)
+        .collect();
+    for acq in &record.acquired_abilities {
+        path_ids.insert(acq.path_id.as_str());
+    }
+
+    let mut costs = HashMap::new();
+    for path_id in path_ids {
+        let Some(pth) = rules.paths.get(path_id) else {
+            continue;
+        };
+        for r in &pth.ranks {
+            if r.is_spell {
+                let cost = calculate_armor_spell_mana_cost(record, path_id, r.rank, rules);
+                if cost > 0 {
+                    costs.insert(format!("{path_id}_{}", r.rank), cost);
+                }
+            }
+        }
+    }
+    costs
 }
 
 pub fn get_level_up_context(

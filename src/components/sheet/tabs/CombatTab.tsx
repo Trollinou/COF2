@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { commands, type EquipmentOptionsResult } from '../../../bindings';
+import React, { useMemo } from 'react';
 import {
   ArmorItem,
   CharacterSheet,
@@ -40,19 +39,7 @@ export const CombatTab: React.FC<CombatTabProps> = ({
   addWeapon,
   removeWeapon,
 }) => {
-  const [equipmentOptions, setEquipmentOptions] = useState<EquipmentOptionsResult | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    commands
-      .getEquipmentOptionsCharacter(character)
-      .then((res) => {
-        if (!cancelled) setEquipmentOptions(res);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [character]);
+  const equipmentOptions = stats.equipmentOptions;
 
   const profileRule = profile?.equipmentRules || {
     maxArmorId: 'chemise-mailles',
