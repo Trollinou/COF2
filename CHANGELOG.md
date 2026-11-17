@@ -1,5 +1,25 @@
 # Changelog
 
+## [Non publié]
+
+### Ajouté
+
+- **Déport des dernières règles de cohérence du Wizard (`crates/cof2-core/src/engine/creation.rs`, `src-tauri/src/commands.rs`)** :
+  - Ajout de `sanitize_wizard_paths`, `select_profile_with_defaults`, `toggle_wizard_profile_path` et `auto_assign_characteristic_array` côté Rust (avec test d'intégration `test_wizard_coherence_functions`), exposés via `tauri-specta`.
+  - Ajout du flag CLI `--export-bindings` sur `cof2-desktop` (`src-tauri/src/lib.rs`) pour régénérer `src/bindings.ts` sans ouvrir de fenêtre graphique.
+
+### Modifié
+
+- **Unification complète des types Rust ↔ TypeScript (`src/bindings.ts`)** :
+  - Introduction de `StatBlock` (struct à 7 champs garantis avec rétrocompatibilité JSON `.cof2`) et des enums typés `WeaponCategory` (`contact` | `distance`) et `EnergyType` (`PM` | `PE`) dans `crates/cof2-core/src/models.rs`.
+  - Ré-export direct des types générés dans `src/types/character.ts` et `src/types/rules.ts`, et suppression des couches de conversion `toCharacterRecord` / `fromCharacterRecord` / `fromComputedSheet` dans `src/engine/rustBridge.ts`.
+  - Nettoyage de `src/hooks/useWizardState.ts` (suppression des vérifications locales dupliquées).
+
+### Corrigé
+
+- **Persistance atomique sous Windows (`crates/cof2-storage/src/lib.rs`)** :
+  - Ajout de `persist_with_retry` (jusqu'à 6 tentatives avec backoff exponentiel sur `ErrorKind::PermissionDenied`) pour absorber les verrous transitoires NTFS lors de remplacements concurrents (`test_concurrent_atomic_saves`).
+
 ## 0.9.5
 
 ### Ajouté
